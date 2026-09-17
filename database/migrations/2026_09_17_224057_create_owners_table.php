@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('owners', function (Blueprint $table) {
             $table->id();
-            $table->string("organizational_role");
-            $table->string("area");
+            $table->string('organizational_role');
+            $table->string('area');
             $table->timestamps();
         });
     }

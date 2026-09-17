@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('mitigations', function (Blueprint $table) {
             $table->id();
-            $table->string("description");
-            $table->string("saeri_category");
+            $table->string('description');
+            $table->string('saeri_category');
             $table->timestamps();
         });
     }

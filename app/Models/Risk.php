@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Database\Factories\RiskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Risk extends Model
 {
-    /** @use HasFactory<\Database\Factories\RiskFactory> */
+    /** @use HasFactory<RiskFactory> */
     use HasFactory;
 }
