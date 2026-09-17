@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Database\Factories\AiSystemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class AiSystem extends Model
 {
-    /** @use HasFactory<\Database\Factories\AiSystemFactory> */
+    /** @use HasFactory<AiSystemFactory> */
     use HasFactory;
 }

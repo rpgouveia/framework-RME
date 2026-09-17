@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('ai_systems', function (Blueprint $table) {
             $table->id();
-            $table->string("name");
-            $table->string("source_type");
-            $table->string("category");
-            $table->date("registration_date");
+            $table->string('name');
+            $table->string('source_type');
+            $table->string('category');
+            $table->date('registration_date');
             $table->timestamps();
         });
     }

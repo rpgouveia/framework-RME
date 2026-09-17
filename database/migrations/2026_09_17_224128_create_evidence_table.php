@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('evidence', function (Blueprint $table) {
             $table->id();
-            $table->string("type");
-            $table->string("description");
-            $table->date("registration_date");
+            $table->string('type');
+            $table->string('description');
+            $table->date('registration_date');
             $table->foreignId('link_id')->constrained('links');
             $table->timestamps();
         });

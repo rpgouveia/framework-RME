@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('status_histories', function (Blueprint $table) {
             $table->id();
-            $table->string("previous_status");
-            $table->string("new_status");
-            $table->date("change_date");
+            $table->string('previous_status');
+            $table->string('new_status');
+            $table->date('change_date');
             $table->foreignId('link_id')->constrained('links');
             $table->foreignId('owner_id')->constrained('owners');
             $table->timestamps();
