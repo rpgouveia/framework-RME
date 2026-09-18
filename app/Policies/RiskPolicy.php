@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Risk;
 use App\Models\User;
 
+/**
+ * Intentionally permissive: any authenticated user may manage risks.
+ *
+ * @todo Replace with role based rules once the team defines how a user maps
+ *       to an owner. Routes are already restricted to verified users.
+ */
 class RiskPolicy
 {
     /**
@@ -12,7 +18,7 @@ class RiskPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -20,7 +26,7 @@ class RiskPolicy
      */
     public function view(User $user, Risk $risk): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +34,7 @@ class RiskPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,7 +42,7 @@ class RiskPolicy
      */
     public function update(User $user, Risk $risk): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -44,7 +50,7 @@ class RiskPolicy
      */
     public function delete(User $user, Risk $risk): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -52,7 +58,7 @@ class RiskPolicy
      */
     public function restore(User $user, Risk $risk): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -60,6 +66,6 @@ class RiskPolicy
      */
     public function forceDelete(User $user, Risk $risk): bool
     {
-        return false;
+        return true;
     }
 }

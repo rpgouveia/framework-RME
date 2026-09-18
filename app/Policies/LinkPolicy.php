@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Link;
 use App\Models\User;
 
+/**
+ * Intentionally permissive: any authenticated user may manage risk/mitigation links.
+ *
+ * @todo Replace with role based rules once the team defines how a user maps
+ *       to an owner. Routes are already restricted to verified users.
+ */
 class LinkPolicy
 {
     /**
@@ -12,7 +18,7 @@ class LinkPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -20,7 +26,7 @@ class LinkPolicy
      */
     public function view(User $user, Link $link): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +34,7 @@ class LinkPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,7 +42,7 @@ class LinkPolicy
      */
     public function update(User $user, Link $link): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -44,7 +50,7 @@ class LinkPolicy
      */
     public function delete(User $user, Link $link): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -52,7 +58,7 @@ class LinkPolicy
      */
     public function restore(User $user, Link $link): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -60,6 +66,6 @@ class LinkPolicy
      */
     public function forceDelete(User $user, Link $link): bool
     {
-        return false;
+        return true;
     }
 }

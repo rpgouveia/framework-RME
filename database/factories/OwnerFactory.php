@@ -18,7 +18,15 @@ class OwnerFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'organizational_role' => fake()->jobTitle(),
+            'area' => fake()->randomElement([
+                'Engenharia',
+                'Produto',
+                'Dados',
+                'Jurídico',
+                'Compliance',
+                'Segurança da Informação',
+            ]),
         ];
     }
 }

@@ -1,5 +1,14 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import {
+    BookOpen,
+    Bot,
+    FolderGit2,
+    LayoutGrid,
+    Link2,
+    ShieldAlert,
+    ShieldCheck,
+    Users,
+} from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -14,6 +23,11 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as aiSystemsIndex } from '@/routes/ai-systems';
+import { index as linksIndex } from '@/routes/links';
+import { index as mitigationsIndex } from '@/routes/mitigations';
+import { index as ownersIndex } from '@/routes/owners';
+import { index as risksIndex } from '@/routes/risks';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -21,6 +35,31 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
+    },
+    {
+        title: 'AI systems',
+        href: aiSystemsIndex(),
+        icon: Bot,
+    },
+    {
+        title: 'Risks',
+        href: risksIndex(),
+        icon: ShieldAlert,
+    },
+    {
+        title: 'Mitigations',
+        href: mitigationsIndex(),
+        icon: ShieldCheck,
+    },
+    {
+        title: 'Links',
+        href: linksIndex(),
+        icon: Link2,
+    },
+    {
+        title: 'Owners',
+        href: ownersIndex(),
+        icon: Users,
     },
 ];
 
