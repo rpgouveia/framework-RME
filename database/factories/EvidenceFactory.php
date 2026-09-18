@@ -2,7 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Enums\EvidenceType;
 use App\Models\Evidence;
+use App\Models\Link;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +20,10 @@ class EvidenceFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'type' => fake()->randomElement(EvidenceType::cases()),
+            'description' => fake()->sentence(),
+            'registration_date' => fake()->dateTimeBetween('-6 months'),
+            'link_id' => Link::factory(),
         ];
     }
 }

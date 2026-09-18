@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\LifecyclePhase;
+use App\Enums\RiskCategory;
+use App\Enums\UncertaintyLevel;
+use App\Models\AiSystem;
 use App\Models\Risk;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +22,21 @@ class RiskFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'description' => fake()->sentence(),
+            'category' => fake()->randomElement(RiskCategory::cases()),
+            'lifecycle_phase' => fake()->randomElement(LifecyclePhase::cases()),
+            'uncertainty_level' => fake()->randomElement(UncertaintyLevel::cases()),
+            'ai_system_id' => AiSystem::factory(),
         ];
+    }
+
+    /**
+     * Indicate that little is known about the risk.
+     */
+    public function highUncertainty(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'uncertainty_level' => UncertaintyLevel::High,
+        ]);
     }
 }

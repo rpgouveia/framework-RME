@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Mitigation;
 use Illuminate\Database\Seeder;
 
 class MitigationSeeder extends Seeder
@@ -11,6 +12,6 @@ class MitigationSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        Mitigation::factory(8)->create();
     }
 }

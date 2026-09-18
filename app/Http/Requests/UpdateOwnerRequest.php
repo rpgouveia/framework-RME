@@ -2,18 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Concerns\OwnerValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateOwnerRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
+    use OwnerValidationRules;
 
     /**
      * Get the validation rules that apply to the request.
@@ -22,8 +17,6 @@ class UpdateOwnerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return $this->ownerRules();
     }
 }

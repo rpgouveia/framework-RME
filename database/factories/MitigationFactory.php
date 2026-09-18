@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SaeriCategory;
 use App\Models\Mitigation;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,8 @@ class MitigationFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'description' => fake()->sentence(),
+            'saeri_category' => fake()->randomElement(SaeriCategory::cases()),
         ];
     }
 }

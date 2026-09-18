@@ -2,18 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Concerns\AiSystemValidationRules;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateAiSystemRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return false;
-    }
+    use AiSystemValidationRules;
 
     /**
      * Get the validation rules that apply to the request.
@@ -22,8 +17,6 @@ class UpdateAiSystemRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+        return $this->aiSystemRules();
     }
 }

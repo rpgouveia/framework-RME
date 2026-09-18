@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Evidence;
 use App\Models\User;
 
+/**
+ * Intentionally permissive: any authenticated user may manage evidence.
+ *
+ * @todo Replace with role based rules once the team defines how a user maps
+ *       to an owner. Routes are already restricted to verified users.
+ */
 class EvidencePolicy
 {
     /**
@@ -12,7 +18,7 @@ class EvidencePolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -20,7 +26,7 @@ class EvidencePolicy
      */
     public function view(User $user, Evidence $evidence): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +34,7 @@ class EvidencePolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,7 +42,7 @@ class EvidencePolicy
      */
     public function update(User $user, Evidence $evidence): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -44,7 +50,7 @@ class EvidencePolicy
      */
     public function delete(User $user, Evidence $evidence): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -52,7 +58,7 @@ class EvidencePolicy
      */
     public function restore(User $user, Evidence $evidence): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -60,6 +66,6 @@ class EvidencePolicy
      */
     public function forceDelete(User $user, Evidence $evidence): bool
     {
-        return false;
+        return true;
     }
 }

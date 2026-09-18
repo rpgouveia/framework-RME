@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Owner;
 use App\Models\User;
 
+/**
+ * Intentionally permissive: any authenticated user may manage owners.
+ *
+ * @todo Replace with role based rules once the team defines how a user maps
+ *       to an owner. Routes are already restricted to verified users.
+ */
 class OwnerPolicy
 {
     /**
@@ -12,7 +18,7 @@ class OwnerPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -20,7 +26,7 @@ class OwnerPolicy
      */
     public function view(User $user, Owner $owner): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -28,7 +34,7 @@ class OwnerPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -36,7 +42,7 @@ class OwnerPolicy
      */
     public function update(User $user, Owner $owner): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -44,7 +50,7 @@ class OwnerPolicy
      */
     public function delete(User $user, Owner $owner): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -52,7 +58,7 @@ class OwnerPolicy
      */
     public function restore(User $user, Owner $owner): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -60,6 +66,6 @@ class OwnerPolicy
      */
     public function forceDelete(User $user, Owner $owner): bool
     {
-        return false;
+        return true;
     }
 }
