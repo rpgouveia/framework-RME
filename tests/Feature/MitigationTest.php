@@ -31,7 +31,7 @@ test('the index lists the mitigation catalogue', function () {
 test('a mitigation can be registered', function () {
     $response = $this->post(route('mitigations.store'), [
         'description' => 'Quarterly fairness audit of the model output',
-        'saeri_category' => SaeriCategory::Organizational->value,
+        'saeri_category' => SaeriCategory::Governance->value,
     ]);
 
     $mitigation = Mitigation::sole();
@@ -39,7 +39,7 @@ test('a mitigation can be registered', function () {
     $response->assertSessionHasNoErrors()->assertRedirect(route('mitigations.show', $mitigation));
 
     expect($mitigation->description)->toBe('Quarterly fairness audit of the model output')
-        ->and($mitigation->saeri_category)->toBe(SaeriCategory::Organizational);
+        ->and($mitigation->saeri_category)->toBe(SaeriCategory::Governance);
 });
 
 test('a mitigation rejects a saeri category outside the enum', function () {
