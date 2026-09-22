@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $updated_at
  * @property-read Collection<int, Risk> $risks
  * @property-read int|null $risks_count
+ * @property-read Collection<int, AdverseEvent> $adverseEvents
+ * @property-read int|null $adverse_events_count
  */
 #[Fillable(['name', 'source_type', 'category', 'registration_date'])]
 class AiSystem extends Model
@@ -39,6 +41,16 @@ class AiSystem extends Model
     public function risks(): HasMany
     {
         return $this->hasMany(Risk::class);
+    }
+
+    /**
+     * The adverse events observed on this system.
+     *
+     * @return HasMany<AdverseEvent, $this>
+     */
+    public function adverseEvents(): HasMany
+    {
+        return $this->hasMany(AdverseEvent::class);
     }
 
     /**

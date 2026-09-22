@@ -5,6 +5,8 @@ import type { EnumOption } from '@/types/models';
 
 type Props = {
     saeriCategories: EnumOption[];
+    costLevels: EnumOption[];
+    uncertaintyLevels: EnumOption[];
 };
 
 export default function MitigationsCreate(props: Props) {

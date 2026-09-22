@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
 use App\Models\Link;
@@ -27,7 +28,7 @@ class LinkFactory extends Factory
         return [
             'lifecycle_phase' => fake()->randomElement(LifecyclePhase::cases()),
             'status' => fake()->randomElement(LinkStatus::cases()),
-            'estimated_cost' => fake()->randomFloat(2, 500, 50000),
+            'estimated_cost' => fake()->randomElement(CostLevel::cases()),
             'observed_cost' => null,
             'creation_date' => $creationDate,
             'next_review_date' => fake()->dateTimeBetween($creationDate, '+1 year'),
@@ -44,7 +45,7 @@ class LinkFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => LinkStatus::Implemented,
-            'observed_cost' => fake()->randomFloat(2, 500, 50000),
+            'observed_cost' => fake()->randomElement(CostLevel::cases()),
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
 use App\Http\Requests\StoreLinkRequest;
@@ -136,6 +137,7 @@ class LinkController extends Controller
             'owners' => Owner::query()->orderBy('organizational_role')->get(),
             'lifecyclePhases' => LifecyclePhase::options(),
             'statuses' => LinkStatus::options(),
+            'costLevels' => CostLevel::options(),
         ];
     }
 }
