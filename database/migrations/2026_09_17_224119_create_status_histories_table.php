@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('status_histories', function (Blueprint $table) {
             $table->id();
-            $table->string('previous_status');
+            $table->string('previous_status')->nullable();
             $table->string('new_status');
+            $table->string('trigger_reason')->nullable();
             $table->date('change_date');
             $table->foreignId('link_id')->constrained('links');
             $table->foreignId('owner_id')->constrained('owners');
+            $table->foreignId('adverse_event_id')->nullable()->constrained('adverse_events');
             $table->timestamps();
         });
     }

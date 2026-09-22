@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\AdverseEventType;
 use App\Enums\AiSystemCategory;
+use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
@@ -13,7 +15,9 @@ use App\Enums\UncertaintyLevel;
 function domainEnums(): array
 {
     return [
+        AdverseEventType::class,
         AiSystemCategory::class,
+        CostLevel::class,
         EvidenceType::class,
         LifecyclePhase::class,
         LinkStatus::class,

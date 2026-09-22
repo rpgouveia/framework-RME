@@ -9,6 +9,7 @@ type Props = {
     owners: Owner[];
     lifecyclePhases: EnumOption[];
     statuses: EnumOption[];
+    costLevels: EnumOption[];
 };
 
 export default function LinksCreate(props: Props) {

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
          */
         $this->call([
             AiSystemSeeder::class,
+            AdverseEventSeeder::class,
             RiskSeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,

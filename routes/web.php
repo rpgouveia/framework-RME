@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdverseEventController;
 use App\Http\Controllers\AiSystemController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\LinkController;
@@ -16,6 +17,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('ai-systems', AiSystemController::class);
     Route::resource('risks', RiskController::class);
+    Route::resource('adverse-events', AdverseEventController::class);
     Route::resource('mitigations', MitigationController::class);
     Route::resource('owners', OwnerController::class);
     Route::resource('links', LinkController::class);

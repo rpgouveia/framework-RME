@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('lifecycle_phase');
             $table->string('status');
-            $table->float('estimated_cost');
-            $table->float('observed_cost')->nullable();
+            $table->string('estimated_cost');
+            $table->string('observed_cost')->nullable();
             $table->date('creation_date');
             $table->date('next_review_date');
             $table->foreignId('risk_id')->constrained('risks');

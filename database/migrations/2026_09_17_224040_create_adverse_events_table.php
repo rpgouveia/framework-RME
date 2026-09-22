@@ -11,15 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mitigations', function (Blueprint $table) {
+        Schema::create('adverse_events', function (Blueprint $table) {
             $table->id();
+            $table->string('event_type');
             $table->text('description');
-            $table->string('saeri_category');
-            $table->text('suggested_target_risk');
-            $table->text('expected_evidence');
-            $table->string('suggested_cost');
-            $table->string('uncertainty_level');
-            $table->string('bibliography_source');
+            $table->date('occurrence_date');
+            $table->foreignId('ai_system_id')->constrained('ai_systems');
             $table->timestamps();
         });
     }
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('mitigations');
+        Schema::dropIfExists('adverse_events');
     }
 };
