@@ -1,0 +1,387 @@
+/* ========================================
+   PÁGINA DE MITIGAÇÕES
+======================================== */
+
+.mitigations-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.mitigations-page section {
+    margin-top: 24px;
+}
+
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.mitigations-header {
+    margin-bottom: 24px;
+}
+
+.mitigations-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.mitigations-title {
+    margin-top: 8px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.mitigations-description {
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   ETAPAS
+======================================== */
+
+.mitigations-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+    font-size: 14px;
+}
+
+.mitigations-step-active {
+    font-weight: 700;
+}
+
+
+/* ========================================
+   CARDS / SEÇÕES
+======================================== */
+
+.mitigations-section {
+    padding: 24px;
+
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+}
+
+.mitigations-section-title {
+    margin-bottom: 20px;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   LABELS
+======================================== */
+
+.mitigations-label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mitigations-required {
+    color: #ef4444;
+}
+
+
+/* ========================================
+   SELECT
+======================================== */
+
+.mitigations-select {
+    width: 100%;
+
+    padding: 12px;
+
+    color: inherit;
+    background: transparent;
+
+    border: 1px solid #52525b;
+    border-radius: 6px;
+}
+
+.mitigations-help {
+    margin-top: 8px;
+
+    font-size: 14px;
+    opacity: 0.65;
+}
+
+
+/* ========================================
+   CATÁLOGO
+======================================== */
+
+.mitigations-catalog-header {
+    display: flex;
+    align-items: center;
+}
+
+
+.mitigations-filter-area {
+    margin-top: 24px;
+}
+
+.mitigations-filter-title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+/* ========================================
+   BOTÕES DE FILTRO
+======================================== */
+
+.mitigations-filters {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 12px;
+}
+
+.mitigations-filter-button {
+    padding: 8px 16px;
+
+    color: inherit;
+    background: transparent;
+
+    border: 1px solid #52525b;
+    border-radius: 999px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s,
+        border-color 0.2s;
+}
+
+.mitigations-filter-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mitigations-filter-button.active {
+    color: #ffffff;
+    background: #28666e;
+    border-color: #28666e;
+}
+
+
+/* ========================================
+   GRID DAS MITIGAÇÕES
+======================================== */
+
+.mitigations-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 16px;
+
+    margin-top: 20px;
+}
+
+
+/* ========================================
+   CARD DE MITIGAÇÃO
+======================================== */
+
+.mitigation-card {
+    width: 100%;
+
+    padding: 20px;
+
+    color: inherit;
+    background: transparent;
+
+    text-align: left;
+
+    border: 1px solid #3f3f46;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s,
+        background 0.2s;
+}
+
+.mitigation-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mitigation-card.selected {
+    border-color: #2f737a;
+
+    box-shadow: 0 0 0 2px #2f737a;
+}
+
+.mitigation-card-title {
+    font-weight: 600;
+}
+
+.mitigation-category {
+    display: inline-block;
+
+    margin-top: 12px;
+
+    padding: 4px 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-transform: uppercase;
+
+    border-radius: 4px;
+
+    background: rgba(47, 115, 122, 0.2);
+}
+
+.mitigation-risk {
+    margin-top: 12px;
+
+    font-size: 14px;
+
+    opacity: 0.7;
+}
+
+.mitigation-cost {
+    margin-top: 12px;
+
+    font-size: 12px;
+
+    opacity: 0.7;
+}
+
+.mitigations-empty {
+    margin-top: 20px;
+
+    font-size: 14px;
+
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   DETALHES DO VÍNCULO
+======================================== */
+
+.mitigations-details-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, 1fr);
+
+    gap: 20px;
+}
+
+
+/* ========================================
+   REGRA DE NEGÓCIO
+======================================== */
+
+.mitigations-rule {
+    padding: 20px;
+
+    font-size: 14px;
+
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.mitigations-rule p + p {
+    margin-top: 12px;
+}
+
+
+/* ========================================
+   BOTÕES FINAIS
+======================================== */
+
+.mitigations-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 12px;
+
+    margin-top: 24px;
+}
+
+.mitigations-back-button,
+.mitigations-save-button {
+    padding: 10px 20px;
+
+    color: inherit;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+.mitigations-back-button {
+    background: transparent;
+
+    border: 1px solid #52525b;
+}
+
+.mitigations-back-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mitigations-save-button {
+    color: white;
+
+    background: #28666e;
+
+    border: 1px solid #28666e;
+}
+
+.mitigations-save-button:hover {
+    background: #347a82;
+}
+
+.mitigations-save-button:disabled {
+    opacity: 0.4;
+
+    cursor: not-allowed;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 768px) {
+    .mitigations-page {
+        padding: 16px;
+    }
+
+    .mitigations-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mitigations-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mitigations-steps {
+        flex-direction: column;
+
+        gap: 8px;
+    }
+}
