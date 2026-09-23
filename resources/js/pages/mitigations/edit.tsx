@@ -13,7 +13,6 @@ import type {
 
 import '../../../css/mitigations.css';
 
-
 type Props = {
     mitigation: Mitigation;
     saeriCategories: EnumOption[];
@@ -21,21 +20,13 @@ type Props = {
     uncertaintyLevels: EnumOption[];
 };
 
-
 export default function MitigationsEdit({
     mitigation,
     saeriCategories,
     costLevels,
     uncertaintyLevels,
 }: Props) {
-
-    const {
-        data,
-        setData,
-        put,
-        processing,
-        errors,
-    } = useForm({
+    const { data, setData, put, processing, errors } = useForm({
         description: mitigation.description ?? '',
         saeri_category: mitigation.saeri_category,
         suggested_target_risk: mitigation.suggested_target_risk ?? '',
@@ -45,63 +36,48 @@ export default function MitigationsEdit({
         bibliography_source: mitigation.bibliography_source ?? '',
     });
 
-
     function submit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
         put(`/mitigations/${mitigation.id}`);
     }
 
-
     return (
         <>
             <Head title="Editar mitigação" />
 
             <main className="mitigations-page">
-
                 {/* CABEÇALHO */}
 
                 <header className="mitigations-header">
-
                     <p className="mitigations-subtitle">
                         Catálogo de mitigações
                     </p>
 
-                    <h1 className="mitigations-title">
-                        Editar mitigação
-                    </h1>
+                    <h1 className="mitigations-title">Editar mitigação</h1>
 
                     <p className="mitigations-description">
                         Atualize as informações da mitigação selecionada.
                     </p>
-
                 </header>
-
 
                 {/* FORMULÁRIO */}
 
                 <form onSubmit={submit}>
-
                     <section className="mitigations-section">
-
                         <h2 className="mitigations-section-title">
                             Informações da mitigação
                         </h2>
 
-
                         {/* DESCRIÇÃO */}
 
                         <div className="mitigations-form-group">
-
                             <label
                                 htmlFor="description"
                                 className="mitigations-label"
                             >
                                 Descrição
-
-                                <span className="mitigations-required">
-                                    {' '}*
-                                </span>
+                                <span className="mitigations-required"> *</span>
                             </label>
 
                             <textarea
@@ -109,10 +85,7 @@ export default function MitigationsEdit({
                                 className="mitigations-input mitigations-textarea"
                                 value={data.description}
                                 onChange={(event) =>
-                                    setData(
-                                        'description',
-                                        event.target.value,
-                                    )
+                                    setData('description', event.target.value)
                                 }
                             />
 
@@ -121,23 +94,17 @@ export default function MitigationsEdit({
                                     {errors.description}
                                 </p>
                             )}
-
                         </div>
-
 
                         {/* CATEGORIA SAERI */}
 
                         <div className="mitigations-form-group">
-
                             <label
                                 htmlFor="saeri_category"
                                 className="mitigations-label"
                             >
                                 Categoria SAERI
-
-                                <span className="mitigations-required">
-                                    {' '}*
-                                </span>
+                                <span className="mitigations-required"> *</span>
                             </label>
 
                             <select
@@ -151,7 +118,6 @@ export default function MitigationsEdit({
                                     )
                                 }
                             >
-
                                 {saeriCategories.map((category) => (
                                     <option
                                         key={category.value}
@@ -160,7 +126,6 @@ export default function MitigationsEdit({
                                         {category.label}
                                     </option>
                                 ))}
-
                             </select>
 
                             {errors.saeri_category && (
@@ -168,14 +133,11 @@ export default function MitigationsEdit({
                                     {errors.saeri_category}
                                 </p>
                             )}
-
                         </div>
-
 
                         {/* RISCO-ALVO SUGERIDO */}
 
                         <div className="mitigations-form-group">
-
                             <label
                                 htmlFor="suggested_target_risk"
                                 className="mitigations-label"
@@ -200,14 +162,11 @@ export default function MitigationsEdit({
                                     {errors.suggested_target_risk}
                                 </p>
                             )}
-
                         </div>
-
 
                         {/* EVIDÊNCIA ESPERADA */}
 
                         <div className="mitigations-form-group">
-
                             <label
                                 htmlFor="expected_evidence"
                                 className="mitigations-label"
@@ -232,26 +191,22 @@ export default function MitigationsEdit({
                                     {errors.expected_evidence}
                                 </p>
                             )}
-
                         </div>
-
 
                         {/* CUSTO E INCERTEZA */}
 
                         <div className="mitigations-details-grid">
-
                             {/* CUSTO SUGERIDO */}
 
                             <div className="mitigations-form-group">
-
                                 <label
                                     htmlFor="suggested_cost"
                                     className="mitigations-label"
                                 >
                                     Custo sugerido
-
                                     <span className="mitigations-required">
-                                        {' '}*
+                                        {' '}
+                                        *
                                     </span>
                                 </label>
 
@@ -266,7 +221,6 @@ export default function MitigationsEdit({
                                         )
                                     }
                                 >
-
                                     {costLevels.map((cost) => (
                                         <option
                                             key={cost.value}
@@ -275,7 +229,6 @@ export default function MitigationsEdit({
                                             {cost.label}
                                         </option>
                                     ))}
-
                                 </select>
 
                                 {errors.suggested_cost && (
@@ -283,22 +236,19 @@ export default function MitigationsEdit({
                                         {errors.suggested_cost}
                                     </p>
                                 )}
-
                             </div>
-
 
                             {/* NÍVEL DE INCERTEZA */}
 
                             <div className="mitigations-form-group">
-
                                 <label
                                     htmlFor="uncertainty_level"
                                     className="mitigations-label"
                                 >
                                     Nível de incerteza
-
                                     <span className="mitigations-required">
-                                        {' '}*
+                                        {' '}
+                                        *
                                     </span>
                                 </label>
 
@@ -309,11 +259,11 @@ export default function MitigationsEdit({
                                     onChange={(event) =>
                                         setData(
                                             'uncertainty_level',
-                                            event.target.value as UncertaintyLevel,
+                                            event.target
+                                                .value as UncertaintyLevel,
                                         )
                                     }
                                 >
-
                                     {uncertaintyLevels.map((level) => (
                                         <option
                                             key={level.value}
@@ -322,7 +272,6 @@ export default function MitigationsEdit({
                                             {level.label}
                                         </option>
                                     ))}
-
                                 </select>
 
                                 {errors.uncertainty_level && (
@@ -330,16 +279,12 @@ export default function MitigationsEdit({
                                         {errors.uncertainty_level}
                                     </p>
                                 )}
-
                             </div>
-
                         </div>
-
 
                         {/* FONTE BIBLIOGRÁFICA */}
 
                         <div className="mitigations-form-group">
-
                             <label
                                 htmlFor="bibliography_source"
                                 className="mitigations-label"
@@ -365,16 +310,12 @@ export default function MitigationsEdit({
                                     {errors.bibliography_source}
                                 </p>
                             )}
-
                         </div>
-
                     </section>
-
 
                     {/* BOTÕES */}
 
                     <div className="mitigations-actions">
-
                         <Link
                             href={index()}
                             className="mitigations-back-button"
@@ -387,20 +328,14 @@ export default function MitigationsEdit({
                             className="mitigations-save-button"
                             disabled={processing}
                         >
-                            {processing
-                                ? 'Salvando...'
-                                : 'Salvar alterações'}
+                            {processing ? 'Salvando...' : 'Salvar alterações'}
                         </button>
-
                     </div>
-
                 </form>
-
             </main>
         </>
     );
 }
-
 
 MitigationsEdit.layout = {
     breadcrumbs: [
