@@ -3,13 +3,10 @@
 ======================================== */
 
 .mitigations-page {
-    max-width: 1000px;
+    width: 100%;
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 24px;
-}
-
-.mitigations-page section {
-    margin-top: 24px;
+    padding: 32px 24px 48px;
 }
 
 
@@ -18,24 +15,33 @@
 ======================================== */
 
 .mitigations-header {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .mitigations-subtitle {
+    margin: 0;
+
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
 }
 
 .mitigations-title {
-    margin-top: 8px;
+    margin: 8px 0 0;
+
     font-size: 30px;
     font-weight: 700;
+    line-height: 1.2;
 }
 
 .mitigations-description {
-    margin-top: 8px;
+    max-width: 900px;
+
+    margin: 12px 0 0;
+
     font-size: 14px;
+    line-height: 1.6;
+
     opacity: 0.7;
 }
 
@@ -47,9 +53,11 @@
 .mitigations-steps {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    align-items: center;
 
-    margin-bottom: 24px;
+    gap: 20px;
+
+    margin-bottom: 28px;
 
     font-size: 14px;
 }
@@ -60,18 +68,25 @@
 
 
 /* ========================================
-   CARDS / SEÇÕES
+   SEÇÕES
 ======================================== */
 
 .mitigations-section {
-    padding: 24px;
+    width: 100%;
+
+    margin-top: 24px;
+    padding: 28px;
 
     border: 1px solid #3f3f46;
     border-radius: 12px;
 }
 
+.mitigations-section:first-child {
+    margin-top: 0;
+}
+
 .mitigations-section-title {
-    margin-bottom: 20px;
+    margin: 0 0 24px;
 
     font-size: 20px;
     font-weight: 600;
@@ -88,7 +103,7 @@
     margin-bottom: 8px;
 
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .mitigations-required {
@@ -97,26 +112,104 @@
 
 
 /* ========================================
-   SELECT
+   INPUTS / SELECTS / TEXTAREA
 ======================================== */
 
+.mitigations-input,
 .mitigations-select {
     width: 100%;
 
-    padding: 12px;
+    padding: 11px 12px;
 
     color: inherit;
-    background: transparent;
+    background-color: transparent;
 
     border: 1px solid #52525b;
     border-radius: 6px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-.mitigations-help {
-    margin-top: 8px;
+.mitigations-input:hover,
+.mitigations-select:hover {
+    border-color: #71717a;
+}
 
-    font-size: 14px;
+.mitigations-input:focus,
+.mitigations-select:focus {
+    border-color: #2f7d86;
+
+    outline: none;
+
+    box-shadow: 0 0 0 2px rgba(47, 125, 134, 0.25);
+}
+
+.mitigations-input::placeholder {
+    color: #a1a1aa;
+}
+
+.mitigations-select {
+    cursor: pointer;
+}
+
+/* Corrige as opções no tema escuro */
+.mitigations-select option {
+    color: #ffffff;
+    background-color: #18181b;
+}
+
+.mitigations-textarea {
+    min-height: 110px;
+
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+
+/* ========================================
+   TEXTO AUXILIAR
+======================================== */
+
+.mitigations-help {
+    margin: 8px 0 0;
+
+    font-size: 13px;
+    line-height: 1.5;
+
     opacity: 0.65;
+}
+
+
+/* ========================================
+   ERROS DO FORMULÁRIO
+======================================== */
+
+.mitigations-error {
+    margin: 6px 0 0;
+
+    color: #ef4444;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* ========================================
+   FORMULÁRIO DE CADASTRO
+======================================== */
+
+.mitigations-form-group {
+    margin-bottom: 24px;
+}
+
+.mitigations-form-group:last-child {
+    margin-bottom: 0;
 }
 
 
@@ -127,21 +220,44 @@
 .mitigations-catalog-header {
     display: flex;
     align-items: center;
+
+    gap: 8px;
 }
 
+.mitigations-catalog-header .mitigations-section-title {
+    margin-bottom: 0;
+}
+
+.mitigations-c2 {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 4px 8px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    border-radius: 4px;
+
+    background: rgba(255, 255, 255, 0.08);
+}
 
 .mitigations-filter-area {
     margin-top: 24px;
 }
 
 .mitigations-filter-title {
+    margin: 4px 0;
+
     font-size: 14px;
     font-weight: 500;
 }
 
 
 /* ========================================
-   BOTÕES DE FILTRO
+   FILTROS DO CATÁLOGO
 ======================================== */
 
 .mitigations-filters {
@@ -150,11 +266,11 @@
 
     gap: 8px;
 
-    margin-top: 12px;
+    margin-top: 14px;
 }
 
 .mitigations-filter-button {
-    padding: 8px 16px;
+    padding: 9px 18px;
 
     color: inherit;
     background: transparent;
@@ -162,19 +278,25 @@
     border: 1px solid #52525b;
     border-radius: 999px;
 
+    font-family: inherit;
+    font-size: 14px;
+
     cursor: pointer;
 
     transition:
-        background 0.2s,
-        border-color 0.2s;
+        background-color 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .mitigations-filter-button:hover {
-    background: rgba(255, 255, 255, 0.08);
+    border-color: #71717a;
+
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .mitigations-filter-button.active {
     color: #ffffff;
+
     background: #28666e;
     border-color: #28666e;
 }
@@ -187,11 +309,11 @@
 .mitigations-grid {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
     gap: 16px;
 
-    margin-top: 20px;
+    margin-top: 22px;
 }
 
 
@@ -201,6 +323,7 @@
 
 .mitigation-card {
     width: 100%;
+    min-height: 170px;
 
     padding: 20px;
 
@@ -215,33 +338,41 @@
     cursor: pointer;
 
     transition:
-        border-color 0.2s,
-        background 0.2s;
+        border-color 0.2s ease,
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .mitigation-card:hover {
+    border-color: #52525b;
+
     background: rgba(255, 255, 255, 0.04);
 }
 
 .mitigation-card.selected {
-    border-color: #2f737a;
+    border-color: #2f7d86;
 
-    box-shadow: 0 0 0 2px #2f737a;
+    background: rgba(47, 125, 134, 0.08);
+
+    box-shadow: 0 0 0 2px rgba(47, 125, 134, 0.5);
 }
 
 .mitigation-card-title {
+    margin: 0;
+
+    font-size: 15px;
     font-weight: 600;
+    line-height: 1.5;
 }
 
 .mitigation-category {
     display: inline-block;
 
     margin-top: 12px;
-
     padding: 4px 8px;
 
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
 
     text-transform: uppercase;
 
@@ -251,15 +382,16 @@
 }
 
 .mitigation-risk {
-    margin-top: 12px;
+    margin: 14px 0 0;
 
     font-size: 14px;
+    line-height: 1.5;
 
     opacity: 0.7;
 }
 
 .mitigation-cost {
-    margin-top: 12px;
+    margin: 12px 0 0;
 
     font-size: 12px;
 
@@ -267,7 +399,7 @@
 }
 
 .mitigations-empty {
-    margin-top: 20px;
+    margin: 20px 0 0;
 
     font-size: 14px;
 
@@ -282,9 +414,9 @@
 .mitigations-details-grid {
     display: grid;
 
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 
-    gap: 20px;
+    gap: 24px;
 }
 
 
@@ -293,14 +425,20 @@
 ======================================== */
 
 .mitigations-rule {
+    margin-top: 24px;
     padding: 20px;
 
     font-size: 14px;
+    line-height: 1.6;
 
     border: 1px solid #3f3f46;
     border-radius: 12px;
 
     background: rgba(255, 255, 255, 0.04);
+}
+
+.mitigations-rule p {
+    margin: 0;
 }
 
 .mitigations-rule p + p {
@@ -315,6 +453,7 @@
 .mitigations-actions {
     display: flex;
 
+    align-items: center;
     justify-content: flex-end;
 
     gap: 12px;
@@ -324,35 +463,56 @@
 
 .mitigations-back-button,
 .mitigations-save-button {
-    padding: 10px 20px;
+    display: inline-flex;
 
-    color: inherit;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 20px;
 
     border-radius: 6px;
 
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+
+    text-decoration: none;
+
     cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
 }
 
 .mitigations-back-button {
+    color: inherit;
+
     background: transparent;
 
     border: 1px solid #52525b;
 }
 
 .mitigations-back-button:hover {
+    border-color: #71717a;
+
     background: rgba(255, 255, 255, 0.08);
 }
 
 .mitigations-save-button {
-    color: white;
+    color: #ffffff;
 
     background: #28666e;
 
     border: 1px solid #28666e;
 }
 
-.mitigations-save-button:hover {
+.mitigations-save-button:hover:not(:disabled) {
     background: #347a82;
+    border-color: #347a82;
 }
 
 .mitigations-save-button:disabled {
@@ -367,21 +527,37 @@
 ======================================== */
 
 @media (max-width: 768px) {
+
     .mitigations-page {
-        padding: 16px;
+        padding: 20px 16px 32px;
     }
 
-    .mitigations-grid {
-        grid-template-columns: 1fr;
+    .mitigations-title {
+        font-size: 24px;
     }
 
+    .mitigations-section {
+        padding: 20px;
+    }
+
+    .mitigations-grid,
     .mitigations-details-grid {
         grid-template-columns: 1fr;
     }
 
     .mitigations-steps {
         flex-direction: column;
+        align-items: flex-start;
 
         gap: 8px;
+    }
+
+    .mitigations-actions {
+        flex-direction: column-reverse;
+    }
+
+    .mitigations-back-button,
+    .mitigations-save-button {
+        width: 100%;
     }
 }
