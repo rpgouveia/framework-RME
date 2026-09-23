@@ -1,0 +1,338 @@
+/* ========================================
+   PÁGINA DE EVIDÊNCIAS
+======================================== */
+
+.evidence-page {
+    width: 100%;
+    max-width: 1100px;
+
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+}
+
+
+/* ========================================
+   CABEÇALHO
+======================================== */
+
+.evidence-header {
+    margin-bottom: 28px;
+}
+
+.evidence-subtitle {
+    margin: 0;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-transform: uppercase;
+}
+
+.evidence-title {
+    margin: 8px 0 0;
+
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.evidence-description {
+    max-width: 900px;
+
+    margin: 12px 0 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   SEÇÕES
+======================================== */
+
+.evidence-section {
+    width: 100%;
+
+    margin-top: 24px;
+    padding: 28px;
+
+    border: 1px solid #3f3f46;
+    border-radius: 12px;
+}
+
+.evidence-section-title {
+    margin: 0 0 24px;
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+
+/* ========================================
+   INFORMAÇÕES DO VÍNCULO
+======================================== */
+
+.evidence-link-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 24px;
+}
+
+.evidence-info {
+    min-width: 0;
+}
+
+.evidence-info-label {
+    display: block;
+
+    margin-bottom: 6px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    opacity: 0.65;
+}
+
+.evidence-info-value {
+    margin: 0;
+
+    font-size: 15px;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ========================================
+   CABEÇALHO DA LISTA
+======================================== */
+
+.evidence-list-header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 22px;
+}
+
+.evidence-list-header .evidence-section-title {
+    margin-bottom: 4px;
+}
+
+.evidence-count {
+    margin: 0;
+
+    font-size: 13px;
+
+    opacity: 0.65;
+}
+
+
+/* ========================================
+   GRID
+======================================== */
+
+.evidence-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+
+/* ========================================
+   CARD
+======================================== */
+
+.evidence-card {
+    display: flex;
+    flex-direction: column;
+
+    min-height: 180px;
+
+    padding: 20px;
+
+    border: 1px solid #3f3f46;
+    border-radius: 8px;
+
+    background: transparent;
+
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.evidence-card:hover {
+    border-color: #52525b;
+
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.evidence-card-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+}
+
+.evidence-type {
+    display: inline-flex;
+
+    padding: 5px 9px;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    border-radius: 4px;
+
+    background: rgba(47, 125, 134, 0.2);
+}
+
+.evidence-id {
+    font-size: 12px;
+
+    opacity: 0.55;
+}
+
+.evidence-card-description {
+    flex: 1;
+
+    margin: 18px 0;
+
+    font-size: 14px;
+    line-height: 1.6;
+
+    overflow-wrap: anywhere;
+}
+
+.evidence-card-footer {
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding-top: 14px;
+
+    font-size: 12px;
+
+    border-top: 1px solid #3f3f46;
+
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   LISTA VAZIA
+======================================== */
+
+.evidence-empty {
+    padding: 32px 20px;
+
+    text-align: center;
+
+    border: 1px dashed #52525b;
+    border-radius: 8px;
+}
+
+.evidence-empty p {
+    margin: 0;
+
+    font-size: 14px;
+
+    opacity: 0.7;
+}
+
+
+/* ========================================
+   BOTÕES
+======================================== */
+
+.evidence-actions {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 24px;
+}
+
+.evidence-back-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 10px 20px;
+
+    color: inherit;
+    background: transparent;
+
+    border: 1px solid #52525b;
+    border-radius: 6px;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.evidence-back-button:hover {
+    border-color: #71717a;
+
+    background: rgba(255, 255, 255, 0.08);
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 768px) {
+
+    .evidence-page {
+        padding: 20px 16px 32px;
+    }
+
+    .evidence-title {
+        font-size: 24px;
+    }
+
+    .evidence-section {
+        padding: 20px;
+    }
+
+    .evidence-link-grid,
+    .evidence-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .evidence-list-header {
+        flex-direction: column;
+    }
+
+    .evidence-card-footer {
+        flex-direction: column;
+
+        gap: 4px;
+    }
+
+    .evidence-back-button {
+        width: 100%;
+    }
+}
