@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,11 +21,18 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
         ]);
 
+        User::factory()->create([
+            'name' => 'test',
+            'email' => 'teste@teste.com',
+            'password' => Hash::make('teste123'),
+        ]);
+
         /*
          * Order matters: every seeder below depends on the ones above it.
          */
         $this->call([
             AiSystemSeeder::class,
+            AdverseEventSeeder::class,
             RiskSeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,

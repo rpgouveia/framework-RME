@@ -1,3 +1,21 @@
+x-app: &app
+    build:
+        context: .
+        dockerfile: docker/Dockerfile
+    working_dir: /var/www/html
+    environment: &app-environment
+        DB_HOST: postgres
+        DB_PORT: 5432
+        DOCKER: 'true'
+        INERTIA_SSR_HOT_URL: http://vite:5173
+    volumes:
+        - .:/var/www/html
+        - node_modules:/var/www/html/node_modules
+    depends_on:
+        setup:
+            condition: service_completed_successfully
+    restart: unless-stopped
+
 services:
     postgres:
         image: postgres:18
@@ -10,6 +28,45 @@ services:
             - '5432:5432'
         volumes:
             - postgres_data:/var/lib/postgresql
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U root -d laravel']
+            interval: 5s
+            timeout: 5s
+            retries: 20
+
+    setup:
+        <<: *app
+        command: ['docker/setup.sh']
+        restart: 'no'
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+    app:
+        <<: *app
+        command: ['php', 'artisan', 'serve', '--host=0.0.0.0', '--port=8000']
+        environment:
+            <<: *app-environment
+            PHP_CLI_SERVER_WORKERS: '4'
+        ports:
+            - '8000:8000'
+
+    vite:
+        <<: *app
+        command: ['npm', 'run', 'dev']
+        ports:
+            - '5173:5173'
+
+    queue:
+        <<: *app
+        command: ['php', 'artisan', 'queue:listen', '--tries=1', '--timeout=0']
+        stop_grace_period: 30s
+
+    logs:
+        <<: *app
+        command: ['php', 'artisan', 'pail', '--timeout=0']
+        tty: true
 
 volumes:
     postgres_data:
+    node_modules:

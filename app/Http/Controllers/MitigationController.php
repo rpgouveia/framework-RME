@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CostLevel;
 use App\Enums\SaeriCategory;
+use App\Enums\UncertaintyLevel;
 use App\Http\Requests\StoreMitigationRequest;
 use App\Http\Requests\UpdateMitigationRequest;
 use App\Models\Mitigation;
@@ -26,6 +28,7 @@ class MitigationController extends Controller
                 ->latest()
                 ->paginate(15)
                 ->withQueryString(),
+            'saeriCategories' => SaeriCategory::options(),
         ]);
     }
 
@@ -36,9 +39,7 @@ class MitigationController extends Controller
     {
         Gate::authorize('create', Mitigation::class);
 
-        return Inertia::render('mitigations/create', [
-            'saeriCategories' => SaeriCategory::options(),
-        ]);
+        return Inertia::render('mitigations/create', $this->formOptions());
     }
 
     /**
@@ -76,7 +77,7 @@ class MitigationController extends Controller
 
         return Inertia::render('mitigations/edit', [
             'mitigation' => $mitigation,
-            'saeriCategories' => SaeriCategory::options(),
+            ...$this->formOptions(),
         ]);
     }
 
@@ -112,5 +113,19 @@ class MitigationController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Mitigation deleted.')]);
 
         return to_route('mitigations.index');
+    }
+
+    /**
+     * Get the select options shared by the create and edit forms.
+     *
+     * @return array<string, mixed>
+     */
+    protected function formOptions(): array
+    {
+        return [
+            'saeriCategories' => SaeriCategory::options(),
+            'costLevels' => CostLevel::options(),
+            'uncertaintyLevels' => UncertaintyLevel::options(),
+        ];
     }
 }

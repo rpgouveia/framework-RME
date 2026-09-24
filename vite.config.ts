@@ -7,6 +7,8 @@ import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
+const inDocker = Boolean(process.env.DOCKER);
+
 export default defineConfig({
     plugins: lazyPlugins(() => [
         laravel({
@@ -29,7 +31,12 @@ export default defineConfig({
         }),
     ]),
     server: {
+        host: inDocker ? '0.0.0.0' : undefined,
+        hmr: inDocker ? { host: 'localhost' } : undefined,
+        allowedHosts: inDocker ? ['vite', 'localhost'] : undefined,
         watch: {
+            usePolling: inDocker,
+            interval: inDocker ? 300 : undefined,
             ignored: [
                 '**/.agents/**',
                 '**/.claude/**',

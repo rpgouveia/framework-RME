@@ -2,6 +2,7 @@
 
 namespace App\Concerns;
 
+use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
 use App\Models\Mitigation;
@@ -22,8 +23,8 @@ trait LinkValidationRules
         return [
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
             'status' => ['required', Rule::enum(LinkStatus::class)],
-            'estimated_cost' => ['required', 'numeric', 'min:0'],
-            'observed_cost' => ['nullable', 'numeric', 'min:0'],
+            'estimated_cost' => ['required', Rule::enum(CostLevel::class)],
+            'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
             'creation_date' => ['required', 'date'],
             'next_review_date' => ['required', 'date', 'after_or_equal:creation_date'],
             'risk_id' => ['required', 'integer', Rule::exists(Risk::class, 'id')],

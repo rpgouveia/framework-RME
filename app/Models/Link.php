@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
 use Carbon\CarbonImmutable;
@@ -22,8 +23,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property LifecyclePhase $lifecycle_phase
  * @property LinkStatus $status
- * @property float $estimated_cost
- * @property float|null $observed_cost
+ * @property CostLevel $estimated_cost
+ * @property CostLevel|null $observed_cost
  * @property CarbonImmutable $creation_date
  * @property CarbonImmutable $next_review_date
  * @property int $risk_id
@@ -115,8 +116,8 @@ class Link extends Model
         return [
             'lifecycle_phase' => LifecyclePhase::class,
             'status' => LinkStatus::class,
-            'estimated_cost' => 'float',
-            'observed_cost' => 'float',
+            'estimated_cost' => CostLevel::class,
+            'observed_cost' => CostLevel::class,
             'creation_date' => 'date',
             'next_review_date' => 'date',
         ];
