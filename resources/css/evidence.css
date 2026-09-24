@@ -53,18 +53,16 @@
 .evidence-section {
     margin-bottom: 24px;
     padding: 24px;
-
     background: #0d0f13;
-
     border: 1px solid #30343b;
     border-radius: 12px;
 }
 
 .evidence-section h2 {
     margin: 0 0 18px;
+    color: #f3f4f6;
     font-size: 18px;
     font-weight: 600;
-    color: #f3f4f6;
 }
 
 /* =========================================================
@@ -99,7 +97,7 @@
 }
 
 /* =========================================================
-   INDEX - LISTAGEM DE EVIDÊNCIAS
+   INDEX - LISTAGEM
 ========================================================= */
 
 .evidence-list {
@@ -110,12 +108,9 @@
 
 .evidence-card {
     padding: 18px;
-
     background: #111318;
-
     border: 1px solid #30343b;
     border-radius: 10px;
-
     transition:
         border-color 0.2s ease,
         background 0.2s ease;
@@ -131,7 +126,6 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-
     margin-bottom: 12px;
 }
 
@@ -144,15 +138,11 @@
 .evidence-type {
     display: inline-flex;
     align-items: center;
-
     padding: 5px 9px;
-
     color: #c7d2fe;
     background: rgb(99 102 241 / 12%);
-
     border: 1px solid rgb(129 140 248 / 25%);
     border-radius: 6px;
-
     font-size: 12px;
     font-weight: 600;
 }
@@ -164,9 +154,7 @@
 
 .evidence-card-description {
     margin: 0 0 14px;
-
     color: #d1d5db;
-
     font-size: 14px;
     line-height: 1.6;
 }
@@ -176,9 +164,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-
     padding-top: 12px;
-
     border-top: 1px solid #272b32;
 }
 
@@ -193,11 +179,8 @@
 
 .evidence-empty {
     padding: 40px 20px;
-
     color: #8b93a1;
-
     text-align: center;
-
     border: 1px dashed #343942;
     border-radius: 10px;
 }
@@ -221,36 +204,23 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     min-height: 42px;
     padding: 10px 18px;
-
     border: 1px solid transparent;
     border-radius: 8px;
-
     font-family: inherit;
     font-size: 14px;
     font-weight: 600;
-
     text-decoration: none;
     cursor: pointer;
-
     transition:
         background 0.2s ease,
         border-color 0.2s ease,
+        color 0.2s ease,
         opacity 0.2s ease;
 }
 
-.evidence-button-secondary {
-    color: #d1d5db;
-    background: transparent;
-    border-color: #3c424c;
-}
-
-.evidence-button-secondary:hover {
-    background: #181b21;
-    border-color: #555d69;
-}
+/* Primário */
 
 .evidence-button-primary {
     color: #ffffff;
@@ -263,152 +233,51 @@
     border-color: #4338ca;
 }
 
+/* Secundário */
+
+.evidence-button-secondary {
+    color: #d1d5db;
+    background: transparent;
+    border-color: #3c424c;
+}
+
+.evidence-button-secondary:hover {
+    background: #181b21;
+    border-color: #555d69;
+}
+
+/* Visualizar */
+
+.evidence-button-view {
+    color: #c7d2fe;
+    background: rgb(99 102 241 / 10%);
+    border-color: #4f46e5;
+}
+
+.evidence-button-view:hover {
+    color: #ffffff;
+    background: #4f46e5;
+}
+
+/* Deletar */
+
+.evidence-button-danger {
+    color: #fca5a5;
+    background: transparent;
+    border-color: #7f1d1d;
+}
+
+.evidence-button-danger:hover {
+    color: #ffffff;
+    background: #991b1b;
+    border-color: #991b1b;
+}
+
+/* Desabilitado */
+
 .evidence-button:disabled {
     opacity: 0.55;
     cursor: not-allowed;
-}
-
-/* =========================================================
-   CREATE - CABEÇALHO
-========================================================= */
-
-.evidence-create .evidence-header {
-    margin-bottom: 28px;
-}
-
-/* =========================================================
-   CREATE - VÍNCULO RELACIONADO
-========================================================= */
-
-.evidence-create .evidence-link-grid > div {
-    min-height: 86px;
-    padding: 14px 16px;
-
-    background: #111318;
-
-    border: 1px solid #303640;
-    border-radius: 8px;
-}
-
-.evidence-create .evidence-link-grid span {
-    margin-bottom: 2px;
-}
-
-/* =========================================================
-   CREATE - FORMULÁRIO
-========================================================= */
-
-.evidence-create .evidence-form {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-}
-
-.evidence-create .evidence-form h2 {
-    margin-bottom: 2px;
-}
-
-.evidence-create .evidence-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    width: 100%;
-}
-
-.evidence-create .evidence-field label {
-    color: #e5e7eb;
-
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.evidence-create .evidence-field input,
-.evidence-create .evidence-field select,
-.evidence-create .evidence-field textarea {
-    width: 100%;
-
-    padding: 12px 14px;
-
-    color: #f3f4f6;
-    background: #111318;
-
-    border: 1px solid #3b414b;
-    border-radius: 8px;
-
-    font-family: inherit;
-    font-size: 14px;
-
-    outline: none;
-
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.2s ease;
-}
-
-.evidence-create .evidence-field input:hover,
-.evidence-create .evidence-field select:hover,
-.evidence-create .evidence-field textarea:hover {
-    border-color: #505866;
-}
-
-.evidence-create .evidence-field input:focus,
-.evidence-create .evidence-field select:focus,
-.evidence-create .evidence-field textarea:focus {
-    background: #14171d;
-    border-color: #818cf8;
-    box-shadow: 0 0 0 3px rgb(129 140 248 / 10%);
-}
-
-.evidence-create .evidence-field input,
-.evidence-create .evidence-field select {
-    min-height: 46px;
-}
-
-.evidence-create .evidence-field select {
-    cursor: pointer;
-}
-
-.evidence-create .evidence-field textarea {
-    min-height: 130px;
-
-    line-height: 1.6;
-
-    resize: vertical;
-}
-
-.evidence-create .evidence-field input::placeholder,
-.evidence-create .evidence-field textarea::placeholder {
-    color: #737b88;
-}
-
-.evidence-create .evidence-field input[type='date'] {
-    color-scheme: dark;
-}
-
-/* =========================================================
-   CREATE - ERROS
-========================================================= */
-
-.evidence-create .evidence-error {
-    margin: 0;
-
-    color: #f87171;
-
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-/* =========================================================
-   CREATE - BOTÕES
-========================================================= */
-
-.evidence-create .evidence-actions {
-    margin-top: 4px;
-    padding-top: 20px;
-
-    border-top: 1px solid #292e36;
 }
 
 /* =========================================================
@@ -429,29 +298,160 @@
     font-size: 13px;
 }
 
-/* Visualizar */
-.evidence-button-view {
-    color: #c7d2fe;
-    background: rgb(99 102 241 / 10%);
-    border: 1px solid #4f46e5;
+/* =========================================================
+   CREATE + EDIT - VÍNCULO
+========================================================= */
+
+.evidence-create .evidence-link-grid > div,
+.evidence-edit .evidence-link-grid > div {
+    min-height: 86px;
+    padding: 14px 16px;
+    background: #111318;
+    border: 1px solid #303640;
+    border-radius: 8px;
 }
 
-.evidence-button-view:hover {
-    color: #ffffff;
-    background: #4f46e5;
+.evidence-create .evidence-link-grid span,
+.evidence-edit .evidence-link-grid span {
+    margin-bottom: 2px;
 }
 
-/* Deletar */
-.evidence-button-danger {
-    color: #fca5a5;
-    background: transparent;
-    border: 1px solid #7f1d1d;
+/* =========================================================
+   CREATE + EDIT - FORMULÁRIO
+========================================================= */
+
+.evidence-create .evidence-form,
+.evidence-edit .evidence-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
 }
 
-.evidence-button-danger:hover {
-    color: #ffffff;
-    background: #991b1b;
-    border-color: #991b1b;
+.evidence-create .evidence-form h2,
+.evidence-edit .evidence-form h2 {
+    margin-bottom: 2px;
+}
+
+.evidence-create .evidence-field,
+.evidence-edit .evidence-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.evidence-create .evidence-field label,
+.evidence-edit .evidence-field label {
+    color: #e5e7eb;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.evidence-create .evidence-field input,
+.evidence-create .evidence-field select,
+.evidence-create .evidence-field textarea,
+.evidence-edit .evidence-field input,
+.evidence-edit .evidence-field select,
+.evidence-edit .evidence-field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    color: #f3f4f6;
+    background: #111318;
+    border: 1px solid #3b414b;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+/* Hover */
+
+.evidence-create .evidence-field input:hover,
+.evidence-create .evidence-field select:hover,
+.evidence-create .evidence-field textarea:hover,
+.evidence-edit .evidence-field input:hover,
+.evidence-edit .evidence-field select:hover,
+.evidence-edit .evidence-field textarea:hover {
+    border-color: #505866;
+}
+
+/* Focus */
+
+.evidence-create .evidence-field input:focus,
+.evidence-create .evidence-field select:focus,
+.evidence-create .evidence-field textarea:focus,
+.evidence-edit .evidence-field input:focus,
+.evidence-edit .evidence-field select:focus,
+.evidence-edit .evidence-field textarea:focus {
+    background: #14171d;
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgb(129 140 248 / 10%);
+}
+
+/* Inputs e selects */
+
+.evidence-create .evidence-field input,
+.evidence-create .evidence-field select,
+.evidence-edit .evidence-field input,
+.evidence-edit .evidence-field select {
+    min-height: 46px;
+}
+
+.evidence-create .evidence-field select,
+.evidence-edit .evidence-field select {
+    cursor: pointer;
+}
+
+/* Textarea */
+
+.evidence-create .evidence-field textarea,
+.evidence-edit .evidence-field textarea {
+    min-height: 130px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+/* Placeholder */
+
+.evidence-create .evidence-field input::placeholder,
+.evidence-create .evidence-field textarea::placeholder,
+.evidence-edit .evidence-field input::placeholder,
+.evidence-edit .evidence-field textarea::placeholder {
+    color: #737b88;
+}
+
+/* Data */
+
+.evidence-create .evidence-field input[type='date'],
+.evidence-edit .evidence-field input[type='date'] {
+    color-scheme: dark;
+}
+
+/* =========================================================
+   CREATE + EDIT - ERROS
+========================================================= */
+
+.evidence-create .evidence-error,
+.evidence-edit .evidence-error {
+    margin: 0;
+    color: #f87171;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   CREATE + EDIT - AÇÕES
+========================================================= */
+
+.evidence-create .evidence-actions,
+.evidence-edit .evidence-actions {
+    margin-top: 4px;
+    padding-top: 20px;
+    border-top: 1px solid #292e36;
 }
 
 /* =========================================================
@@ -468,29 +468,23 @@
     display: flex;
     flex-direction: column;
     gap: 7px;
-
     min-height: 82px;
     padding: 15px 16px;
-
     background: #111318;
-
     border: 1px solid #303640;
     border-radius: 8px;
 }
 
 .evidence-show .evidence-show-item span {
     color: #8b93a1;
-
     font-size: 12px;
     font-weight: 600;
-
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
 .evidence-show .evidence-show-item strong {
     color: #f3f4f6;
-
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
@@ -498,21 +492,17 @@
 
 .evidence-show .evidence-show-description {
     margin: 0;
-
     padding: 16px;
-
     color: #d1d5db;
     background: #111318;
-
     border: 1px solid #303640;
     border-radius: 8px;
-
     font-size: 14px;
     line-height: 1.7;
 }
 
 /* =========================================================
-   RESPONSIVIDADE
+   RESPONSIVIDADE - TABLET
 ========================================================= */
 
 @media (max-width: 900px) {
@@ -520,10 +510,15 @@
         padding: 24px;
     }
 
-    .evidence-link-grid {
+    .evidence-link-grid,
+    .evidence-show .evidence-show-grid {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================================
+   RESPONSIVIDADE - CELULAR
+========================================================= */
 
 @media (max-width: 600px) {
     .evidence-page {
@@ -538,18 +533,33 @@
         padding: 18px;
     }
 
+    /* Cards do index */
+
     .evidence-card-header,
     .evidence-card-footer {
         align-items: flex-start;
         flex-direction: column;
     }
 
-    .evidence-create .evidence-actions {
+    .evidence-card-actions {
+        width: 100%;
+        gap: 10px;
+    }
+
+    .evidence-card-actions .evidence-button {
+        flex: 1;
+    }
+
+    /* Create e Edit */
+
+    .evidence-create .evidence-actions,
+    .evidence-edit .evidence-actions {
         align-items: stretch;
         flex-direction: column-reverse;
     }
 
-    .evidence-create .evidence-button {
+    .evidence-create .evidence-button,
+    .evidence-edit .evidence-button {
         width: 100%;
     }
 }
