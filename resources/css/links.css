@@ -516,6 +516,101 @@
 }
 
 /* =========================================================
+   LINKS - EDIT
+========================================================= */
+
+.links-edit-header {
+    margin-bottom: 28px;
+}
+
+.links-edit-header h1 {
+    margin: 4px 0 8px;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.links-edit-header p {
+    max-width: 680px;
+    margin: 0;
+    color: #9ca3af;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.links-edit-form {
+    width: 100%;
+}
+
+.links-edit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.links-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.links-edit-field label {
+    color: #d1d5db;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.links-edit-field select,
+.links-edit-field input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+
+    color: #f3f4f6;
+    background: #111318;
+
+    border: 1px solid #3c424c;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.links-edit-field select:focus,
+.links-edit-field input:focus {
+    background: #14171d;
+    border-color: #6366f1;
+}
+
+.links-edit-field select option {
+    color: #f3f4f6;
+    background: #111318;
+}
+
+.links-edit-error {
+    color: #fca5a5;
+    font-size: 12px;
+}
+
+.links-edit-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.links-edit-actions button:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* =========================================================
    AÇÕES
 ========================================================= */
 
@@ -572,6 +667,19 @@
     }
 
     .links-management-card .links-button {
+        width: 100%;
+    }
+
+    .links-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .links-edit-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .links-edit-actions .links-button {
         width: 100%;
     }
 }
