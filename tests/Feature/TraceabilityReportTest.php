@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\CompileTraceabilityReport;
+use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LinkStatus;
 use App\Models\AiSystem;
@@ -92,17 +93,17 @@ test('the csv report has one row per link with the evidence joined', function ()
         ->and(substr_count($row['evidence'], ' | '))->toBe(1);
 });
 
-test('the csv report neutralises formulas and uses comma decimals', function () {
+test('the csv report neutralises formulas and exports the cost levels', function () {
     $aiSystem = AiSystem::factory()->create();
     Link::factory()
         ->for(Risk::factory()->for($aiSystem)->state(['description' => '=HYPERLINK("http://evil.test")']))
-        ->create(['estimated_cost' => 12000.5, 'observed_cost' => null]);
+        ->create(['estimated_cost' => CostLevel::High, 'observed_cost' => null]);
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
     $row = array_combine($rows[0], $rows[1]);
 
     expect($row['risk_description'])->toBe('\'=HYPERLINK("http://evil.test")')
-        ->and($row['estimated_cost'])->toBe('12000,50')
+        ->and($row['estimated_cost'])->toBe('high')
         ->and($row['observed_cost'])->toBe('');
 });
 
