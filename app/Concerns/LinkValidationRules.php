@@ -26,7 +26,6 @@ trait LinkValidationRules
             'estimated_cost' => ['required', Rule::enum(CostLevel::class)],
             'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
             'creation_date' => ['required', 'date'],
-            'next_review_date' => ['required', 'date', 'after_or_equal:creation_date'],
             'risk_id' => ['required', 'integer', Rule::exists(Risk::class, 'id')],
             'mitigation_id' => ['required', 'integer', Rule::exists(Mitigation::class, 'id')],
             'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')],
