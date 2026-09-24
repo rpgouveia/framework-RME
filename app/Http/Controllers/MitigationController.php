@@ -28,6 +28,7 @@ class MitigationController extends Controller
                 ->latest()
                 ->paginate(15)
                 ->withQueryString(),
+            'saeriCategories' => SaeriCategory::options(),
         ]);
     }
 

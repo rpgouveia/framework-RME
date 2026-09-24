@@ -22,7 +22,7 @@ function mitigationPayload(array $overrides = []): array
 {
     return array_merge([
         'description' => 'Quarterly fairness audit of the model output',
-        'saeri_category' => SaeriCategory::Organizational->value,
+        'saeri_category' => SaeriCategory::Governance->value,
         'suggested_target_risk' => 'Discriminatory outcomes for protected groups',
         'expected_evidence' => 'Signed audit report with the disparity metrics',
         'suggested_cost' => CostLevel::Medium->value,
@@ -57,7 +57,7 @@ test('a mitigation can be registered with its catalogue entry', function () {
     $response->assertSessionHasNoErrors()->assertRedirect(route('mitigations.show', $mitigation));
 
     expect($mitigation->description)->toBe('Quarterly fairness audit of the model output')
-        ->and($mitigation->saeri_category)->toBe(SaeriCategory::Organizational)
+        ->and($mitigation->saeri_category)->toBe(SaeriCategory::Governance)
         ->and($mitigation->suggested_cost)->toBe(CostLevel::Medium)
         ->and($mitigation->uncertainty_level)->toBe(UncertaintyLevel::Low)
         ->and($mitigation->bibliography_source)->toBe('SAERI framework, section 4.2');

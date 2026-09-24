@@ -1,17 +1,26 @@
 import { Head } from '@inertiajs/react';
 import { useState } from 'react';
 import { index } from '@/routes/mitigations';
-import type { Mitigation, Paginated, SaeriCategory } from '@/types/models';
+import type {
+    EnumOption,
+    Mitigation,
+    Paginated,
+    SaeriCategory,
+} from '@/types/models';
 
 import '../../../css/mitigations.css';
 
 type Props = {
     mitigations: Paginated<Mitigation>;
+    saeriCategories: EnumOption[];
 };
 
 type FiltroCategoria = SaeriCategory | 'all';
 
-export default function MitigationsIndex({ mitigations }: Props) {
+export default function MitigationsIndex({
+    mitigations,
+    saeriCategories,
+}: Props) {
     const [categoria, setCategoria] = useState<FiltroCategoria>('all');
 
     const [mitigacaoSelecionada, setMitigacaoSelecionada] = useState<
@@ -139,57 +148,24 @@ export default function MitigationsIndex({ mitigations }: Props) {
                                 Todas
                             </button>
 
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'technical' ? 'active' : ''
-                                }`}
-                                onClick={() => setCategoria('technical')}
-                            >
-                                Técnica
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'organizational'
-                                        ? 'active'
-                                        : ''
-                                }`}
-                                onClick={() => setCategoria('organizational')}
-                            >
-                                Organizacional
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'regulatory' ? 'active' : ''
-                                }`}
-                                onClick={() => setCategoria('regulatory')}
-                            >
-                                Regulatória
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'ethical' ? 'active' : ''
-                                }`}
-                                onClick={() => setCategoria('ethical')}
-                            >
-                                Ética
-                            </button>
-
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'educational' ? 'active' : ''
-                                }`}
-                                onClick={() => setCategoria('educational')}
-                            >
-                                Educacional
-                            </button>
+                            {saeriCategories.map((category) => (
+                                <button
+                                    key={category.value}
+                                    type="button"
+                                    className={`mitigations-filter-button ${
+                                        categoria === category.value
+                                            ? 'active'
+                                            : ''
+                                    }`}
+                                    onClick={() =>
+                                        setCategoria(
+                                            category.value as SaeriCategory,
+                                        )
+                                    }
+                                >
+                                    {category.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
 

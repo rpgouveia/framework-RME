@@ -48,11 +48,10 @@ export type AdverseEventType =
     | 'service_disruption';
 
 export type SaeriCategory =
+    | 'governance'
     | 'technical'
-    | 'organizational'
-    | 'regulatory'
-    | 'ethical'
-    | 'educational';
+    | 'process'
+    | 'transparency';
 
 export type LinkStatus =
     | 'planned'
