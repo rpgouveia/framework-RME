@@ -343,6 +343,110 @@
 }
 
 /* =========================================================
+   SHOW - ALTERAÇÃO DE STATUS
+========================================================= */
+
+.status-history-show-change {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 20px;
+}
+
+.status-history-show-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    min-height: 90px;
+    padding: 16px;
+
+    background: #111318;
+
+    border: 1px solid #303640;
+    border-radius: 8px;
+}
+
+.status-history-show-status span,
+.status-history-show-item span {
+    color: #8b93a1;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.status-history-show-status strong {
+    color: #f3f4f6;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.status-history-show-arrow {
+    color: #818cf8;
+
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   SHOW - INFORMAÇÕES
+========================================================= */
+
+.status-history-show-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.status-history-show-item {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    min-height: 82px;
+    padding: 15px 16px;
+
+    background: #111318;
+
+    border: 1px solid #303640;
+    border-radius: 8px;
+}
+
+.status-history-show-item strong {
+    color: #f3f4f6;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   SHOW - MOTIVO
+========================================================= */
+
+.status-history-show-reason {
+    padding: 16px;
+
+    background: #111318;
+
+    border: 1px solid #303640;
+    border-radius: 8px;
+}
+
+.status-history-show-reason p {
+    margin: 0;
+
+    color: #d1d5db;
+
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* =========================================================
    RESPONSIVIDADE
 ========================================================= */
 
