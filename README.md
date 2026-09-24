@@ -299,15 +299,24 @@ docker/
 compose.yml            every service of the development stack
 ```
 
+## Periodic reassessment
+
+A link's `next_review_date` is computed when the link is created: the creation
+date plus the review periodicity of `config/rme.php`, which defaults to 180 days
+and is overridden with `RME_REVIEW_INTERVAL_DAYS`. The date is only editable
+afterwards, so a review that happened can push the next one forward.
+
+`links:flag-due-for-review` lists the links whose review date has arrived and
+logs a warning with their count. It only reports: no status changes, no history
+rows, so every state change still has a person behind it. The schedule runs it
+daily at 07:00, and nothing runs the scheduler by itself — start it with
+`php artisan schedule:work`, or trigger the command by hand:
+
+```bash
+php artisan links:flag-due-for-review
+```
+
 ## Not implemented yet
-
-Two capabilities from the solution architecture have no code behind them:
-
-- **Traceability report** — exporting a system's full risk → mitigation →
-  evidence chain.
-- **Periodic reassessment** — a scheduled job acting on `links.next_review_date`
-  (the `dueForReview()` factory state already produces overdue links to develop
-  against).
 
 Adverse events are recorded and can be named as the trigger of a status change,
 but nothing reacts to one yet: registering an event does not reopen or reassess
