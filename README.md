@@ -90,11 +90,12 @@ The app is on http://localhost:8000 and the Vite dev server on
 http://localhost:5173. The first `up` builds the image and installs both
 dependency trees, so it takes a few minutes; later ones start in seconds.
 
-Sign in with the seeded account:
+Sign in with one of the seeded accounts:
 
 | Email              | Password   |
 | ------------------ | ---------- |
 | `test@example.com` | `password` |
+| `teste@teste.com`  | `teste123` |
 
 ## Database
 
