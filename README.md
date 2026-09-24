@@ -82,13 +82,12 @@ cd framework-RME
 
 cp .env.example .env       # the DB_* defaults already match compose.yml
 docker compose up -d       # database + app + vite + queue + logs
-
-docker compose exec app php artisan db:seed   # sample portfolio to develop against
 ```
 
 The app is on http://localhost:8000 and the Vite dev server on
-http://localhost:5173. The first `up` builds the image and installs both
-dependency trees, so it takes a few minutes; later ones start in seconds.
+http://localhost:5173. The first `up` builds the image, installs both
+dependency trees and seeds a sample portfolio to develop against, so it takes
+a few minutes; later ones start in seconds.
 
 Sign in with one of the seeded accounts:
 
@@ -132,14 +131,14 @@ SQLite connection.
 `docker compose up -d` runs the processes of `composer dev`, each as its own
 service:
 
-| Service    | Command                                     | What it is                                  |
-| ---------- | ------------------------------------------- | ------------------------------------------- |
-| `postgres` | —                                           | PostgreSQL 18 on :5432                      |
-| `setup`    | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations |
-| `app`      | `php artisan serve` → http://localhost:8000 | `composer dev` › server                     |
-| `vite`     | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)           |
-| `queue`    | `php artisan queue:listen`                  | `composer dev` › queue (the worker)         |
-| `logs`     | `php artisan pail`                          | `composer dev` › logs                       |
+| Service    | Command                                     | What it is                                              |
+| ---------- | ------------------------------------------- | ------------------------------------------------------- |
+| `postgres` | —                                           | PostgreSQL 18 on :5432                                  |
+| `setup`    | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations, first seed |
+| `app`      | `php artisan serve` → http://localhost:8000 | `composer dev` › server                                 |
+| `vite`     | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)                       |
+| `queue`    | `php artisan queue:listen`                  | `composer dev` › queue (the worker)                     |
+| `logs`     | `php artisan pail`                          | `composer dev` › logs                                   |
 
 ```bash
 docker compose up -d                  # start everything
@@ -164,7 +163,8 @@ Worth knowing:
   touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
   reinstalls.
 - **`setup` runs on every `up`** and is idempotent — it installs what is
-  missing and migrates.
+  missing, migrates, and seeds only when the database holds no users, so your
+  data survives a restart.
 - **Both the containers and `composer dev` bind :8000 and :5173**, so run one
   or the other, not both.
 
