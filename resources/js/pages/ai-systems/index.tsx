@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 import Heading from '@/components/heading';
 import { Badge } from '@/components/ui/badge';
@@ -89,7 +89,17 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                 </TableHeader>
                 <TableBody>
                     {systems.map((system) => (
-                        <TableRow key={system.id}>
+                        <TableRow
+                            key={system.id}
+                            className="cursor-pointer"
+                            onClick={(e) => {
+                                // Let inner links (nome, editar) navigate on their own.
+                                if ((e.target as HTMLElement).closest('a, button')) {
+                                    return;
+                                }
+                                router.visit(show(system.id));
+                            }}
+                        >
                             <TableCell className="font-medium">
                                 <Link
                                     href={show(system.id)}

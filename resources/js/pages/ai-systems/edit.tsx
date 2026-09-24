@@ -1,7 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
 import Heading from '@/components/heading';
-import { index, show } from '@/routes/ai-systems';
+import { index } from '@/routes/ai-systems';
 import type { AiSystem, EnumOption } from '@/types/models';
 import { AiSystemForm } from './form';
 
@@ -36,7 +36,7 @@ export default function AiSystemsEdit({
                             errors={errors}
                             processing={processing}
                             submitLabel="Salvar"
-                            cancelHref={show(aiSystem.id)}
+                            cancelHref={index()}
                             aiSystem={aiSystem}
                         />
                     )}
