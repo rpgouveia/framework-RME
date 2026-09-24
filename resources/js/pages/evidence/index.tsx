@@ -1,15 +1,13 @@
-import { Head, Link as InertiaLink } from '@inertiajs/react';
+import { Head, Link as InertiaLink, router } from '@inertiajs/react';
 import { index } from '@/routes/links';
-import type {Evidence,EvidenceType,Link,Paginated,} from '@/types/models';
+import type { Evidence, EvidenceType, Link, Paginated } from '@/types/models';
 
 import '../../../css/evidence.css';
-
 
 type Props = {
     link: Link;
     evidence: Paginated<Evidence>;
 };
-
 
 const evidenceTypeLabels: Record<EvidenceType, string> = {
     document: 'Documento',
@@ -20,220 +18,180 @@ const evidenceTypeLabels: Record<EvidenceType, string> = {
     meeting_minutes: 'Ata de reunião',
 };
 
-
-export default function EvidenceIndex({
-    link,
-    evidence,
-}: Props) {
-
-    function formatDate(date: string) {
-        return new Date(`${date}T00:00:00`).toLocaleDateString('pt-BR');
+function formatDate(date: string | null | undefined) {
+    if (!date) {
+        return 'Data não informada';
     }
 
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+        return date;
+    }
+
+    return parsedDate.toLocaleDateString('pt-BR', {
+        timeZone: 'UTC',
+    });
+}
+
+export default function EvidenceIndex({ link, evidence }: Props) {
+    function deleteEvidence(evidenceId: number) {
+        const confirmed = window.confirm(
+            'Tem certeza que deseja excluir esta evidência?',
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        router.delete(`/evidence/${evidenceId}`);
+    }
 
     return (
         <>
             <Head title="Evidências" />
 
             <main className="evidence-page">
-
-                {/* CABEÇALHO */}
-
                 <header className="evidence-header">
+                    <div>
+                        <span className="evidence-eyebrow">
+                            Vínculo #{link.id}
+                        </span>
 
-                    <p className="evidence-subtitle">
-                        Evidências
-                    </p>
+                        <h1>Evidências do vínculo</h1>
 
-                    <h1 className="evidence-title">
-                        Evidências do vínculo
-                    </h1>
+                        <p>
+                            Evidências registradas para este vínculo entre risco
+                            e mitigação.
+                        </p>
+                    </div>
 
-                    <p className="evidence-description">
-                        Consulte as evidências registradas para
-                        este vínculo entre risco e mitigação.
-                    </p>
-
+                    <InertiaLink
+                        href={`/links/${link.id}/evidence/create`}
+                        className="evidence-button evidence-button-primary"
+                    >
+                        Nova evidência
+                    </InertiaLink>
                 </header>
 
-
-                {/* INFORMAÇÕES DO VÍNCULO */}
-
                 <section className="evidence-section">
-
-                    <h2 className="evidence-section-title">
-                        Vínculo #{link.id}
-                    </h2>
+                    <h2>Informações do vínculo</h2>
 
                     <div className="evidence-link-grid">
+                        <div>
+                            <span>Risco</span>
 
-                        <div className="evidence-info">
-
-                            <span className="evidence-info-label">
-                                Risco
-                            </span>
-
-                            <p className="evidence-info-value">
+                            <strong>
                                 {link.risk?.description ??
                                     `Risco #${link.risk_id}`}
-                            </p>
-
+                            </strong>
                         </div>
-
-
-                        <div className="evidence-info">
-
-                            <span className="evidence-info-label">
-                                Mitigação
-                            </span>
-
-                            <p className="evidence-info-value">
-                                {link.mitigation?.description ??
-                                    `Mitigação #${link.mitigation_id}`}
-                            </p>
-
-                        </div>
-
-
-                        <div className="evidence-info">
-
-                            <span className="evidence-info-label">
-                                Status
-                            </span>
-
-                            <p className="evidence-info-value">
-                                {link.status}
-                            </p>
-
-                        </div>
-
-
-                        <div className="evidence-info">
-
-                            <span className="evidence-info-label">
-                                Responsável
-                            </span>
-
-                            <p className="evidence-info-value">
-                                {link.owner?.organizational_role ??
-                                    `Responsável #${link.owner_id}`}
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                {/* LISTA DE EVIDÊNCIAS */}
-
-                <section className="evidence-section">
-
-                    <div className="evidence-list-header">
 
                         <div>
-                            <h2 className="evidence-section-title">
-                                Evidências registradas
-                            </h2>
+                            <span>Mitigação</span>
 
-                            <p className="evidence-count">
-                                {evidence.total} evidência(s)
-                            </p>
+                            <strong>
+                                {link.mitigation?.description ??
+                                    `Mitigação #${link.mitigation_id}`}
+                            </strong>
                         </div>
 
-                    </div>
+                        <div>
+                            <span>Status</span>
 
+                            <strong>{link.status}</strong>
+                        </div>
+
+                        <div>
+                            <span>Responsável</span>
+
+                            <strong>
+                                {link.owner?.organizational_role ??
+                                    `Responsável #${link.owner_id}`}
+                            </strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section className="evidence-section">
+                    <h2>Evidências registradas</h2>
 
                     {evidence.data.length > 0 ? (
-
-                        <div className="evidence-grid">
-
+                        <div className="evidence-list">
                             {evidence.data.map((item) => (
-
                                 <article
-                                    key={item.id}
                                     className="evidence-card"
+                                    key={item.id}
                                 >
-
                                     <div className="evidence-card-header">
+                                        <div>
+                                            <span className="evidence-type">
+                                                {evidenceTypeLabels[
+                                                    item.type
+                                                ] ?? item.type}
+                                            </span>
 
-                                        <span className="evidence-type">
-                                            {evidenceTypeLabels[item.type]}
-                                        </span>
-
-                                        <span className="evidence-id">
-                                            #{item.id}
-                                        </span>
-
+                                            <span className="evidence-id">
+                                                #{item.id}
+                                            </span>
+                                        </div>
                                     </div>
-
 
                                     <p className="evidence-card-description">
                                         {item.description}
                                     </p>
 
-
                                     <div className="evidence-card-footer">
-
                                         <span>
-                                            Registrada em
+                                            Registrada em{' '}
+                                            {formatDate(item.registration_date)}
                                         </span>
 
-                                        <strong>
-                                            {formatDate(
-                                                item.registration_date,
-                                            )}
-                                        </strong>
+                                        <div className="evidence-card-actions">
+                                            <InertiaLink
+                                                href={`/evidence/${item.id}/edit`}
+                                                className="evidence-button evidence-button-secondary"
+                                            >
+                                                Editar
+                                            </InertiaLink>
 
+                                            <button
+                                                type="button"
+                                                className="evidence-button evidence-button-danger"
+                                                onClick={() =>
+                                                    deleteEvidence(item.id)
+                                                }
+                                            >
+                                                Deletar
+                                            </button>
+                                        </div>
                                     </div>
-
                                 </article>
-
                             ))}
-
                         </div>
-
                     ) : (
-
                         <div className="evidence-empty">
-
                             <p>
-                                Nenhuma evidência foi registrada
-                                para este vínculo.
+                                Nenhuma evidência foi registrada para este
+                                vínculo.
                             </p>
-
                         </div>
-
                     )}
-
                 </section>
 
-
-                {/* BOTÕES */}
-
                 <div className="evidence-actions">
-
                     <InertiaLink
-                        href={index()}
-                        className="evidence-back-button"
+                        href="/links"
+                        className="evidence-button evidence-button-secondary"
                     >
                         Voltar para vínculos
                     </InertiaLink>
-
                 </div>
-
             </main>
         </>
     );
 }
 
-
 EvidenceIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Links',
-            href: index(),
-        },
-    ],
+    breadcrumbs: [{ title: 'Links', href: index() }],
 };

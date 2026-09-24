@@ -1,338 +1,455 @@
-/* ========================================
-   PÁGINA DE EVIDÊNCIAS
-======================================== */
+/* =========================================================
+   EVIDENCE - ESTILOS COMPARTILHADOS
+========================================================= */
 
 .evidence-page {
     width: 100%;
-    max-width: 1100px;
-
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 32px 24px 48px;
+    padding: 32px;
+    color: #f3f4f6;
 }
 
-
-/* ========================================
+/* =========================================================
    CABEÇALHO
-======================================== */
+========================================================= */
 
 .evidence-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
     margin-bottom: 28px;
 }
 
-.evidence-subtitle {
-    margin: 0;
-
-    font-size: 12px;
-    font-weight: 700;
-
-    text-transform: uppercase;
-}
-
-.evidence-title {
-    margin: 8px 0 0;
-
-    font-size: 30px;
+.evidence-header h1 {
+    margin: 4px 0 8px;
+    font-size: 28px;
     font-weight: 700;
     line-height: 1.2;
 }
 
-.evidence-description {
-    max-width: 900px;
-
-    margin: 12px 0 0;
-
+.evidence-header p {
+    margin: 0;
+    color: #9ca3af;
     font-size: 14px;
     line-height: 1.6;
-
-    opacity: 0.7;
 }
 
+.evidence-eyebrow {
+    display: block;
+    margin-bottom: 4px;
+    color: #818cf8;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
 
-/* ========================================
+/* =========================================================
    SEÇÕES
-======================================== */
+========================================================= */
 
 .evidence-section {
-    width: 100%;
+    margin-bottom: 24px;
+    padding: 24px;
 
-    margin-top: 24px;
-    padding: 28px;
+    background: #0d0f13;
 
-    border: 1px solid #3f3f46;
+    border: 1px solid #30343b;
     border-radius: 12px;
 }
 
-.evidence-section-title {
-    margin: 0 0 24px;
-
-    font-size: 20px;
+.evidence-section h2 {
+    margin: 0 0 18px;
+    font-size: 18px;
     font-weight: 600;
+    color: #f3f4f6;
 }
 
-
-/* ========================================
+/* =========================================================
    INFORMAÇÕES DO VÍNCULO
-======================================== */
+========================================================= */
 
 .evidence-link-grid {
     display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
-    gap: 24px;
-}
-
-.evidence-info {
-    min-width: 0;
-}
-
-.evidence-info-label {
-    display: block;
-
-    margin-bottom: 6px;
-
-    font-size: 13px;
-    font-weight: 600;
-
-    opacity: 0.65;
-}
-
-.evidence-info-value {
-    margin: 0;
-
-    font-size: 15px;
-    line-height: 1.6;
-
-    overflow-wrap: anywhere;
-}
-
-
-/* ========================================
-   CABEÇALHO DA LISTA
-======================================== */
-
-.evidence-list-header {
-    display: flex;
-
-    align-items: flex-start;
-    justify-content: space-between;
-
-    gap: 20px;
-
-    margin-bottom: 22px;
-}
-
-.evidence-list-header .evidence-section-title {
-    margin-bottom: 4px;
-}
-
-.evidence-count {
-    margin: 0;
-
-    font-size: 13px;
-
-    opacity: 0.65;
-}
-
-
-/* ========================================
-   GRID
-======================================== */
-
-.evidence-grid {
-    display: grid;
-
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
 }
 
-
-/* ========================================
-   CARD
-======================================== */
-
-.evidence-card {
+.evidence-link-grid > div {
     display: flex;
     flex-direction: column;
+    gap: 7px;
+}
 
-    min-height: 180px;
+.evidence-link-grid span {
+    color: #8b93a1;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
 
-    padding: 20px;
+.evidence-link-grid strong {
+    color: #f3f4f6;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+}
 
-    border: 1px solid #3f3f46;
-    border-radius: 8px;
+/* =========================================================
+   INDEX - LISTAGEM DE EVIDÊNCIAS
+========================================================= */
 
-    background: transparent;
+.evidence-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.evidence-card {
+    padding: 18px;
+
+    background: #111318;
+
+    border: 1px solid #30343b;
+    border-radius: 10px;
 
     transition:
         border-color 0.2s ease,
-        background-color 0.2s ease;
+        background 0.2s ease;
 }
 
 .evidence-card:hover {
-    border-color: #52525b;
-
-    background: rgba(255, 255, 255, 0.04);
+    background: #14171d;
+    border-color: #444a55;
 }
 
 .evidence-card-header {
     display: flex;
-
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 
-    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.evidence-card-header > div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .evidence-type {
     display: inline-flex;
+    align-items: center;
 
     padding: 5px 9px;
 
-    font-size: 11px;
-    font-weight: 700;
+    color: #c7d2fe;
+    background: rgb(99 102 241 / 12%);
 
-    border-radius: 4px;
+    border: 1px solid rgb(129 140 248 / 25%);
+    border-radius: 6px;
 
-    background: rgba(47, 125, 134, 0.2);
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .evidence-id {
+    color: #6b7280;
     font-size: 12px;
-
-    opacity: 0.55;
 }
 
 .evidence-card-description {
-    flex: 1;
+    margin: 0 0 14px;
 
-    margin: 18px 0;
+    color: #d1d5db;
 
     font-size: 14px;
     line-height: 1.6;
-
-    overflow-wrap: anywhere;
 }
 
 .evidence-card-footer {
     display: flex;
-
+    align-items: center;
     justify-content: space-between;
+    gap: 16px;
 
-    gap: 12px;
+    padding-top: 12px;
 
-    padding-top: 14px;
-
-    font-size: 12px;
-
-    border-top: 1px solid #3f3f46;
-
-    opacity: 0.7;
+    border-top: 1px solid #272b32;
 }
 
+.evidence-card-footer span {
+    color: #8b93a1;
+    font-size: 12px;
+}
 
-/* ========================================
-   LISTA VAZIA
-======================================== */
+/* =========================================================
+   INDEX - ESTADO VAZIO
+========================================================= */
 
 .evidence-empty {
-    padding: 32px 20px;
+    padding: 40px 20px;
+
+    color: #8b93a1;
 
     text-align: center;
 
-    border: 1px dashed #52525b;
-    border-radius: 8px;
+    border: 1px dashed #343942;
+    border-radius: 10px;
 }
 
 .evidence-empty p {
     margin: 0;
-
-    font-size: 14px;
-
-    opacity: 0.7;
 }
 
-
-/* ========================================
-   BOTÕES
-======================================== */
+/* =========================================================
+   BOTÕES COMPARTILHADOS
+========================================================= */
 
 .evidence-actions {
     display: flex;
-
+    align-items: center;
     justify-content: flex-end;
-
-    margin-top: 24px;
+    gap: 12px;
 }
 
-.evidence-back-button {
+.evidence-button {
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
 
     min-height: 42px;
+    padding: 10px 18px;
 
-    padding: 10px 20px;
+    border: 1px solid transparent;
+    border-radius: 8px;
 
-    color: inherit;
-    background: transparent;
-
-    border: 1px solid #52525b;
-    border-radius: 6px;
-
+    font-family: inherit;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
 
     text-decoration: none;
+    cursor: pointer;
 
     transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease;
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
 }
 
-.evidence-back-button:hover {
-    border-color: #71717a;
-
-    background: rgba(255, 255, 255, 0.08);
+.evidence-button-secondary {
+    color: #d1d5db;
+    background: transparent;
+    border-color: #3c424c;
 }
 
+.evidence-button-secondary:hover {
+    background: #181b21;
+    border-color: #555d69;
+}
 
-/* ========================================
+.evidence-button-primary {
+    color: #ffffff;
+    background: #4f46e5;
+    border-color: #4f46e5;
+}
+
+.evidence-button-primary:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+}
+
+.evidence-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   CREATE - CABEÇALHO
+========================================================= */
+
+.evidence-create .evidence-header {
+    margin-bottom: 28px;
+}
+
+/* =========================================================
+   CREATE - VÍNCULO RELACIONADO
+========================================================= */
+
+.evidence-create .evidence-link-grid > div {
+    min-height: 86px;
+    padding: 14px 16px;
+
+    background: #111318;
+
+    border: 1px solid #303640;
+    border-radius: 8px;
+}
+
+.evidence-create .evidence-link-grid span {
+    margin-bottom: 2px;
+}
+
+/* =========================================================
+   CREATE - FORMULÁRIO
+========================================================= */
+
+.evidence-create .evidence-form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.evidence-create .evidence-form h2 {
+    margin-bottom: 2px;
+}
+
+.evidence-create .evidence-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    width: 100%;
+}
+
+.evidence-create .evidence-field label {
+    color: #e5e7eb;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.evidence-create .evidence-field input,
+.evidence-create .evidence-field select,
+.evidence-create .evidence-field textarea {
+    width: 100%;
+
+    padding: 12px 14px;
+
+    color: #f3f4f6;
+    background: #111318;
+
+    border: 1px solid #3b414b;
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+}
+
+.evidence-create .evidence-field input:hover,
+.evidence-create .evidence-field select:hover,
+.evidence-create .evidence-field textarea:hover {
+    border-color: #505866;
+}
+
+.evidence-create .evidence-field input:focus,
+.evidence-create .evidence-field select:focus,
+.evidence-create .evidence-field textarea:focus {
+    background: #14171d;
+    border-color: #818cf8;
+    box-shadow: 0 0 0 3px rgb(129 140 248 / 10%);
+}
+
+.evidence-create .evidence-field input,
+.evidence-create .evidence-field select {
+    min-height: 46px;
+}
+
+.evidence-create .evidence-field select {
+    cursor: pointer;
+}
+
+.evidence-create .evidence-field textarea {
+    min-height: 130px;
+
+    line-height: 1.6;
+
+    resize: vertical;
+}
+
+.evidence-create .evidence-field input::placeholder,
+.evidence-create .evidence-field textarea::placeholder {
+    color: #737b88;
+}
+
+.evidence-create .evidence-field input[type='date'] {
+    color-scheme: dark;
+}
+
+/* =========================================================
+   CREATE - ERROS
+========================================================= */
+
+.evidence-create .evidence-error {
+    margin: 0;
+
+    color: #f87171;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   CREATE - BOTÕES
+========================================================= */
+
+.evidence-create .evidence-actions {
+    margin-top: 4px;
+    padding-top: 20px;
+
+    border-top: 1px solid #292e36;
+}
+
+/* =========================================================
    RESPONSIVIDADE
-======================================== */
+========================================================= */
 
-@media (max-width: 768px) {
-
+@media (max-width: 900px) {
     .evidence-page {
-        padding: 20px 16px 32px;
+        padding: 24px;
     }
 
-    .evidence-title {
-        font-size: 24px;
+    .evidence-link-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .evidence-page {
+        padding: 18px;
+    }
+
+    .evidence-header {
+        flex-direction: column;
     }
 
     .evidence-section {
-        padding: 20px;
+        padding: 18px;
     }
 
-    .evidence-link-grid,
-    .evidence-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .evidence-list-header {
-        flex-direction: column;
-    }
-
+    .evidence-card-header,
     .evidence-card-footer {
+        align-items: flex-start;
         flex-direction: column;
-
-        gap: 4px;
     }
 
-    .evidence-back-button {
+    .evidence-create .evidence-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .evidence-create .evidence-button {
         width: 100%;
     }
 }
