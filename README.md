@@ -68,10 +68,11 @@ router.
 
 ## Requirements
 
-- PHP 8.5 with the `pdo_pgsql` extension
-- Composer 2
-- Node 22+
-- Docker (for the PostgreSQL container)
+Docker is the only requirement — the whole stack runs in containers.
+
+To run the app on the host instead (`composer dev`), you also need PHP 8.5 with
+the `pdo_pgsql` extension, Composer 2 and Node 22+; Docker then only serves the
+database.
 
 ## Quick start
 
@@ -80,13 +81,14 @@ git clone <repo-url> framework-RME
 cd framework-RME
 
 cp .env.example .env       # the DB_* defaults already match compose.yml
-docker compose up -d       # starts PostgreSQL 18 on :5432
+docker compose up -d       # database + app + vite + queue + logs
 
-composer setup             # install + key:generate + migrate + npm install + npm run build
-php artisan db:seed        # sample portfolio to develop against
-
-composer dev               # http://localhost:8000
+docker compose exec app php artisan db:seed   # sample portfolio to develop against
 ```
+
+The app is on http://localhost:8000 and the Vite dev server on
+http://localhost:5173. The first `up` builds the image and installs both
+dependency trees, so it takes a few minutes; later ones start in seconds.
 
 Sign in with the seeded account:
 
@@ -96,8 +98,8 @@ Sign in with the seeded account:
 
 ## Database
 
-`compose.yml` runs a single PostgreSQL 18 service. Its credentials match the
-`DB_*` values in `.env.example`, so no configuration is needed:
+The `postgres` service in `compose.yml` runs PostgreSQL 18. Its credentials
+match the `DB_*` values in `.env.example`, so no configuration is needed:
 
 |                 |                                                  |
 | --------------- | ------------------------------------------------ |
@@ -107,33 +109,73 @@ Sign in with the seeded account:
 | Volume          | `postgres_data` (survives `docker compose down`) |
 
 ```bash
-docker compose up -d                  # start
+docker compose up -d postgres         # the database on its own
 docker compose down                   # stop, keeping the data
-docker compose down -v                # stop and wipe the volume
+docker compose down -v                # stop and wipe the volume (and node_modules)
 
-php artisan migrate                   # apply new migrations
-php artisan migrate:fresh --seed      # drop everything and reseed
-docker compose exec postgres psql -U root -d laravel   # a psql shell
+docker compose exec app php artisan migrate               # apply new migrations
+docker compose exec app php artisan migrate:fresh --seed  # drop everything and reseed
+docker compose exec postgres psql -U root -d laravel      # a psql shell
 ```
+
+Drop `docker compose exec app` from those Artisan calls when you work on the
+host — the container and the host share the same database.
 
 Tests never touch this database — `phpunit.xml` points them at an in-memory
 SQLite connection.
 
 ## Development
 
+### In containers
+
+`docker compose up -d` runs the processes of `composer dev`, each as its own
+service:
+
+| Service    | Command                                     | What it is                                  |
+| ---------- | ------------------------------------------- | ------------------------------------------- |
+| `postgres` | —                                           | PostgreSQL 18 on :5432                      |
+| `setup`    | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations |
+| `app`      | `php artisan serve` → http://localhost:8000 | `composer dev` › server                     |
+| `vite`     | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)           |
+| `queue`    | `php artisan queue:listen`                  | `composer dev` › queue (the worker)         |
+| `logs`     | `php artisan pail`                          | `composer dev` › logs                       |
+
 ```bash
+docker compose up -d                  # start everything
+docker compose logs -f app vite       # follow a few services
+docker compose logs -f logs           # the pail stream
+docker compose exec app bash          # a shell with php, composer, node and npm
+docker compose down                   # stop everything
+docker compose up -d --build          # rebuild after editing docker/Dockerfile
+```
+
+Everything runs off the bind-mounted working tree, so edits on the host apply
+immediately — Vite polls for changes because bind mounts do not forward
+filesystem events.
+
+Worth knowing:
+
+- **`queue` is the worker**: `queue:listen` reloads the code on every job, so
+  a changed job class takes effect without restarting the container. Swap it
+  for `queue:work` if you want the production behaviour instead.
+- **`node_modules` is a named volume**, not the host directory: the container
+  installs the Linux builds of Rollup, Tailwind Oxide and lightningcss without
+  touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
+  reinstalls.
+- **`setup` runs on every `up`** and is idempotent — it installs what is
+  missing and migrates.
+- **Both the containers and `composer dev` bind :8000 and :5173**, so run one
+  or the other, not both.
+
+### On the host
+
+```bash
+docker compose up -d postgres
+composer setup                        # install + key:generate + migrate + npm install + npm run build
 composer dev
 ```
 
-This runs four processes together (see `php artisan dev:list`):
-
-| Process  | Command                                     |
-| -------- | ------------------------------------------- |
-| `server` | `php artisan serve` → http://localhost:8000 |
-| `vite`   | `npm run dev` (HMR)                         |
-| `queue`  | `php artisan queue:listen`                  |
-| `logs`   | `php artisan pail`                          |
-
+This runs the same four processes in one terminal (see `php artisan dev:list`).
 Run `npm run dev` on its own if you only need the asset server.
 
 > **`Unable to locate file in Vite manifest`** means the frontend has not been
@@ -203,6 +245,9 @@ php artisan test --compact tests/Feature/LinkTest.php
 vendor/bin/pest --filter="a link can be created"
 ```
 
+Prefix them with `docker compose exec app` to run them in the container; the
+same goes for the quality commands below.
+
 Each entity has a feature test in `tests/Feature/` covering the guest
 redirect, the listing, creation, validation failures, updates and deletion.
 CI runs the same suite against its own PostgreSQL service
@@ -246,6 +291,11 @@ resources/js/
 ├── pages/             one directory per entity, mapped to Inertia::render()
 ├── routes/            generated by Wayfinder — do not edit
 └── types/models.ts    TypeScript mirror of the models and enums
+
+docker/
+├── Dockerfile         the dev image: PHP 8.5 + Node 22 + Composer
+└── setup.sh           what the `setup` service runs on every `up`
+compose.yml            every service of the development stack
 ```
 
 ## Not implemented yet
