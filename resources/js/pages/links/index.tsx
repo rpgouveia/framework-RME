@@ -1,6 +1,6 @@
 import { Head, Link as InertiaLink } from '@inertiajs/react';
 import { index } from '@/routes/links';
-import type {Link,LinkStatus,Paginated,} from '@/types/models';
+import type { Link, LinkStatus, Paginated } from '@/types/models';
 
 import '../../../css/links.css';
 
@@ -45,9 +45,7 @@ export default function LinksIndex({ links }: Props) {
             <main className="links-page">
                 <header className="links-header">
                     <div>
-                        <span className="links-eyebrow">
-                            Gestão de riscos
-                        </span>
+                        <span className="links-eyebrow">Gestão de riscos</span>
 
                         <h1>Vínculos</h1>
 
@@ -71,19 +69,14 @@ export default function LinksIndex({ links }: Props) {
                         <div>
                             <h2>Vínculos registrados</h2>
 
-                            <p>
-                                Ordenados pela próxima data de revisão.
-                            </p>
+                            <p>Ordenados pela próxima data de revisão.</p>
                         </div>
                     </div>
 
                     {links.data.length > 0 ? (
                         <div className="links-list">
                             {links.data.map((link) => (
-                                <article
-                                    className="link-card"
-                                    key={link.id}
-                                >
+                                <article className="link-card" key={link.id}>
                                     <div className="link-card-header">
                                         <span className="link-id">
                                             Vínculo #{link.id}
@@ -110,8 +103,7 @@ export default function LinksIndex({ links }: Props) {
                                             <span>Mitigação</span>
 
                                             <strong>
-                                                {link.mitigation
-                                                    ?.description ??
+                                                {link.mitigation?.description ??
                                                     `Mitigação #${link.mitigation_id}`}
                                             </strong>
                                         </div>
@@ -159,9 +151,7 @@ export default function LinksIndex({ links }: Props) {
                                         <div>
                                             <span>
                                                 Criado em{' '}
-                                                {formatDate(
-                                                    link.creation_date,
-                                                )}
+                                                {formatDate(link.creation_date)}
                                             </span>
                                         </div>
 
@@ -179,9 +169,7 @@ export default function LinksIndex({ links }: Props) {
                         </div>
                     ) : (
                         <div className="links-empty">
-                            <p>
-                                Nenhum vínculo foi registrado.
-                            </p>
+                            <p>Nenhum vínculo foi registrado.</p>
                         </div>
                     )}
                 </section>
