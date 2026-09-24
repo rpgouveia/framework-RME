@@ -65,7 +65,7 @@ class AiSystemController extends Controller
         Gate::authorize('view', $aiSystem);
 
         return Inertia::render('ai-systems/show', [
-            'aiSystem' => $aiSystem->load('risks'),
+            'aiSystem' => $aiSystem->load(['risks' => fn ($query) => $query->withCount('links'),]),
         ]);
     }
 
