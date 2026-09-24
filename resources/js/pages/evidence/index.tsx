@@ -149,6 +149,13 @@ export default function EvidenceIndex({ link, evidence }: Props) {
 
                                         <div className="evidence-card-actions">
                                             <InertiaLink
+                                                href={`/evidence/${item.id}`}
+                                                className="evidence-button evidence-button-view"
+                                            >
+                                                Visualizar
+                                            </InertiaLink>
+
+                                            <InertiaLink
                                                 href={`/evidence/${item.id}/edit`}
                                                 className="evidence-button evidence-button-secondary"
                                             >
