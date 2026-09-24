@@ -27,4 +27,9 @@ fi
 echo '==> running migrations'
 php artisan migrate --force
 
+if [ "$(php artisan tinker --execute 'echo App\Models\User::count();' | tr -d '[:space:]')" = '0' ]; then
+    echo '==> seeding an empty database'
+    php artisan db:seed --force
+fi
+
 echo '==> ready'
