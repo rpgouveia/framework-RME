@@ -2,8 +2,8 @@
 
 A web application for managing the risks of AI systems: it keeps a registry of
 the AI systems an organization runs, the risks identified for each one, the
-mitigations that address those risks, who is accountable for them, and the
-evidence proving they are in place.
+adverse events they actually caused, the mitigations that address those risks,
+who is accountable for them, and the evidence proving they are in place.
 
 Applied research project — PUCPR.
 
@@ -11,33 +11,42 @@ Applied research project — PUCPR.
 
 ```mermaid
 erDiagram
-    AI_SYSTEM   ||--o{ RISK           : "is exposed to"
-    RISK        ||--o{ LINK           : "is addressed by"
-    MITIGATION  ||--o{ LINK           : "is applied through"
-    OWNER       ||--o{ LINK           : "is accountable for"
-    LINK        ||--o{ STATUS_HISTORY : "changes through"
-    LINK        ||--o{ EVIDENCE       : "is proven by"
-    OWNER       ||--o{ STATUS_HISTORY : "records"
+    AI_SYSTEM     ||--o{ RISK           : "is exposed to"
+    AI_SYSTEM     ||--o{ ADVERSE_EVENT  : "suffers"
+    RISK          ||--o{ LINK           : "is addressed by"
+    MITIGATION    ||--o{ LINK           : "is applied through"
+    OWNER         ||--o{ LINK           : "is accountable for"
+    LINK          ||--o{ STATUS_HISTORY : "changes through"
+    LINK          ||--o{ EVIDENCE       : "is proven by"
+    OWNER         ||--o{ STATUS_HISTORY : "records"
+    ADVERSE_EVENT ||--o{ STATUS_HISTORY : "triggers"
 ```
 
 | Entity          | Table              | What it holds                                                                                         |
 | --------------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
 | `AiSystem`      | `ai_systems`       | An AI system in the portfolio: name, source type, category, registration date.                        |
 | `Risk`          | `risks`            | A risk identified for one system: description, category, lifecycle phase, uncertainty level.          |
-| `Mitigation`    | `mitigations`      | A reusable mitigation measure and its SAERI category.                                                 |
+| `AdverseEvent`  | `adverse_events`   | Something that went wrong on a system in production: type, description, date.                         |
+| `Mitigation`    | `mitigations`      | The reusable catalogue entry: measure, SAERI category, target risk, expected evidence, cost, source.  |
 | `Owner`         | `owners`           | The organizational role accountable for a mitigation, and its area.                                   |
 | `Link`          | `links`            | **The core entity.** Applies one mitigation to one risk under one owner, with cost, dates and status. |
-| `StatusHistory` | `status_histories` | The audit trail of status changes on a link.                                                          |
+| `StatusHistory` | `status_histories` | The audit trail of status changes on a link, and what triggered each one.                             |
 | `Evidence`      | `evidence`         | An artifact proving a link is in place.                                                               |
 
 Every classification field is a PHP backed enum in [`app/Enums`](app/Enums),
 cast on the model and validated with `Rule::enum()`. The columns are plain
 strings, so changing an enum needs no migration.
 
+Cost is one of those enums: `CostLevel` (low/medium/high) backs a mitigation's
+`suggested_cost` and both cost columns of a link, so an estimate and the cost
+actually observed stay comparable. It is deliberately qualitative — if the team
+later needs real currency amounts, add a numeric column next to it rather than
+widening the scale.
+
 > **Before building on them:** the enum values are a first proposal and several
-> carry a `@todo`. `SaeriCategory` in particular is a placeholder — replace its
-> cases with the real SAERI taxonomy from the source paper. The TypeScript
-> mirror of every enum lives in
+> carry a `@todo`. `SaeriCategory` and `AdverseEventType` in particular are
+> placeholders — replace their cases with the real taxonomy from the source
+> paper. The TypeScript mirror of every enum lives in
 > [`resources/js/types/models.ts`](resources/js/types/models.ts) and must be
 > updated alongside the PHP one.
 
@@ -59,10 +68,11 @@ router.
 
 ## Requirements
 
-- PHP 8.5 with the `pdo_pgsql` extension
-- Composer 2
-- Node 22+
-- Docker (for the PostgreSQL container)
+Docker is the only requirement — the whole stack runs in containers.
+
+To run the app on the host instead (`composer dev`), you also need PHP 8.5 with
+the `pdo_pgsql` extension, Composer 2 and Node 22+; Docker then only serves the
+database.
 
 ## Quick start
 
@@ -71,24 +81,25 @@ git clone <repo-url> framework-RME
 cd framework-RME
 
 cp .env.example .env       # the DB_* defaults already match compose.yml
-docker compose up -d       # starts PostgreSQL 18 on :5432
-
-composer setup             # install + key:generate + migrate + npm install + npm run build
-php artisan db:seed        # sample portfolio to develop against
-
-composer dev               # http://localhost:8000
+docker compose up -d       # database + app + vite + queue + logs
 ```
 
-Sign in with the seeded account:
+The app is on http://localhost:8000 and the Vite dev server on
+http://localhost:5173. The first `up` builds the image, installs both
+dependency trees and seeds a sample portfolio to develop against, so it takes
+a few minutes; later ones start in seconds.
+
+Sign in with one of the seeded accounts:
 
 | Email              | Password   |
 | ------------------ | ---------- |
 | `test@example.com` | `password` |
+| `teste@teste.com`  | `teste123` |
 
 ## Database
 
-`compose.yml` runs a single PostgreSQL 18 service. Its credentials match the
-`DB_*` values in `.env.example`, so no configuration is needed:
+The `postgres` service in `compose.yml` runs PostgreSQL 18. Its credentials
+match the `DB_*` values in `.env.example`, so no configuration is needed:
 
 |                 |                                                  |
 | --------------- | ------------------------------------------------ |
@@ -98,33 +109,74 @@ Sign in with the seeded account:
 | Volume          | `postgres_data` (survives `docker compose down`) |
 
 ```bash
-docker compose up -d                  # start
+docker compose up -d postgres         # the database on its own
 docker compose down                   # stop, keeping the data
-docker compose down -v                # stop and wipe the volume
+docker compose down -v                # stop and wipe the volume (and node_modules)
 
-php artisan migrate                   # apply new migrations
-php artisan migrate:fresh --seed      # drop everything and reseed
-docker compose exec postgres psql -U root -d laravel   # a psql shell
+docker compose exec app php artisan migrate               # apply new migrations
+docker compose exec app php artisan migrate:fresh --seed  # drop everything and reseed
+docker compose exec postgres psql -U root -d laravel      # a psql shell
 ```
+
+Drop `docker compose exec app` from those Artisan calls when you work on the
+host — the container and the host share the same database.
 
 Tests never touch this database — `phpunit.xml` points them at an in-memory
 SQLite connection.
 
 ## Development
 
+### In containers
+
+`docker compose up -d` runs the processes of `composer dev`, each as its own
+service:
+
+| Service    | Command                                     | What it is                                              |
+| ---------- | ------------------------------------------- | ------------------------------------------------------- |
+| `postgres` | —                                           | PostgreSQL 18 on :5432                                  |
+| `setup`    | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations, first seed |
+| `app`      | `php artisan serve` → http://localhost:8000 | `composer dev` › server                                 |
+| `vite`     | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)                       |
+| `queue`    | `php artisan queue:listen`                  | `composer dev` › queue (the worker)                     |
+| `logs`     | `php artisan pail`                          | `composer dev` › logs                                   |
+
 ```bash
+docker compose up -d                  # start everything
+docker compose logs -f app vite       # follow a few services
+docker compose logs -f logs           # the pail stream
+docker compose exec app bash          # a shell with php, composer, node and npm
+docker compose down                   # stop everything
+docker compose up -d --build          # rebuild after editing docker/Dockerfile
+```
+
+Everything runs off the bind-mounted working tree, so edits on the host apply
+immediately — Vite polls for changes because bind mounts do not forward
+filesystem events.
+
+Worth knowing:
+
+- **`queue` is the worker**: `queue:listen` reloads the code on every job, so
+  a changed job class takes effect without restarting the container. Swap it
+  for `queue:work` if you want the production behaviour instead.
+- **`node_modules` is a named volume**, not the host directory: the container
+  installs the Linux builds of Rollup, Tailwind Oxide and lightningcss without
+  touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
+  reinstalls.
+- **`setup` runs on every `up`** and is idempotent — it installs what is
+  missing, migrates, and seeds only when the database holds no users, so your
+  data survives a restart.
+- **Both the containers and `composer dev` bind :8000 and :5173**, so run one
+  or the other, not both.
+
+### On the host
+
+```bash
+docker compose up -d postgres
+composer setup                        # install + key:generate + migrate + npm install + npm run build
 composer dev
 ```
 
-This runs four processes together (see `php artisan dev:list`):
-
-| Process  | Command                                     |
-| -------- | ------------------------------------------- |
-| `server` | `php artisan serve` → http://localhost:8000 |
-| `vite`   | `npm run dev` (HMR)                         |
-| `queue`  | `php artisan queue:listen`                  |
-| `logs`   | `php artisan pail`                          |
-
+This runs the same four processes in one terminal (see `php artisan dev:list`).
 Run `npm run dev` on its own if you only need the asset server.
 
 > **`Unable to locate file in Vite manifest`** means the frontend has not been
@@ -173,6 +225,7 @@ backend behind it is done and tested.
 | -------------- | ------------------------------------------- |
 | AI systems     | `ai-systems/{index,create,show,edit}`       |
 | Risks          | `risks/{index,create,show,edit}`            |
+| Adverse events | `adverse-events/{index,create,show,edit}`   |
 | Mitigations    | `mitigations/{index,create,show,edit}`      |
 | Owners         | `owners/{index,create,show,edit}`           |
 | Links          | `links/{index,create,show,edit}`            |
@@ -180,7 +233,9 @@ backend behind it is done and tested.
 | Status history | `status-histories/{index,create,show,edit}` |
 
 Evidence and status history are nested under a link
-(`/links/{link}/evidence`), because neither exists on its own. Run
+(`/links/{link}/evidence`), because neither exists on its own. Adverse events
+hang off an AI system the same way risks do, so they are a top level resource
+with the system picked on the form. Run
 `php artisan route:list --except-vendor` for the full map.
 
 ## Testing
@@ -190,6 +245,9 @@ php artisan test --compact                       # the whole suite
 php artisan test --compact tests/Feature/LinkTest.php
 vendor/bin/pest --filter="a link can be created"
 ```
+
+Prefix them with `docker compose exec app` to run them in the container; the
+same goes for the quality commands below.
 
 Each entity has a feature test in `tests/Feature/` covering the guest
 redirect, the listing, creation, validation failures, updates and deletion.
@@ -221,7 +279,7 @@ app/
 ├── Http/
 │   ├── Controllers/   one resource controller per entity
 │   └── Requests/      Store*/Update* form requests
-├── Models/            the seven domain models
+├── Models/            the eight domain models
 └── Policies/          one policy per entity
 
 database/
@@ -234,6 +292,11 @@ resources/js/
 ├── pages/             one directory per entity, mapped to Inertia::render()
 ├── routes/            generated by Wayfinder — do not edit
 └── types/models.ts    TypeScript mirror of the models and enums
+
+docker/
+├── Dockerfile         the dev image: PHP 8.5 + Node 22 + Composer
+└── setup.sh           what the `setup` service runs on every `up`
+compose.yml            every service of the development stack
 ```
 
 ## Not implemented yet
@@ -245,3 +308,7 @@ Two capabilities from the solution architecture have no code behind them:
 - **Periodic reassessment** — a scheduled job acting on `links.next_review_date`
   (the `dueForReview()` factory state already produces overdue links to develop
   against).
+
+Adverse events are recorded and can be named as the trigger of a status change,
+but nothing reacts to one yet: registering an event does not reopen or reassess
+the links covering the risk it materialized. That rule is still to be defined.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\LinkStatus;
 use App\Http\Requests\StoreStatusHistoryRequest;
 use App\Http\Requests\UpdateStatusHistoryRequest;
+use App\Models\AdverseEvent;
 use App\Models\Link;
 use App\Models\Owner;
 use App\Models\StatusHistory;
@@ -31,7 +32,7 @@ class StatusHistoryController extends Controller
         return Inertia::render('status-histories/index', [
             'link' => $link->load(['risk', 'mitigation']),
             'statusHistories' => $link->statusHistories()
-                ->with('owner')
+                ->with(['owner', 'adverseEvent'])
                 ->latest('change_date')
                 ->paginate(15)
                 ->withQueryString(),
@@ -75,7 +76,7 @@ class StatusHistoryController extends Controller
         Gate::authorize('view', $statusHistory);
 
         return Inertia::render('status-histories/show', [
-            'statusHistory' => $statusHistory->load(['link.risk', 'owner']),
+            'statusHistory' => $statusHistory->load(['link.risk', 'owner', 'adverseEvent']),
         ]);
     }
 
@@ -132,6 +133,10 @@ class StatusHistoryController extends Controller
         return [
             'owners' => Owner::query()->orderBy('organizational_role')->get(),
             'statuses' => LinkStatus::options(),
+            'adverseEvents' => AdverseEvent::query()
+                ->with('aiSystem:id,name')
+                ->latest('occurrence_date')
+                ->get(['id', 'event_type', 'description', 'occurrence_date', 'ai_system_id']),
         ];
     }
 }

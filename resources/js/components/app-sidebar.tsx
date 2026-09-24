@@ -7,6 +7,7 @@ import {
     Link2,
     ShieldAlert,
     ShieldCheck,
+    TriangleAlert,
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
@@ -23,6 +24,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as adverseEventsIndex } from '@/routes/adverse-events';
 import { index as aiSystemsIndex } from '@/routes/ai-systems';
 import { index as linksIndex } from '@/routes/links';
 import { index as mitigationsIndex } from '@/routes/mitigations';
@@ -45,6 +47,11 @@ const mainNavItems: NavItem[] = [
         title: 'Risks',
         href: risksIndex(),
         icon: ShieldAlert,
+    },
+    {
+        title: 'Adverse events',
+        href: adverseEventsIndex(),
+        icon: TriangleAlert,
     },
     {
         title: 'Mitigations',

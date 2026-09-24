@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\AdverseEvent;
 use App\Models\Link;
 use App\Models\Owner;
 use App\Models\StatusHistory;
@@ -26,11 +27,31 @@ class StatusHistorySeeder extends Seeder
             $owners = Owner::factory(3)->create();
         }
 
-        $links->each(
-            fn (Link $link) => StatusHistory::factory(fake()->numberBetween(1, 3))
+        $adverseEvents = AdverseEvent::all();
+
+        $links->each(function (Link $link) use ($owners, $adverseEvents): void {
+            /*
+             * A trail always opens with an entry that has no previous status,
+             * then carries the changes that followed.
+             */
+            StatusHistory::factory()
+                ->opening()
                 ->for($link)
                 ->recycle($owners)
-                ->create(),
-        );
+                ->create();
+
+            StatusHistory::factory(fake()->numberBetween(0, 2))
+                ->for($link)
+                ->recycle($owners)
+                ->create([
+                    /*
+                     * Roughly a third of the changes are forced by something
+                     * that actually went wrong, the rest are routine.
+                     */
+                    'adverse_event_id' => $adverseEvents->isNotEmpty() && fake()->boolean(33)
+                        ? $adverseEvents->random()->id
+                        : null,
+                ]);
+        });
     }
 }

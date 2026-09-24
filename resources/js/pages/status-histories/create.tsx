@@ -1,12 +1,13 @@
 import { Head } from '@inertiajs/react';
 import { ScaffoldPlaceholder } from '@/components/scaffold-placeholder';
 import { index } from '@/routes/links';
-import type { EnumOption, Link, Owner } from '@/types/models';
+import type { AdverseEvent, EnumOption, Link, Owner } from '@/types/models';
 
 type Props = {
     link: Link;
     owners: Owner[];
     statuses: EnumOption[];
+    adverseEvents: AdverseEvent[];
 };
 
 export default function StatusHistoriesCreate(props: Props) {

@@ -35,6 +35,18 @@ export type LifecyclePhase =
 
 export type UncertaintyLevel = 'low' | 'medium' | 'high';
 
+/** Qualitative effort a mitigation costs to put in place. */
+export type CostLevel = 'low' | 'medium' | 'high';
+
+export type AdverseEventType =
+    | 'malfunction'
+    | 'data_breach'
+    | 'biased_outcome'
+    | 'safety_incident'
+    | 'compliance_violation'
+    | 'user_harm'
+    | 'service_disruption';
+
 export type SaeriCategory =
     | 'governance'
     | 'technical'
@@ -93,6 +105,8 @@ export interface AiSystem extends Timestamps {
     registration_date: string;
     risks?: Risk[];
     risks_count?: number;
+    adverse_events?: AdverseEvent[];
+    adverse_events_count?: number;
 }
 
 export interface Risk extends Timestamps {
@@ -111,6 +125,11 @@ export interface Mitigation extends Timestamps {
     id: number;
     description: string;
     saeri_category: SaeriCategory;
+    suggested_target_risk: string;
+    expected_evidence: string;
+    suggested_cost: CostLevel;
+    uncertainty_level: UncertaintyLevel;
+    bibliography_source: string;
     links?: Link[];
     links_count?: number;
 }
@@ -129,8 +148,8 @@ export interface Link extends Timestamps {
     id: number;
     lifecycle_phase: LifecyclePhase;
     status: LinkStatus;
-    estimated_cost: number;
-    observed_cost: number | null;
+    estimated_cost: CostLevel;
+    observed_cost: CostLevel | null;
     creation_date: string;
     next_review_date: string;
     risk_id: number;
@@ -147,13 +166,29 @@ export interface Link extends Timestamps {
 
 export interface StatusHistory extends Timestamps {
     id: number;
-    previous_status: LinkStatus;
+    /** Null on the first entry of a link's trail. */
+    previous_status: LinkStatus | null;
     new_status: LinkStatus;
+    trigger_reason: string | null;
     change_date: string;
     link_id: number;
     owner_id: number;
+    adverse_event_id: number | null;
     link?: Link;
     owner?: Owner;
+    adverse_event?: AdverseEvent | null;
+}
+
+/** Something that went wrong on a system once it was in production. */
+export interface AdverseEvent extends Timestamps {
+    id: number;
+    event_type: AdverseEventType;
+    description: string;
+    occurrence_date: string;
+    ai_system_id: number;
+    ai_system?: AiSystem;
+    status_histories?: StatusHistory[];
+    status_histories_count?: number;
 }
 
 export interface Evidence extends Timestamps {

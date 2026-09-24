@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
 use App\Models\Evidence;
@@ -25,7 +26,7 @@ function linkPayload(array $overrides = []): array
     return array_merge([
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
         'status' => LinkStatus::Planned->value,
-        'estimated_cost' => 12000.50,
+        'estimated_cost' => CostLevel::High->value,
         'observed_cost' => null,
         'creation_date' => '2026-01-10',
         'next_review_date' => '2026-07-10',
@@ -64,7 +65,7 @@ test('a link can be created', function () {
     $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
 
     expect($link->status)->toBe(LinkStatus::Planned)
-        ->and($link->estimated_cost)->toBe(12000.50)
+        ->and($link->estimated_cost)->toBe(CostLevel::High)
         ->and($link->observed_cost)->toBeNull()
         ->and($link->next_review_date->toDateString())->toBe('2026-07-10');
 });
@@ -82,8 +83,8 @@ test('the review date cannot fall before the creation date', function () {
     $this->assertDatabaseEmpty('links');
 });
 
-test('a negative estimated cost is rejected', function () {
-    $response = $this->post(route('links.store'), linkPayload(['estimated_cost' => -1]));
+test('an estimated cost outside the scale is rejected', function () {
+    $response = $this->post(route('links.store'), linkPayload(['estimated_cost' => 'astronomical']));
 
     $response->assertSessionHasErrors('estimated_cost');
 
@@ -95,7 +96,7 @@ test('a link can be updated', function () {
 
     $response = $this->put(route('links.update', $link), linkPayload([
         'status' => LinkStatus::Implemented->value,
-        'observed_cost' => 9800.25,
+        'observed_cost' => CostLevel::Low->value,
         'risk_id' => $link->risk_id,
         'mitigation_id' => $link->mitigation_id,
         'owner_id' => $link->owner_id,
@@ -104,7 +105,7 @@ test('a link can be updated', function () {
     $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
 
     expect($link->refresh()->status)->toBe(LinkStatus::Implemented)
-        ->and($link->observed_cost)->toBe(9800.25);
+        ->and($link->observed_cost)->toBe(CostLevel::Low);
 });
 
 test('a link without evidence or history can be deleted', function () {
