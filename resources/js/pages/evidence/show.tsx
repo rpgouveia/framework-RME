@@ -51,13 +51,6 @@ export default function EvidenceShow({ evidence }: Props) {
                             evidência.
                         </p>
                     </div>
-
-                    <InertiaLink
-                        href={`/evidence/${evidence.id}/edit`}
-                        className="evidence-button evidence-button-primary"
-                    >
-                        Editar evidência
-                    </InertiaLink>
                 </header>
 
                 <section className="evidence-section">
