@@ -106,16 +106,11 @@ class CompileTraceabilityReport
     /**
      * Prepare a value for a spreadsheet cell.
      *
-     * Decimals use a comma, as spreadsheets in Portuguese expect. Text that
-     * a spreadsheet would run as a formula is prefixed with a quote so it is
-     * shown as plain text.
+     * Text that a spreadsheet would run as a formula is prefixed with a quote
+     * so it is shown as plain text.
      */
-    protected function csvCell(string|int|float|null $value): string|int|null
+    protected function csvCell(string|int|null $value): string|int|null
     {
-        if (is_float($value)) {
-            return number_format($value, 2, ',', '');
-        }
-
         if (is_string($value) && preg_match('/^[=+\-@\t\r]/', $value) === 1) {
             return "'".$value;
         }
@@ -134,8 +129,8 @@ class CompileTraceabilityReport
             'id' => $link->id,
             'status' => $link->status->value,
             'lifecycle_phase' => $link->lifecycle_phase->value,
-            'estimated_cost' => $link->estimated_cost,
-            'observed_cost' => $link->observed_cost,
+            'estimated_cost' => $link->estimated_cost->value,
+            'observed_cost' => $link->observed_cost?->value,
             'creation_date' => $link->creation_date->toDateString(),
             'next_review_date' => $link->next_review_date->toDateString(),
             'risk' => [
