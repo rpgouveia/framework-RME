@@ -48,3 +48,16 @@ test('a case whose name matches a translation file still returns a string', func
 test('values returns every backing value', function () {
     expect(UncertaintyLevel::values())->toBe(['low', 'medium', 'high']);
 });
+
+test('saeri category follows the four categories of the taxonomy', function () {
+    expect(SaeriCategory::values())->toBe(['governance', 'technical', 'process', 'transparency']);
+});
+
+test('saeri category labels are the full portuguese names', function () {
+    expect(array_column(SaeriCategory::options(), 'label'))->toBe([
+        'Governança e Supervisão',
+        'Técnica e Segurança',
+        'Processos Operacionais',
+        'Transparência e Responsabilização',
+    ]);
+});
