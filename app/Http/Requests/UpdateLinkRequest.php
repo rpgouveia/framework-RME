@@ -17,6 +17,9 @@ class UpdateLinkRequest extends FormRequest
      */
     public function rules(): array
     {
-        return $this->linkRules();
+        return [
+            ...$this->linkRules(),
+            'next_review_date' => ['required', 'date', 'after_or_equal:creation_date'],
+        ];
     }
 }

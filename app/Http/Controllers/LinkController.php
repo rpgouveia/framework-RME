@@ -12,6 +12,7 @@ use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -52,7 +53,11 @@ class LinkController extends Controller
     {
         Gate::authorize('create', Link::class);
 
-        $link = Link::create($request->validated());
+        $link = Link::create([
+            ...$request->validated(),
+            'next_review_date' => $request->date('creation_date')
+                ?->addDays(Config::integer('rme.review.interval_days')),
+        ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Link created.')]);
 

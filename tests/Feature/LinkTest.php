@@ -29,7 +29,6 @@ function linkPayload(array $overrides = []): array
         'estimated_cost' => CostLevel::High->value,
         'observed_cost' => null,
         'creation_date' => '2026-01-10',
-        'next_review_date' => '2026-07-10',
         'risk_id' => Risk::factory()->create()->id,
         'mitigation_id' => Mitigation::factory()->create()->id,
         'owner_id' => Owner::factory()->create()->id,
@@ -58,6 +57,8 @@ test('the index lists the links with their risk, mitigation and owner', function
 });
 
 test('a link can be created', function () {
+    config(['rme.review.interval_days' => 30]);
+
     $response = $this->post(route('links.store'), linkPayload());
 
     $link = Link::sole();
@@ -67,20 +68,31 @@ test('a link can be created', function () {
     expect($link->status)->toBe(LinkStatus::Planned)
         ->and($link->estimated_cost)->toBe(CostLevel::High)
         ->and($link->observed_cost)->toBeNull()
-        ->and($link->next_review_date->toDateString())->toBe('2026-07-10');
+        ->and($link->next_review_date->toDateString())->toBe('2026-02-09');
+});
+
+test('the review date posted on creation is ignored', function () {
+    config(['rme.review.interval_days' => 30]);
+
+    $this->post(route('links.store'), linkPayload(['next_review_date' => '2030-12-31']));
+
+    expect(Link::sole()->next_review_date->toDateString())->toBe('2026-02-09');
 });
 
 test('the review date cannot fall before the creation date', function () {
-    $response = $this->post(route('links.store'), linkPayload([
+    $link = Link::factory()->create();
+
+    $response = $this->put(route('links.update', $link), linkPayload([
         'creation_date' => '2026-07-10',
         'next_review_date' => '2026-01-10',
+        'risk_id' => $link->risk_id,
+        'mitigation_id' => $link->mitigation_id,
+        'owner_id' => $link->owner_id,
     ]));
 
     $response->assertSessionHasErrors([
         'next_review_date' => 'The next review date field must be a date after or equal to creation date.',
     ]);
-
-    $this->assertDatabaseEmpty('links');
 });
 
 test('an estimated cost outside the scale is rejected', function () {
@@ -97,6 +109,7 @@ test('a link can be updated', function () {
     $response = $this->put(route('links.update', $link), linkPayload([
         'status' => LinkStatus::Implemented->value,
         'observed_cost' => CostLevel::Low->value,
+        'next_review_date' => '2026-07-10',
         'risk_id' => $link->risk_id,
         'mitigation_id' => $link->mitigation_id,
         'owner_id' => $link->owner_id,

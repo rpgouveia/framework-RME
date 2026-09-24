@@ -8,6 +8,8 @@ use App\Enums\LinkStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\LinkFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -104,6 +106,18 @@ class Link extends Model
     public function evidence(): HasMany
     {
         return $this->hasMany(Evidence::class);
+    }
+
+    /**
+     * Scope the query to the links whose review date has arrived.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function dueForReview(Builder $query): void
+    {
+        $query->where('next_review_date', '<=', today())
+            ->whereNot('status', LinkStatus::Cancelled);
     }
 
     /**
