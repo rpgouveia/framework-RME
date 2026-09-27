@@ -14,6 +14,33 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class MitigationFactory extends Factory
 {
     /**
+     * Common AI risk mitigation measures, so seeded data reads like a real
+     * catalogue.
+     *
+     * @var list<string>
+     */
+    protected const NAMES = [
+        'Auditoria de equidade',
+        'Red teaming',
+        'Filtragem de entradas do usuário',
+        'Revisão humana das decisões',
+        'Monitoramento de deriva de dados',
+        'Anonimização dos dados de treino',
+        'Privacidade diferencial',
+        'Controle de acesso ao modelo',
+        'Rebalanceamento do conjunto de treino',
+        'Documentação com model cards',
+        'Verificação de respostas com fontes',
+        'Limitação de taxa de requisições',
+        'Plano de resposta a incidentes',
+        'Treinamento adversarial',
+        'Explicações locais das predições',
+        'Registro de auditoria das inferências',
+        'Testes de robustez',
+        'Retreinamento periódico',
+    ];
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -21,6 +48,7 @@ class MitigationFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => fake()->randomElement(self::NAMES),
             'description' => fake()->sentence(),
             'saeri_category' => fake()->randomElement(SaeriCategory::cases()),
             'suggested_target_risk' => fake()->sentence(),

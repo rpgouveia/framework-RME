@@ -33,6 +33,7 @@ class CompileTraceabilityReport
         'risk_lifecycle_phase',
         'risk_uncertainty_level',
         'mitigation_id',
+        'mitigation_name',
         'mitigation_description',
         'mitigation_saeri_category',
         'owner_id',
@@ -92,6 +93,7 @@ class CompileTraceabilityReport
             $link['risk']['lifecycle_phase'],
             $link['risk']['uncertainty_level'],
             $link['mitigation']['id'],
+            $link['mitigation']['name'],
             $link['mitigation']['description'],
             $link['mitigation']['saeri_category'],
             $link['owner']['id'],
@@ -145,6 +147,7 @@ class CompileTraceabilityReport
             ],
             'mitigation' => [
                 'id' => $link->mitigation->id,
+                'name' => $link->mitigation->name,
                 'description' => $link->mitigation->description,
                 'saeri_category' => $link->mitigation->saeri_category->value,
             ],

@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * suggestion; a link records what a specific application actually cost.
  *
  * @property int $id
+ * @property string $name
  * @property string $description
  * @property SaeriCategory $saeri_category
  * @property string $suggested_target_risk
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $links_count
  */
 #[Fillable([
+    'name',
     'description',
     'saeri_category',
     'suggested_target_risk',

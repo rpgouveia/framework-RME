@@ -22,6 +22,7 @@ export default function MitigationsCreate({
      * que será enviado para o Laravel.
      */
     const { data, setData, post, processing, errors } = useForm({
+        name: '',
         description: '',
         saeri_category: '',
         suggested_target_risk: '',
@@ -68,6 +69,33 @@ export default function MitigationsCreate({
                         <h2 className="mitigations-section-title">
                             Informações da mitigação
                         </h2>
+
+                        {/* NOME */}
+
+                        <div className="mitigations-form-group">
+                            <label className="mitigations-label" htmlFor="name">
+                                Nome
+                                <span className="mitigations-required"> *</span>
+                            </label>
+
+                            <input
+                                id="name"
+                                type="text"
+                                className="mitigations-input"
+                                value={data.name}
+                                maxLength={255}
+                                onChange={(event) =>
+                                    setData('name', event.target.value)
+                                }
+                                placeholder="Ex.: Auditoria de equidade"
+                            />
+
+                            {errors.name && (
+                                <p className="mitigations-error">
+                                    {errors.name}
+                                </p>
+                            )}
+                        </div>
 
                         {/* DESCRIÇÃO */}
 

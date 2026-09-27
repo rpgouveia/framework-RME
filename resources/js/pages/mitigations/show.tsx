@@ -13,7 +13,7 @@ type Props = {
 export default function MitigationsShow({ mitigation }: Props) {
     return (
         <>
-            <Head title="Detalhes da mitigação" />
+            <Head title={mitigation.name} />
 
             <main className="mitigations-page">
                 {/* CABEÇALHO */}
@@ -23,7 +23,7 @@ export default function MitigationsShow({ mitigation }: Props) {
                         Catálogo de mitigações
                     </p>
 
-                    <h1 className="mitigations-title">Detalhes da mitigação</h1>
+                    <h1 className="mitigations-title">{mitigation.name}</h1>
 
                     <p className="mitigations-description">
                         Visualize as informações cadastradas para esta
