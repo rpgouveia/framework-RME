@@ -13,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatDate } from '@/lib/format';
+import { formatDate, truncate } from '@/lib/format';
 import {
     costLevelLabels,
     lifecyclePhaseLabels,
@@ -34,14 +34,15 @@ type Props = {
 
 export default function RisksShow({ risk }: Props) {
     const links = risk.links ?? [];
+    const title = truncate(risk.description, 120);
 
     return (
         <>
-            <Head title={risk.description} />
+            <Head title={truncate(risk.description, 60)} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                     <h1 className="max-w-3xl text-xl font-semibold tracking-tight">
-                        {risk.description}
+                        {title}
                     </h1>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" asChild>
@@ -51,7 +52,7 @@ export default function RisksShow({ risk }: Props) {
                             <DeleteDialog
                                 form={RiskController.destroy.form(risk.id)}
                                 title="Excluir este risco?"
-                                description={`O risco "${risk.description}" será removido. Esta ação não pode ser desfeita.`}
+                                description={`O risco "${truncate(risk.description, 80)}" será removido. Esta ação não pode ser desfeita.`}
                             />
                         )}
                     </div>
@@ -61,7 +62,18 @@ export default function RisksShow({ risk }: Props) {
                     <CardHeader>
                         <CardTitle>Detalhes</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="grid gap-6">
+                        {/* The heading shows a shortened description; the
+                            full text, with its line breaks, goes here. */}
+                        {title !== risk.description && (
+                            <dl>
+                                <DetailItem label="Descrição">
+                                    <p className="max-w-prose font-normal whitespace-pre-line">
+                                        {risk.description}
+                                    </p>
+                                </DetailItem>
+                            </dl>
+                        )}
                         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <DetailItem label="Sistema de IA">
                                 {risk.ai_system && (
@@ -183,6 +195,6 @@ function LinksTable({ links }: { links: RiskLink[] }) {
 RisksShow.layout = ({ risk }: Props) => ({
     breadcrumbs: [
         { title: 'Riscos', href: index() },
-        { title: risk.description, href: show(risk.id) },
+        { title: truncate(risk.description, 40), href: show(risk.id) },
     ],
 });

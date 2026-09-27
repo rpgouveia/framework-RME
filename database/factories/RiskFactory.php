@@ -22,7 +22,9 @@ class RiskFactory extends Factory
     public function definition(): array
     {
         return [
-            'description' => fake()->sentence(),
+            // Varied lengths up to the 2000 character limit, so seeded data shows
+            // how the screens cope with long descriptions.
+            'description' => fake()->text(fake()->numberBetween(100, 2000)),
             'category' => fake()->randomElement(RiskCategory::cases()),
             'lifecycle_phase' => fake()->randomElement(LifecyclePhase::cases()),
             'uncertainty_level' => fake()->randomElement(UncertaintyLevel::cases()),

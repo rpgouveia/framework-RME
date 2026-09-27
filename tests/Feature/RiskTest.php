@@ -52,6 +52,27 @@ test('a risk can be registered for a system', function () {
         ->and($risk->ai_system_id)->toBe($aiSystem->id);
 });
 
+test('a risk description may run up to 2000 characters', function (int $length, bool $valid) {
+    $response = $this->post(route('risks.store'), [
+        'description' => str_repeat('a', $length),
+        'category' => RiskCategory::Fairness->value,
+        'lifecycle_phase' => LifecyclePhase::Deployment->value,
+        'uncertainty_level' => UncertaintyLevel::High->value,
+        'ai_system_id' => AiSystem::factory()->create()->id,
+    ]);
+
+    if ($valid) {
+        $response->assertSessionHasNoErrors();
+        expect(Risk::sole()->description)->toHaveLength($length);
+    } else {
+        $response->assertSessionHasErrors('description');
+        $this->assertDatabaseEmpty('risks');
+    }
+})->with([
+    'at the limit' => [2000, true],
+    'over the limit' => [2001, false],
+]);
+
 test('a risk requires an existing system', function () {
     $response = $this->post(route('risks.store'), [
         'description' => 'The model degrades for under represented groups',
