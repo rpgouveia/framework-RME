@@ -25,3 +25,17 @@ export function dateInputValue(value?: string | null): string {
 
     return `${now.getFullYear()}-${month}-${day}`;
 }
+
+/**
+ * Shortens text for places that need one line, such as page titles,
+ * breadcrumbs and dialogs. Text that already fits is returned unchanged.
+ */
+export function truncate(text: string, max: number): string {
+    if (text.length <= max) {
+        return text;
+    }
+
+    const cut = text.slice(0, max).replace(/\s+\S*$/, '');
+
+    return `${cut.replace(/\s+/g, ' ')}…`;
+}

@@ -168,7 +168,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                         <TableCell className="max-w-md whitespace-normal">
                             <Link
                                 href={showRisk(risk.id)}
-                                className="font-medium hover:underline"
+                                className="line-clamp-2 font-medium hover:underline"
                             >
                                 {risk.description}
                             </Link>

@@ -1,6 +1,7 @@
 import { Form, Head } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
 import Heading from '@/components/heading';
+import { truncate } from '@/lib/format';
 import { index, show } from '@/routes/risks';
 import type { AiSystem, EnumOption, Risk } from '@/types/models';
 import { RiskForm } from './form';
@@ -24,7 +25,10 @@ export default function RisksEdit({
         <>
             <Head title="Editar risco" />
             <div className="flex h-full flex-1 flex-col p-4">
-                <Heading title="Editar risco" description={risk.description} />
+                <Heading
+                    title="Editar risco"
+                    description={truncate(risk.description, 120)}
+                />
                 <Form
                     {...RiskController.update.form(risk.id)}
                     options={{ preserveScroll: true }}

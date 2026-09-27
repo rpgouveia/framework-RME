@@ -1,8 +1,8 @@
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -11,6 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
     labelFor,
     lifecyclePhaseLabels,
@@ -18,6 +19,9 @@ import {
     uncertaintyLevelLabels,
 } from '@/lib/labels';
 import type { AiSystem, EnumOption, Risk } from '@/types/models';
+
+/** Mirrors the `max:2000` rule in RiskValidationRules. */
+const DESCRIPTION_MAX = 2000;
 
 type Props = {
     aiSystems: Pick<AiSystem, 'id' | 'name'>[];
@@ -51,6 +55,9 @@ export function RiskForm({
     defaultAiSystemId,
 }: Props) {
     const aiSystemId = risk?.ai_system_id ?? defaultAiSystemId;
+    const [descriptionLength, setDescriptionLength] = useState(
+        risk?.description.length ?? 0,
+    );
 
     return (
         <>
@@ -88,16 +95,30 @@ export function RiskForm({
 
             <div className="grid gap-2">
                 <Label htmlFor="description">Descrição</Label>
-                <Input
+                <Textarea
                     id="description"
                     name="description"
                     defaultValue={risk?.description}
                     required
-                    maxLength={255}
-                    placeholder="Ex.: Viés contra grupos sub-representados nos dados de treino"
+                    maxLength={DESCRIPTION_MAX}
+                    // Grows with the text, then scrolls.
+                    className="max-h-80 min-h-32"
+                    placeholder="Ex.: O modelo apresenta desempenho inferior para grupos sub-representados nos dados de treino, o que pode levar a decisões discriminatórias."
                     aria-invalid={errors.description ? true : undefined}
+                    aria-describedby="description-count"
+                    onChange={(event) =>
+                        setDescriptionLength(event.target.value.length)
+                    }
                 />
-                <InputError message={errors.description} />
+                <div className="flex justify-between gap-4">
+                    <InputError message={errors.description} />
+                    <p
+                        id="description-count"
+                        className="text-muted-foreground ml-auto text-xs tabular-nums"
+                    >
+                        {descriptionLength}/{DESCRIPTION_MAX}
+                    </p>
+                </div>
             </div>
 
             <div className="grid gap-2">

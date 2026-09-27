@@ -13,6 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { truncate } from '@/lib/format';
 import {
     lifecyclePhaseLabels,
     riskCategoryLabels,
@@ -95,7 +96,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                             <TableCell className="max-w-md font-medium whitespace-normal">
                                 <Link
                                     href={show(risk.id)}
-                                    className="hover:underline"
+                                    className="line-clamp-2 hover:underline"
                                 >
                                     {risk.description}
                                 </Link>
@@ -160,7 +161,7 @@ function DeleteRisk({ risk }: { risk: Risk }) {
         <DeleteDialog
             form={RiskController.destroy.form(risk.id)}
             title="Excluir este risco?"
-            description={`O risco "${risk.description}" será removido. Esta ação não pode ser desfeita.`}
+            description={`O risco "${truncate(risk.description, 80)}" será removido. Esta ação não pode ser desfeita.`}
             trigger={
                 <button
                     type="button"
