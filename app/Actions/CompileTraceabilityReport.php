@@ -27,6 +27,7 @@ class CompileTraceabilityReport
         'creation_date',
         'next_review_date',
         'risk_id',
+        'risk_name',
         'risk_description',
         'risk_category',
         'risk_lifecycle_phase',
@@ -85,6 +86,7 @@ class CompileTraceabilityReport
             $link['creation_date'],
             $link['next_review_date'],
             $link['risk']['id'],
+            $link['risk']['name'],
             $link['risk']['description'],
             $link['risk']['category'],
             $link['risk']['lifecycle_phase'],
@@ -135,6 +137,7 @@ class CompileTraceabilityReport
             'next_review_date' => $link->next_review_date->toDateString(),
             'risk' => [
                 'id' => $link->risk->id,
+                'name' => $link->risk->name,
                 'description' => $link->risk->description,
                 'category' => $link->risk->category->value,
                 'lifecycle_phase' => $link->risk->lifecycle_phase->value,

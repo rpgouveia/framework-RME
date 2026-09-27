@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('risks', function (Blueprint $table) {
             $table->id();
-            $table->string('description');
+            $table->string('name');
+            $table->text('description');
             $table->string('category');
             $table->string('lifecycle_phase');
             $table->string('uncertainty_level');

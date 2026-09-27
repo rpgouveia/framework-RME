@@ -137,7 +137,7 @@ class LinkController extends Controller
     protected function formOptions(): array
     {
         return [
-            'risks' => Risk::query()->with('aiSystem')->orderBy('description')->get(),
+            'risks' => Risk::query()->with('aiSystem')->orderBy('name')->get(),
             'mitigations' => Mitigation::query()->orderBy('description')->get(['id', 'description']),
             'owners' => Owner::query()->orderBy('organizational_role')->get(),
             'lifecyclePhases' => LifecyclePhase::options(),

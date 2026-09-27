@@ -37,11 +37,11 @@ export default function RisksShow({ risk }: Props) {
 
     return (
         <>
-            <Head title={risk.description} />
+            <Head title={risk.name} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                     <h1 className="max-w-3xl text-xl font-semibold tracking-tight">
-                        {risk.description}
+                        {risk.name}
                     </h1>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" asChild>
@@ -51,7 +51,7 @@ export default function RisksShow({ risk }: Props) {
                             <DeleteDialog
                                 form={RiskController.destroy.form(risk.id)}
                                 title="Excluir este risco?"
-                                description={`O risco "${risk.description}" será removido. Esta ação não pode ser desfeita.`}
+                                description={`O risco "${risk.name}" será removido. Esta ação não pode ser desfeita.`}
                             />
                         )}
                     </div>
@@ -61,7 +61,14 @@ export default function RisksShow({ risk }: Props) {
                     <CardHeader>
                         <CardTitle>Detalhes</CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="grid gap-6">
+                        <dl>
+                            <DetailItem label="Descrição">
+                                <p className="max-w-prose font-normal whitespace-pre-line">
+                                    {risk.description}
+                                </p>
+                            </DetailItem>
+                        </dl>
                         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <DetailItem label="Sistema de IA">
                                 {risk.ai_system && (
@@ -183,6 +190,6 @@ function LinksTable({ links }: { links: RiskLink[] }) {
 RisksShow.layout = ({ risk }: Props) => ({
     breadcrumbs: [
         { title: 'Riscos', href: index() },
-        { title: risk.description, href: show(risk.id) },
+        { title: risk.name, href: show(risk.id) },
     ],
 });

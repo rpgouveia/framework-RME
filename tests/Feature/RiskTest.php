@@ -36,6 +36,7 @@ test('a risk can be registered for a system', function () {
     $aiSystem = AiSystem::factory()->create();
 
     $response = $this->post(route('risks.store'), [
+        'name' => 'Viés de seleção',
         'description' => 'The model degrades for under represented groups',
         'category' => RiskCategory::Fairness->value,
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
@@ -47,13 +48,37 @@ test('a risk can be registered for a system', function () {
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('risks.show', $risk));
 
-    expect($risk->category)->toBe(RiskCategory::Fairness)
+    expect($risk->name)->toBe('Viés de seleção')
+        ->and($risk->category)->toBe(RiskCategory::Fairness)
         ->and($risk->uncertainty_level)->toBe(UncertaintyLevel::High)
         ->and($risk->ai_system_id)->toBe($aiSystem->id);
 });
 
+test('a risk description may run up to 2000 characters', function (int $length, bool $valid) {
+    $response = $this->post(route('risks.store'), [
+        'name' => 'Viés de seleção',
+        'description' => str_repeat('a', $length),
+        'category' => RiskCategory::Fairness->value,
+        'lifecycle_phase' => LifecyclePhase::Deployment->value,
+        'uncertainty_level' => UncertaintyLevel::High->value,
+        'ai_system_id' => AiSystem::factory()->create()->id,
+    ]);
+
+    if ($valid) {
+        $response->assertSessionHasNoErrors();
+        expect(Risk::sole()->description)->toHaveLength($length);
+    } else {
+        $response->assertSessionHasErrors('description');
+        $this->assertDatabaseEmpty('risks');
+    }
+})->with([
+    'at the limit' => [2000, true],
+    'over the limit' => [2001, false],
+]);
+
 test('a risk requires an existing system', function () {
     $response = $this->post(route('risks.store'), [
+        'name' => 'Viés de seleção',
         'description' => 'The model degrades for under represented groups',
         'category' => RiskCategory::Fairness->value,
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
@@ -70,6 +95,7 @@ test('registering a risk requires every field', function () {
     $response = $this->post(route('risks.store'), []);
 
     $response->assertSessionHasErrors([
+        'name',
         'description',
         'category',
         'lifecycle_phase',
@@ -84,6 +110,7 @@ test('a risk can be updated', function () {
     $risk = Risk::factory()->create();
 
     $response = $this->put(route('risks.update', $risk), [
+        'name' => 'Updated name',
         'description' => 'Updated description',
         'category' => RiskCategory::Privacy->value,
         'lifecycle_phase' => LifecyclePhase::Development->value,
@@ -93,7 +120,8 @@ test('a risk can be updated', function () {
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('risks.show', $risk));
 
-    expect($risk->refresh()->description)->toBe('Updated description')
+    expect($risk->refresh()->name)->toBe('Updated name')
+        ->and($risk->description)->toBe('Updated description')
         ->and($risk->category)->toBe(RiskCategory::Privacy);
 });
 

@@ -94,7 +94,7 @@ export default function LinksIndex({ links }: Props) {
                                             <span>Risco</span>
 
                                             <strong>
-                                                {link.risk?.description ??
+                                                {link.risk?.name ??
                                                     `Risco #${link.risk_id}`}
                                             </strong>
                                         </div>

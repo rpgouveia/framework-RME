@@ -24,7 +24,7 @@ export default function RisksEdit({
         <>
             <Head title="Editar risco" />
             <div className="flex h-full flex-1 flex-col p-4">
-                <Heading title="Editar risco" description={risk.description} />
+                <Heading title="Editar risco" description={risk.name} />
                 <Form
                     {...RiskController.update.form(risk.id)}
                     options={{ preserveScroll: true }}
