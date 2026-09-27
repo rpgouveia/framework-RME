@@ -1,6 +1,8 @@
 import type {
     AiSystemCategory,
+    CostLevel,
     LifecyclePhase,
+    LinkStatus,
     RiskCategory,
     SystemSourceType,
     UncertaintyLevel,
@@ -63,6 +65,28 @@ export const uncertaintyLevelLabels: Record<UncertaintyLevel, string> = {
     low: 'Baixa',
     medium: 'Média',
     high: 'Alta',
+};
+
+/** Badge classes for the uncertainty scale, from calm to alarming. */
+export const uncertaintyBadgeClasses: Record<UncertaintyLevel, string> = {
+    low: 'border-transparent bg-secondary text-secondary-foreground',
+    medium: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
+    high: 'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
+};
+
+export const linkStatusLabels: Record<LinkStatus, string> = {
+    planned: 'Planejado',
+    in_progress: 'Em andamento',
+    implemented: 'Implementado',
+    monitoring: 'Em monitoramento',
+    suspended: 'Suspenso',
+    cancelled: 'Cancelado',
+};
+
+export const costLevelLabels: Record<CostLevel, string> = {
+    low: 'Baixo',
+    medium: 'Médio',
+    high: 'Alto',
 };
 
 /** Looks up an enum value's label, falling back to the raw value. */
