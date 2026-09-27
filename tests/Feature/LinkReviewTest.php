@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Log;
 test('the scope returns the links whose review date has arrived', function () {
     $this->freezeTime();
 
-    $overdue = Link::factory()->create(['next_review_date' => today()->subDay()]);
-    $dueToday = Link::factory()->create(['next_review_date' => today()]);
-    $upcoming = Link::factory()->create(['next_review_date' => today()->addDay()]);
+    // Pin the status: the factory may pick Cancelled, which the scope skips.
+    $overdue = Link::factory()->implemented()->create(['next_review_date' => today()->subDay()]);
+    $dueToday = Link::factory()->implemented()->create(['next_review_date' => today()]);
+    $upcoming = Link::factory()->implemented()->create(['next_review_date' => today()->addDay()]);
 
     $due = Link::dueForReview()->pluck('id');
 
@@ -62,7 +63,7 @@ test('the command says when nothing is waiting for a review', function () {
 test('the command logs a warning with the count of overdue links', function () {
     $this->freezeTime();
 
-    Link::factory(2)->dueForReview()->create();
+    Link::factory(2)->dueForReview()->implemented()->create();
 
     Log::spy();
 

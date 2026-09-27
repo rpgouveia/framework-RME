@@ -9,6 +9,8 @@ return [
 
     'date' => 'O campo :attribute deve ser uma data válida.',
     'enum' => 'O valor selecionado em :attribute é inválido.',
+    'exists' => 'O valor selecionado em :attribute é inválido.',
+    'integer' => 'O campo :attribute deve ser um número inteiro.',
     'max' => [
         'string' => 'O campo :attribute não pode ter mais de :max caracteres.',
     ],
@@ -16,10 +18,14 @@ return [
     'string' => 'O campo :attribute deve ser um texto.',
 
     'attributes' => [
+        'ai_system_id' => 'sistema de IA',
         'category' => 'categoria',
+        'description' => 'descrição',
+        'lifecycle_phase' => 'fase do ciclo de vida',
         'name' => 'nome',
         'registration_date' => 'data de cadastro',
         'source_type' => 'origem',
+        'uncertainty_level' => 'nível de incerteza',
     ],
 
 ];

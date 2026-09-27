@@ -1,5 +1,7 @@
-import { Form, Head, Link } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
+import { DeleteDialog } from '@/components/delete-dialog';
+import { DetailItem } from '@/components/detail-item';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,15 +11,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
 import {
     Table,
     TableBody,
@@ -70,7 +63,13 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                             <Link href={edit(aiSystem.id)}>Editar</Link>
                         </Button>
                         {risks.length === 0 && (
-                            <DeleteSystem aiSystem={aiSystem} />
+                            <DeleteDialog
+                                form={AiSystemController.destroy.form(
+                                    aiSystem.id,
+                                )}
+                                title="Excluir este sistema de IA?"
+                                description={`O sistema "${aiSystem.name}" será removido do portfólio. Esta ação não pode ser desfeita.`}
+                            />
                         )}
                     </div>
                 </header>
@@ -81,16 +80,18 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                     </CardHeader>
                     <CardContent>
                         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <Detail label="Origem">
+                            <DetailItem label="Origem">
                                 {sourceTypeLabels[aiSystem.source_type]}
-                            </Detail>
-                            <Detail label="Categoria">
+                            </DetailItem>
+                            <DetailItem label="Categoria">
                                 {categoryLabels[aiSystem.category]}
-                            </Detail>
-                            <Detail label="Cadastro">
+                            </DetailItem>
+                            <DetailItem label="Cadastro">
                                 {formatDate(aiSystem.registration_date)}
-                            </Detail>
-                            <Detail label="Riscos">{risks.length}</Detail>
+                            </DetailItem>
+                            <DetailItem label="Riscos">
+                                {risks.length}
+                            </DetailItem>
                         </dl>
                     </CardContent>
                 </Card>
@@ -99,7 +100,13 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
                         <CardTitle>Riscos</CardTitle>
                         <Button size="sm" asChild>
-                            <Link href={createRisk()}>Cadastrar risco</Link>
+                            <Link
+                                href={createRisk({
+                                    query: { ai_system: aiSystem.id },
+                                })}
+                            >
+                                Cadastrar risco
+                            </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
@@ -143,21 +150,6 @@ export default function AiSystemsShow({ aiSystem }: Props) {
     );
 }
 
-function Detail({
-    label,
-    children,
-}: {
-    label: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <div className="grid gap-1">
-            <dt className="text-muted-foreground text-sm">{label}</dt>
-            <dd className="font-medium">{children}</dd>
-        </div>
-    );
-}
-
 function RisksTable({ risks }: { risks: Risk[] }) {
     return (
         <Table>
@@ -197,39 +189,6 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                 ))}
             </TableBody>
         </Table>
-    );
-}
-
-function DeleteSystem({ aiSystem }: { aiSystem: AiSystem }) {
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                <Button variant="destructive">Excluir</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogTitle>Excluir este sistema de IA?</DialogTitle>
-                <DialogDescription>
-                    O sistema "{aiSystem.name}" será removido do portfólio. Esta
-                    ação não pode ser desfeita.
-                </DialogDescription>
-                <Form {...AiSystemController.destroy.form(aiSystem.id)}>
-                    {({ processing }) => (
-                        <DialogFooter className="gap-2">
-                            <DialogClose asChild>
-                                <Button variant="secondary">Cancelar</Button>
-                            </DialogClose>
-                            <Button
-                                type="submit"
-                                variant="destructive"
-                                disabled={processing}
-                            >
-                                Excluir
-                            </Button>
-                        </DialogFooter>
-                    )}
-                </Form>
-            </DialogContent>
-        </Dialog>
     );
 }
 

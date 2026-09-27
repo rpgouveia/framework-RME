@@ -2,5 +2,9 @@
     "AI system registered.": "Sistema de IA cadastrado.",
     "AI system updated.": "Sistema de IA atualizado.",
     "AI system deleted.": "Sistema de IA excluído.",
-    "Delete the system risks first.": "Exclua primeiro os riscos do sistema."
+    "Delete the system risks first.": "Exclua primeiro os riscos do sistema.",
+    "Risk registered.": "Risco cadastrado.",
+    "Risk updated.": "Risco atualizado.",
+    "Risk deleted.": "Risco excluído.",
+    "Delete the risk links first.": "Exclua primeiro os vínculos do risco."
 }
