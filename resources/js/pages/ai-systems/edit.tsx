@@ -1,7 +1,9 @@
-import { Head } from '@inertiajs/react';
-import { ScaffoldPlaceholder } from '@/components/scaffold-placeholder';
+import { Form, Head } from '@inertiajs/react';
+import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
+import Heading from '@/components/heading';
 import { index } from '@/routes/ai-systems';
 import type { AiSystem, EnumOption } from '@/types/models';
+import { AiSystemForm } from './form';
 
 type Props = {
     aiSystem: AiSystem;
@@ -9,19 +11,41 @@ type Props = {
     categories: EnumOption[];
 };
 
-export default function AiSystemsEdit(props: Props) {
+export default function AiSystemsEdit({
+    aiSystem,
+    sourceTypes,
+    categories,
+}: Props) {
     return (
         <>
-            <Head title="Edit AI system" />
-            <ScaffoldPlaceholder
-                title="Edit AI system"
-                todo="TODO: build the edit form. Put it to ai-systems.update."
-                data={props}
-            />
+            <Head title="Editar sistema de IA" />
+            <div className="flex h-full flex-1 flex-col p-4">
+                <Heading
+                    title="Editar sistema de IA"
+                    description={aiSystem.name}
+                />
+                <Form
+                    {...AiSystemController.update.form(aiSystem.id)}
+                    options={{ preserveScroll: true }}
+                    className="max-w-xl space-y-6"
+                >
+                    {({ processing, errors }) => (
+                        <AiSystemForm
+                            sourceTypes={sourceTypes}
+                            categories={categories}
+                            errors={errors}
+                            processing={processing}
+                            submitLabel="Salvar"
+                            cancelHref={index()}
+                            aiSystem={aiSystem}
+                        />
+                    )}
+                </Form>
+            </div>
         </>
     );
 }
 
 AiSystemsEdit.layout = {
-    breadcrumbs: [{ title: 'AI systems', href: index() }],
+    breadcrumbs: [{ title: 'Sistemas de IA', href: index() }],
 };
