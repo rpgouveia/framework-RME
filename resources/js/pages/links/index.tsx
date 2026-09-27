@@ -103,7 +103,7 @@ export default function LinksIndex({ links }: Props) {
                                             <span>Mitigação</span>
 
                                             <strong>
-                                                {link.mitigation?.description ??
+                                                {link.mitigation?.name ??
                                                     `Mitigação #${link.mitigation_id}`}
                                             </strong>
                                         </div>

@@ -34,7 +34,7 @@ class FlagLinksDueForReview extends Command
                 $link->id,
                 $link->next_review_date->toDateString(),
                 $link->risk->name,
-                $link->mitigation->description,
+                $link->mitigation->name,
                 $link->owner->organizational_role,
             ]),
         );

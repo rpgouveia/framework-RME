@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('mitigations', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
             $table->text('description');
             $table->string('saeri_category');
             $table->text('suggested_target_risk');

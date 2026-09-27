@@ -154,7 +154,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 href={showLink(link.id)}
                                 className="font-medium hover:underline"
                             >
-                                {link.mitigation?.description}
+                                {link.mitigation?.name}
                             </Link>
                         </TableCell>
                         <TableCell>

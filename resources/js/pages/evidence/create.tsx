@@ -57,7 +57,7 @@ export default function EvidenceCreate({ link, types }: Props) {
                         <div>
                             <span>Mitigação</span>
                             <strong>
-                                {link.mitigation?.description ??
+                                {link.mitigation?.name ??
                                     `Mitigação #${link.mitigation_id}`}
                             </strong>
                         </div>
