@@ -21,6 +21,7 @@ beforeEach(function () {
 function mitigationPayload(array $overrides = []): array
 {
     return array_merge([
+        'name' => 'Fairness audit',
         'description' => 'Quarterly fairness audit of the model output',
         'saeri_category' => SaeriCategory::Governance->value,
         'suggested_target_risk' => 'Discriminatory outcomes for protected groups',
@@ -56,7 +57,8 @@ test('a mitigation can be registered with its catalogue entry', function () {
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('mitigations.show', $mitigation));
 
-    expect($mitigation->description)->toBe('Quarterly fairness audit of the model output')
+    expect($mitigation->name)->toBe('Fairness audit')
+        ->and($mitigation->description)->toBe('Quarterly fairness audit of the model output')
         ->and($mitigation->saeri_category)->toBe(SaeriCategory::Governance)
         ->and($mitigation->suggested_cost)->toBe(CostLevel::Medium)
         ->and($mitigation->uncertainty_level)->toBe(UncertaintyLevel::Low)
@@ -67,6 +69,7 @@ test('registering a mitigation requires every catalogue field', function () {
     $response = $this->post(route('mitigations.store'), []);
 
     $response->assertSessionHasErrors([
+        'name',
         'description',
         'saeri_category',
         'suggested_target_risk',
@@ -103,13 +106,15 @@ test('a mitigation can be updated', function () {
     $mitigation = Mitigation::factory()->create();
 
     $response = $this->put(route('mitigations.update', $mitigation), mitigationPayload([
+        'name' => 'Updated name',
         'description' => 'Updated mitigation',
         'saeri_category' => SaeriCategory::Technical->value,
     ]));
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('mitigations.show', $mitigation));
 
-    expect($mitigation->refresh()->saeri_category)->toBe(SaeriCategory::Technical);
+    expect($mitigation->refresh()->name)->toBe('Updated name')
+        ->and($mitigation->saeri_category)->toBe(SaeriCategory::Technical);
 });
 
 test('a mitigation without links can be deleted', function () {

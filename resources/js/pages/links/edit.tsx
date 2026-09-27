@@ -8,7 +8,7 @@ import '../../../css/links.css';
 type Props = {
     link: Link;
     risks: Risk[];
-    mitigations: Mitigation[];
+    mitigations: Pick<Mitigation, 'id' | 'name'>[];
     owners: Owner[];
     lifecyclePhases: EnumOption[];
     statuses: EnumOption[];
@@ -123,8 +123,7 @@ export default function LinksEdit({
                                             key={mitigation.id}
                                             value={mitigation.id}
                                         >
-                                            #{mitigation.id} -{' '}
-                                            {mitigation.description}
+                                            #{mitigation.id} - {mitigation.name}
                                         </option>
                                     ))}
                                 </select>

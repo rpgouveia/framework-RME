@@ -114,7 +114,7 @@ export default function LinksShow({ link }: Props) {
                             <span>Mitigação</span>
 
                             <strong>
-                                {link.mitigation?.description ??
+                                {link.mitigation?.name ??
                                     `Mitigação #${link.mitigation_id}`}
                             </strong>
 

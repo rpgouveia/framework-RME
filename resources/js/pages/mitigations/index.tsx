@@ -188,7 +188,7 @@ export default function MitigationsIndex({
                                     }
                                 >
                                     <h3 className="mitigation-card-title">
-                                        {mitigation.description}
+                                        {mitigation.name}
                                     </h3>
 
                                     <span className="mitigation-category">
