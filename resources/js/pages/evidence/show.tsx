@@ -106,7 +106,7 @@ export default function EvidenceShow({ evidence }: Props) {
                                     <span>Risco</span>
 
                                     <strong>
-                                        {evidence.link.risk?.description ??
+                                        {evidence.link.risk?.name ??
                                             `Risco #${evidence.link.risk_id}`}
                                     </strong>
                                 </div>

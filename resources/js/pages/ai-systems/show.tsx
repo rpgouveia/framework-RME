@@ -155,7 +155,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Descrição</TableHead>
+                    <TableHead>Nome</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead>Fase do ciclo de vida</TableHead>
                     <TableHead>Incerteza</TableHead>
@@ -165,12 +165,12 @@ function RisksTable({ risks }: { risks: Risk[] }) {
             <TableBody>
                 {risks.map((risk) => (
                     <TableRow key={risk.id}>
-                        <TableCell className="max-w-md whitespace-normal">
+                        <TableCell className="font-medium">
                             <Link
                                 href={showRisk(risk.id)}
-                                className="font-medium hover:underline"
+                                className="hover:underline"
                             >
-                                {risk.description}
+                                {risk.name}
                             </Link>
                         </TableCell>
                         <TableCell>

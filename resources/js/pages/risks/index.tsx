@@ -74,7 +74,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Descrição</TableHead>
+                        <TableHead>Nome</TableHead>
                         <TableHead>Sistema</TableHead>
                         <TableHead>Categoria</TableHead>
                         <TableHead>Fase do ciclo de vida</TableHead>
@@ -92,13 +92,21 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                             className="cursor-pointer"
                             onClick={rowLink(show(risk.id))}
                         >
-                            <TableCell className="max-w-md font-medium whitespace-normal">
-                                <Link
-                                    href={show(risk.id)}
-                                    className="hover:underline"
-                                >
-                                    {risk.description}
-                                </Link>
+                            <TableCell>
+                                {/* The name identifies the risk; one line of
+                                    the description gives context without
+                                    taking a column of its own. */}
+                                <div className="grid max-w-xs">
+                                    <Link
+                                        href={show(risk.id)}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {risk.name}
+                                    </Link>
+                                    <p className="text-muted-foreground truncate text-xs">
+                                        {risk.description}
+                                    </p>
+                                </div>
                             </TableCell>
                             <TableCell>
                                 {risk.ai_system && (
@@ -160,7 +168,7 @@ function DeleteRisk({ risk }: { risk: Risk }) {
         <DeleteDialog
             form={RiskController.destroy.form(risk.id)}
             title="Excluir este risco?"
-            description={`O risco "${risk.description}" será removido. Esta ação não pode ser desfeita.`}
+            description={`O risco "${risk.name}" será removido. Esta ação não pode ser desfeita.`}
             trigger={
                 <button
                     type="button"

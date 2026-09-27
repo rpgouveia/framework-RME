@@ -57,6 +57,7 @@ test('the json report compiles the chain of every link of the system', function 
         ->assertJsonPath('links.0.id', $link->id)
         ->assertJsonPath('links.0.status', LinkStatus::Implemented->value)
         ->assertJsonPath('links.0.risk.id', $link->risk_id)
+        ->assertJsonPath('links.0.risk.name', $link->risk->name)
         ->assertJsonPath('links.0.mitigation.id', $link->mitigation_id)
         ->assertJsonPath('links.0.owner.organizational_role', $link->owner->organizational_role)
         ->assertJsonPath('links.0.evidence.0.description', 'Relatório de auditoria')
@@ -89,6 +90,7 @@ test('the csv report has one row per link with the evidence joined', function ()
 
     expect($row['link_id'])->toBe((string) $link->id)
         ->and($row['risk_id'])->toBe((string) $risk->id)
+        ->and($row['risk_name'])->toBe($risk->name)
         ->and($row['evidence_count'])->toBe('2')
         ->and(substr_count($row['evidence'], ' | '))->toBe(1);
 });
