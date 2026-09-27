@@ -138,7 +138,7 @@ class LinkController extends Controller
     {
         return [
             'risks' => Risk::query()->with('aiSystem')->orderBy('name')->get(),
-            'mitigations' => Mitigation::query()->orderBy('description')->get(['id', 'description']),
+            'mitigations' => Mitigation::query()->orderBy('name')->get(['id', 'name']),
             'owners' => Owner::query()->orderBy('organizational_role')->get(),
             'lifecyclePhases' => LifecyclePhase::options(),
             'statuses' => LinkStatus::options(),

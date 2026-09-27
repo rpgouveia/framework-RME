@@ -18,6 +18,7 @@ trait MitigationValidationRules
     protected function mitigationRules(): array
     {
         return [
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:2000'],
             'saeri_category' => ['required', Rule::enum(SaeriCategory::class)],
             'suggested_target_risk' => ['required', 'string', 'max:2000'],

@@ -124,6 +124,7 @@ export interface Risk extends Timestamps {
 
 export interface Mitigation extends Timestamps {
     id: number;
+    name: string;
     description: string;
     saeri_category: SaeriCategory;
     suggested_target_risk: string;
