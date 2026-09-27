@@ -94,7 +94,11 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                             className="cursor-pointer"
                             onClick={(e) => {
                                 // Let inner links (nome, editar) navigate on their own.
-                                if ((e.target as HTMLElement).closest('a, button')) {
+                                if (
+                                    (e.target as HTMLElement).closest(
+                                        'a, button',
+                                    )
+                                ) {
                                     return;
                                 }
                                 router.visit(show(system.id));
