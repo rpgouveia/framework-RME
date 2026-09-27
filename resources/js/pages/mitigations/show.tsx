@@ -132,7 +132,7 @@ export default function MitigationsShow({ mitigation }: Props) {
                                     </span>
 
                                     <p className="mitigations-show-value">
-                                        {link.risk?.description ??
+                                        {link.risk?.name ??
                                             'Risco não carregado'}
                                     </p>
 

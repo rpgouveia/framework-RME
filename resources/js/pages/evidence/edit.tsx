@@ -57,7 +57,7 @@ export default function EvidenceEdit({ evidence, types }: Props) {
                                     <span>Risco</span>
 
                                     <strong>
-                                        {evidence.link.risk?.description ??
+                                        {evidence.link.risk?.name ??
                                             `Risco #${evidence.link.risk_id}`}
                                     </strong>
                                 </div>

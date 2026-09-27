@@ -111,6 +111,7 @@ export interface AiSystem extends Timestamps {
 
 export interface Risk extends Timestamps {
     id: number;
+    name: string;
     description: string;
     category: RiskCategory;
     lifecycle_phase: LifecyclePhase;

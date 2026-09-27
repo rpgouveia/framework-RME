@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
     Select,
@@ -91,6 +92,20 @@ export function RiskForm({
                     </SelectContent>
                 </Select>
                 <InputError message={errors.ai_system_id} />
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                    id="name"
+                    name="name"
+                    defaultValue={risk?.name}
+                    required
+                    maxLength={255}
+                    placeholder="Ex.: Viés de seleção"
+                    aria-invalid={errors.name ? true : undefined}
+                />
+                <InputError message={errors.name} />
             </div>
 
             <div className="grid gap-2">

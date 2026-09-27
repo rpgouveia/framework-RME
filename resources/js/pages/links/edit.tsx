@@ -89,7 +89,7 @@ export default function LinksEdit({
 
                                     {risks.map((risk) => (
                                         <option key={risk.id} value={risk.id}>
-                                            #{risk.id} - {risk.description}
+                                            #{risk.id} - {risk.name}
                                         </option>
                                     ))}
                                 </select>

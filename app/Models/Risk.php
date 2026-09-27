@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * A risk identified for a given AI system.
  *
  * @property int $id
+ * @property string $name
  * @property string $description
  * @property RiskCategory $category
  * @property LifecyclePhase $lifecycle_phase
@@ -29,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read Collection<int, Link> $links
  * @property-read int|null $links_count
  */
-#[Fillable(['description', 'category', 'lifecycle_phase', 'uncertainty_level', 'ai_system_id'])]
+#[Fillable(['name', 'description', 'category', 'lifecycle_phase', 'uncertainty_level', 'ai_system_id'])]
 class Risk extends Model
 {
     /** @use HasFactory<RiskFactory> */

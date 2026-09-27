@@ -15,6 +15,32 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class RiskFactory extends Factory
 {
     /**
+     * Well known AI risk types, so seeded data reads like a real register.
+     *
+     * @var list<string>
+     */
+    protected const NAMES = [
+        'Prompt injection',
+        'Jailbreak',
+        'Viés de seleção',
+        'Viés de rótulo',
+        'Discriminação algorítmica',
+        'Alucinação',
+        'Envenenamento de dados',
+        'Vazamento de dados de treino',
+        'Exposição de dados pessoais',
+        'Inferência de pertencimento',
+        'Inversão de modelo',
+        'Extração de modelo',
+        'Ataque adversarial',
+        'Deriva de dados',
+        'Degradação de desempenho',
+        'Falta de explicabilidade',
+        'Dependência excessiva da automação',
+        'Uso indevido do sistema',
+    ];
+
+    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -22,6 +48,7 @@ class RiskFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => fake()->randomElement(self::NAMES),
             // Varied lengths up to the 2000 character limit, so seeded data shows
             // how the screens cope with long descriptions.
             'description' => fake()->text(fake()->numberBetween(100, 2000)),

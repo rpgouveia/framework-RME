@@ -50,8 +50,7 @@ export default function EvidenceCreate({ link, types }: Props) {
                         <div>
                             <span>Risco</span>
                             <strong>
-                                {link.risk?.description ??
-                                    `Risco #${link.risk_id}`}
+                                {link.risk?.name ?? `Risco #${link.risk_id}`}
                             </strong>
                         </div>
 
