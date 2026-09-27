@@ -19,6 +19,7 @@ trait RiskValidationRules
     protected function riskRules(): array
     {
         return [
+            'name' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string', 'max:2000'],
             'category' => ['required', Rule::enum(RiskCategory::class)],
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],

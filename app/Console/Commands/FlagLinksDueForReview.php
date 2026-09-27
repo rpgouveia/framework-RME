@@ -33,7 +33,7 @@ class FlagLinksDueForReview extends Command
             $links->map(fn (Link $link): array => [
                 $link->id,
                 $link->next_review_date->toDateString(),
-                $link->risk->description,
+                $link->risk->name,
                 $link->mitigation->description,
                 $link->owner->organizational_role,
             ]),

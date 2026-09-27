@@ -75,8 +75,7 @@ export default function StatusHistoriesIndex({ link, statusHistories }: Props) {
                             <span>Risco</span>
 
                             <strong>
-                                {link.risk?.description ??
-                                    `Risco #${link.risk_id}`}
+                                {link.risk?.name ?? `Risco #${link.risk_id}`}
                             </strong>
                         </div>
 
