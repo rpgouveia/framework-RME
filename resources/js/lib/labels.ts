@@ -1,4 +1,5 @@
 import type {
+    AdverseEventType,
     AiSystemCategory,
     CostLevel,
     LifecyclePhase,
@@ -114,6 +115,16 @@ export const costLevelLabels: Record<CostLevel, string> = {
     low: 'Baixo',
     medium: 'Médio',
     high: 'Alto',
+};
+
+export const adverseEventTypeLabels: Record<AdverseEventType, string> = {
+    malfunction: 'Falha de funcionamento',
+    data_breach: 'Vazamento de dados',
+    biased_outcome: 'Resultado enviesado',
+    safety_incident: 'Incidente de segurança',
+    compliance_violation: 'Violação de conformidade',
+    user_harm: 'Dano ao usuário',
+    service_disruption: 'Interrupção do serviço',
 };
 
 /** Looks up an enum value's label, falling back to the raw value. */

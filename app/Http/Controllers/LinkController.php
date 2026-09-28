@@ -105,26 +105,6 @@ class LinkController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Link $link): RedirectResponse
-    {
-        Gate::authorize('delete', $link);
-
-        if ($link->evidence()->exists() || $link->statusHistories()->exists()) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => __('Delete the link evidence and history first.')]);
-
-            return back();
-        }
-
-        $link->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Link deleted.')]);
-
-        return to_route('links.index');
-    }
-
-    /**
      * Get the select options shared by the create and edit forms.
      *
      * @return array<string, mixed>

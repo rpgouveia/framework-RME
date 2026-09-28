@@ -21,7 +21,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('adverse-events', AdverseEventController::class);
     Route::resource('mitigations', MitigationController::class);
     Route::resource('owners', OwnerController::class);
-    Route::resource('links', LinkController::class);
+    // Links are permanent: they are closed by cancelling them, not deleted.
+    Route::resource('links', LinkController::class)->except('destroy');
 
     /*
      * Evidence and status history only exist in the context of a link, so they

@@ -233,31 +233,11 @@ test('a link is not kept when its opening history entry fails', function () {
     $this->assertDatabaseEmpty('links');
 });
 
-test('a link without evidence or history can be deleted', function () {
+test('links are permanent and cannot be deleted', function () {
     $link = Link::factory()->create();
 
-    $this->delete(route('links.destroy', $link))->assertRedirect(route('links.index'));
-
-    $this->assertModelMissing($link);
-});
-
-test('a link with evidence cannot be deleted', function () {
-    $evidence = Evidence::factory()->create();
-
-    $this->from(route('links.show', $evidence->link))
-        ->delete(route('links.destroy', $evidence->link))
-        ->assertRedirect(route('links.show', $evidence->link));
-
-    $this->assertModelExists($evidence->link);
-});
-
-test('a link created through the form cannot be deleted, since it opens a history', function () {
-    $this->post(route('links.store'), linkPayload());
-    $link = Link::sole();
-
-    $this->from(route('links.show', $link))
-        ->delete(route('links.destroy', $link))
-        ->assertRedirect(route('links.show', $link));
+    // Closing a link means cancelling it through the status history.
+    $this->delete("/links/{$link->id}")->assertMethodNotAllowed();
 
     $this->assertModelExists($link);
 });

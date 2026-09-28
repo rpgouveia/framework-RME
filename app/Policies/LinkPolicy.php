@@ -46,14 +46,6 @@ class LinkPolicy
     }
 
     /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Link $link): bool
-    {
-        return true;
-    }
-
-    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Link $link): bool
