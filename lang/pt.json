@@ -18,5 +18,6 @@
     "Evidence updated.": "Evidência atualizada.",
     "Evidence deleted.": "Evidência excluída.",
     "A mitigation with this name is already in the catalogue.": "Já existe uma mitigação com este nome no catálogo.",
-    "This AI system already has a risk with this name.": "Este sistema já tem um risco com este nome."
+    "This AI system already has a risk with this name.": "Este sistema já tem um risco com este nome.",
+    "The AI system cannot change once the risk has links.": "O sistema de IA não pode ser alterado depois que o risco tem vínculos."
 }

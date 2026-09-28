@@ -56,6 +56,7 @@ export function RiskForm({
     defaultAiSystemId,
 }: Props) {
     const aiSystemId = risk?.ai_system_id ?? defaultAiSystemId;
+    const linkCount = risk?.links_count ?? 0;
     const [descriptionLength, setDescriptionLength] = useState(
         risk?.description.length ?? 0,
     );
@@ -63,34 +64,62 @@ export function RiskForm({
     return (
         <>
             <div className="grid gap-2">
-                <Label htmlFor="ai_system_id">Sistema de IA</Label>
-                <Select
-                    name="ai_system_id"
-                    defaultValue={
-                        aiSystemId === undefined
-                            ? undefined
-                            : String(aiSystemId)
-                    }
-                    required
-                >
-                    <SelectTrigger
-                        id="ai_system_id"
-                        className="w-full"
-                        aria-invalid={errors.ai_system_id ? true : undefined}
-                    >
-                        <SelectValue placeholder="Selecione o sistema" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {aiSystems.map((system) => (
-                            <SelectItem
-                                key={system.id}
-                                value={String(system.id)}
+                {linkCount > 0 ? (
+                    // Once linked, the risk belongs to its system's
+                    // traceability chain; the server keeps the system when
+                    // the field is not sent.
+                    <>
+                        <span className="text-sm font-medium">
+                            Sistema de IA
+                        </span>
+                        <p className="font-medium">
+                            {
+                                aiSystems.find(
+                                    (system) =>
+                                        system.id === risk?.ai_system_id,
+                                )?.name
+                            }
+                        </p>
+                        <p className="text-muted-foreground text-sm">
+                            Não pode ser alterado: o risco tem {linkCount}{' '}
+                            {linkCount === 1 ? 'vínculo' : 'vínculos'} na cadeia
+                            de rastreabilidade deste sistema.
+                        </p>
+                    </>
+                ) : (
+                    <>
+                        <Label htmlFor="ai_system_id">Sistema de IA</Label>
+                        <Select
+                            name="ai_system_id"
+                            defaultValue={
+                                aiSystemId === undefined
+                                    ? undefined
+                                    : String(aiSystemId)
+                            }
+                            required
+                        >
+                            <SelectTrigger
+                                id="ai_system_id"
+                                className="w-full"
+                                aria-invalid={
+                                    errors.ai_system_id ? true : undefined
+                                }
                             >
-                                {system.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                                <SelectValue placeholder="Selecione o sistema" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {aiSystems.map((system) => (
+                                    <SelectItem
+                                        key={system.id}
+                                        value={String(system.id)}
+                                    >
+                                        {system.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </>
+                )}
                 <InputError message={errors.ai_system_id} />
             </div>
 
