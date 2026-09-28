@@ -4,25 +4,43 @@ namespace App\Concerns;
 
 use App\Enums\LinkStatus;
 use App\Models\AdverseEvent;
+use App\Models\Link;
 use App\Models\Owner;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
 trait StatusHistoryValidationRules
 {
     /**
-     * Get the validation rules shared by the store and update requests.
+     * Get the validation rules for recording a status change.
      *
-     * The previous status is optional because the first entry of a trail has
-     * nothing before it.
+     * The previous status is not asked for: it is the link's current status,
+     * read when the change is recorded.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     protected function statusHistoryRules(): array
     {
+        /** @var Link $link */
+        $link = $this->route('link');
+
         return [
-            'previous_status' => ['nullable', Rule::enum(LinkStatus::class)],
-            'new_status' => ['required', Rule::enum(LinkStatus::class), 'different:previous_status'],
+            'new_status' => [
+                'required',
+                Rule::enum(LinkStatus::class),
+                function (string $attribute, mixed $value, Closure $fail) use ($link): void {
+                    $status = LinkStatus::tryFrom((string) $value);
+
+                    if ($status === null || $link->status->canTransitionTo($status)) {
+                        return;
+                    }
+
+                    $fail($link->status === LinkStatus::Cancelled
+                        ? __('A cancelled link can only be reactivated, going back to planned.')
+                        : __('The new status must differ from the current one.'));
+                },
+            ],
             // Links are closed by cancelling them, never deleted, so the
             // reason is what explains why the chain stopped.
             'trigger_reason' => [
@@ -38,7 +56,7 @@ trait StatusHistoryValidationRules
     }
 
     /**
-     * Get the custom messages shared by the store and update requests.
+     * Get the custom messages for the status change rules.
      *
      * @return array<string, string>
      */

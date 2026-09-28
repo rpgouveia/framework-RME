@@ -24,7 +24,7 @@ import {
     linkStatusLabels,
 } from '@/lib/labels';
 import { index, show } from '@/routes/links';
-import { create } from '@/routes/links/status-histories';
+import { create, index as historyIndex } from '@/routes/links/status-histories';
 import type {
     AdverseEvent,
     EnumOption,
@@ -50,12 +50,11 @@ export default function StatusHistoriesCreate({
 }: Props) {
     const { url } = usePage();
 
-    // The link page offers shortcuts such as `?new_status=cancelled`; a value
-    // that is not a status, or that is the current one, is ignored.
-    const choices = statuses.filter((option) => option.value !== link.status);
+    // The server sends only the moves the link's status allows, so the link
+    // page shortcuts (`?new_status=cancelled`) are ignored when not among them.
     const requested = new URLSearchParams(url.split('?')[1]).get('new_status');
     const [newStatus, setNewStatus] = useState(
-        choices.some((option) => option.value === requested)
+        statuses.some((option) => option.value === requested)
             ? (requested ?? '')
             : '',
     );
@@ -77,12 +76,6 @@ export default function StatusHistoriesCreate({
                 >
                     {({ processing, errors }) => (
                         <>
-                            {/* The change starts from wherever the link is now. */}
-                            <input
-                                type="hidden"
-                                name="previous_status"
-                                value={link.status}
-                            />
                             <div className="grid gap-2">
                                 <span className="text-sm font-medium">
                                     Status atual
@@ -114,7 +107,7 @@ export default function StatusHistoriesCreate({
                                         <SelectValue placeholder="Selecione o novo status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {choices.map((option) => (
+                                        {statuses.map((option) => (
                                             <SelectItem
                                                 key={option.value}
                                                 value={option.value}
@@ -299,6 +292,7 @@ StatusHistoriesCreate.layout = ({ link }: Props) => ({
     breadcrumbs: [
         { title: 'Vínculos', href: index() },
         { title: linkLabel(link), href: show(link.id) },
-        { title: 'Registrar mudança de status', href: create(link.id) },
+        { title: 'Histórico', href: historyIndex(link.id) },
+        { title: 'Registrar mudança', href: create(link.id) },
     ],
 });

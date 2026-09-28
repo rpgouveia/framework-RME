@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\DB;
  */
 class CreateLink
 {
+    public function __construct(
+        protected RecordStatusChange $recordStatusChange,
+    ) {}
+
     /**
      * @param  array<string, mixed>  $attributes  The validated link fields.
      */
@@ -29,12 +33,7 @@ class CreateLink
                     ->addDays(Config::integer('rme.review.interval_days')),
             ]);
 
-            $link->statusHistories()->create([
-                'previous_status' => null,
-                'new_status' => $link->status,
-                'change_date' => $link->creation_date,
-                'owner_id' => $link->owner_id,
-            ]);
+            $this->recordStatusChange->open($link);
 
             return $link;
         });
