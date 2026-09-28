@@ -2,8 +2,8 @@
 
 namespace App\Actions;
 
+use App\Enums\LinkStatus;
 use App\Models\Link;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 
@@ -22,15 +22,22 @@ class CreateLink
     ) {}
 
     /**
+     * The link is born planned and dated today, whatever the attributes say:
+     * the review date is computed from the creation date (R-7), so a date
+     * typed by the user would let them move the review.
+     *
      * @param  array<string, mixed>  $attributes  The validated link fields.
      */
     public function handle(array $attributes): Link
     {
         return DB::transaction(function () use ($attributes): Link {
+            $creationDate = today();
+
             $link = Link::create([
                 ...$attributes,
-                'next_review_date' => Carbon::parse($attributes['creation_date'])
-                    ->addDays(Config::integer('rme.review.interval_days')),
+                'status' => LinkStatus::Planned,
+                'creation_date' => $creationDate,
+                'next_review_date' => $creationDate->addDays(Config::integer('rme.review.interval_days')),
             ]);
 
             $this->recordStatusChange->open($link);

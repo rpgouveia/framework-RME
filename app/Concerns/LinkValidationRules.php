@@ -4,7 +4,6 @@ namespace App\Concerns;
 
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
-use App\Enums\LinkStatus;
 use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
@@ -17,16 +16,16 @@ trait LinkValidationRules
     /**
      * Get the validation rules for creating a link.
      *
+     * The status and the creation date are set by the server (CreateLink),
+     * and the observed cost is only known later (R-4), so none is asked for.
+     *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     protected function linkRules(): array
     {
         return [
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
-            'status' => ['required', Rule::enum(LinkStatus::class)],
             'estimated_cost' => ['required', Rule::enum(CostLevel::class)],
-            'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
-            'creation_date' => ['required', 'date'],
             'risk_id' => ['required', 'integer', Rule::exists(Risk::class, 'id')],
             'mitigation_id' => [
                 'required',

@@ -7,6 +7,7 @@ import type {
     Link,
     LinkStatus,
     RiskCategory,
+    SaeriCategory,
     SystemSourceType,
     UncertaintyLevel,
 } from '@/types/models';
@@ -135,6 +136,14 @@ export const evidenceTypeLabels: Record<EvidenceType, string> = {
     test_result: 'Resultado de teste',
     certification: 'Certificação',
     meeting_minutes: 'Ata de reunião',
+};
+
+/** The four mitigation categories of Saeri et al. (C2). */
+export const saeriCategoryLabels: Record<SaeriCategory, string> = {
+    governance: 'Governança',
+    technical: 'Técnica',
+    process: 'Processo',
+    transparency: 'Transparência',
 };
 
 /** Looks up an enum value's label, falling back to the raw value. */
