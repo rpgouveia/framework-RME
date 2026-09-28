@@ -6,5 +6,6 @@
     "Risk registered.": "Risco cadastrado.",
     "Risk updated.": "Risco atualizado.",
     "Risk deleted.": "Risco excluído.",
-    "Delete the risk links first.": "Exclua primeiro os vínculos do risco."
+    "Delete the risk links first.": "Exclua primeiro os vínculos do risco.",
+    "A link between this risk and this mitigation already exists.": "Já existe um vínculo entre este risco e esta mitigação."
 }
