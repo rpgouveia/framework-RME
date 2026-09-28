@@ -1,177 +1,127 @@
-import { Head, Link as InertiaLink } from '@inertiajs/react';
-import { index } from '@/routes/links';
-import type { LinkStatus, StatusHistory } from '@/types/models';
-import '../../../css/status-histories.css';
+import { Head, Link } from '@inertiajs/react';
+import { DetailItem } from '@/components/detail-item';
+import { StatusTransition } from '@/components/status-transition';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate } from '@/lib/format';
+import { adverseEventTypeLabels, linkLabel } from '@/lib/labels';
+import { index as linksIndex, show as showLink } from '@/routes/links';
+import { index as historyIndex } from '@/routes/links/status-histories';
+import { show } from '@/routes/status-histories';
+import type { Link as RiskLink, StatusHistory } from '@/types/models';
 
 type Props = {
-    statusHistory: StatusHistory;
+    statusHistory: StatusHistory & { link: RiskLink };
 };
-
-const statusLabels: Record<LinkStatus, string> = {
-    planned: 'Planejado',
-    in_progress: 'Em andamento',
-    implemented: 'Implementado',
-    monitoring: 'Em monitoramento',
-    suspended: 'Suspenso',
-    cancelled: 'Cancelado',
-};
-
-function getStatusLabel(status: LinkStatus | null) {
-    if (!status) {
-        return 'Status inicial';
-    }
-
-    return statusLabels[status] ?? status;
-}
-
-function formatDate(date: string | null | undefined) {
-    if (!date) {
-        return 'Data não informada';
-    }
-
-    const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-        return date;
-    }
-
-    return parsedDate.toLocaleDateString('pt-BR', {
-        timeZone: 'UTC',
-    });
-}
 
 export default function StatusHistoriesShow({ statusHistory }: Props) {
+    const event = statusHistory.adverse_event;
+
     return (
         <>
-            <Head title="Alteração de status" />
-
-            <main className="status-history-page status-history-show">
-                <header className="status-history-header">
-                    <div>
-                        <span className="status-history-eyebrow">
-                            Alteração #{statusHistory.id}
-                        </span>
-
-                        <h1>Detalhes da alteração de status</h1>
-
-                        <p>
-                            Visualize as informações registradas nesta mudança
-                            de status.
-                        </p>
-                    </div>
+            <Head title="Mudança de status" />
+            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+                <header className="grid gap-2">
+                    <h1 className="text-xl font-semibold tracking-tight">
+                        Mudança de status
+                    </h1>
+                    <StatusTransition
+                        from={statusHistory.previous_status}
+                        to={statusHistory.new_status}
+                    />
                 </header>
 
-                <section className="status-history-section">
-                    <h2>Alteração de status</h2>
-
-                    <div className="status-history-show-change">
-                        <div className="status-history-show-status">
-                            <span>Status anterior</span>
-
-                            <strong>
-                                {getStatusLabel(statusHistory.previous_status)}
-                            </strong>
-                        </div>
-
-                        <span className="status-history-show-arrow">→</span>
-
-                        <div className="status-history-show-status">
-                            <span>Novo status</span>
-
-                            <strong>
-                                {getStatusLabel(statusHistory.new_status)}
-                            </strong>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="status-history-section">
-                    <h2>Informações da alteração</h2>
-
-                    <div className="status-history-show-grid">
-                        <div className="status-history-show-item">
-                            <span>Data da alteração</span>
-
-                            <strong>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Detalhes</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid gap-6">
+                        <dl className="grid gap-4 sm:grid-cols-3">
+                            <DetailItem label="Vínculo">
+                                <Link
+                                    href={showLink(statusHistory.link_id)}
+                                    className="hover:underline"
+                                >
+                                    {linkLabel(statusHistory.link)}
+                                </Link>
+                            </DetailItem>
+                            <DetailItem label="Data da mudança">
                                 {formatDate(statusHistory.change_date)}
-                            </strong>
-                        </div>
+                            </DetailItem>
+                            <DetailItem label="Registrado por">
+                                {statusHistory.owner && (
+                                    <span className="grid">
+                                        <span>
+                                            {
+                                                statusHistory.owner
+                                                    .organizational_role
+                                            }
+                                        </span>
+                                        <span className="text-muted-foreground text-sm font-normal">
+                                            {statusHistory.owner.area}
+                                        </span>
+                                    </span>
+                                )}
+                            </DetailItem>
+                        </dl>
+                        <dl>
+                            <DetailItem label="Motivo">
+                                {statusHistory.trigger_reason ? (
+                                    <p className="max-w-prose font-normal whitespace-pre-line">
+                                        {statusHistory.trigger_reason}
+                                    </p>
+                                ) : (
+                                    <span className="text-muted-foreground font-normal">
+                                        Não informado
+                                    </span>
+                                )}
+                            </DetailItem>
+                        </dl>
+                    </CardContent>
+                </Card>
 
-                        <div className="status-history-show-item">
-                            <span>Responsável</span>
-
-                            <strong>
-                                {statusHistory.owner?.organizational_role ??
-                                    `Responsável #${statusHistory.owner_id}`}
-                            </strong>
-                        </div>
-
-                        <div className="status-history-show-item">
-                            <span>Vínculo</span>
-
-                            <strong>#{statusHistory.link_id}</strong>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="status-history-section">
-                    <h2>Motivo da alteração</h2>
-
-                    <div className="status-history-show-reason">
-                        <p>
-                            {statusHistory.trigger_reason ??
-                                'Nenhum motivo foi informado para esta alteração.'}
-                        </p>
-                    </div>
-                </section>
-
-                {statusHistory.adverse_event_id && (
-                    <section className="status-history-section">
-                        <h2>Evento adverso relacionado</h2>
-
-                        <div className="status-history-show-grid">
-                            <div className="status-history-show-item">
-                                <span>Evento adverso</span>
-
-                                <strong>
-                                    #{statusHistory.adverse_event_id}
-                                </strong>
-                            </div>
-
-                            {statusHistory.adverse_event && (
-                                <div className="status-history-show-item">
-                                    <span>Descrição</span>
-
-                                    <strong>
-                                        {
-                                            statusHistory.adverse_event
-                                                .description
-                                        }
-                                    </strong>
-                                </div>
-                            )}
-                        </div>
-                    </section>
+                {event && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Evento adverso relacionado</CardTitle>
+                        </CardHeader>
+                        <CardContent className="grid gap-6">
+                            <dl className="grid gap-4 sm:grid-cols-3">
+                                <DetailItem label="Tipo">
+                                    {adverseEventTypeLabels[event.event_type]}
+                                </DetailItem>
+                                <DetailItem label="Ocorrência">
+                                    {formatDate(event.occurrence_date)}
+                                </DetailItem>
+                                <DetailItem label="Sistema de IA">
+                                    {event.ai_system?.name}
+                                </DetailItem>
+                            </dl>
+                            <dl>
+                                <DetailItem label="Descrição">
+                                    <p className="max-w-prose font-normal whitespace-pre-line">
+                                        {event.description}
+                                    </p>
+                                </DetailItem>
+                            </dl>
+                        </CardContent>
+                    </Card>
                 )}
-
-                <div className="status-history-actions">
-                    <InertiaLink
-                        href={`/links/${statusHistory.link_id}/status-histories`}
-                        className="status-history-button status-history-button-secondary"
-                    >
-                        Voltar para histórico
-                    </InertiaLink>
-                </div>
-            </main>
+            </div>
         </>
     );
 }
 
-StatusHistoriesShow.layout = {
+StatusHistoriesShow.layout = ({ statusHistory }: Props) => ({
     breadcrumbs: [
+        { title: 'Vínculos', href: linksIndex() },
         {
-            title: 'Links',
-            href: index(),
+            title: linkLabel(statusHistory.link),
+            href: showLink(statusHistory.link_id),
+        },
+        { title: 'Histórico', href: historyIndex(statusHistory.link_id) },
+        {
+            title: formatDate(statusHistory.change_date),
+            href: show(statusHistory.id),
         },
     ],
-};
+});

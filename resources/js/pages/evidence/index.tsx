@@ -1,203 +1,142 @@
-import { Head, Link as InertiaLink, router } from '@inertiajs/react';
-import { index } from '@/routes/links';
-import type { Evidence, EvidenceType, Link, Paginated } from '@/types/models';
-
-import '../../../css/evidence.css';
+import { Head, Link } from '@inertiajs/react';
+import EvidenceController from '@/actions/App/Http/Controllers/EvidenceController';
+import { DeleteDialog } from '@/components/delete-dialog';
+import Heading from '@/components/heading';
+import { PaginationLinks } from '@/components/pagination-links';
+import { Button } from '@/components/ui/button';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { formatDate } from '@/lib/format';
+import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
+import { rowLink } from '@/lib/row-link';
+import { edit, show } from '@/routes/evidence';
+import { index as linksIndex, show as showLink } from '@/routes/links';
+import { create, index } from '@/routes/links/evidence';
+import type { Evidence, Link as RiskLink, Paginated } from '@/types/models';
 
 type Props = {
-    link: Link;
+    link: RiskLink;
     evidence: Paginated<Evidence>;
 };
 
-const evidenceTypeLabels: Record<EvidenceType, string> = {
-    document: 'Documento',
-    report: 'Relatório',
-    audit_log: 'Log de auditoria',
-    test_result: 'Resultado de teste',
-    certification: 'Certificação',
-    meeting_minutes: 'Ata de reunião',
-};
-
-function formatDate(date: string | null | undefined) {
-    if (!date) {
-        return 'Data não informada';
-    }
-
-    const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-        return date;
-    }
-
-    return parsedDate.toLocaleDateString('pt-BR', {
-        timeZone: 'UTC',
-    });
-}
-
 export default function EvidenceIndex({ link, evidence }: Props) {
-    function deleteEvidence(evidenceId: number) {
-        const confirmed = window.confirm(
-            'Tem certeza que deseja excluir esta evidência?',
-        );
-
-        if (!confirmed) {
-            return;
-        }
-
-        router.delete(`/evidence/${evidenceId}`);
-    }
-
     return (
         <>
             <Head title="Evidências" />
-
-            <main className="evidence-page">
-                <header className="evidence-header">
-                    <div>
-                        <span className="evidence-eyebrow">
-                            Vínculo #{link.id}
-                        </span>
-
-                        <h1>Evidências do vínculo</h1>
-
-                        <p>
-                            Evidências registradas para este vínculo entre risco
-                            e mitigação.
-                        </p>
-                    </div>
-
-                    <InertiaLink
-                        href={`/links/${link.id}/evidence/create`}
-                        className="evidence-button evidence-button-primary"
-                    >
-                        Nova evidência
-                    </InertiaLink>
-                </header>
-
-                <section className="evidence-section">
-                    <h2>Informações do vínculo</h2>
-
-                    <div className="evidence-link-grid">
-                        <div>
-                            <span>Risco</span>
-
-                            <strong>
-                                {link.risk?.name ?? `Risco #${link.risk_id}`}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Mitigação</span>
-
-                            <strong>
-                                {link.mitigation?.name ??
-                                    `Mitigação #${link.mitigation_id}`}
-                            </strong>
-                        </div>
-
-                        <div>
-                            <span>Status</span>
-
-                            <strong>{link.status}</strong>
-                        </div>
-
-                        <div>
-                            <span>Responsável</span>
-
-                            <strong>
-                                {link.owner?.organizational_role ??
-                                    `Responsável #${link.owner_id}`}
-                            </strong>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="evidence-section">
-                    <h2>Evidências registradas</h2>
-
-                    {evidence.data.length > 0 ? (
-                        <div className="evidence-list">
-                            {evidence.data.map((item) => (
-                                <article
-                                    className="evidence-card"
-                                    key={item.id}
-                                >
-                                    <div className="evidence-card-header">
-                                        <div>
-                                            <span className="evidence-type">
-                                                {evidenceTypeLabels[
-                                                    item.type
-                                                ] ?? item.type}
-                                            </span>
-
-                                            <span className="evidence-id">
-                                                #{item.id}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <p className="evidence-card-description">
-                                        {item.description}
-                                    </p>
-
-                                    <div className="evidence-card-footer">
-                                        <span>
-                                            Registrada em{' '}
-                                            {formatDate(item.registration_date)}
-                                        </span>
-
-                                        <div className="evidence-card-actions">
-                                            <InertiaLink
-                                                href={`/evidence/${item.id}`}
-                                                className="evidence-button evidence-button-view"
-                                            >
-                                                Visualizar
-                                            </InertiaLink>
-
-                                            <InertiaLink
-                                                href={`/evidence/${item.id}/edit`}
-                                                className="evidence-button evidence-button-secondary"
-                                            >
-                                                Editar
-                                            </InertiaLink>
-
-                                            <button
-                                                type="button"
-                                                className="evidence-button evidence-button-danger"
-                                                onClick={() =>
-                                                    deleteEvidence(item.id)
-                                                }
-                                            >
-                                                Deletar
-                                            </button>
-                                        </div>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="evidence-empty">
-                            <p>
-                                Nenhuma evidência foi registrada para este
-                                vínculo.
-                            </p>
-                        </div>
-                    )}
-                </section>
-
-                <div className="evidence-actions">
-                    <InertiaLink
-                        href="/links"
-                        className="evidence-button evidence-button-secondary"
-                    >
-                        Voltar para vínculos
-                    </InertiaLink>
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <div className="flex items-start justify-between gap-4">
+                    <Heading title="Evidências" description={linkLabel(link)} />
+                    <Button asChild>
+                        <Link href={create(link.id)}>Registrar evidência</Link>
+                    </Button>
                 </div>
-            </main>
+
+                {evidence.data.length === 0 ? (
+                    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+                        <p className="text-muted-foreground max-w-md text-sm">
+                            Nenhuma evidência foi registrada para este vínculo.
+                            Sem evidência, não há como comprovar que a mitigação
+                            foi aplicada.
+                        </p>
+                        <Button asChild>
+                            <Link href={create(link.id)}>
+                                Registrar evidência
+                            </Link>
+                        </Button>
+                    </div>
+                ) : (
+                    <>
+                        <EvidenceTable evidence={evidence.data} />
+                        {evidence.last_page > 1 && (
+                            <PaginationLinks links={evidence.links} />
+                        )}
+                    </>
+                )}
+            </div>
         </>
     );
 }
 
-EvidenceIndex.layout = {
-    breadcrumbs: [{ title: 'Links', href: index() }],
-};
+function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
+    return (
+        <div className="rounded-xl border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Descrição</TableHead>
+                        <TableHead>Registrada em</TableHead>
+                        <TableHead>
+                            <span className="sr-only">Ações</span>
+                        </TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {evidence.map((item) => (
+                        <TableRow
+                            key={item.id}
+                            className="cursor-pointer"
+                            onClick={rowLink(show(item.id))}
+                        >
+                            <TableCell className="font-medium">
+                                <Link
+                                    href={show(item.id)}
+                                    className="hover:underline"
+                                >
+                                    {evidenceTypeLabels[item.type]}
+                                </Link>
+                            </TableCell>
+                            <TableCell>
+                                <p className="max-w-md truncate">
+                                    {item.description}
+                                </p>
+                            </TableCell>
+                            <TableCell>
+                                {formatDate(item.registration_date)}
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex items-center justify-end gap-3">
+                                    <Link
+                                        href={edit(item.id)}
+                                        className="text-muted-foreground hover:text-foreground text-sm hover:underline"
+                                    >
+                                        Editar
+                                    </Link>
+                                    <DeleteDialog
+                                        form={EvidenceController.destroy.form(
+                                            item.id,
+                                        )}
+                                        title="Excluir esta evidência?"
+                                        description="A evidência será removida do vínculo. Esta ação não pode ser desfeita."
+                                        trigger={
+                                            <button
+                                                type="button"
+                                                className="text-destructive text-sm hover:underline"
+                                            >
+                                                Excluir
+                                            </button>
+                                        }
+                                    />
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+}
+
+EvidenceIndex.layout = ({ link }: Props) => ({
+    breadcrumbs: [
+        { title: 'Vínculos', href: linksIndex() },
+        { title: linkLabel(link), href: showLink(link.id) },
+        { title: 'Evidências', href: index(link.id) },
+    ],
+});
