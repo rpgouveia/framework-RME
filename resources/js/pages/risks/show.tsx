@@ -17,6 +17,7 @@ import { formatDate } from '@/lib/format';
 import {
     costLevelLabels,
     lifecyclePhaseLabels,
+    linkStatusBadgeClasses,
     linkStatusLabels,
     riskCategoryLabels,
     uncertaintyBadgeClasses,
@@ -170,7 +171,9 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             )}
                         </TableCell>
                         <TableCell>
-                            <Badge variant="outline">
+                            <Badge
+                                className={linkStatusBadgeClasses[link.status]}
+                            >
                                 {linkStatusLabels[link.status]}
                             </Badge>
                         </TableCell>

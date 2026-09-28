@@ -1,289 +1,196 @@
-import { Head, Link as InertiaLink } from '@inertiajs/react';
-import { index } from '@/routes/links';
-import type {
-    CostLevel,
-    LifecyclePhase,
-    Link,
-    LinkStatus,
-} from '@/types/models';
-
-import '../../../css/links.css';
+import { Head, Link } from '@inertiajs/react';
+import LinkController from '@/actions/App/Http/Controllers/LinkController';
+import { DeleteDialog } from '@/components/delete-dialog';
+import { DetailItem } from '@/components/detail-item';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { formatDate } from '@/lib/format';
+import {
+    costLevelLabels,
+    lifecyclePhaseLabels,
+    linkLabel,
+    linkStatusBadgeClasses,
+    linkStatusLabels,
+} from '@/lib/labels';
+import { show as showAiSystem } from '@/routes/ai-systems';
+import { edit, index, show } from '@/routes/links';
+import { index as evidenceIndex } from '@/routes/links/evidence';
+import { index as statusHistoriesIndex } from '@/routes/links/status-histories';
+import { show as showMitigation } from '@/routes/mitigations';
+import { show as showRisk } from '@/routes/risks';
+import type { Link as RiskLink } from '@/types/models';
 
 type Props = {
-    link: Link;
+    link: RiskLink;
 };
-
-const statusLabels: Record<LinkStatus, string> = {
-    planned: 'Planejado',
-    in_progress: 'Em andamento',
-    implemented: 'Implementado',
-    monitoring: 'Em monitoramento',
-    suspended: 'Suspenso',
-    cancelled: 'Cancelado',
-};
-
-const lifecycleLabels: Record<LifecyclePhase, string> = {
-    inception: 'Concepção',
-    design: 'Design',
-    data_collection: 'Coleta de dados',
-    development: 'Desenvolvimento',
-    validation: 'Validação',
-    deployment: 'Implantação',
-    monitoring: 'Monitoramento',
-    decommissioning: 'Desativação',
-};
-
-const costLabels: Record<CostLevel, string> = {
-    low: 'Baixo',
-    medium: 'Médio',
-    high: 'Alto',
-};
-
-function formatDate(date: string | null | undefined) {
-    if (!date) {
-        return 'Data não informada';
-    }
-
-    const parsedDate = new Date(date);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-        return date;
-    }
-
-    return parsedDate.toLocaleDateString('pt-BR', {
-        timeZone: 'UTC',
-    });
-}
 
 export default function LinksShow({ link }: Props) {
+    const evidenceCount = link.evidence_count ?? 0;
+    const historyCount = link.status_histories_count ?? 0;
+
     return (
         <>
-            <Head title={`Vínculo #${link.id}`} />
-
-            <main className="links-page">
-                <header className="links-show-header">
-                    <div>
-                        <span className="links-eyebrow">
-                            Vínculo #{link.id}
-                        </span>
-
-                        <h1>Detalhes do vínculo</h1>
-
-                        <p>
-                            Visualize as informações do risco, da mitigação e do
-                            acompanhamento deste vínculo.
-                        </p>
+            <Head title={linkLabel(link)} />
+            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+                <header className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="grid gap-2">
+                        <h1 className="flex flex-wrap items-baseline gap-x-2 text-xl font-semibold tracking-tight">
+                            <Link
+                                href={showRisk(link.risk_id)}
+                                className="hover:underline"
+                            >
+                                {link.risk?.name}
+                            </Link>
+                            <span
+                                className="text-muted-foreground font-normal"
+                                aria-label="mitigado por"
+                            >
+                                →
+                            </span>
+                            <Link
+                                href={showMitigation(link.mitigation_id)}
+                                className="hover:underline"
+                            >
+                                {link.mitigation?.name}
+                            </Link>
+                        </h1>
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                            <Badge
+                                className={linkStatusBadgeClasses[link.status]}
+                            >
+                                {linkStatusLabels[link.status]}
+                            </Badge>
+                            {link.risk?.ai_system && (
+                                <Link
+                                    href={showAiSystem(link.risk.ai_system.id)}
+                                    className="text-muted-foreground hover:underline"
+                                >
+                                    {link.risk.ai_system.name}
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" asChild>
+                            <Link href={edit(link.id)}>Editar</Link>
+                        </Button>
+                        {/* The backend refuses to delete a link that has
+                            evidence or history, so offer it only then. */}
+                        {evidenceCount === 0 && historyCount === 0 && (
+                            <DeleteDialog
+                                form={LinkController.destroy.form(link.id)}
+                                title="Excluir este vínculo?"
+                                description={`O vínculo "${linkLabel(link)}" será removido. Esta ação não pode ser desfeita.`}
+                            />
+                        )}
                     </div>
                 </header>
 
-                <section className="links-section">
-                    <div className="links-show-section-title">
-                        <div>
-                            <h2>Risco e mitigação</h2>
-
-                            <p>Elementos associados a este vínculo.</p>
-                        </div>
-
-                        <span
-                            className={`link-status link-status-${link.status}`}
-                        >
-                            {statusLabels[link.status] ?? link.status}
-                        </span>
-                    </div>
-
-                    <div className="links-show-main">
-                        <div className="links-show-main-card">
-                            <span>Risco</span>
-
-                            <strong>
-                                {link.risk?.name ?? `Risco #${link.risk_id}`}
-                            </strong>
-
-                            {link.risk && (
-                                <div className="links-show-subinfo">
-                                    <span>Categoria: {link.risk.category}</span>
-
-                                    <span>
-                                        Incerteza: {link.risk.uncertainty_level}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Detalhes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <DetailItem label="Responsável">
+                                {link.owner && (
+                                    <span className="grid">
+                                        <span>
+                                            {link.owner.organizational_role}
+                                        </span>
+                                        <span className="text-muted-foreground text-sm font-normal">
+                                            {link.owner.area}
+                                        </span>
                                     </span>
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="links-show-main-card">
-                            <span>Mitigação</span>
-
-                            <strong>
-                                {link.mitigation?.name ??
-                                    `Mitigação #${link.mitigation_id}`}
-                            </strong>
-
-                            {link.mitigation && (
-                                <div className="links-show-subinfo">
-                                    <span>
-                                        Categoria:{' '}
-                                        {link.mitigation.saeri_category}
+                                )}
+                            </DetailItem>
+                            <DetailItem label="Fase do ciclo de vida">
+                                {lifecyclePhaseLabels[link.lifecycle_phase]}
+                            </DetailItem>
+                            <DetailItem label="Custo estimado">
+                                {costLevelLabels[link.estimated_cost]}
+                            </DetailItem>
+                            <DetailItem label="Custo observado">
+                                {link.observed_cost ? (
+                                    costLevelLabels[link.observed_cost]
+                                ) : (
+                                    <span className="text-muted-foreground font-normal">
+                                        Não informado
                                     </span>
+                                )}
+                            </DetailItem>
+                            <DetailItem label="Data de criação">
+                                {formatDate(link.creation_date)}
+                            </DetailItem>
+                            <DetailItem label="Próxima revisão">
+                                {formatDate(link.next_review_date)}
+                            </DetailItem>
+                        </dl>
+                    </CardContent>
+                </Card>
 
-                                    <span>
-                                        Incerteza:{' '}
-                                        {link.mitigation.uncertainty_level}
-                                    </span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </section>
-
-                <section className="links-section">
-                    <h2>Informações do vínculo</h2>
-
-                    <div className="links-show-grid">
-                        <div className="links-show-item">
-                            <span>Status</span>
-
-                            <strong>
-                                {statusLabels[link.status] ?? link.status}
-                            </strong>
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Responsável</span>
-
-                            <strong>
-                                {link.owner?.organizational_role ??
-                                    `Responsável #${link.owner_id}`}
-                            </strong>
-
-                            {link.owner?.area && (
-                                <small>{link.owner.area}</small>
-                            )}
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Fase do ciclo de vida</span>
-
-                            <strong>
-                                {lifecycleLabels[link.lifecycle_phase] ??
-                                    link.lifecycle_phase}
-                            </strong>
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Custo estimado</span>
-
-                            <strong>
-                                {costLabels[link.estimated_cost] ??
-                                    link.estimated_cost}
-                            </strong>
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Custo observado</span>
-
-                            <strong>
-                                {link.observed_cost
-                                    ? costLabels[link.observed_cost]
-                                    : 'Não informado'}
-                            </strong>
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Data de criação</span>
-
-                            <strong>{formatDate(link.creation_date)}</strong>
-                        </div>
-
-                        <div className="links-show-item">
-                            <span>Próxima revisão</span>
-
-                            <strong>{formatDate(link.next_review_date)}</strong>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="links-section">
-                    <div className="links-show-section-title">
-                        <div>
-                            <h2>Gerenciamento do vínculo</h2>
-
-                            <p>
-                                Consulte as evidências e o histórico de
-                                alterações deste vínculo.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="links-management">
-                        <div className="links-management-card">
-                            <div>
-                                <span>Evidências</span>
-
-                                <strong>{link.evidence_count ?? 0}</strong>
-
-                                <p>
-                                    Consulte os documentos e registros que
-                                    comprovam a aplicação da mitigação.
-                                </p>
-                            </div>
-
-                            <InertiaLink
-                                href={`/links/${link.id}/evidence`}
-                                className="links-button links-button-secondary"
-                            >
-                                Ver evidências
-                            </InertiaLink>
-                        </div>
-
-                        <div className="links-management-card">
-                            <div>
-                                <span>Histórico de status</span>
-
-                                <strong>
-                                    {link.status_histories_count ?? 0}
-                                </strong>
-
-                                <p>
-                                    Consulte todas as mudanças de status
-                                    registradas para este vínculo.
-                                </p>
-                            </div>
-
-                            <InertiaLink
-                                href={`/links/${link.id}/status-histories`}
-                                className="links-button links-button-secondary"
-                            >
-                                Ver histórico
-                            </InertiaLink>
-                        </div>
-                    </div>
-                </section>
-
-                <div className="links-show-actions">
-                    <InertiaLink
-                        href="/links"
-                        className="links-button links-button-secondary"
-                    >
-                        Voltar para vínculos
-                    </InertiaLink>
-
-                    <InertiaLink
-                        href={`/links/${link.id}/edit`}
-                        className="links-button links-button-primary"
-                    >
-                        Editar vínculo
-                    </InertiaLink>
+                <div className="grid gap-6 md:grid-cols-2">
+                    <CountCard
+                        title="Evidências"
+                        count={evidenceCount}
+                        description="Documentos e registros que comprovam a aplicação da mitigação."
+                        href={evidenceIndex(link.id)}
+                        action="Ver evidências"
+                    />
+                    <CountCard
+                        title="Histórico de status"
+                        count={historyCount}
+                        description="Cada mudança de status do vínculo, com quem a registrou e quando."
+                        href={statusHistoriesIndex(link.id)}
+                        action="Ver histórico"
+                    />
                 </div>
-            </main>
+            </div>
         </>
     );
 }
 
-LinksShow.layout = {
+function CountCard({
+    title,
+    count,
+    description,
+    href,
+    action,
+}: {
+    title: string;
+    count: number;
+    description: string;
+    href: ReturnType<typeof evidenceIndex>;
+    action: string;
+}) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between gap-4">
+                <span className="text-3xl font-semibold tabular-nums">
+                    {count}
+                </span>
+                <Button variant="outline" asChild>
+                    <Link href={href}>{action}</Link>
+                </Button>
+            </CardContent>
+        </Card>
+    );
+}
+
+LinksShow.layout = ({ link }: Props) => ({
     breadcrumbs: [
-        {
-            title: 'Links',
-            href: index(),
-        },
+        { title: 'Vínculos', href: index() },
+        { title: linkLabel(link), href: show(link.id) },
     ],
-};
+});

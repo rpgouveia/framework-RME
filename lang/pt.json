@@ -7,5 +7,9 @@
     "Risk updated.": "Risco atualizado.",
     "Risk deleted.": "Risco excluído.",
     "Delete the risk links first.": "Exclua primeiro os vínculos do risco.",
-    "A link between this risk and this mitigation already exists.": "Já existe um vínculo entre este risco e esta mitigação."
+    "A link between this risk and this mitigation already exists.": "Já existe um vínculo entre este risco e esta mitigação.",
+    "Link created.": "Vínculo criado com sucesso.",
+    "Link updated.": "Vínculo atualizado.",
+    "Link deleted.": "Vínculo excluído.",
+    "Delete the link evidence and history first.": "Exclua primeiro as evidências e o histórico do vínculo."
 }
