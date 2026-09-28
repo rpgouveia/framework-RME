@@ -47,7 +47,7 @@ class StatusHistoryController extends Controller
         Gate::authorize('create', StatusHistory::class);
 
         return Inertia::render('status-histories/create', [
-            'link' => $link,
+            'link' => $link->load(['risk', 'mitigation']),
             ...$this->formOptions(),
         ]);
     }
