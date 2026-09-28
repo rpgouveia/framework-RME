@@ -2,6 +2,7 @@ import type {
     AdverseEventType,
     AiSystemCategory,
     CostLevel,
+    EvidenceType,
     LifecyclePhase,
     Link,
     LinkStatus,
@@ -125,6 +126,15 @@ export const adverseEventTypeLabels: Record<AdverseEventType, string> = {
     compliance_violation: 'Violação de conformidade',
     user_harm: 'Dano ao usuário',
     service_disruption: 'Interrupção do serviço',
+};
+
+export const evidenceTypeLabels: Record<EvidenceType, string> = {
+    document: 'Documento',
+    report: 'Relatório',
+    audit_log: 'Log de auditoria',
+    test_result: 'Resultado de teste',
+    certification: 'Certificação',
+    meeting_minutes: 'Ata de reunião',
 };
 
 /** Looks up an enum value's label, falling back to the raw value. */

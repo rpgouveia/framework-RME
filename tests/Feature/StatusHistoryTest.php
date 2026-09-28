@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\RecordStatusChange;
 use App\Enums\LinkStatus;
 use App\Models\AdverseEvent;
 use App\Models\Link;
@@ -56,18 +57,17 @@ test('recording a change moves the link to its new status', function () {
         ->and($link->refresh()->status)->toBe(LinkStatus::Implemented);
 });
 
-test('the new status must differ from the previous one', function () {
+test('the new status must differ from the current one', function () {
     $link = Link::factory()->create(['status' => LinkStatus::Planned]);
 
     $response = $this->post(route('links.status-histories.store', $link), [
-        'previous_status' => LinkStatus::Planned->value,
         'new_status' => LinkStatus::Planned->value,
         'change_date' => '2026-05-20',
         'owner_id' => Owner::factory()->create()->id,
     ]);
 
     $response->assertSessionHasErrors([
-        'new_status' => 'The new status field and previous status must be different.',
+        'new_status' => __('The new status must differ from the current one.'),
     ]);
 
     $this->assertDatabaseEmpty('status_histories');
@@ -88,19 +88,19 @@ test('recording a change requires the new status, date and owner', function () {
     $this->assertDatabaseEmpty('status_histories');
 });
 
-test('the first entry of a trail may omit the previous status', function () {
-    $link = Link::factory()->create(['status' => LinkStatus::Planned]);
+test('the previous status comes from the link, not from the request', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::InProgress]);
 
     $response = $this->post(route('links.status-histories.store', $link), [
-        'new_status' => LinkStatus::InProgress->value,
+        'previous_status' => LinkStatus::Suspended->value,
+        'new_status' => LinkStatus::Implemented->value,
         'change_date' => '2026-05-20',
         'owner_id' => Owner::factory()->create()->id,
     ]);
 
     $response->assertSessionHasNoErrors();
 
-    expect(StatusHistory::sole()->previous_status)->toBeNull()
-        ->and($link->refresh()->status)->toBe(LinkStatus::InProgress);
+    expect(StatusHistory::sole()->previous_status)->toBe(LinkStatus::InProgress);
 });
 
 test('a change can name the adverse event that forced it', function () {
@@ -141,13 +141,14 @@ test('a change cannot name an adverse event that does not exist', function () {
     $this->assertDatabaseEmpty('status_histories');
 });
 
-test('a status change can be deleted', function () {
+test('the status trail is append only', function () {
     $statusHistory = StatusHistory::factory()->create();
 
-    $this->delete(route('status-histories.destroy', $statusHistory))
-        ->assertRedirect(route('links.status-histories.index', $statusHistory->link_id));
+    $this->get("/status-histories/{$statusHistory->id}/edit")->assertNotFound();
+    $this->put("/status-histories/{$statusHistory->id}", [])->assertMethodNotAllowed();
+    $this->delete("/status-histories/{$statusHistory->id}")->assertMethodNotAllowed();
 
-    $this->assertModelMissing($statusHistory);
+    expect($statusHistory->fresh())->not->toBeNull();
 });
 
 /**
@@ -159,7 +160,6 @@ test('a status change can be deleted', function () {
 function statusChange(Link $link, array $overrides = []): array
 {
     return array_merge([
-        'previous_status' => $link->status->value,
         'change_date' => '2026-05-20',
         'owner_id' => $link->owner_id,
     ], $overrides);
@@ -232,4 +232,51 @@ test('the change form names the link it belongs to', function () {
             ->has('link.mitigation')
             ->has('statuses')
     );
+});
+
+test('a cancelled link cannot move anywhere but planned', function (LinkStatus $status) {
+    $link = Link::factory()->create(['status' => LinkStatus::Cancelled]);
+
+    $response = $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => $status->value,
+        'trigger_reason' => 'Trying to skip the reactivation',
+    ]));
+
+    $response->assertSessionHasErrors([
+        'new_status' => __('A cancelled link can only be reactivated, going back to planned.'),
+    ]);
+
+    expect($link->refresh()->status)->toBe(LinkStatus::Cancelled);
+    $this->assertDatabaseEmpty('status_histories');
+})->with([
+    LinkStatus::InProgress,
+    LinkStatus::Implemented,
+    LinkStatus::Monitoring,
+    LinkStatus::Suspended,
+]);
+
+test('the change form offers only the moves the link allows', function () {
+    $cancelled = Link::factory()->create(['status' => LinkStatus::Cancelled]);
+    $planned = Link::factory()->create(['status' => LinkStatus::Planned]);
+
+    $this->get(route('links.status-histories.create', $cancelled))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('statuses', [
+            ['value' => 'planned', 'label' => LinkStatus::Planned->label()],
+        ])
+    );
+
+    $this->get(route('links.status-histories.create', $planned))->assertInertia(
+        fn (AssertableInertia $page) => $page->has('statuses', count(LinkStatus::cases()) - 1)
+    );
+});
+
+test('the action refuses a move the rule forbids', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::Cancelled]);
+
+    expect(fn () => app(RecordStatusChange::class)->handle($link, LinkStatus::Implemented, [
+        'change_date' => '2026-05-20',
+        'owner_id' => $link->owner_id,
+    ]))->toThrow(InvalidArgumentException::class);
+
+    $this->assertDatabaseEmpty('status_histories');
 });

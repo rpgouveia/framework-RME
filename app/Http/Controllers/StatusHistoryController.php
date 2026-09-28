@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RecordStatusChange;
 use App\Enums\LinkStatus;
 use App\Http\Requests\StoreStatusHistoryRequest;
-use App\Http\Requests\UpdateStatusHistoryRequest;
 use App\Models\AdverseEvent;
 use App\Models\Link;
 use App\Models\Owner;
@@ -48,20 +48,28 @@ class StatusHistoryController extends Controller
 
         return Inertia::render('status-histories/create', [
             'link' => $link->load(['risk', 'mitigation']),
-            ...$this->formOptions(),
+            // Only the moves the link's current status allows.
+            'statuses' => $link->status->transitionOptions(),
+            'owners' => Owner::query()->orderBy('organizational_role')->get(),
+            'adverseEvents' => AdverseEvent::query()
+                ->with('aiSystem:id,name')
+                ->latest('occurrence_date')
+                ->get(['id', 'event_type', 'description', 'occurrence_date', 'ai_system_id']),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreStatusHistoryRequest $request, Link $link): RedirectResponse
+    public function store(StoreStatusHistoryRequest $request, Link $link, RecordStatusChange $recordStatusChange): RedirectResponse
     {
         Gate::authorize('create', StatusHistory::class);
 
-        $statusHistory = $link->statusHistories()->create($request->validated());
-
-        $link->update(['status' => $statusHistory->new_status]);
+        $recordStatusChange->handle(
+            $link,
+            $request->enum('new_status', LinkStatus::class),
+            $request->safe()->except('new_status'),
+        );
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Status change recorded.')]);
 
@@ -76,67 +84,7 @@ class StatusHistoryController extends Controller
         Gate::authorize('view', $statusHistory);
 
         return Inertia::render('status-histories/show', [
-            'statusHistory' => $statusHistory->load(['link.risk', 'owner', 'adverseEvent']),
+            'statusHistory' => $statusHistory->load(['link.risk', 'link.mitigation', 'owner', 'adverseEvent.aiSystem']),
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(StatusHistory $statusHistory): Response
-    {
-        Gate::authorize('update', $statusHistory);
-
-        return Inertia::render('status-histories/edit', [
-            'statusHistory' => $statusHistory,
-            ...$this->formOptions(),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateStatusHistoryRequest $request, StatusHistory $statusHistory): RedirectResponse
-    {
-        Gate::authorize('update', $statusHistory);
-
-        $statusHistory->update($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Status change updated.')]);
-
-        return to_route('status-histories.show', $statusHistory);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StatusHistory $statusHistory): RedirectResponse
-    {
-        Gate::authorize('delete', $statusHistory);
-
-        $link = $statusHistory->link;
-
-        $statusHistory->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Status change deleted.')]);
-
-        return to_route('links.status-histories.index', $link);
-    }
-
-    /**
-     * Get the select options shared by the create and edit forms.
-     *
-     * @return array<string, mixed>
-     */
-    protected function formOptions(): array
-    {
-        return [
-            'owners' => Owner::query()->orderBy('organizational_role')->get(),
-            'statuses' => LinkStatus::options(),
-            'adverseEvents' => AdverseEvent::query()
-                ->with('aiSystem:id,name')
-                ->latest('occurrence_date')
-                ->get(['id', 'event_type', 'description', 'occurrence_date', 'ai_system_id']),
-        ];
     }
 }

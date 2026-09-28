@@ -10,5 +10,11 @@
     "A link between this risk and this mitigation already exists.": "Já existe um vínculo entre este risco e esta mitigação.",
     "Link created.": "Vínculo criado com sucesso.",
     "Link updated.": "Vínculo atualizado.",
-    "Say why the link is being cancelled.": "Informe o motivo do cancelamento."
+    "Say why the link is being cancelled.": "Informe o motivo do cancelamento.",
+    "A cancelled link can only be reactivated, going back to planned.": "Um vínculo cancelado só pode ser reativado, voltando para Planejado.",
+    "The new status must differ from the current one.": "O novo status deve ser diferente do atual.",
+    "Status change recorded.": "Mudança de status registrada.",
+    "Evidence registered.": "Evidência registrada.",
+    "Evidence updated.": "Evidência atualizada.",
+    "Evidence deleted.": "Evidência excluída."
 }

@@ -56,9 +56,34 @@ test('registering evidence requires every field', function () {
 
     $response = $this->post(route('links.evidence.store', $link), []);
 
-    $response->assertSessionHasErrors(['type', 'description', 'registration_date']);
+    $response->assertSessionHasErrors(['type', 'description']);
 
     $this->assertDatabaseEmpty('evidence');
+});
+
+test('the registration date is stamped by the system', function () {
+    $this->travelTo('2026-06-15 10:00');
+    $link = Link::factory()->create();
+
+    $this->post(route('links.evidence.store', $link), [
+        'type' => EvidenceType::AuditLog->value,
+        'description' => 'Fairness audit report for Q1',
+        'registration_date' => '2020-01-01',
+    ])->assertSessionHasNoErrors();
+
+    expect(Evidence::sole()->registration_date->toDateString())->toBe('2026-06-15');
+});
+
+test('updating evidence keeps its registration date', function () {
+    $evidence = Evidence::factory()->create(['registration_date' => '2026-03-31']);
+
+    $this->put(route('evidence.update', $evidence), [
+        'type' => $evidence->type->value,
+        'description' => $evidence->description,
+        'registration_date' => '2020-01-01',
+    ])->assertSessionHasNoErrors();
+
+    expect($evidence->refresh()->registration_date->toDateString())->toBe('2026-03-31');
 });
 
 test('evidence can be updated', function () {

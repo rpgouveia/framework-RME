@@ -39,7 +39,7 @@ class EvidenceController extends Controller
         Gate::authorize('create', Evidence::class);
 
         return Inertia::render('evidence/create', [
-            'link' => $link,
+            'link' => $link->load(['risk', 'mitigation']),
             'types' => EvidenceType::options(),
         ]);
     }
@@ -51,7 +51,10 @@ class EvidenceController extends Controller
     {
         Gate::authorize('create', Evidence::class);
 
-        $link->evidence()->create($request->validated());
+        $link->evidence()->create([
+            ...$request->validated(),
+            'registration_date' => today(),
+        ]);
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Evidence registered.')]);
 
@@ -66,7 +69,7 @@ class EvidenceController extends Controller
         Gate::authorize('view', $evidence);
 
         return Inertia::render('evidence/show', [
-            'evidence' => $evidence->load('link.risk'),
+            'evidence' => $evidence->load(['link.risk', 'link.mitigation']),
         ]);
     }
 
@@ -78,7 +81,7 @@ class EvidenceController extends Controller
         Gate::authorize('update', $evidence);
 
         return Inertia::render('evidence/edit', [
-            'evidence' => $evidence,
+            'evidence' => $evidence->load(['link.risk', 'link.mitigation']),
             'types' => EvidenceType::options(),
         ]);
     }
