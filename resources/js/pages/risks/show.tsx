@@ -110,7 +110,11 @@ export default function RisksShow({ risk }: Props) {
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
                         <CardTitle>Vínculos</CardTitle>
                         <Button size="sm" asChild>
-                            <Link href={createLink()}>Criar vínculo</Link>
+                            <Link
+                                href={createLink({ query: { risk: risk.id } })}
+                            >
+                                Criar vínculo
+                            </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>

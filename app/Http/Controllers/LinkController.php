@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\CreateLink;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
-use App\Enums\LinkStatus;
+use App\Enums\SaeriCategory;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
 use App\Models\Link;
@@ -13,6 +13,7 @@ use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -105,19 +106,34 @@ class LinkController extends Controller
     }
 
     /**
-     * Get the select options shared by the create and edit forms.
+     * Get what the create form needs to offer only valid links.
      *
      * @return array<string, mixed>
      */
     protected function formOptions(): array
     {
         return [
-            'risks' => Risk::query()->with('aiSystem')->orderBy('name')->get(),
-            'mitigations' => Mitigation::query()->orderBy('name')->get(['id', 'name']),
-            'owners' => Owner::query()->orderBy('organizational_role')->get(),
+            // Each risk carries the mitigations it already has, so the form
+            // never offers a pair that R-6 would refuse.
+            'risks' => Risk::query()
+                ->with(['aiSystem:id,name', 'links:id,risk_id,mitigation_id'])
+                ->orderBy('name')
+                ->get(['id', 'name', 'ai_system_id'])
+                ->map(fn (Risk $risk): array => [
+                    'id' => $risk->id,
+                    'name' => $risk->name,
+                    'ai_system' => $risk->aiSystem->only(['id', 'name']),
+                    'linked_mitigation_ids' => $risk->links->pluck('mitigation_id')->all(),
+                ]),
+            // The catalogue fields the form shows next to the choice (RNF03).
+            'mitigations' => Mitigation::query()
+                ->orderBy('name')
+                ->get(['id', 'name', 'saeri_category', 'suggested_cost', 'uncertainty_level', 'bibliography_source']),
+            'owners' => Owner::query()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
+            'saeriCategories' => SaeriCategory::options(),
             'lifecyclePhases' => LifecyclePhase::options(),
-            'statuses' => LinkStatus::options(),
             'costLevels' => CostLevel::options(),
+            'reviewIntervalDays' => Config::integer('rme.review.interval_days'),
         ];
     }
 }

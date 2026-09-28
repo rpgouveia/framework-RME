@@ -28,10 +28,7 @@ function linkPayload(array $overrides = []): array
 {
     return array_merge([
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
-        'status' => LinkStatus::Planned->value,
         'estimated_cost' => CostLevel::High->value,
-        'observed_cost' => null,
-        'creation_date' => '2026-01-10',
         'risk_id' => Risk::factory()->create()->id,
         'mitigation_id' => Mitigation::factory()->create()->id,
         'owner_id' => Owner::factory()->create()->id,
@@ -61,6 +58,7 @@ test('the index lists the links with their risk, mitigation and owner', function
 
 test('a link can be created', function () {
     config(['rme.review.interval_days' => 30]);
+    $this->travelTo('2026-01-10 09:00');
 
     $response = $this->post(route('links.store'), linkPayload());
 
@@ -76,10 +74,46 @@ test('a link can be created', function () {
 
 test('the review date posted on creation is ignored', function () {
     config(['rme.review.interval_days' => 30]);
+    $this->travelTo('2026-01-10 09:00');
 
     $this->post(route('links.store'), linkPayload(['next_review_date' => '2030-12-31']));
 
     expect(Link::sole()->next_review_date->toDateString())->toBe('2026-02-09');
+});
+
+test('the server sets the status and dates of a new link', function () {
+    config(['rme.review.interval_days' => 30]);
+    $this->travelTo('2026-01-10 09:00');
+
+    $this->post(route('links.store'), linkPayload([
+        'status' => LinkStatus::Implemented->value,
+        'creation_date' => '2020-05-01',
+        'observed_cost' => CostLevel::Low->value,
+    ]))->assertSessionHasNoErrors();
+
+    $link = Link::sole();
+
+    expect($link->status)->toBe(LinkStatus::Planned)
+        ->and($link->creation_date->toDateString())->toBe('2026-01-10')
+        ->and($link->next_review_date->toDateString())->toBe('2026-02-09')
+        ->and($link->observed_cost)->toBeNull();
+});
+
+test('the create form offers only pairs that can still be linked', function () {
+    config(['rme.review.interval_days' => 30]);
+    $existing = Link::factory()->create();
+
+    $this->get(route('links.create'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('links/create')
+            ->where('risks.0.linked_mitigation_ids', [$existing->mitigation_id])
+            ->has('risks.0.ai_system.name')
+            ->has('mitigations.0', fn (AssertableInertia $mitigation) => $mitigation
+                ->hasAll(['id', 'name', 'saeri_category', 'suggested_cost', 'uncertainty_level', 'bibliography_source'])
+            )
+            ->has('saeriCategories', 4)
+            ->where('reviewIntervalDays', 30)
+    );
 });
 
 test('an estimated cost outside the scale is rejected', function () {
@@ -206,10 +240,9 @@ test('a risk and a mitigation can each be linked more than once', function () {
 });
 
 test('creating a link opens its status trail', function () {
-    $response = $this->post(route('links.store'), linkPayload([
-        'status' => LinkStatus::Planned->value,
-        'creation_date' => '2026-01-10',
-    ]));
+    $this->travelTo('2026-01-10 09:00');
+
+    $response = $this->post(route('links.store'), linkPayload());
 
     $link = Link::sole();
     $history = $link->statusHistories()->sole();

@@ -25,3 +25,14 @@ export function dateInputValue(value?: string | null): string {
 
     return `${now.getFullYear()}-${month}-${day}`;
 }
+
+/**
+ * The date `days` from today in the viewer's timezone, as DD/MM/AAAA. Used to
+ * preview dates the server computes, such as a link's next review.
+ */
+export function dateFromToday(days: number): string {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+
+    return new Intl.DateTimeFormat('pt-BR').format(date);
+}
