@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CreateLink;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
@@ -8,7 +9,9 @@ use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
+use App\Models\StatusHistory;
 use App\Models\User;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -119,6 +122,99 @@ test('a link can be updated', function () {
 
     expect($link->refresh()->status)->toBe(LinkStatus::Implemented)
         ->and($link->observed_cost)->toBe(CostLevel::Low);
+});
+
+test('a link cannot repeat a risk and mitigation pair', function () {
+    $existing = Link::factory()->create();
+
+    $response = $this->post(route('links.store'), linkPayload([
+        'risk_id' => $existing->risk_id,
+        'mitigation_id' => $existing->mitigation_id,
+    ]));
+
+    $response->assertSessionHasErrors([
+        'mitigation_id' => __('A link between this risk and this mitigation already exists.'),
+    ]);
+
+    expect(Link::count())->toBe(1);
+    $this->assertDatabaseEmpty('status_histories');
+});
+
+test('the database refuses a repeated pair that skips validation', function () {
+    $existing = Link::factory()->create();
+
+    expect(fn () => Link::factory()->create([
+        'risk_id' => $existing->risk_id,
+        'mitigation_id' => $existing->mitigation_id,
+    ]))->toThrow(UniqueConstraintViolationException::class);
+});
+
+test('a risk and a mitigation can each be linked more than once', function () {
+    $existing = Link::factory()->create();
+
+    $this->post(route('links.store'), linkPayload(['risk_id' => $existing->risk_id]))
+        ->assertSessionHasNoErrors();
+
+    $this->post(route('links.store'), linkPayload(['mitigation_id' => $existing->mitigation_id]))
+        ->assertSessionHasNoErrors();
+
+    expect(Link::count())->toBe(3);
+});
+
+test('a link can be updated while keeping its own pair', function () {
+    $link = Link::factory()->create();
+
+    $response = $this->put(route('links.update', $link), linkPayload([
+        'next_review_date' => '2026-07-10',
+        'risk_id' => $link->risk_id,
+        'mitigation_id' => $link->mitigation_id,
+        'owner_id' => $link->owner_id,
+    ]));
+
+    $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
+});
+
+test('a link cannot be moved onto the pair of another link', function () {
+    $link = Link::factory()->create();
+    $other = Link::factory()->create();
+
+    $response = $this->put(route('links.update', $link), linkPayload([
+        'next_review_date' => '2026-07-10',
+        'risk_id' => $other->risk_id,
+        'mitigation_id' => $other->mitigation_id,
+    ]));
+
+    $response->assertSessionHasErrors('mitigation_id');
+
+    expect($link->refresh()->risk_id)->not->toBe($other->risk_id);
+});
+
+test('creating a link opens its status trail', function () {
+    $response = $this->post(route('links.store'), linkPayload([
+        'status' => LinkStatus::Planned->value,
+        'creation_date' => '2026-01-10',
+    ]));
+
+    $link = Link::sole();
+    $history = $link->statusHistories()->sole();
+
+    $response->assertSessionHasNoErrors();
+
+    expect($history->previous_status)->toBeNull()
+        ->and($history->new_status)->toBe(LinkStatus::Planned)
+        ->and($history->change_date->toDateString())->toBe('2026-01-10')
+        ->and($history->owner_id)->toBe($link->owner_id)
+        ->and($history->trigger_reason)->toBeNull()
+        ->and($history->adverse_event_id)->toBeNull();
+});
+
+test('a link is not kept when its opening history entry fails', function () {
+    StatusHistory::creating(fn () => throw new RuntimeException('history write failed'));
+
+    expect(fn () => app(CreateLink::class)->handle(linkPayload()))
+        ->toThrow(RuntimeException::class, 'history write failed');
+
+    $this->assertDatabaseEmpty('links');
 });
 
 test('a link without evidence or history can be deleted', function () {

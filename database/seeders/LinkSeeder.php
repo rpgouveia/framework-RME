@@ -36,12 +36,18 @@ class LinkSeeder extends Seeder
             $owners = Owner::factory(3)->create();
         }
 
+        /*
+         * Draw distinct mitigations for each risk: a risk and a mitigation may
+         * be linked only once.
+         */
         $risks->each(
-            fn (Risk $risk) => Link::factory(fake()->numberBetween(1, 2))
-                ->for($risk)
-                ->recycle($mitigations)
-                ->recycle($owners)
-                ->create(),
+            fn (Risk $risk) => $mitigations
+                ->random(min(fake()->numberBetween(1, 2), $mitigations->count()))
+                ->each(fn (Mitigation $mitigation) => Link::factory()
+                    ->for($risk)
+                    ->for($mitigation)
+                    ->recycle($owners)
+                    ->create()),
         );
     }
 }
