@@ -142,6 +142,48 @@ test('the create form lists each mitigation once and each risk with exactly its 
         ->and($linkedIds[$freeRisk->id])->toBe([]);
 });
 
+test('an inactive owner is neither offered nor accepted for a new link', function () {
+    $inactive = Owner::factory()->inactive()->create();
+    $active = Owner::factory()->create();
+
+    $this->get(route('links.create'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('owners', fn ($owners) => collect($owners)->pluck('id')->all() === [$active->id])
+    );
+
+    $this->post(route('links.store'), linkPayload(['owner_id' => $inactive->id]))
+        ->assertSessionHasErrors(['owner_id' => __('Choose an active owner.')]);
+
+    $this->assertDatabaseEmpty('links');
+});
+
+test('a link can keep its owner after the owner is deactivated', function () {
+    $link = Link::factory()->create();
+    $link->owner->forceFill(['deactivated_at' => now()])->save();
+
+    $this->get(route('links.edit', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('owners', fn ($owners) => collect($owners)->contains('id', $link->owner_id))
+    );
+
+    $this->put(route('links.update', $link), [
+        'owner_id' => $link->owner_id,
+        'lifecycle_phase' => $link->lifecycle_phase->value,
+        'estimated_cost' => $link->estimated_cost->value,
+    ])->assertSessionHasNoErrors();
+});
+
+test('a link cannot move to an inactive owner', function () {
+    $link = Link::factory()->create();
+    $inactive = Owner::factory()->inactive()->create();
+
+    $this->put(route('links.update', $link), [
+        'owner_id' => $inactive->id,
+        'lifecycle_phase' => $link->lifecycle_phase->value,
+        'estimated_cost' => $link->estimated_cost->value,
+    ])->assertSessionHasErrors(['owner_id' => __('Choose an active owner.')]);
+
+    expect($link->refresh()->owner_id)->not->toBe($inactive->id);
+});
+
 test('an estimated cost outside the scale is rejected', function () {
     $response = $this->post(route('links.store'), linkPayload(['estimated_cost' => 'astronomical']));
 

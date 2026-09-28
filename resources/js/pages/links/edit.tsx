@@ -127,6 +127,11 @@ export default function LinksEdit({
                                             >
                                                 {owner.organizational_role} (
                                                 {owner.area})
+                                                {/* Only the current owner can
+                                                    be inactive here: kept, not
+                                                    offered to other links. */}
+                                                {owner.deactivated_at !==
+                                                    null && ' (inativo)'}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

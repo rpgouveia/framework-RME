@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
+use App\Models\Link;
 use App\Models\Owner;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -27,11 +28,34 @@ class UpdateLinkRequest extends FormRequest
      */
     public function rules(): array
     {
+        /** @var Link $link */
+        $link = $this->route('link');
+
         return [
-            'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')],
+            // An active owner, or the current one: a link may keep an owner
+            // that was retired, but not move to one.
+            'owner_id' => [
+                'required',
+                'integer',
+                Rule::exists(Owner::class, 'id')->where(
+                    fn ($query) => $query->whereNull('deactivated_at')->orWhere('id', $link->owner_id),
+                ),
+            ],
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
             'estimated_cost' => ['required', Rule::enum(CostLevel::class)],
             'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
+        ];
+    }
+
+    /**
+     * Get the custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'owner_id.exists' => __('Choose an active owner.'),
         ];
     }
 }

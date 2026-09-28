@@ -21,6 +21,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('adverse-events', AdverseEventController::class);
     Route::resource('mitigations', MitigationController::class);
     Route::resource('owners', OwnerController::class);
+    // Used owners are never deleted or edited; they are retired instead.
+    Route::post('owners/{owner}/deactivate', [OwnerController::class, 'deactivate'])->name('owners.deactivate');
+    Route::post('owners/{owner}/reactivate', [OwnerController::class, 'reactivate'])->name('owners.reactivate');
     // Links are permanent: they are closed by cancelling them, not deleted.
     Route::resource('links', LinkController::class)->except('destroy');
 

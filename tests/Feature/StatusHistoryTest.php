@@ -280,3 +280,19 @@ test('the action refuses a move the rule forbids', function () {
 
     $this->assertDatabaseEmpty('status_histories');
 });
+
+test('an inactive owner is neither offered nor accepted for a status change', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::Planned]);
+    $inactive = Owner::factory()->inactive()->create();
+
+    $this->get(route('links.status-histories.create', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('owners', fn ($owners) => ! collect($owners)->contains('id', $inactive->id))
+    );
+
+    $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => LinkStatus::InProgress->value,
+        'owner_id' => $inactive->id,
+    ]))->assertSessionHasErrors(['owner_id' => __('Choose an active owner.')]);
+
+    $this->assertDatabaseEmpty('status_histories');
+});
