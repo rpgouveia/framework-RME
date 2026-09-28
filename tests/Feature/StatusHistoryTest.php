@@ -149,3 +149,87 @@ test('a status change can be deleted', function () {
 
     $this->assertModelMissing($statusHistory);
 });
+
+/**
+ * Build a valid status change for the given link.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function statusChange(Link $link, array $overrides = []): array
+{
+    return array_merge([
+        'previous_status' => $link->status->value,
+        'change_date' => '2026-05-20',
+        'owner_id' => $link->owner_id,
+    ], $overrides);
+}
+
+test('cancelling a link requires a reason', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::InProgress]);
+
+    $response = $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => LinkStatus::Cancelled->value,
+    ]));
+
+    $response->assertSessionHasErrors([
+        'trigger_reason' => __('Say why the link is being cancelled.'),
+    ]);
+
+    expect($link->refresh()->status)->toBe(LinkStatus::InProgress);
+    $this->assertDatabaseEmpty('status_histories');
+});
+
+test('other changes still take an optional reason', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::Planned]);
+
+    $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => LinkStatus::InProgress->value,
+    ]))->assertSessionHasNoErrors();
+});
+
+test('cancelling a link records the reason and drops it from the review queue', function () {
+    $link = Link::factory()->dueForReview()->create(['status' => LinkStatus::InProgress]);
+
+    expect(Link::dueForReview()->pluck('id'))->toContain($link->id);
+
+    $response = $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => LinkStatus::Cancelled->value,
+        'trigger_reason' => 'The system was decommissioned',
+    ]));
+
+    $response->assertSessionHasNoErrors();
+
+    $history = StatusHistory::sole();
+
+    expect($history->previous_status)->toBe(LinkStatus::InProgress)
+        ->and($history->new_status)->toBe(LinkStatus::Cancelled)
+        ->and($history->trigger_reason)->toBe('The system was decommissioned')
+        ->and($link->refresh()->status)->toBe(LinkStatus::Cancelled)
+        ->and(Link::dueForReview()->pluck('id'))->not->toContain($link->id);
+});
+
+test('a cancelled link can be reactivated', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::Cancelled]);
+
+    $response = $this->post(route('links.status-histories.store', $link), statusChange($link, [
+        'new_status' => LinkStatus::Planned->value,
+    ]));
+
+    $response->assertSessionHasNoErrors();
+
+    expect($link->refresh()->status)->toBe(LinkStatus::Planned)
+        ->and(StatusHistory::sole()->previous_status)->toBe(LinkStatus::Cancelled);
+});
+
+test('the change form names the link it belongs to', function () {
+    $link = Link::factory()->create();
+
+    $this->get(route('links.status-histories.create', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('status-histories/create')
+            ->has('link.risk')
+            ->has('link.mitigation')
+            ->has('statuses')
+    );
+});

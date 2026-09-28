@@ -30,6 +30,7 @@ return [
         'registration_date' => 'data de cadastro',
         'risk_id' => 'risco',
         'source_type' => 'origem',
+        'trigger_reason' => 'motivo',
         'uncertainty_level' => 'nível de incerteza',
     ],
 

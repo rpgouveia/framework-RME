@@ -1,6 +1,4 @@
 import { Head, Link } from '@inertiajs/react';
-import LinkController from '@/actions/App/Http/Controllers/LinkController';
-import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,7 +20,10 @@ import {
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { edit, index, show } from '@/routes/links';
 import { index as evidenceIndex } from '@/routes/links/evidence';
-import { index as statusHistoriesIndex } from '@/routes/links/status-histories';
+import {
+    create as createStatusChange,
+    index as statusHistoriesIndex,
+} from '@/routes/links/status-histories';
 import { show as showMitigation } from '@/routes/mitigations';
 import { show as showRisk } from '@/routes/risks';
 import type { Link as RiskLink } from '@/types/models';
@@ -81,14 +82,33 @@ export default function LinksShow({ link }: Props) {
                         <Button variant="outline" asChild>
                             <Link href={edit(link.id)}>Editar</Link>
                         </Button>
-                        {/* The backend refuses to delete a link that has
-                            evidence or history, so offer it only then. */}
-                        {evidenceCount === 0 && historyCount === 0 && (
-                            <DeleteDialog
-                                form={LinkController.destroy.form(link.id)}
-                                title="Excluir este vínculo?"
-                                description={`O vínculo "${linkLabel(link)}" será removido. Esta ação não pode ser desfeita.`}
-                            />
+                        {/* Links are permanent: they are closed by cancelling
+                            them through the status history, and reopened the
+                            same way, since the pair cannot be linked twice. */}
+                        {link.status === 'cancelled' ? (
+                            <Button asChild>
+                                <Link
+                                    href={createStatusChange(link.id, {
+                                        query: { new_status: 'planned' },
+                                    })}
+                                >
+                                    Reativar vínculo
+                                </Link>
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                className="text-destructive"
+                                asChild
+                            >
+                                <Link
+                                    href={createStatusChange(link.id, {
+                                        query: { new_status: 'cancelled' },
+                                    })}
+                                >
+                                    Cancelar vínculo
+                                </Link>
+                            </Button>
                         )}
                     </div>
                 </header>
@@ -150,6 +170,10 @@ export default function LinksShow({ link }: Props) {
                         description="Cada mudança de status do vínculo, com quem a registrou e quando."
                         href={statusHistoriesIndex(link.id)}
                         action="Ver histórico"
+                        secondary={{
+                            href: createStatusChange(link.id),
+                            label: 'Registrar mudança',
+                        }}
                     />
                 </div>
             </div>
@@ -163,12 +187,14 @@ function CountCard({
     description,
     href,
     action,
+    secondary,
 }: {
     title: string;
     count: number;
     description: string;
     href: ReturnType<typeof evidenceIndex>;
     action: string;
+    secondary?: { href: ReturnType<typeof evidenceIndex>; label: string };
 }) {
     return (
         <Card>
@@ -180,9 +206,16 @@ function CountCard({
                 <span className="text-3xl font-semibold tabular-nums">
                     {count}
                 </span>
-                <Button variant="outline" asChild>
-                    <Link href={href}>{action}</Link>
-                </Button>
+                <div className="flex flex-wrap justify-end gap-2">
+                    {secondary && (
+                        <Button variant="ghost" asChild>
+                            <Link href={secondary.href}>{secondary.label}</Link>
+                        </Button>
+                    )}
+                    <Button variant="outline" asChild>
+                        <Link href={href}>{action}</Link>
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );
