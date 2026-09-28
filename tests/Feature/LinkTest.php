@@ -82,22 +82,6 @@ test('the review date posted on creation is ignored', function () {
     expect(Link::sole()->next_review_date->toDateString())->toBe('2026-02-09');
 });
 
-test('the review date cannot fall before the creation date', function () {
-    $link = Link::factory()->create();
-
-    $response = $this->put(route('links.update', $link), linkPayload([
-        'creation_date' => '2026-07-10',
-        'next_review_date' => '2026-01-10',
-        'risk_id' => $link->risk_id,
-        'mitigation_id' => $link->mitigation_id,
-        'owner_id' => $link->owner_id,
-    ]));
-
-    $response->assertSessionHasErrors([
-        'next_review_date' => 'The next review date field must be a date after or equal to creation date.',
-    ]);
-});
-
 test('an estimated cost outside the scale is rejected', function () {
     $response = $this->post(route('links.store'), linkPayload(['estimated_cost' => 'astronomical']));
 
@@ -107,21 +91,81 @@ test('an estimated cost outside the scale is rejected', function () {
 });
 
 test('a link can be updated', function () {
-    $link = Link::factory()->create();
+    $link = Link::factory()->create(['observed_cost' => null]);
+    $owner = Owner::factory()->create();
 
-    $response = $this->put(route('links.update', $link), linkPayload([
-        'status' => LinkStatus::Implemented->value,
-        'observed_cost' => CostLevel::Low->value,
-        'next_review_date' => '2026-07-10',
-        'risk_id' => $link->risk_id,
-        'mitigation_id' => $link->mitigation_id,
-        'owner_id' => $link->owner_id,
-    ]));
+    $response = $this->put(route('links.update', $link), [
+        'owner_id' => $owner->id,
+        'lifecycle_phase' => LifecyclePhase::Monitoring->value,
+        'estimated_cost' => CostLevel::Low->value,
+        'observed_cost' => CostLevel::Medium->value,
+    ]);
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
 
-    expect($link->refresh()->status)->toBe(LinkStatus::Implemented)
-        ->and($link->observed_cost)->toBe(CostLevel::Low);
+    expect($link->refresh()->owner_id)->toBe($owner->id)
+        ->and($link->lifecycle_phase)->toBe(LifecyclePhase::Monitoring)
+        ->and($link->estimated_cost)->toBe(CostLevel::Low)
+        ->and($link->observed_cost)->toBe(CostLevel::Medium);
+});
+
+test('the observed cost can be cleared', function () {
+    $link = Link::factory()->create(['observed_cost' => CostLevel::High]);
+
+    $this->put(route('links.update', $link), [
+        'owner_id' => $link->owner_id,
+        'lifecycle_phase' => $link->lifecycle_phase->value,
+        'estimated_cost' => $link->estimated_cost->value,
+        'observed_cost' => '',
+    ])->assertSessionHasNoErrors();
+
+    expect($link->refresh()->observed_cost)->toBeNull();
+});
+
+test('updating a link leaves its identity, status and dates untouched', function () {
+    $link = Link::factory()->create([
+        'status' => LinkStatus::Planned,
+        'creation_date' => '2026-01-10',
+        'next_review_date' => '2026-02-09',
+    ]);
+    $original = $link->only(['risk_id', 'mitigation_id']);
+
+    $response = $this->put(route('links.update', $link), [
+        'owner_id' => $link->owner_id,
+        'lifecycle_phase' => $link->lifecycle_phase->value,
+        'estimated_cost' => $link->estimated_cost->value,
+        // None of these are editable: they must be ignored.
+        'status' => LinkStatus::Implemented->value,
+        'next_review_date' => '2030-01-01',
+        'creation_date' => '2025-01-01',
+        'risk_id' => Risk::factory()->create()->id,
+        'mitigation_id' => Mitigation::factory()->create()->id,
+    ]);
+
+    $response->assertSessionHasNoErrors();
+
+    $link->refresh();
+
+    expect($link->status)->toBe(LinkStatus::Planned)
+        ->and($link->next_review_date->toDateString())->toBe('2026-02-09')
+        ->and($link->creation_date->toDateString())->toBe('2026-01-10')
+        ->and($link->only(['risk_id', 'mitigation_id']))->toBe($original);
+
+    $this->assertDatabaseEmpty('status_histories');
+});
+
+test('the detail page counts the link evidence and history', function () {
+    $link = Link::factory()->create();
+    Evidence::factory(2)->for($link)->create();
+    StatusHistory::factory()->for($link)->create();
+
+    $this->get(route('links.show', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('links/show')
+            ->where('link.evidence_count', 2)
+            ->where('link.status_histories_count', 1)
+            ->has('link.risk.ai_system')
+    );
 });
 
 test('a link cannot repeat a risk and mitigation pair', function () {
@@ -159,34 +203,6 @@ test('a risk and a mitigation can each be linked more than once', function () {
         ->assertSessionHasNoErrors();
 
     expect(Link::count())->toBe(3);
-});
-
-test('a link can be updated while keeping its own pair', function () {
-    $link = Link::factory()->create();
-
-    $response = $this->put(route('links.update', $link), linkPayload([
-        'next_review_date' => '2026-07-10',
-        'risk_id' => $link->risk_id,
-        'mitigation_id' => $link->mitigation_id,
-        'owner_id' => $link->owner_id,
-    ]));
-
-    $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
-});
-
-test('a link cannot be moved onto the pair of another link', function () {
-    $link = Link::factory()->create();
-    $other = Link::factory()->create();
-
-    $response = $this->put(route('links.update', $link), linkPayload([
-        'next_review_date' => '2026-07-10',
-        'risk_id' => $other->risk_id,
-        'mitigation_id' => $other->mitigation_id,
-    ]));
-
-    $response->assertSessionHasErrors('mitigation_id');
-
-    expect($link->refresh()->risk_id)->not->toBe($other->risk_id);
 });
 
 test('creating a link opens its status trail', function () {
@@ -233,4 +249,15 @@ test('a link with evidence cannot be deleted', function () {
         ->assertRedirect(route('links.show', $evidence->link));
 
     $this->assertModelExists($evidence->link);
+});
+
+test('a link created through the form cannot be deleted, since it opens a history', function () {
+    $this->post(route('links.store'), linkPayload());
+    $link = Link::sole();
+
+    $this->from(route('links.show', $link))
+        ->delete(route('links.destroy', $link))
+        ->assertRedirect(route('links.show', $link));
+
+    $this->assertModelExists($link);
 });

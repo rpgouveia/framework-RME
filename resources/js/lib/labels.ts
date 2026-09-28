@@ -2,6 +2,7 @@ import type {
     AiSystemCategory,
     CostLevel,
     LifecyclePhase,
+    Link,
     LinkStatus,
     RiskCategory,
     SystemSourceType,
@@ -82,6 +83,32 @@ export const linkStatusLabels: Record<LinkStatus, string> = {
     suspended: 'Suspenso',
     cancelled: 'Cancelado',
 };
+
+/** Badge classes for a link's status, from not started to settled. */
+export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
+    planned: 'border-transparent bg-secondary text-secondary-foreground',
+    in_progress:
+        'border-transparent bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-200',
+    implemented:
+        'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
+    monitoring:
+        'border-transparent bg-violet-100 text-violet-900 dark:bg-violet-900/40 dark:text-violet-200',
+    suspended:
+        'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
+    cancelled: 'text-muted-foreground',
+};
+
+/**
+ * Names a link by its risk and mitigation pair, which is its identity.
+ * Falls back to the ids when the relations are not loaded.
+ */
+export function linkLabel(link: Link): string {
+    const risk = link.risk?.name ?? `Risco #${link.risk_id}`;
+    const mitigation =
+        link.mitigation?.name ?? `Mitigação #${link.mitigation_id}`;
+
+    return `${risk} → ${mitigation}`;
+}
 
 export const costLevelLabels: Record<CostLevel, string> = {
     low: 'Baixo',

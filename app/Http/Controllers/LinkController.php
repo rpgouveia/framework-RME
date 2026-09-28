@@ -68,13 +68,9 @@ class LinkController extends Controller
         Gate::authorize('view', $link);
 
         return Inertia::render('links/show', [
-            'link' => $link->load([
-                'risk.aiSystem',
-                'mitigation',
-                'owner',
-                'evidence',
-                'statusHistories.owner',
-            ]),
+            'link' => $link
+                ->load(['risk.aiSystem', 'mitigation', 'owner'])
+                ->loadCount(['evidence', 'statusHistories']),
         ]);
     }
 
@@ -85,9 +81,12 @@ class LinkController extends Controller
     {
         Gate::authorize('update', $link);
 
+        // Only the follow-up fields are editable; the pair is shown read only.
         return Inertia::render('links/edit', [
-            'link' => $link,
-            ...$this->formOptions(),
+            'link' => $link->load(['risk.aiSystem', 'mitigation']),
+            'owners' => Owner::query()->orderBy('organizational_role')->get(),
+            'lifecyclePhases' => LifecyclePhase::options(),
+            'costLevels' => CostLevel::options(),
         ]);
     }
 
