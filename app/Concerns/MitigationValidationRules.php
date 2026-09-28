@@ -5,6 +5,8 @@ namespace App\Concerns;
 use App\Enums\CostLevel;
 use App\Enums\SaeriCategory;
 use App\Enums\UncertaintyLevel;
+use App\Models\Mitigation;
+use App\Rules\UniqueNameIgnoringCase;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -17,8 +19,21 @@ trait MitigationValidationRules
      */
     protected function mitigationRules(): array
     {
+        /** @var Mitigation|null $mitigation The one being updated, if any. */
+        $mitigation = $this->route('mitigation');
+
         return [
-            'name' => ['required', 'string', 'max:255'],
+            // The catalogue is picked by name, so two entries may not share one.
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                new UniqueNameIgnoringCase(
+                    Mitigation::class,
+                    __('A mitigation with this name is already in the catalogue.'),
+                    ignore: $mitigation,
+                ),
+            ],
             'description' => ['required', 'string', 'max:2000'],
             'saeri_category' => ['required', Rule::enum(SaeriCategory::class)],
             'suggested_target_risk' => ['required', 'string', 'max:2000'],

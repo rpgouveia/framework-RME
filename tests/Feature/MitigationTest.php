@@ -6,6 +6,8 @@ use App\Enums\UncertaintyLevel;
 use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\User;
+use Database\Seeders\MitigationSeeder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -134,4 +136,46 @@ test('a mitigation with links cannot be deleted', function () {
         ->assertRedirect(route('mitigations.show', $link->mitigation));
 
     $this->assertModelExists($link->mitigation);
+});
+
+test('the seeded catalogue never repeats a name', function () {
+    // Two entries with the same name look like one mitigation offered twice.
+    $this->seed(MitigationSeeder::class);
+
+    $names = Mitigation::pluck('name');
+
+    expect($names)->toHaveCount(8)
+        ->and($names->unique())->toHaveCount(8);
+});
+
+test('a mitigation name is unique in the catalogue, in any letter case', function () {
+    Mitigation::factory()->create(['name' => 'Red teaming']);
+
+    $response = $this->post(route('mitigations.store'), mitigationPayload(['name' => 'RED Teaming']));
+
+    $response->assertSessionHasErrors([
+        'name' => __('A mitigation with this name is already in the catalogue.'),
+    ]);
+
+    expect(Mitigation::count())->toBe(1);
+});
+
+test('a mitigation can be updated keeping its own name', function () {
+    $mitigation = Mitigation::factory()->create(['name' => 'Red teaming']);
+
+    $this->put(route('mitigations.update', $mitigation), mitigationPayload(['name' => 'Red teaming']))
+        ->assertSessionHasNoErrors();
+});
+
+test('the database refuses a mitigation name in another letter case', function () {
+    Mitigation::factory()->create(['name' => 'Red teaming']);
+
+    expect(fn () => Mitigation::factory()->create(['name' => 'red TEAMING']))
+        ->toThrow(UniqueConstraintViolationException::class);
+});
+
+test('the factory never repeats a mitigation name, even past its list', function () {
+    $names = Mitigation::factory(25)->create()->pluck('name')->map(fn (string $name): string => mb_strtolower($name));
+
+    expect($names->unique())->toHaveCount(25);
 });

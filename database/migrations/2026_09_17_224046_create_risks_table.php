@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -21,6 +22,10 @@ return new class extends Migration
             $table->foreignId('ai_system_id')->constrained('ai_systems');
             $table->timestamps();
         });
+
+        // A risk name may recur across AI systems, but only once within one,
+        // in any letter case.
+        DB::statement('CREATE UNIQUE INDEX risks_ai_system_id_name_unique ON risks (ai_system_id, lower(name))');
     }
 
     /**

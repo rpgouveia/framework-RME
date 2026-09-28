@@ -6,6 +6,7 @@ use App\Enums\CostLevel;
 use App\Enums\SaeriCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\Mitigation;
+use Database\Factories\Concerns\PicksUnusedNames;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class MitigationFactory extends Factory
 {
+    use PicksUnusedNames;
+
     /**
      * Common AI risk mitigation measures, so seeded data reads like a real
      * catalogue.
@@ -48,7 +51,8 @@ class MitigationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->randomElement(self::NAMES),
+            // Unique across the whole catalogue.
+            'name' => fn (): string => $this->unusedName(self::NAMES, Mitigation::query()->pluck('name')->all()),
             'description' => fake()->sentence(),
             'saeri_category' => fake()->randomElement(SaeriCategory::cases()),
             'suggested_target_risk' => fake()->sentence(),

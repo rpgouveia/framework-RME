@@ -7,6 +7,9 @@ use App\Models\AiSystem;
 use App\Models\Link;
 use App\Models\Risk;
 use App\Models\User;
+use Database\Seeders\AiSystemSeeder;
+use Database\Seeders\RiskSeeder;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -141,4 +144,72 @@ test('a risk with links cannot be deleted', function () {
         ->assertRedirect(route('risks.show', $link->risk));
 
     $this->assertModelExists($link->risk);
+});
+
+/**
+ * Build a valid risk payload for the given system.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function riskPayload(AiSystem $aiSystem, array $overrides = []): array
+{
+    return array_merge([
+        'name' => 'Prompt injection',
+        'description' => 'Crafted inputs override the system instructions',
+        'category' => RiskCategory::Security->value,
+        'lifecycle_phase' => LifecyclePhase::Deployment->value,
+        'uncertainty_level' => UncertaintyLevel::Medium->value,
+        'ai_system_id' => $aiSystem->id,
+    ], $overrides);
+}
+
+test('a risk name is unique within its system, in any letter case', function () {
+    $aiSystem = AiSystem::factory()->create();
+    Risk::factory()->for($aiSystem)->create(['name' => 'Prompt injection']);
+
+    $response = $this->post(route('risks.store'), riskPayload($aiSystem, ['name' => 'PROMPT Injection']));
+
+    $response->assertSessionHasErrors([
+        'name' => __('This AI system already has a risk with this name.'),
+    ]);
+
+    expect(Risk::count())->toBe(1);
+});
+
+test('the same risk name can be used by different systems', function () {
+    Risk::factory()->create(['name' => 'Prompt injection']);
+
+    $this->post(route('risks.store'), riskPayload(AiSystem::factory()->create()))
+        ->assertSessionHasNoErrors();
+
+    expect(Risk::where('name', 'Prompt injection')->count())->toBe(2);
+});
+
+test('a risk can be updated keeping its own name', function () {
+    $risk = Risk::factory()->create(['name' => 'Prompt injection']);
+
+    $this->put(route('risks.update', $risk), riskPayload($risk->aiSystem))
+        ->assertSessionHasNoErrors();
+});
+
+test('the database refuses a risk name repeated within a system', function () {
+    $aiSystem = AiSystem::factory()->create();
+    Risk::factory()->for($aiSystem)->create(['name' => 'Prompt injection']);
+
+    expect(fn () => Risk::factory()->for($aiSystem)->create(['name' => 'prompt INJECTION']))
+        ->toThrow(UniqueConstraintViolationException::class);
+});
+
+test('seeded and factory risks never repeat a name within a system', function () {
+    $this->seed([AiSystemSeeder::class, RiskSeeder::class]);
+    Risk::factory(25)->for(AiSystem::first())->create();
+
+    $repeated = Risk::query()
+        ->selectRaw('ai_system_id, lower(name) as name')
+        ->groupByRaw('ai_system_id, lower(name)')
+        ->havingRaw('count(*) > 1')
+        ->count();
+
+    expect($repeated)->toBe(0);
 });

@@ -12,6 +12,7 @@ class MitigationSeeder extends Seeder
      */
     public function run(): void
     {
+        // The factory hands out distinct names, as the catalogue requires.
         Mitigation::factory(8)->create();
     }
 }

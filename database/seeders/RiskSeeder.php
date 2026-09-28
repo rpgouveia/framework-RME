@@ -19,6 +19,7 @@ class RiskSeeder extends Seeder
             $aiSystems = AiSystem::factory(3)->create();
         }
 
+        // The factory hands out names that are distinct within each system.
         $aiSystems->each(
             fn (AiSystem $aiSystem) => Risk::factory(fake()->numberBetween(2, 4))
                 ->for($aiSystem)
