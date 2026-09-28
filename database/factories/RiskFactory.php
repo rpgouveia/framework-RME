@@ -7,6 +7,7 @@ use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\AiSystem;
 use App\Models\Risk;
+use Database\Factories\Concerns\PicksUnusedNames;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RiskFactory extends Factory
 {
+    use PicksUnusedNames;
+
     /**
      * Well known AI risk types, so seeded data reads like a real register.
      *
@@ -48,7 +51,6 @@ class RiskFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->randomElement(self::NAMES),
             // Varied lengths up to the 2000 character limit, so seeded data shows
             // how the screens cope with long descriptions.
             'description' => fake()->text(fake()->numberBetween(100, 2000)),
@@ -56,6 +58,13 @@ class RiskFactory extends Factory
             'lifecycle_phase' => fake()->randomElement(LifecyclePhase::cases()),
             'uncertainty_level' => fake()->randomElement(UncertaintyLevel::cases()),
             'ai_system_id' => AiSystem::factory(),
+            // After ai_system_id, so the closure sees the system the risk
+            // belongs to: a name is unique only within one system.
+            'name' => fn (array $attributes): string => $this->unusedName(
+                self::NAMES,
+                Risk::query()->where('ai_system_id', $attributes['ai_system_id'])->pluck('name')->all(),
+                (string) $attributes['ai_system_id'],
+            ),
         ];
     }
 

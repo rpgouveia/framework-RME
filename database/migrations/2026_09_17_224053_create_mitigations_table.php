@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,6 +24,10 @@ return new class extends Migration
             $table->string('bibliography_source');
             $table->timestamps();
         });
+
+        // The catalogue is picked by name: no two entries may share one, in
+        // any letter case.
+        DB::statement('CREATE UNIQUE INDEX mitigations_name_unique ON mitigations (lower(name))');
     }
 
     /**

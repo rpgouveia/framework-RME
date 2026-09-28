@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { dateFromToday } from '@/lib/format';
+import { availableMitigations } from '@/lib/link-options';
 import {
     costLevelLabels,
     labelFor,
@@ -145,11 +146,7 @@ function LinkForm({
     const risk = risks.find((option) => String(option.id) === riskId);
     const linked = risk?.linked_mitigation_ids ?? [];
     // R-6: a pair already linked is not offered again.
-    const available = mitigations.filter(
-        (mitigation) =>
-            !linked.includes(mitigation.id) &&
-            (category === 'all' || mitigation.saeri_category === category),
-    );
+    const available = availableMitigations(risk, mitigations, category);
     const mitigation = mitigations.find(
         (option) => String(option.id) === mitigationId,
     );
@@ -163,11 +160,14 @@ function LinkForm({
 
     function chooseRisk(value: string) {
         setRiskId(value);
-        const nowLinked =
-            risks.find((option) => String(option.id) === value)
-                ?.linked_mitigation_ids ?? [];
+        const chosen = risks.find((option) => String(option.id) === value);
 
-        if (mitigation && nowLinked.includes(mitigation.id)) {
+        if (
+            mitigation &&
+            !availableMitigations(chosen, mitigations, 'all').includes(
+                mitigation,
+            )
+        ) {
             setMitigationId('');
         }
     }

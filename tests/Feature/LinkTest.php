@@ -116,6 +116,32 @@ test('the create form offers only pairs that can still be linked', function () {
     );
 });
 
+test('the create form lists each mitigation once and each risk with exactly its links', function () {
+    [$first, $second, $third, $unlinked] = Mitigation::factory(4)->create();
+    $linkedRisk = Risk::factory()->create();
+    $otherRisk = Risk::factory()->create();
+    $freeRisk = Risk::factory()->create();
+
+    Link::factory()->for($linkedRisk)->for($first)->create();
+    Link::factory()->for($linkedRisk)->for($second)->create();
+    Link::factory()->for($otherRisk)->for($third)->create();
+
+    $page = $this->get(route('links.create'))->viewData('page')['props'];
+
+    $mitigationIds = collect($page['mitigations'])->pluck('id');
+
+    expect($mitigationIds->sort()->values()->all())
+        ->toBe(Mitigation::query()->orderBy('id')->pluck('id')->all());
+
+    $linkedIds = collect($page['risks'])->mapWithKeys(
+        fn (array $risk): array => [$risk['id'] => collect($risk['linked_mitigation_ids'])->sort()->values()->all()],
+    );
+
+    expect($linkedIds[$linkedRisk->id])->toBe(collect([$first->id, $second->id])->sort()->values()->all())
+        ->and($linkedIds[$otherRisk->id])->toBe([$third->id])
+        ->and($linkedIds[$freeRisk->id])->toBe([]);
+});
+
 test('an estimated cost outside the scale is rejected', function () {
     $response = $this->post(route('links.store'), linkPayload(['estimated_cost' => 'astronomical']));
 
