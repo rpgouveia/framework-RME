@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\LifecyclePhase;
+use App\Enums\LinkStatus;
 use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\AiSystem;
@@ -212,4 +213,103 @@ test('seeded and factory risks never repeat a name within a system', function ()
         ->count();
 
     expect($repeated)->toBe(0);
+});
+
+test('the system of a risk without links can change', function () {
+    $risk = Risk::factory()->create();
+    $other = AiSystem::factory()->create();
+
+    $this->put(route('risks.update', $risk), riskPayload($other, ['name' => $risk->name]))
+        ->assertSessionHasNoErrors();
+
+    expect($risk->refresh()->ai_system_id)->toBe($other->id);
+});
+
+test('the system of a risk with links cannot change', function () {
+    $risk = Risk::factory()->create(['name' => 'Prompt injection']);
+    Link::factory()->for($risk)->create();
+    $original = $risk->ai_system_id;
+
+    $response = $this->put(route('risks.update', $risk), riskPayload(AiSystem::factory()->create(), [
+        'name' => 'Jailbreak',
+    ]));
+
+    $response->assertSessionHasErrors([
+        'ai_system_id' => __('The AI system cannot change once the risk has links.'),
+    ]);
+
+    $risk->refresh();
+
+    expect($risk->ai_system_id)->toBe($original)
+        ->and($risk->name)->toBe('Prompt injection');
+});
+
+test('cancelled links still lock the system of their risk', function () {
+    $risk = Risk::factory()->create();
+    Link::factory()->for($risk)->create(['status' => LinkStatus::Cancelled]);
+    $original = $risk->ai_system_id;
+
+    $this->put(route('risks.update', $risk), riskPayload(AiSystem::factory()->create(), [
+        'name' => $risk->name,
+    ]))->assertSessionHasErrors('ai_system_id');
+
+    expect($risk->refresh()->ai_system_id)->toBe($original);
+});
+
+test('a risk with links can be edited keeping its system', function () {
+    $risk = Risk::factory()->create();
+    Link::factory()->for($risk)->create();
+
+    $this->put(route('risks.update', $risk), riskPayload($risk->aiSystem, [
+        'name' => 'Jailbreak',
+        'uncertainty_level' => UncertaintyLevel::High->value,
+    ]))->assertSessionHasNoErrors();
+
+    expect($risk->refresh()->name)->toBe('Jailbreak')
+        ->and($risk->uncertainty_level)->toBe(UncertaintyLevel::High);
+});
+
+test('a risk can be edited leaving the system out, which keeps it', function () {
+    $risk = Risk::factory()->create();
+    Link::factory()->for($risk)->create();
+    $original = $risk->ai_system_id;
+
+    $payload = riskPayload($risk->aiSystem, ['name' => 'Jailbreak']);
+    unset($payload['ai_system_id']);
+
+    $this->put(route('risks.update', $risk), $payload)->assertSessionHasNoErrors();
+
+    expect($risk->refresh()->ai_system_id)->toBe($original)
+        ->and($risk->name)->toBe('Jailbreak');
+});
+
+test('leaving the system out still checks the name within the current system', function () {
+    $risk = Risk::factory()->create(['name' => 'Prompt injection']);
+    Risk::factory()->for($risk->aiSystem)->create(['name' => 'Jailbreak']);
+
+    $payload = riskPayload($risk->aiSystem, ['name' => 'JAILBREAK']);
+    unset($payload['ai_system_id']);
+
+    $this->put(route('risks.update', $risk), $payload)->assertSessionHasErrors([
+        'name' => __('This AI system already has a risk with this name.'),
+    ]);
+});
+
+test('moving a risk checks its name in the new system', function () {
+    $risk = Risk::factory()->create(['name' => 'Prompt injection']);
+    $other = AiSystem::factory()->create();
+    Risk::factory()->for($other)->create(['name' => 'Prompt injection']);
+
+    $this->put(route('risks.update', $risk), riskPayload($other))->assertSessionHasErrors('name');
+
+    expect($risk->refresh()->ai_system_id)->not->toBe($other->id);
+});
+
+test('the edit form knows how many links the risk has', function () {
+    $risk = Risk::factory()->create();
+    Link::factory(2)->for($risk)->create();
+
+    $this->get(route('risks.edit', $risk))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('risk.links_count', 2)
+    );
 });

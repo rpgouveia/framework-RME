@@ -77,7 +77,8 @@ class RiskController extends Controller
         Gate::authorize('update', $risk);
 
         return Inertia::render('risks/edit', [
-            'risk' => $risk,
+            // The form locks the AI system once the risk has links.
+            'risk' => $risk->loadCount('links'),
             ...$this->formOptions(),
         ]);
     }

@@ -33,7 +33,8 @@ trait RiskValidationRules
                 new UniqueNameIgnoringCase(
                     Risk::class,
                     __('This AI system already has a risk with this name.'),
-                    scope: ['ai_system_id' => $this->input('ai_system_id')],
+                    // An update may leave the system out, keeping the current one.
+                    scope: ['ai_system_id' => $this->input('ai_system_id', $risk?->ai_system_id)],
                     ignore: $risk,
                 ),
             ],
