@@ -1,371 +1,287 @@
-import { Head, Link as InertiaLink, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
-import { index } from '@/routes/links';
-import type { EnumOption, Link, Mitigation, Owner, Risk } from '@/types/models';
-
-import '../../../css/links.css';
+import { Form, Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import LinkController from '@/actions/App/Http/Controllers/LinkController';
+import { DetailItem } from '@/components/detail-item';
+import Heading from '@/components/heading';
+import InputError from '@/components/input-error';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { formatDate } from '@/lib/format';
+import {
+    costLevelLabels,
+    labelFor,
+    lifecyclePhaseLabels,
+    linkLabel,
+    linkStatusBadgeClasses,
+    linkStatusLabels,
+} from '@/lib/labels';
+import { edit, index, show } from '@/routes/links';
+import { index as statusHistoriesIndex } from '@/routes/links/status-histories';
+import type { EnumOption, Link as RiskLink, Owner } from '@/types/models';
 
 type Props = {
-    link: Link;
-    risks: Risk[];
-    mitigations: Pick<Mitigation, 'id' | 'name'>[];
+    link: RiskLink;
     owners: Owner[];
     lifecyclePhases: EnumOption[];
-    statuses: EnumOption[];
     costLevels: EnumOption[];
 };
 
+/** Radix Select items cannot be empty, so "not informed" needs a stand-in. */
+const NOT_INFORMED = 'none';
+
 export default function LinksEdit({
     link,
-    risks,
-    mitigations,
     owners,
     lifecyclePhases,
-    statuses,
     costLevels,
 }: Props) {
-    const { data, setData, put, processing, errors } = useForm({
-        risk_id: String(link.risk_id),
-        mitigation_id: String(link.mitigation_id),
-        owner_id: String(link.owner_id),
-        lifecycle_phase: link.lifecycle_phase,
-        status: link.status,
-        estimated_cost: link.estimated_cost,
-        observed_cost: link.observed_cost ?? '',
-        next_review_date: link.next_review_date ?? '',
-    });
-
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
-        put(`/links/${link.id}`);
-    }
+    const [observedCost, setObservedCost] = useState<string>(
+        link.observed_cost ?? NOT_INFORMED,
+    );
 
     return (
         <>
-            <Head title={`Editar vínculo #${link.id}`} />
+            <Head title="Editar vínculo" />
+            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+                <Heading title="Editar vínculo" description={linkLabel(link)} />
 
-            <main className="links-page">
-                <header className="links-edit-header">
-                    <div>
-                        <span className="links-eyebrow">
-                            Vínculo #{link.id}
-                        </span>
+                {/* The pair is the link's identity, the status changes only
+                    through the history (RF09) and the review date is
+                    computed from the creation date (R-7): all read only. */}
+                <Card className="max-w-xl">
+                    <CardHeader>
+                        <CardTitle>Identificação</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <dl className="grid gap-4 sm:grid-cols-2">
+                            <DetailItem label="Risco">
+                                {link.risk?.name}
+                            </DetailItem>
+                            <DetailItem label="Mitigação">
+                                {link.mitigation?.name}
+                            </DetailItem>
+                            <DetailItem label="Status">
+                                <span className="flex flex-wrap items-center gap-2">
+                                    <Badge
+                                        className={
+                                            linkStatusBadgeClasses[link.status]
+                                        }
+                                    >
+                                        {linkStatusLabels[link.status]}
+                                    </Badge>
+                                    <Link
+                                        href={statusHistoriesIndex(link.id)}
+                                        className="text-muted-foreground text-sm font-normal hover:underline"
+                                    >
+                                        Alterar pelo histórico
+                                    </Link>
+                                </span>
+                            </DetailItem>
+                            <DetailItem label="Data de criação">
+                                {formatDate(link.creation_date)}
+                            </DetailItem>
+                            <DetailItem label="Próxima revisão">
+                                {formatDate(link.next_review_date)}
+                            </DetailItem>
+                        </dl>
+                    </CardContent>
+                </Card>
 
-                        <h1>Editar vínculo</h1>
-
-                        <p>
-                            Atualize as informações de acompanhamento do vínculo
-                            entre risco e mitigação.
-                        </p>
-                    </div>
-                </header>
-
-                <form className="links-edit-form" onSubmit={handleSubmit}>
-                    <section className="links-section">
-                        <div className="links-show-section-title">
-                            <div>
-                                <h2>Risco e mitigação</h2>
-
-                                <p>
-                                    Selecione os elementos relacionados ao
-                                    vínculo.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="links-edit-grid">
-                            <div className="links-edit-field">
-                                <label htmlFor="risk_id">Risco</label>
-
-                                <select
-                                    id="risk_id"
-                                    value={data.risk_id}
-                                    onChange={(event) =>
-                                        setData('risk_id', event.target.value)
-                                    }
+                <Form
+                    {...LinkController.update.form(link.id)}
+                    options={{ preserveScroll: true }}
+                    className="max-w-xl space-y-6"
+                >
+                    {({ processing, errors }) => (
+                        <>
+                            <div className="grid gap-2">
+                                <Label htmlFor="owner_id">Responsável</Label>
+                                <Select
+                                    name="owner_id"
+                                    defaultValue={String(link.owner_id)}
+                                    required
                                 >
-                                    <option value="">Selecione um risco</option>
-
-                                    {risks.map((risk) => (
-                                        <option key={risk.id} value={risk.id}>
-                                            #{risk.id} - {risk.name}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.risk_id && (
-                                    <span className="links-edit-error">
-                                        {errors.risk_id}
-                                    </span>
-                                )}
+                                    <SelectTrigger
+                                        id="owner_id"
+                                        className="w-full"
+                                        aria-invalid={
+                                            errors.owner_id ? true : undefined
+                                        }
+                                    >
+                                        <SelectValue placeholder="Selecione o responsável" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {owners.map((owner) => (
+                                            <SelectItem
+                                                key={owner.id}
+                                                value={String(owner.id)}
+                                            >
+                                                {owner.organizational_role} (
+                                                {owner.area})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.owner_id} />
                             </div>
 
-                            <div className="links-edit-field">
-                                <label htmlFor="mitigation_id">Mitigação</label>
-
-                                <select
-                                    id="mitigation_id"
-                                    value={data.mitigation_id}
-                                    onChange={(event) =>
-                                        setData(
-                                            'mitigation_id',
-                                            event.target.value,
-                                        )
-                                    }
-                                >
-                                    <option value="">
-                                        Selecione uma mitigação
-                                    </option>
-
-                                    {mitigations.map((mitigation) => (
-                                        <option
-                                            key={mitigation.id}
-                                            value={mitigation.id}
-                                        >
-                                            #{mitigation.id} - {mitigation.name}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.mitigation_id && (
-                                    <span className="links-edit-error">
-                                        {errors.mitigation_id}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="links-section">
-                        <div className="links-show-section-title">
-                            <div>
-                                <h2>Informações do vínculo</h2>
-
-                                <p>
-                                    Atualize o responsável, status, fase e
-                                    custos.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div className="links-edit-grid">
-                            <div className="links-edit-field">
-                                <label htmlFor="owner_id">Responsável</label>
-
-                                <select
-                                    id="owner_id"
-                                    value={data.owner_id}
-                                    onChange={(event) =>
-                                        setData('owner_id', event.target.value)
-                                    }
-                                >
-                                    <option value="">
-                                        Selecione um responsável
-                                    </option>
-
-                                    {owners.map((owner) => (
-                                        <option key={owner.id} value={owner.id}>
-                                            {owner.organizational_role}
-                                            {owner.area
-                                                ? ` - ${owner.area}`
-                                                : ''}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.owner_id && (
-                                    <span className="links-edit-error">
-                                        {errors.owner_id}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="links-edit-field">
-                                <label htmlFor="lifecycle_phase">
+                            <div className="grid gap-2">
+                                <Label htmlFor="lifecycle_phase">
                                     Fase do ciclo de vida
-                                </label>
-
-                                <select
-                                    id="lifecycle_phase"
-                                    value={data.lifecycle_phase}
-                                    onChange={(event) =>
-                                        setData(
-                                            'lifecycle_phase',
-                                            event.target
-                                                .value as typeof data.lifecycle_phase,
-                                        )
-                                    }
+                                </Label>
+                                <Select
+                                    name="lifecycle_phase"
+                                    defaultValue={link.lifecycle_phase}
+                                    required
                                 >
-                                    {lifecyclePhases.map((phase) => (
-                                        <option
-                                            key={phase.value}
-                                            value={phase.value}
+                                    <SelectTrigger
+                                        id="lifecycle_phase"
+                                        className="w-full"
+                                        aria-invalid={
+                                            errors.lifecycle_phase
+                                                ? true
+                                                : undefined
+                                        }
+                                    >
+                                        <SelectValue placeholder="Selecione a fase" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {lifecyclePhases.map((option) => (
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {labelFor(
+                                                    lifecyclePhaseLabels,
+                                                    option.value,
+                                                )}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.lifecycle_phase} />
+                            </div>
+
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="estimated_cost">
+                                        Custo estimado
+                                    </Label>
+                                    <Select
+                                        name="estimated_cost"
+                                        defaultValue={link.estimated_cost}
+                                        required
+                                    >
+                                        <SelectTrigger
+                                            id="estimated_cost"
+                                            className="w-full"
+                                            aria-invalid={
+                                                errors.estimated_cost
+                                                    ? true
+                                                    : undefined
+                                            }
                                         >
-                                            {phase.label}
-                                        </option>
-                                    ))}
-                                </select>
+                                            <SelectValue placeholder="Selecione o custo" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {costLevels.map((option) => (
+                                                <SelectItem
+                                                    key={option.value}
+                                                    value={option.value}
+                                                >
+                                                    {labelFor(
+                                                        costLevelLabels,
+                                                        option.value,
+                                                    )}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <InputError
+                                        message={errors.estimated_cost}
+                                    />
+                                </div>
 
-                                {errors.lifecycle_phase && (
-                                    <span className="links-edit-error">
-                                        {errors.lifecycle_phase}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="links-edit-field">
-                                <label htmlFor="status">Status</label>
-
-                                <select
-                                    id="status"
-                                    value={data.status}
-                                    onChange={(event) =>
-                                        setData(
-                                            'status',
-                                            event.target
-                                                .value as typeof data.status,
-                                        )
-                                    }
-                                >
-                                    {statuses.map((status) => (
-                                        <option
-                                            key={status.value}
-                                            value={status.value}
+                                <div className="grid gap-2">
+                                    <Label htmlFor="observed_cost">
+                                        Custo observado
+                                    </Label>
+                                    <Select
+                                        value={observedCost}
+                                        onValueChange={setObservedCost}
+                                    >
+                                        <SelectTrigger
+                                            id="observed_cost"
+                                            className="w-full"
+                                            aria-invalid={
+                                                errors.observed_cost
+                                                    ? true
+                                                    : undefined
+                                            }
                                         >
-                                            {status.label}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.status && (
-                                    <span className="links-edit-error">
-                                        {errors.status}
-                                    </span>
-                                )}
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value={NOT_INFORMED}>
+                                                Não informado
+                                            </SelectItem>
+                                            {costLevels.map((option) => (
+                                                <SelectItem
+                                                    key={option.value}
+                                                    value={option.value}
+                                                >
+                                                    {labelFor(
+                                                        costLevelLabels,
+                                                        option.value,
+                                                    )}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    {/* Sent as an empty string, which Laravel
+                                        turns into null. */}
+                                    <input
+                                        type="hidden"
+                                        name="observed_cost"
+                                        value={
+                                            observedCost === NOT_INFORMED
+                                                ? ''
+                                                : observedCost
+                                        }
+                                    />
+                                    <InputError
+                                        message={errors.observed_cost}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="links-edit-field">
-                                <label htmlFor="estimated_cost">
-                                    Custo estimado
-                                </label>
-
-                                <select
-                                    id="estimated_cost"
-                                    value={data.estimated_cost}
-                                    onChange={(event) =>
-                                        setData(
-                                            'estimated_cost',
-                                            event.target
-                                                .value as typeof data.estimated_cost,
-                                        )
-                                    }
-                                >
-                                    {costLevels.map((cost) => (
-                                        <option
-                                            key={cost.value}
-                                            value={cost.value}
-                                        >
-                                            {cost.label}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.estimated_cost && (
-                                    <span className="links-edit-error">
-                                        {errors.estimated_cost}
-                                    </span>
-                                )}
+                            <div className="flex items-center gap-4">
+                                <Button disabled={processing}>Salvar</Button>
+                                <Button variant="ghost" asChild>
+                                    <Link href={show(link.id)}>Cancelar</Link>
+                                </Button>
                             </div>
-
-                            <div className="links-edit-field">
-                                <label htmlFor="observed_cost">
-                                    Custo observado
-                                </label>
-
-                                <select
-                                    id="observed_cost"
-                                    value={data.observed_cost}
-                                    onChange={(event) =>
-                                        setData(
-                                            'observed_cost',
-                                            event.target
-                                                .value as typeof data.observed_cost,
-                                        )
-                                    }
-                                >
-                                    <option value="">Não informado</option>
-
-                                    {costLevels.map((cost) => (
-                                        <option
-                                            key={cost.value}
-                                            value={cost.value}
-                                        >
-                                            {cost.label}
-                                        </option>
-                                    ))}
-                                </select>
-
-                                {errors.observed_cost && (
-                                    <span className="links-edit-error">
-                                        {errors.observed_cost}
-                                    </span>
-                                )}
-                            </div>
-
-                            <div className="links-edit-field">
-                                <label htmlFor="next_review_date">
-                                    Próxima revisão
-                                </label>
-
-                                <input
-                                    id="next_review_date"
-                                    type="date"
-                                    value={data.next_review_date}
-                                    onChange={(event) =>
-                                        setData(
-                                            'next_review_date',
-                                            event.target.value,
-                                        )
-                                    }
-                                />
-
-                                {errors.next_review_date && (
-                                    <span className="links-edit-error">
-                                        {errors.next_review_date}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </section>
-
-                    <div className="links-edit-actions">
-                        <InertiaLink
-                            href={`/links/${link.id}`}
-                            className="links-button links-button-secondary"
-                        >
-                            Cancelar
-                        </InertiaLink>
-
-                        <button
-                            type="submit"
-                            className="links-button links-button-primary"
-                            disabled={processing}
-                        >
-                            {processing ? 'Salvando...' : 'Salvar alterações'}
-                        </button>
-                    </div>
-                </form>
-            </main>
+                        </>
+                    )}
+                </Form>
+            </div>
         </>
     );
 }
 
-LinksEdit.layout = {
+LinksEdit.layout = ({ link }: Props) => ({
     breadcrumbs: [
-        {
-            title: 'Links',
-            href: index(),
-        },
+        { title: 'Vínculos', href: index() },
+        { title: linkLabel(link), href: show(link.id) },
+        { title: 'Editar', href: edit(link.id) },
     ],
-};
+});
