@@ -65,7 +65,7 @@ export default function RisksShow({ risk }: Props) {
                     <CardContent className="grid gap-6">
                         <dl>
                             <DetailItem label="Descrição">
-                                <p className="max-w-prose font-normal whitespace-pre-line">
+                                <p className="font-normal whitespace-pre-line">
                                     {risk.description}
                                 </p>
                             </DetailItem>
