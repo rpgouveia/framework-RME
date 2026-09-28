@@ -23,6 +23,9 @@ return new class extends Migration
             $table->foreignId('mitigation_id')->constrained('mitigations');
             $table->foreignId('owner_id')->constrained('owners');
             $table->timestamps();
+
+            // R-6: a risk and a mitigation are linked at most once.
+            $table->unique(['risk_id', 'mitigation_id']);
         });
     }
 

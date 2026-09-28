@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\CreateLink;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
@@ -12,7 +13,6 @@ use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,15 +49,11 @@ class LinkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLinkRequest $request): RedirectResponse
+    public function store(StoreLinkRequest $request, CreateLink $createLink): RedirectResponse
     {
         Gate::authorize('create', Link::class);
 
-        $link = Link::create([
-            ...$request->validated(),
-            'next_review_date' => $request->date('creation_date')
-                ?->addDays(Config::integer('rme.review.interval_days')),
-        ]);
+        $link = $createLink->handle($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Link created.')]);
 

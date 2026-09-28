@@ -5,6 +5,7 @@ namespace App\Concerns;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
+use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
@@ -16,9 +17,11 @@ trait LinkValidationRules
     /**
      * Get the validation rules shared by the store and update requests.
      *
+     * @param  Link|null  $link  The link being updated, left out of the
+     *                           duplicate pair check.
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    protected function linkRules(): array
+    protected function linkRules(?Link $link = null): array
     {
         return [
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
@@ -27,8 +30,29 @@ trait LinkValidationRules
             'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
             'creation_date' => ['required', 'date'],
             'risk_id' => ['required', 'integer', Rule::exists(Risk::class, 'id')],
-            'mitigation_id' => ['required', 'integer', Rule::exists(Mitigation::class, 'id')],
+            'mitigation_id' => [
+                'required',
+                'integer',
+                Rule::exists(Mitigation::class, 'id'),
+                // R-5 allows many links per risk and per mitigation; R-6 only
+                // forbids repeating the same pair.
+                Rule::unique(Link::class)
+                    ->where('risk_id', $this->input('risk_id'))
+                    ->ignore($link),
+            ],
             'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')],
+        ];
+    }
+
+    /**
+     * Get the messages shared by the store and update requests.
+     *
+     * @return array<string, string>
+     */
+    protected function linkMessages(): array
+    {
+        return [
+            'mitigation_id.unique' => __('A link between this risk and this mitigation already exists.'),
         ];
     }
 }

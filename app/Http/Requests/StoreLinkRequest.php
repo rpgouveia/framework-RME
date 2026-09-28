@@ -19,4 +19,14 @@ class StoreLinkRequest extends FormRequest
     {
         return $this->linkRules();
     }
+
+    /**
+     * Get the custom messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->linkMessages();
+    }
 }
