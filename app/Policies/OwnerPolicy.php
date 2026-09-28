@@ -54,6 +54,22 @@ class OwnerPolicy
     }
 
     /**
+     * Determine whether the user can retire the owner from the forms.
+     */
+    public function deactivate(User $user, Owner $owner): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determine whether the user can bring the owner back to the forms.
+     */
+    public function reactivate(User $user, Owner $owner): bool
+    {
+        return true;
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Owner $owner): bool

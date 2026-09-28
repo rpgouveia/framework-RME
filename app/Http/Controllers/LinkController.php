@@ -85,7 +85,12 @@ class LinkController extends Controller
         // Only the follow-up fields are editable; the pair is shown read only.
         return Inertia::render('links/edit', [
             'link' => $link->load(['risk.aiSystem', 'mitigation']),
-            'owners' => Owner::query()->orderBy('organizational_role')->get(),
+            // Active owners, plus the current one even if retired, so the
+            // link can keep it (marked as inactive on the form).
+            'owners' => Owner::query()
+                ->where(fn ($query) => $query->active()->orWhere('id', $link->owner_id))
+                ->orderBy('organizational_role')
+                ->get(['id', 'organizational_role', 'area', 'deactivated_at']),
             'lifecyclePhases' => LifecyclePhase::options(),
             'costLevels' => CostLevel::options(),
         ]);
@@ -129,7 +134,8 @@ class LinkController extends Controller
             'mitigations' => Mitigation::query()
                 ->orderBy('name')
                 ->get(['id', 'name', 'saeri_category', 'suggested_cost', 'uncertainty_level', 'bibliography_source']),
-            'owners' => Owner::query()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
+            // Retired roles take no new links.
+            'owners' => Owner::query()->active()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
             'saeriCategories' => SaeriCategory::options(),
             'lifecyclePhases' => LifecyclePhase::options(),
             'costLevels' => CostLevel::options(),

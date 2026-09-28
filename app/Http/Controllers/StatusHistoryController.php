@@ -50,7 +50,8 @@ class StatusHistoryController extends Controller
             'link' => $link->load(['risk', 'mitigation']),
             // Only the moves the link's current status allows.
             'statuses' => $link->status->transitionOptions(),
-            'owners' => Owner::query()->orderBy('organizational_role')->get(),
+            // Retired roles record no new changes.
+            'owners' => Owner::query()->active()->orderBy('organizational_role')->get(),
             'adverseEvents' => AdverseEvent::query()
                 ->with('aiSystem:id,name')
                 ->latest('occurrence_date')

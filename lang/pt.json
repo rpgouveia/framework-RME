@@ -17,5 +17,16 @@
     "Evidence registered.": "Evidência registrada.",
     "A mitigation with this name is already in the catalogue.": "Já existe uma mitigação com este nome no catálogo.",
     "This AI system already has a risk with this name.": "Este sistema já tem um risco com este nome.",
-    "The AI system cannot change once the risk has links.": "O sistema de IA não pode ser alterado depois que o risco tem vínculos."
+    "The AI system cannot change once the risk has links.": "O sistema de IA não pode ser alterado depois que o risco tem vínculos.",
+    "An owner with this role already exists in this area.": "Já existe um responsável com este cargo nesta área.",
+    "An inactive owner has this role in this area. Reactivate it instead of registering another.": "Existe um responsável inativo com este cargo nesta área. Reative-o em vez de cadastrar outro.",
+    "The role and area cannot change once the owner is used in the traceability chain. Register a new owner and reassign the active links.": "O cargo e a área não podem ser alterados depois que o responsável foi usado na cadeia de rastreabilidade. Cadastre um novo responsável e reatribua os vínculos ativos.",
+    "This owner is still accountable for :count active link. Reassign it before deactivating.|This owner is still accountable for :count active links. Reassign them before deactivating.": "Este responsável ainda responde por :count vínculo ativo. Reatribua-o antes de desativar.|Este responsável ainda responde por :count vínculos ativos. Reatribua-os antes de desativar.",
+    "Owner deactivated.": "Responsável desativado.",
+    "Owner reactivated.": "Responsável reativado.",
+    "Choose an active owner.": "Escolha um responsável ativo.",
+    "Owner registered.": "Responsável cadastrado.",
+    "Owner updated.": "Responsável atualizado.",
+    "Owner deleted.": "Responsável excluído.",
+    "This owner is still referenced by a link.": "Este responsável ainda é usado na cadeia de rastreabilidade."
 }

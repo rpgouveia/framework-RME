@@ -140,9 +140,14 @@ export interface Owner extends Timestamps {
     id: number;
     organizational_role: string;
     area: string;
+    /** Null while the owner is active. */
+    deactivated_at: string | null;
     links?: Link[];
     links_count?: number;
+    /** Links not cancelled, which keep the owner from being deactivated. */
+    active_links_count?: number;
     status_histories?: StatusHistory[];
+    status_histories_count?: number;
 }
 
 /** The core entity: a mitigation applied to a risk, owned by someone. */

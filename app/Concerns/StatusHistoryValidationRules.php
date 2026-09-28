@@ -50,7 +50,7 @@ trait StatusHistoryValidationRules
                 'max:255',
             ],
             'change_date' => ['required', 'date'],
-            'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')],
+            'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')->whereNull('deactivated_at')],
             'adverse_event_id' => ['nullable', 'integer', Rule::exists(AdverseEvent::class, 'id')],
         ];
     }
@@ -64,6 +64,7 @@ trait StatusHistoryValidationRules
     {
         return [
             'trigger_reason.required' => __('Say why the link is being cancelled.'),
+            'owner_id.exists' => __('Choose an active owner.'),
         ];
     }
 }

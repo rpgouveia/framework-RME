@@ -36,7 +36,7 @@ trait LinkValidationRules
                 Rule::unique(Link::class)
                     ->where('risk_id', $this->input('risk_id')),
             ],
-            'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')],
+            'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')->whereNull('deactivated_at')],
         ];
     }
 
@@ -49,6 +49,7 @@ trait LinkValidationRules
     {
         return [
             'mitigation_id.unique' => __('A link between this risk and this mitigation already exists.'),
+            'owner_id.exists' => __('Choose an active owner.'),
         ];
     }
 }
