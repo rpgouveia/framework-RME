@@ -1,18 +1,54 @@
-import { Form, Head } from '@inertiajs/react';
+import { Form, Head, Link } from '@inertiajs/react';
+import { LockIcon } from 'lucide-react';
+import { useState } from 'react';
 import EvidenceController from '@/actions/App/Http/Controllers/EvidenceController';
 import Heading from '@/components/heading';
-import { linkLabel } from '@/lib/labels';
+import InputError from '@/components/input-error';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { evidenceTypeLabels, labelFor, linkLabel } from '@/lib/labels';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/evidence';
 import type { EnumOption, Link as RiskLink } from '@/types/models';
-import { EvidenceForm } from './form';
 
 type Props = {
     link: RiskLink;
     types: EnumOption[];
 };
 
+/** Lets the confirm button, rendered in a dialog outside the form, submit it. */
+const FORM_ID = 'evidence-form';
+
 export default function EvidenceCreate({ link, types }: Props) {
+    const [confirming, setConfirming] = useState(false);
+
+    // Check the required fields first, so the dialog only asks about a form
+    // that can actually be sent.
+    function askToConfirm() {
+        const form = document.getElementById(FORM_ID);
+
+        if (form instanceof HTMLFormElement && form.reportValidity()) {
+            setConfirming(true);
+        }
+    }
+
     return (
         <>
             <Head title="Registrar evidência" />
@@ -23,16 +59,112 @@ export default function EvidenceCreate({ link, types }: Props) {
                 />
                 <Form
                     {...EvidenceController.store.form(link.id)}
+                    id={FORM_ID}
+                    onError={() => setConfirming(false)}
                     className="max-w-xl space-y-6"
                 >
                     {({ processing, errors }) => (
-                        <EvidenceForm
-                            types={types}
-                            errors={errors}
-                            processing={processing}
-                            submitLabel="Registrar"
-                            cancelHref={index(link.id)}
-                        />
+                        <>
+                            <div className="grid gap-2">
+                                <Label htmlFor="type">Tipo</Label>
+                                <Select name="type" required>
+                                    <SelectTrigger
+                                        id="type"
+                                        className="w-full"
+                                        aria-invalid={
+                                            errors.type ? true : undefined
+                                        }
+                                    >
+                                        <SelectValue placeholder="Selecione o tipo" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {types.map((option) => (
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {labelFor(
+                                                    evidenceTypeLabels,
+                                                    option.value,
+                                                )}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.type} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="description">Descrição</Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    required
+                                    maxLength={255}
+                                    placeholder="Ex.: Relatório de auditoria de equidade do 1º trimestre, assinado pelo comitê."
+                                    aria-invalid={
+                                        errors.description ? true : undefined
+                                    }
+                                />
+                                <InputError message={errors.description} />
+                            </div>
+
+                            <Alert>
+                                <LockIcon />
+                                <AlertTitle>
+                                    Evidências são permanentes
+                                </AlertTitle>
+                                <AlertDescription>
+                                    Depois de registrada, a evidência não pode
+                                    ser editada nem excluída, porque sustenta a
+                                    verificação do vínculo. Um engano se corrige
+                                    registrando outra evidência.
+                                </AlertDescription>
+                            </Alert>
+
+                            <div className="flex items-center gap-4">
+                                <Button
+                                    type="button"
+                                    disabled={processing}
+                                    onClick={askToConfirm}
+                                >
+                                    Registrar
+                                </Button>
+                                <Button variant="ghost" asChild>
+                                    <Link href={index(link.id)}>Cancelar</Link>
+                                </Button>
+                            </div>
+
+                            <Dialog
+                                open={confirming}
+                                onOpenChange={setConfirming}
+                            >
+                                <DialogContent>
+                                    <DialogTitle>
+                                        Registrar esta evidência?
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                        Confira o tipo e a descrição: depois de
+                                        registrada, a evidência não pode ser
+                                        editada nem excluída.
+                                    </DialogDescription>
+                                    <DialogFooter className="gap-2">
+                                        <DialogClose asChild>
+                                            <Button variant="secondary">
+                                                Voltar
+                                            </Button>
+                                        </DialogClose>
+                                        <Button
+                                            type="submit"
+                                            form={FORM_ID}
+                                            disabled={processing}
+                                        >
+                                            Registrar
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </>
                     )}
                 </Form>
             </div>

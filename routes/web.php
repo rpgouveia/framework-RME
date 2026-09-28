@@ -28,7 +28,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * Evidence and status history only exist in the context of a link, so they
      * are created and listed through their parent and edited on their own.
      */
-    Route::resource('links.evidence', EvidenceController::class)->shallow();
+    // Evidence is append only: it backs a link's verification (RF03), so it
+    // is never edited or deleted. A mistake is corrected by registering more.
+    Route::resource('links.evidence', EvidenceController::class)
+        ->shallow()
+        ->only(['index', 'create', 'store', 'show']);
     // The status trail is append only: entries are never edited or deleted.
     Route::resource('links.status-histories', StatusHistoryController::class)
         ->shallow()

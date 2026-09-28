@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 trait EvidenceValidationRules
 {
     /**
-     * Get the validation rules shared by the store and update requests.
+     * Get the validation rules for registering evidence.
      *
      * The registration date is not asked for: the system stamps it when the
      * evidence is registered (Tela 3), so re-verification can trust that the

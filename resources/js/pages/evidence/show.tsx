@@ -1,14 +1,15 @@
 import { Head, Link } from '@inertiajs/react';
-import EvidenceController from '@/actions/App/Http/Controllers/EvidenceController';
-import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
 import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
-import { edit, show } from '@/routes/evidence';
+import { show } from '@/routes/evidence';
 import { index as linksIndex, show as showLink } from '@/routes/links';
-import { index as evidenceIndex } from '@/routes/links/evidence';
+import {
+    create as createEvidence,
+    index as evidenceIndex,
+} from '@/routes/links/evidence';
 import type { Evidence, Link as RiskLink } from '@/types/models';
 
 type Props = {
@@ -32,17 +33,19 @@ export default function EvidenceShow({ evidence }: Props) {
                             {linkLabel(evidence.link)}
                         </Link>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" asChild>
-                            <Link href={edit(evidence.id)}>Editar</Link>
-                        </Button>
-                        <DeleteDialog
-                            form={EvidenceController.destroy.form(evidence.id)}
-                            title="Excluir esta evidência?"
-                            description="A evidência será removida do vínculo. Esta ação não pode ser desfeita."
-                        />
-                    </div>
+                    {/* Evidence is append only: a mistake is corrected by
+                        registering more, never by changing what was recorded. */}
+                    <Button variant="outline" asChild>
+                        <Link href={createEvidence(evidence.link_id)}>
+                            Registrar nova evidência
+                        </Link>
+                    </Button>
                 </header>
+
+                <p className="text-muted-foreground -mt-2 text-sm">
+                    Evidências não podem ser editadas nem excluídas. Para
+                    corrigir esta, registre uma nova.
+                </p>
 
                 <Card>
                     <CardHeader>

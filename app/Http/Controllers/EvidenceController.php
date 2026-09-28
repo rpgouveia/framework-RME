@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\EvidenceType;
 use App\Http\Requests\StoreEvidenceRequest;
-use App\Http\Requests\UpdateEvidenceRequest;
 use App\Models\Evidence;
 use App\Models\Link;
 use Illuminate\Http\RedirectResponse;
@@ -71,48 +70,5 @@ class EvidenceController extends Controller
         return Inertia::render('evidence/show', [
             'evidence' => $evidence->load(['link.risk', 'link.mitigation']),
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Evidence $evidence): Response
-    {
-        Gate::authorize('update', $evidence);
-
-        return Inertia::render('evidence/edit', [
-            'evidence' => $evidence->load(['link.risk', 'link.mitigation']),
-            'types' => EvidenceType::options(),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateEvidenceRequest $request, Evidence $evidence): RedirectResponse
-    {
-        Gate::authorize('update', $evidence);
-
-        $evidence->update($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Evidence updated.')]);
-
-        return to_route('evidence.show', $evidence);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Evidence $evidence): RedirectResponse
-    {
-        Gate::authorize('delete', $evidence);
-
-        $link = $evidence->link;
-
-        $evidence->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Evidence deleted.')]);
-
-        return to_route('links.evidence.index', $link);
     }
 }
