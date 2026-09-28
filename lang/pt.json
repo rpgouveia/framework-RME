@@ -15,8 +15,6 @@
     "The new status must differ from the current one.": "O novo status deve ser diferente do atual.",
     "Status change recorded.": "Mudança de status registrada.",
     "Evidence registered.": "Evidência registrada.",
-    "Evidence updated.": "Evidência atualizada.",
-    "Evidence deleted.": "Evidência excluída.",
     "A mitigation with this name is already in the catalogue.": "Já existe uma mitigação com este nome no catálogo.",
     "This AI system already has a risk with this name.": "Este sistema já tem um risco com este nome."
 }

@@ -74,38 +74,13 @@ test('the registration date is stamped by the system', function () {
     expect(Evidence::sole()->registration_date->toDateString())->toBe('2026-06-15');
 });
 
-test('updating evidence keeps its registration date', function () {
-    $evidence = Evidence::factory()->create(['registration_date' => '2026-03-31']);
-
-    $this->put(route('evidence.update', $evidence), [
-        'type' => $evidence->type->value,
-        'description' => $evidence->description,
-        'registration_date' => '2020-01-01',
-    ])->assertSessionHasNoErrors();
-
-    expect($evidence->refresh()->registration_date->toDateString())->toBe('2026-03-31');
-});
-
-test('evidence can be updated', function () {
+test('evidence is append only', function () {
+    // It backs the link's verification, so it is never edited or deleted.
     $evidence = Evidence::factory()->create();
 
-    $response = $this->put(route('evidence.update', $evidence), [
-        'type' => EvidenceType::Certification->value,
-        'description' => 'ISO certificate',
-        'registration_date' => '2026-04-01',
-    ]);
+    $this->get("/evidence/{$evidence->id}/edit")->assertNotFound();
+    $this->put("/evidence/{$evidence->id}", [])->assertMethodNotAllowed();
+    $this->delete("/evidence/{$evidence->id}")->assertMethodNotAllowed();
 
-    $response->assertSessionHasNoErrors()->assertRedirect(route('evidence.show', $evidence));
-
-    expect($evidence->refresh()->type)->toBe(EvidenceType::Certification)
-        ->and($evidence->description)->toBe('ISO certificate');
-});
-
-test('deleting evidence returns to its link', function () {
-    $evidence = Evidence::factory()->create();
-
-    $this->delete(route('evidence.destroy', $evidence))
-        ->assertRedirect(route('links.evidence.index', $evidence->link_id));
-
-    $this->assertModelMissing($evidence);
+    $this->assertModelExists($evidence);
 });

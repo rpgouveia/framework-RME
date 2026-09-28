@@ -1,6 +1,4 @@
 import { Head, Link } from '@inertiajs/react';
-import EvidenceController from '@/actions/App/Http/Controllers/EvidenceController';
-import { DeleteDialog } from '@/components/delete-dialog';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Button } from '@/components/ui/button';
@@ -15,7 +13,7 @@ import {
 import { formatDate } from '@/lib/format';
 import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
-import { edit, show } from '@/routes/evidence';
+import { show } from '@/routes/evidence';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/evidence';
 import type { Evidence, Link as RiskLink, Paginated } from '@/types/models';
@@ -72,9 +70,6 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                         <TableHead>Tipo</TableHead>
                         <TableHead>Descrição</TableHead>
                         <TableHead>Registrada em</TableHead>
-                        <TableHead>
-                            <span className="sr-only">Ações</span>
-                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -99,31 +94,6 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                             </TableCell>
                             <TableCell>
                                 {formatDate(item.registration_date)}
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center justify-end gap-3">
-                                    <Link
-                                        href={edit(item.id)}
-                                        className="text-muted-foreground hover:text-foreground text-sm hover:underline"
-                                    >
-                                        Editar
-                                    </Link>
-                                    <DeleteDialog
-                                        form={EvidenceController.destroy.form(
-                                            item.id,
-                                        )}
-                                        title="Excluir esta evidência?"
-                                        description="A evidência será removida do vínculo. Esta ação não pode ser desfeita."
-                                        trigger={
-                                            <button
-                                                type="button"
-                                                className="text-destructive text-sm hover:underline"
-                                            >
-                                                Excluir
-                                            </button>
-                                        }
-                                    />
-                                </div>
                             </TableCell>
                         </TableRow>
                     ))}
