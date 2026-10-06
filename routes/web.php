@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdverseEventController;
 use App\Http\Controllers\AiSystemController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\MitigationController;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('ai-systems', AiSystemController::class);
     Route::resource('risks', RiskController::class);

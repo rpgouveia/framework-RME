@@ -116,8 +116,20 @@ class Link extends Model
     #[Scope]
     protected function dueForReview(Builder $query): void
     {
-        $query->where('next_review_date', '<=', today())
-            ->whereNot('status', LinkStatus::Cancelled);
+        $query->where($query->qualifyColumn('next_review_date'), '<=', today())
+            ->whereNot($query->qualifyColumn('status'), LinkStatus::Cancelled);
+    }
+
+    /**
+     * Scope the query to the links still in the chain. A cancelled link is
+     * closed, so it owes nothing: no evidence, no review.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function notCancelled(Builder $query): void
+    {
+        $query->whereNot($query->qualifyColumn('status'), LinkStatus::Cancelled);
     }
 
     /**
