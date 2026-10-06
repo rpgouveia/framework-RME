@@ -5,6 +5,7 @@ use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\StatusHistory;
 use App\Models\User;
+use App\Support\MonitoringProtocol;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -96,38 +97,80 @@ test('recording an adverse event requires every field', function () {
     $this->assertDatabaseEmpty('adverse_events');
 });
 
-test('an adverse event can be updated', function () {
+test('adverse events are append only', function () {
+    // They record what happened and explain the status changes they trigger.
     $adverseEvent = AdverseEvent::factory()->create();
 
-    $response = $this->put(route('adverse-events.update', $adverseEvent), adverseEventPayload([
-        'event_type' => AdverseEventType::DataBreach->value,
-        'description' => 'Updated description',
-        'ai_system_id' => $adverseEvent->ai_system_id,
-    ]));
-
-    $response->assertSessionHasNoErrors()
-        ->assertRedirect(route('adverse-events.show', $adverseEvent));
-
-    expect($adverseEvent->refresh()->event_type)->toBe(AdverseEventType::DataBreach)
-        ->and($adverseEvent->description)->toBe('Updated description');
-});
-
-test('an adverse event that triggered no status change can be deleted', function () {
-    $adverseEvent = AdverseEvent::factory()->create();
-
-    $this->delete(route('adverse-events.destroy', $adverseEvent))
-        ->assertRedirect(route('adverse-events.index'));
-
-    $this->assertModelMissing($adverseEvent);
-});
-
-test('an adverse event that triggered a status change cannot be deleted', function () {
-    $statusHistory = StatusHistory::factory()->triggeredByAdverseEvent()->create();
-    $adverseEvent = $statusHistory->adverseEvent;
-
-    $this->from(route('adverse-events.show', $adverseEvent))
-        ->delete(route('adverse-events.destroy', $adverseEvent))
-        ->assertRedirect(route('adverse-events.show', $adverseEvent));
+    $this->get("/adverse-events/{$adverseEvent->id}/edit")->assertNotFound();
+    $this->put("/adverse-events/{$adverseEvent->id}", [])->assertMethodNotAllowed();
+    $this->delete("/adverse-events/{$adverseEvent->id}")->assertMethodNotAllowed();
 
     $this->assertModelExists($adverseEvent);
+});
+
+test('an event type the protocol does not allow for the system is refused', function () {
+    // Stand in for the C3 mapping: this system accepts only malfunctions. The
+    // test holds once the real protocol exists, since validation asks it.
+    $this->app->instance(MonitoringProtocol::class, new class extends MonitoringProtocol
+    {
+        public function eventTypesFor(AiSystem $aiSystem): array
+        {
+            return [AdverseEventType::Malfunction];
+        }
+    });
+
+    $this->post(route('adverse-events.store'), adverseEventPayload([
+        'event_type' => AdverseEventType::DataBreach->value,
+    ]))->assertSessionHasErrors([
+        'event_type' => __('This event type does not apply to this AI system.'),
+    ]);
+
+    $this->post(route('adverse-events.store'), adverseEventPayload([
+        'event_type' => AdverseEventType::Malfunction->value,
+    ]))->assertSessionHasNoErrors();
+
+    expect(AdverseEvent::sole()->event_type)->toBe(AdverseEventType::Malfunction);
+});
+
+test('the create form sends the event types each system accepts', function () {
+    [$first, $second] = AiSystem::factory(2)->create();
+
+    $this->app->instance(MonitoringProtocol::class, new class extends MonitoringProtocol
+    {
+        public function eventTypesFor(AiSystem $aiSystem): array
+        {
+            return $aiSystem->name === 'Only outages'
+                ? [AdverseEventType::ServiceDisruption]
+                : parent::eventTypesFor($aiSystem);
+        }
+    });
+    $second->update(['name' => 'Only outages']);
+
+    $this->get(route('adverse-events.create'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('adverse-events/create')
+            ->has("eventTypesBySystem.{$first->id}", count(AdverseEventType::cases()))
+            ->where("eventTypesBySystem.{$second->id}.0.value", AdverseEventType::ServiceDisruption->value)
+            ->has("eventTypesBySystem.{$second->id}", 1)
+    );
+});
+
+test('today is a valid occurrence date', function () {
+    $this->post(route('adverse-events.store'), adverseEventPayload([
+        'occurrence_date' => today()->toDateString(),
+    ]))->assertSessionHasNoErrors();
+});
+
+test('the detail page loads the status changes the event triggered', function () {
+    $adverseEvent = AdverseEvent::factory()->create();
+    StatusHistory::factory(2)->create(['adverse_event_id' => $adverseEvent->id]);
+
+    $this->get(route('adverse-events.show', $adverseEvent))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('adverse-events/show')
+            ->has('adverseEvent.status_histories', 2)
+            ->has('adverseEvent.status_histories.0.link.risk')
+            ->has('adverseEvent.status_histories.0.link.mitigation')
+            ->has('adverseEvent.status_histories.0.owner')
+    );
 });
