@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 /**
  * An AI system registered in the organization's portfolio.
@@ -26,6 +27,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $risks_count
  * @property-read Collection<int, AdverseEvent> $adverseEvents
  * @property-read int|null $adverse_events_count
+ * @property-read Collection<int, Link> $links
+ * @property-read int|null $links_count
  */
 #[Fillable(['name', 'source_type', 'category', 'registration_date'])]
 class AiSystem extends Model
@@ -51,6 +54,16 @@ class AiSystem extends Model
     public function adverseEvents(): HasMany
     {
         return $this->hasMany(AdverseEvent::class);
+    }
+
+    /**
+     * The links of this system's risks: its traceability chain.
+     *
+     * @return HasManyThrough<Link, Risk, $this>
+     */
+    public function links(): HasManyThrough
+    {
+        return $this->hasManyThrough(Link::class, Risk::class);
     }
 
     /**

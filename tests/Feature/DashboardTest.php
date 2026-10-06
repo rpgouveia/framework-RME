@@ -1,6 +1,13 @@
 <?php
 
+use App\Enums\LinkStatus;
+use App\Models\AdverseEvent;
+use App\Models\AiSystem;
+use App\Models\Evidence;
+use App\Models\Link;
+use App\Models\Risk;
 use App\Models\User;
+use Inertia\Testing\AssertableInertia;
 
 test('guests are redirected to the login page', function () {
     $response = $this->get(route('dashboard'));
@@ -13,4 +20,118 @@ test('authenticated users can visit the dashboard', function () {
 
     $response = $this->get(route('dashboard'));
     $response->assertOk();
+});
+
+test('with nothing registered the dashboard shows the starting point', function () {
+    $this->actingAs(User::factory()->create());
+
+    $this->get(route('dashboard'))->assertOk()->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('dashboard')
+            ->where('totals.aiSystems', 0)
+            ->where('unlinkedRisks.count', 0)
+            ->where('reviews.dueCount', 0)
+            ->has('systems', 0)
+    );
+});
+
+test('the dashboard shows where the chain is incomplete', function () {
+    $this->actingAs(User::factory()->create());
+    $this->travelTo('2026-06-15 10:00');
+
+    $aiSystem = AiSystem::factory()->create();
+
+    // A risk with no link at all, and one whose only link was cancelled:
+    // both still need a mitigation.
+    $unlinked = Risk::factory()->for($aiSystem)->create();
+    $cancelledOnly = Risk::factory()->for($aiSystem)->create();
+    Link::factory()->for($cancelledOnly)->create([
+        'status' => LinkStatus::Cancelled,
+        'next_review_date' => '2026-01-01',
+    ]);
+
+    $linked = Risk::factory()->for($aiSystem)->create();
+    $overdue = Link::factory()->for($linked)->create([
+        'status' => LinkStatus::InProgress,
+        'creation_date' => '2026-01-01',
+        'next_review_date' => '2026-06-10',
+    ]);
+    $dueToday = Link::factory()->for($linked)->create([
+        'status' => LinkStatus::Monitoring,
+        'creation_date' => '2026-01-02',
+        'next_review_date' => '2026-06-15',
+    ]);
+    $upcoming = Link::factory()->for($linked)->create([
+        'status' => LinkStatus::Planned,
+        'creation_date' => '2026-01-03',
+        'next_review_date' => '2026-06-20',
+    ]);
+    $later = Link::factory()->for($linked)->create([
+        'status' => LinkStatus::Implemented,
+        'creation_date' => '2026-01-04',
+        'next_review_date' => '2026-09-01',
+    ]);
+    foreach ([$overdue, $dueToday, $later] as $withEvidence) {
+        Evidence::factory()->for($withEvidence)->create();
+    }
+
+    $recent = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-01']);
+    $edge = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-05-16']);
+    AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-04-01']);
+
+    $this->get(route('dashboard'))->assertOk()->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('dashboard')
+            // Cancelled links are left out of every count.
+            ->where('totals.aiSystems', 1)
+            ->where('totals.risks', 3)
+            ->where('totals.links', 4)
+            ->where('unlinkedRisks.count', 2)
+            ->where('unlinkedRisks.items', fn ($items) => collect($items)->pluck('id')->sort()->values()->all() === [$unlinked->id, $cancelledOnly->id])
+            ->has('unlinkedRisks.items.0.ai_system.name')
+            ->where('linksByStatus', [
+                ['status' => 'planned', 'count' => 1],
+                ['status' => 'in_progress', 'count' => 1],
+                ['status' => 'implemented', 'count' => 1],
+                ['status' => 'monitoring', 'count' => 1],
+                ['status' => 'suspended', 'count' => 0],
+            ])
+            ->where('linksWithoutEvidence.count', 1)
+            ->where('linksWithoutEvidence.items.0.id', $upcoming->id)
+            ->has('linksWithoutEvidence.items.0.risk.name')
+            // Due on or before today, like the daily reassessment check.
+            ->where('reviews.dueCount', 2)
+            ->where('reviews.due.0.id', $overdue->id)
+            ->where('reviews.due.1.id', $dueToday->id)
+            ->where('reviews.upcomingCount', 1)
+            ->where('reviews.upcoming.0.id', $upcoming->id)
+            // Thirty days back is still in; the April event is out.
+            ->where('recentEvents.count', 2)
+            ->where('recentEvents.items.0.id', $recent->id)
+            ->where('recentEvents.items.1.id', $edge->id)
+            ->where('systems.0.risks_count', 3)
+            ->where('systems.0.unlinked_risks_count', 2)
+            ->where('systems.0.links_count', 4)
+            ->where('systems.0.due_reviews_count', 2)
+            ->where('systems.0.recent_events_count', 2)
+    );
+});
+
+test('the summary counts each system on its own', function () {
+    $this->actingAs(User::factory()->create());
+
+    [$first, $second] = AiSystem::factory(2)->create();
+    Risk::factory()->for($first)->create();
+    Link::factory()->for(Risk::factory()->for($second))->create(['status' => LinkStatus::Planned]);
+
+    $this->get(route('dashboard'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('systems', function ($systems) use ($first, $second): bool {
+            $rows = collect($systems)->keyBy('id');
+
+            return $rows[$first->id]['unlinked_risks_count'] === 1
+                && $rows[$first->id]['links_count'] === 0
+                && $rows[$second->id]['unlinked_risks_count'] === 0
+                && $rows[$second->id]['links_count'] === 1;
+        })
+    );
 });
