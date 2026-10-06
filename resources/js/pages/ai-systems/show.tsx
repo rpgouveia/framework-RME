@@ -20,6 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
+import { create as createAdverseEvent } from '@/routes/adverse-events';
 import {
     categoryBadgeClasses,
     categoryLabels,
@@ -58,7 +59,16 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                             {categoryLabels[aiSystem.category]}
                         </Badge>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button variant="outline" asChild>
+                            <Link
+                                href={createAdverseEvent({
+                                    query: { ai_system: aiSystem.id },
+                                })}
+                            >
+                                Registrar evento adverso
+                            </Link>
+                        </Button>
                         <Button variant="outline" asChild>
                             <Link href={edit(aiSystem.id)}>Editar</Link>
                         </Button>

@@ -18,7 +18,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('ai-systems', AiSystemController::class);
     Route::resource('risks', RiskController::class);
-    Route::resource('adverse-events', AdverseEventController::class);
+    // Adverse events are append only: they record what happened and, through
+    // reassessment, explain status changes on the system's links. Changing
+    // the system or date later would leave those changes unexplained.
+    Route::resource('adverse-events', AdverseEventController::class)
+        ->only(['index', 'create', 'store', 'show']);
     Route::resource('mitigations', MitigationController::class);
     Route::resource('owners', OwnerController::class);
     // Used owners are never deleted or edited; they are retired instead.

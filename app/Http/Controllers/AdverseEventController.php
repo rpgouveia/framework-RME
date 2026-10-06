@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\AdverseEventType;
 use App\Http\Requests\StoreAdverseEventRequest;
-use App\Http\Requests\UpdateAdverseEventRequest;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
+use App\Support\MonitoringProtocol;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -72,56 +71,10 @@ class AdverseEventController extends Controller
             'adverseEvent' => $adverseEvent->load([
                 'aiSystem',
                 'statusHistories.link.risk',
+                'statusHistories.link.mitigation',
                 'statusHistories.owner',
             ]),
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AdverseEvent $adverseEvent): Response
-    {
-        Gate::authorize('update', $adverseEvent);
-
-        return Inertia::render('adverse-events/edit', [
-            'adverseEvent' => $adverseEvent,
-            ...$this->formOptions(),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAdverseEventRequest $request, AdverseEvent $adverseEvent): RedirectResponse
-    {
-        Gate::authorize('update', $adverseEvent);
-
-        $adverseEvent->update($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Adverse event updated.')]);
-
-        return to_route('adverse-events.show', $adverseEvent);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AdverseEvent $adverseEvent): RedirectResponse
-    {
-        Gate::authorize('delete', $adverseEvent);
-
-        if ($adverseEvent->statusHistories()->exists()) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => __('Detach the status changes it triggered first.')]);
-
-            return back();
-        }
-
-        $adverseEvent->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Adverse event deleted.')]);
-
-        return to_route('adverse-events.index');
     }
 
     /**
@@ -131,9 +84,15 @@ class AdverseEventController extends Controller
      */
     protected function formOptions(): array
     {
+        $aiSystems = AiSystem::query()->orderBy('name')->get(['id', 'name']);
+        $protocol = app(MonitoringProtocol::class);
+
         return [
-            'aiSystems' => AiSystem::query()->orderBy('name')->get(['id', 'name']),
-            'eventTypes' => AdverseEventType::options(),
+            'aiSystems' => $aiSystems,
+            // RF04: the form swaps the type options when the system changes.
+            'eventTypesBySystem' => $aiSystems->mapWithKeys(
+                fn (AiSystem $aiSystem): array => [$aiSystem->id => $protocol->eventTypeOptionsFor($aiSystem)],
+            ),
         ];
     }
 }
