@@ -49,15 +49,24 @@ export default function AiSystemsShow({ aiSystem }: Props) {
             <Head title={aiSystem.name} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                        <h1 className="text-xl font-semibold tracking-tight">
-                            {aiSystem.name}
-                        </h1>
-                        <Badge
-                            className={categoryBadgeClasses[aiSystem.category]}
-                        >
-                            {categoryLabels[aiSystem.category]}
-                        </Badge>
+                    <div className="grid gap-1">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <h1 className="text-xl font-semibold tracking-tight">
+                                {aiSystem.name}
+                            </h1>
+                            <Badge
+                                className={
+                                    categoryBadgeClasses[aiSystem.category]
+                                }
+                            >
+                                {categoryLabels[aiSystem.category]}
+                            </Badge>
+                        </div>
+                        {aiSystem.application_domain && (
+                            <p className="text-muted-foreground text-sm">
+                                {aiSystem.application_domain}
+                            </p>
+                        )}
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                         <Button variant="outline" asChild>

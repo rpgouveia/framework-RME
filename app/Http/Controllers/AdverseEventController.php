@@ -107,17 +107,15 @@ class AdverseEventController extends Controller
      */
     protected function formOptions(): array
     {
-        $aiSystems = AiSystem::query()->orderBy('name')->get(['id', 'name']);
+        $aiSystems = AiSystem::query()->orderBy('name')->get(['id', 'name', 'application_domain']);
         $protocol = app(MonitoringProtocol::class);
 
         return [
             'aiSystems' => $aiSystems,
-            // RF04: the form swaps the subdomains offered when the system
-            // changes. For now every system offers all of them (see
-            // MonitoringProtocol).
-            'riskDomainsBySystem' => $aiSystems->mapWithKeys(
-                fn (AiSystem $aiSystem): array => [$aiSystem->id => $protocol->riskSubdomainOptionsFor($aiSystem)],
-            ),
+            'riskDomains' => $protocol->riskSubdomainOptions(),
+            // RF04: the form puts the system's risk profile first when the
+            // system changes.
+            'expectedRiskSubdomainsBySystem' => $protocol->expectedRiskSubdomainsBySystem($aiSystems),
         ];
     }
 }

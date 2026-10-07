@@ -18,6 +18,7 @@ return [
     'string' => 'O campo :attribute deve ser um texto.',
 
     'attributes' => [
+        'application_domain' => 'domínio de aplicação',
         'ai_system_id' => 'sistema de IA',
         'category' => 'categoria',
         'description' => 'descrição',

@@ -4,8 +4,6 @@ namespace App\Concerns;
 
 use App\Models\AiSystem;
 use App\Support\AiRiskDomains;
-use App\Support\MonitoringProtocol;
-use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -25,21 +23,10 @@ trait AdverseEventValidationRules
             'risk_subdomains.*' => [
                 'string',
                 'distinct',
+                // Any subdomain, in the system's risk profile or not: one
+                // outside it may reveal a risk not yet identified (see
+                // MonitoringProtocol).
                 Rule::in(app(AiRiskDomains::class)->subdomains()->pluck('code')->all()),
-                // RF04: the subdomain must be one the monitoring protocol
-                // offers for the chosen system.
-                function (string $attribute, mixed $value, Closure $fail): void {
-                    $aiSystemId = $this->input('ai_system_id');
-                    $aiSystem = is_numeric($aiSystemId) ? AiSystem::find((int) $aiSystemId) : null;
-
-                    if ($aiSystem === null || ! is_string($value)) {
-                        return;
-                    }
-
-                    if (! app(MonitoringProtocol::class)->allows($aiSystem, $value)) {
-                        $fail(__('The risk subdomain :code is not offered for this AI system.', ['code' => $value]));
-                    }
-                },
             ],
             'description' => ['required', 'string', 'max:2000'],
             'occurrence_date' => ['required', 'date', 'before_or_equal:today'],

@@ -5,6 +5,8 @@ use App\Enums\SystemSourceType;
 use App\Models\AiSystem;
 use App\Models\Risk;
 use App\Models\User;
+use Database\Factories\AiSystemFactory;
+use Database\Seeders\AiSystemSeeder;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -82,6 +84,91 @@ test('a system can be updated', function () {
 
     expect($aiSystem->refresh()->name)->toBe('Renamed system')
         ->and($aiSystem->source_type)->toBe(SystemSourceType::OpenSource);
+});
+
+// The application domain: descriptive, optional.
+
+/**
+ * Build a valid payload for the system form.
+ *
+ * @param  array<string, mixed>  $overrides
+ * @return array<string, mixed>
+ */
+function aiSystemPayload(array $overrides = []): array
+{
+    return array_merge([
+        'name' => 'Assistente de atendimento',
+        'source_type' => SystemSourceType::ThirdParty->value,
+        'category' => AiSystemCategory::Limited->value,
+        'registration_date' => '2026-01-15',
+    ], $overrides);
+}
+
+test('a system can be registered with or without an application domain', function (?string $domain) {
+    $this->post(route('ai-systems.store'), aiSystemPayload([
+        'application_domain' => $domain,
+    ]))->assertSessionHasNoErrors();
+
+    expect(AiSystem::sole()->application_domain)->toBe($domain === '' ? null : $domain);
+})->with([
+    'with a domain' => ['Atendimento ao cliente'],
+    'left empty' => [''],
+    'not sent' => [null],
+]);
+
+test('an application domain over 255 characters is refused', function () {
+    $this->post(route('ai-systems.store'), aiSystemPayload([
+        'application_domain' => str_repeat('a', 256),
+    ]))->assertSessionHasErrors('application_domain');
+
+    $this->assertDatabaseEmpty('ai_systems');
+
+    $this->post(route('ai-systems.store'), aiSystemPayload([
+        'application_domain' => str_repeat('a', 255),
+    ]))->assertSessionHasNoErrors();
+});
+
+test('editing a system changes and clears its application domain', function () {
+    $aiSystem = AiSystem::factory()->create(['application_domain' => 'Suporte técnico']);
+
+    $this->put(route('ai-systems.update', $aiSystem), aiSystemPayload([
+        'application_domain' => 'Triagem de currículos',
+    ]))->assertSessionHasNoErrors();
+
+    expect($aiSystem->refresh()->application_domain)->toBe('Triagem de currículos');
+
+    $this->put(route('ai-systems.update', $aiSystem), aiSystemPayload([
+        'application_domain' => '',
+    ]))->assertSessionHasNoErrors();
+
+    expect($aiSystem->refresh()->application_domain)->toBeNull();
+});
+
+test('the screens show the application domain of the system', function () {
+    $aiSystem = AiSystem::factory()->create(['application_domain' => 'Apoio a decisões clínicas']);
+
+    $this->get(route('ai-systems.index'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('aiSystems.data.0.application_domain', 'Apoio a decisões clínicas')
+    );
+    $this->get(route('ai-systems.show', $aiSystem))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('aiSystem.application_domain', 'Apoio a decisões clínicas')
+    );
+    $this->get(route('ai-systems.edit', $aiSystem))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('aiSystem.application_domain', 'Apoio a decisões clínicas')
+    );
+    $this->get(route('dashboard'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('systems.0.application_domain', 'Apoio a decisões clínicas')
+    );
+});
+
+test('the seeder gives each system a different application domain', function () {
+    $this->seed(AiSystemSeeder::class);
+
+    $domains = AiSystem::pluck('application_domain');
+
+    expect($domains)->toHaveCount(5)
+        ->and($domains->unique())->toHaveCount(5)
+        ->and($domains->every(fn (?string $domain): bool => in_array($domain, AiSystemFactory::APPLICATION_DOMAINS, true)))->toBeTrue();
 });
 
 test('a system without risks can be deleted', function () {

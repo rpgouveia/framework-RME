@@ -19,6 +19,9 @@ class CompileTraceabilityReport
      * @var list<string>
      */
     public const CSV_HEADER = [
+        'system_id',
+        'system_name',
+        'system_application_domain',
         'link_id',
         'status',
         'lifecycle_phase',
@@ -69,6 +72,7 @@ class CompileTraceabilityReport
             'system' => [
                 'id' => $aiSystem->id,
                 'name' => $aiSystem->name,
+                'application_domain' => $aiSystem->application_domain,
                 'source_type' => $aiSystem->source_type->value,
                 'category' => $aiSystem->category->value,
                 'registration_date' => $aiSystem->registration_date->toDateString(),
@@ -87,7 +91,11 @@ class CompileTraceabilityReport
      */
     public function rows(array $report): array
     {
+        // The system is repeated on every row, so each row stands on its own.
         return array_map(fn (array $link): array => array_map($this->csvCell(...), [
+            $report['system']['id'],
+            $report['system']['name'],
+            $report['system']['application_domain'],
             $link['id'],
             $link['status'],
             $link['lifecycle_phase'],

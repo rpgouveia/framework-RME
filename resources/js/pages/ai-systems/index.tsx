@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import Heading from '@/components/heading';
+import { AiSystemName } from '@/components/ai-system-name';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -89,12 +90,16 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                             onClick={rowLink(show(system.id))}
                         >
                             <TableCell className="font-medium">
-                                <Link
-                                    href={show(system.id)}
-                                    className="hover:underline"
+                                <AiSystemName
+                                    domain={system.application_domain}
                                 >
-                                    {system.name}
-                                </Link>
+                                    <Link
+                                        href={show(system.id)}
+                                        className="hover:underline"
+                                    >
+                                        {system.name}
+                                    </Link>
+                                </AiSystemName>
                             </TableCell>
                             <TableCell>
                                 <Badge variant="outline">
