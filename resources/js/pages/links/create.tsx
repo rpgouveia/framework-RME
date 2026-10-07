@@ -27,7 +27,7 @@ import {
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
-import { create as createMitigation } from '@/routes/mitigations';
+import { index as mitigationsIndex } from '@/routes/mitigations';
 import { create as createOwner } from '@/routes/owners';
 import { create as createRisk } from '@/routes/risks';
 import { create, index } from '@/routes/links';
@@ -77,10 +77,12 @@ export default function LinksCreate(props: Props) {
             href: createRisk(),
             action: 'Cadastrar risco',
         },
+        // The catalogue is loaded from its data file (R-8), not registered
+        // here, so the way out is to see it.
         mitigations.length === 0 && {
             label: 'uma mitigação no catálogo',
-            href: createMitigation(),
-            action: 'Cadastrar mitigação',
+            href: mitigationsIndex(),
+            action: 'Ver o catálogo de mitigações',
         },
         owners.length === 0 && {
             label: 'um responsável',

@@ -3,16 +3,26 @@
 namespace Database\Seeders;
 
 use App\Models\Mitigation;
+use App\Support\MitigationCatalog;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MitigationSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Load the curated catalogue (C2) from its versioned data file.
+     *
+     * The file is validated as a whole first, so a broken entry stores
+     * nothing. The factory stays for tests only.
      */
-    public function run(): void
+    public function run(MitigationCatalog $catalog): void
     {
-        // The factory hands out distinct names, as the catalogue requires.
-        Mitigation::factory(8)->create();
+        $entries = $catalog->entries(database_path('data/mitigation-catalog.json'));
+
+        DB::transaction(function () use ($entries): void {
+            foreach ($entries as $entry) {
+                Mitigation::create($entry);
+            }
+        });
     }
 }

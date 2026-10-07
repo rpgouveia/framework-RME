@@ -1,0 +1,122 @@
+[
+    {
+        "name": "Auditoria de equidade",
+        "saeri_category": "governance",
+        "description": "Avaliar periodicamente se as saídas do modelo tratam grupos protegidos de forma equivalente, com métricas de disparidade definidas.",
+        "suggested_target_risk": "Viés e discriminação contra grupos protegidos",
+        "expected_evidence": "Relatório de auditoria assinado, com as métricas de disparidade por grupo",
+        "suggested_cost": "medium",
+        "uncertainty_level": "medium",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Revisão humana das decisões",
+        "saeri_category": "governance",
+        "description": "Exigir que decisões de alto impacto tomadas pelo sistema passem por revisão de uma pessoa antes de produzirem efeito.",
+        "suggested_target_risk": "Decisões automatizadas sem possibilidade de contestação",
+        "expected_evidence": "Registro das revisões realizadas, com quem revisou e o resultado",
+        "suggested_cost": "high",
+        "uncertainty_level": "low",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Plano de resposta a incidentes",
+        "saeri_category": "governance",
+        "description": "Definir papéis, prazos e passos para conter e comunicar falhas graves do sistema em produção.",
+        "suggested_target_risk": "Danos prolongados por falhas sem resposta coordenada",
+        "expected_evidence": "Plano aprovado e ata do último exercício simulado",
+        "suggested_cost": "medium",
+        "uncertainty_level": "medium",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Red teaming",
+        "saeri_category": "technical",
+        "description": "Submeter o sistema a ataques simulados por uma equipe dedicada a encontrar formas de fazê-lo falhar ou ser abusado.",
+        "suggested_target_risk": "Prompt injection, jailbreak e usos maliciosos",
+        "expected_evidence": "Relatório do exercício com as vulnerabilidades encontradas e as correções",
+        "suggested_cost": "high",
+        "uncertainty_level": "high",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Privacidade diferencial",
+        "saeri_category": "technical",
+        "description": "Adicionar ruído calibrado no treinamento ou nas consultas para impedir a reidentificação de pessoas nos dados.",
+        "suggested_target_risk": "Vazamento de dados pessoais e inferência de pertencimento",
+        "expected_evidence": "Parâmetros de privacidade documentados e resultado dos testes de ataque",
+        "suggested_cost": "high",
+        "uncertainty_level": "high",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Treinamento adversarial",
+        "saeri_category": "technical",
+        "description": "Incluir no treinamento exemplos construídos para enganar o modelo, aumentando sua robustez a entradas manipuladas.",
+        "suggested_target_risk": "Ataques adversariais e degradação sob entradas atípicas",
+        "expected_evidence": "Comparativo de desempenho antes e depois em conjunto adversarial",
+        "suggested_cost": "high",
+        "uncertainty_level": "medium",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Monitoramento de deriva de dados",
+        "saeri_category": "process",
+        "description": "Acompanhar continuamente a distribuição dos dados de entrada e alertar quando ela se afastar da usada no treinamento.",
+        "suggested_target_risk": "Degradação de desempenho por mudança nos dados",
+        "expected_evidence": "Painel de monitoramento e registro dos alertas tratados",
+        "suggested_cost": "medium",
+        "uncertainty_level": "low",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Retreinamento periódico",
+        "saeri_category": "process",
+        "description": "Retreinar o modelo em intervalos definidos ou quando o monitoramento indicar perda de desempenho.",
+        "suggested_target_risk": "Perda de desempenho ao longo do tempo",
+        "expected_evidence": "Histórico de versões do modelo com as métricas de cada retreinamento",
+        "suggested_cost": "medium",
+        "uncertainty_level": "medium",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Testes de robustez",
+        "saeri_category": "process",
+        "description": "Executar, a cada nova versão, uma bateria de testes com entradas ruidosas, extremas e fora da distribuição.",
+        "suggested_target_risk": "Falhas silenciosas diante de entradas inesperadas",
+        "expected_evidence": "Relatório da bateria de testes anexado à versão publicada",
+        "suggested_cost": "low",
+        "uncertainty_level": "low",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Documentação com model cards",
+        "saeri_category": "transparency",
+        "description": "Publicar, para cada modelo, uma ficha com propósito, dados de treino, limitações conhecidas e métricas por grupo.",
+        "suggested_target_risk": "Uso fora do escopo previsto e falta de transparência",
+        "expected_evidence": "Model card publicado e revisado na última versão",
+        "suggested_cost": "low",
+        "uncertainty_level": "low",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Explicações locais das predições",
+        "saeri_category": "transparency",
+        "description": "Oferecer, junto de cada decisão, os fatores que mais pesaram nela, em linguagem compreensível para quem é afetado.",
+        "suggested_target_risk": "Falta de explicabilidade e dificuldade de contestar decisões",
+        "expected_evidence": "Amostra de explicações exibidas e avaliação de compreensão pelos usuários",
+        "suggested_cost": "medium",
+        "uncertainty_level": "high",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    },
+    {
+        "name": "Registro de auditoria das inferências",
+        "saeri_category": "transparency",
+        "description": "Guardar, para cada decisão, a versão do modelo, as entradas relevantes e a saída, por um prazo definido.",
+        "suggested_target_risk": "Impossibilidade de reconstruir e auditar decisões passadas",
+        "expected_evidence": "Política de retenção e amostra de registros recuperados",
+        "suggested_cost": "low",
+        "uncertainty_level": "low",
+        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+    }
+]
