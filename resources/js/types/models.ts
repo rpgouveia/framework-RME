@@ -28,15 +28,6 @@ export type UncertaintyLevel = 'low' | 'medium' | 'high';
 /** Qualitative effort a mitigation costs to put in place. */
 export type CostLevel = 'low' | 'medium' | 'high';
 
-export type AdverseEventType =
-    | 'malfunction'
-    | 'data_breach'
-    | 'biased_outcome'
-    | 'safety_incident'
-    | 'compliance_violation'
-    | 'user_harm'
-    | 'service_disruption';
-
 export type LinkStatus =
     | 'planned'
     | 'in_progress'
@@ -132,6 +123,13 @@ export interface TaxonomyCategory {
     children: { code: string; name: string }[];
 }
 
+/** A MIT risk domain with the subdomains a form offers, described. */
+export interface RiskDomainOption {
+    code: string;
+    name: string;
+    children: { code: string; name: string; description: string | null }[];
+}
+
 /** A MIT risk domain with its subdomains, as the risk form offers them. */
 export interface RiskDomain {
     code: string;
@@ -223,9 +221,10 @@ export interface StatusHistory extends Timestamps {
 /** Something that went wrong on a system once it was in production. */
 export interface AdverseEvent extends Timestamps {
     id: number;
-    event_type: AdverseEventType;
     description: string;
     occurrence_date: string;
+    /** The MIT risk subdomains the event materializes; never empty. */
+    risk_subdomains?: TaxonomyTerm[];
     ai_system_id: number;
     ai_system?: AiSystem;
     status_histories?: StatusHistory[];

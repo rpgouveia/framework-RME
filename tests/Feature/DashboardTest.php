@@ -75,7 +75,7 @@ test('the dashboard shows where the chain is incomplete', function () {
         Evidence::factory()->for($withEvidence)->create();
     }
 
-    $recent = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-01']);
+    $recent = AdverseEvent::factory()->for($aiSystem)->materializing(['2.1', '2.2'])->create(['occurrence_date' => '2026-06-01']);
     $edge = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-05-16']);
     AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-04-01']);
 
@@ -109,6 +109,10 @@ test('the dashboard shows where the chain is incomplete', function () {
             ->where('recentEvents.count', 2)
             ->where('recentEvents.items.0.id', $recent->id)
             ->where('recentEvents.items.1.id', $edge->id)
+            // Told by the risk subdomains they materialize.
+            ->where('recentEvents.items.0.risk_subdomains.0.code', '2.1')
+            ->where('recentEvents.items.0.risk_subdomains.1.code', '2.2')
+            ->has('recentEvents.items.0.ai_system.name')
             ->where('systems.0.risks_count', 3)
             ->where('systems.0.unlinked_risks_count', 2)
             ->where('systems.0.links_count', 4)

@@ -2,46 +2,64 @@
 
 namespace App\Support;
 
-use App\Enums\AdverseEventType;
 use App\Models\AiSystem;
+use App\Models\TaxonomyTerm;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * The monitoring protocol (C3): what may happen to an AI system in production.
  *
- * RF04 ties the adverse event types to the category of the system, so the
- * type is never free text. This is the one place that decides which types a
- * system accepts: the create form offers them and validation enforces them.
+ * An adverse event is a risk that materialized, so it is classified by the
+ * same MIT AI risk subdomains as the risk register: one or more, never free
+ * text and never "other". This is the one place that decides which
+ * subdomains a system offers (RF04): the create form shows them and
+ * validation enforces them.
  *
- * @todo The protocol has not been defined yet, nor whether "category" means
- *       the EU AI Act risk tier or an application domain. Until it is, every
- *       type is allowed for every system. Map them here once it exists; the
- *       form and the validation need no change.
+ * @todo Every subdomain is offered for every system for now. Ordering them
+ *       by the system's risk profile depends on a decision still open, the
+ *       class of the system (EU AI Act tier or application domain), and is
+ *       left out on purpose. Once it is settled, change it here; the form and
+ *       the validation need no change.
  */
 class MonitoringProtocol
 {
     /**
-     * @return list<AdverseEventType>
+     * The subdomains offered for a system, in taxonomy order.
+     *
+     * @return Collection<int, TaxonomyTerm>
      */
-    public function eventTypesFor(AiSystem $aiSystem): array
+    public function riskSubdomainsFor(AiSystem $aiSystem): Collection
     {
-        return AdverseEventType::cases();
+        return app(AiRiskDomains::class)->subdomains();
     }
 
-    public function allows(AiSystem $aiSystem, AdverseEventType $type): bool
+    public function allows(AiSystem $aiSystem, string $code): bool
     {
-        return in_array($type, $this->eventTypesFor($aiSystem), true);
+        return in_array($code, $this->riskSubdomainsFor($aiSystem)->pluck('code')->all(), true);
     }
 
     /**
-     * The types a system accepts, shaped for a select.
+     * The subdomains a system offers, grouped by domain for the form, each
+     * with its description to help the classification.
      *
-     * @return list<array{value: string, label: string}>
+     * @return list<array{code: string, name: string, children: list<array<string, mixed>>}>
      */
-    public function eventTypeOptionsFor(AiSystem $aiSystem): array
+    public function riskSubdomainOptionsFor(AiSystem $aiSystem): array
     {
-        return array_map(
-            fn (AdverseEventType $type): array => ['value' => $type->value, 'label' => $type->label()],
-            $this->eventTypesFor($aiSystem),
-        );
+        $offered = $this->riskSubdomainsFor($aiSystem)->pluck('code')->all();
+        $domains = [];
+
+        foreach (app(AiRiskDomains::class)->tree(withDescriptions: true) as $domain) {
+            $children = array_values(array_filter(
+                $domain['children'],
+                fn (array $subdomain): bool => in_array($subdomain['code'], $offered, true),
+            ));
+
+            if ($children !== []) {
+                $domains[] = [...$domain, 'children' => $children];
+            }
+        }
+
+        return $domains;
     }
 }

@@ -17,7 +17,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { dateInputValue, formatDate } from '@/lib/format';
 import {
-    adverseEventTypeLabels,
+    subdomainCodes,
     labelFor,
     linkLabel,
     linkStatusBadgeClasses,
@@ -238,12 +238,8 @@ export default function StatusHistoriesCreate({
                                                 key={event.id}
                                                 value={String(event.id)}
                                             >
-                                                {
-                                                    adverseEventTypeLabels[
-                                                        event.event_type
-                                                    ]
-                                                }{' '}
-                                                · {event.ai_system?.name} ·{' '}
+                                                {subdomainCodes(event)} ·{' '}
+                                                {event.ai_system?.name} ·{' '}
                                                 {formatDate(
                                                     event.occurrence_date,
                                                 )}

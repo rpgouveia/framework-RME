@@ -19,4 +19,14 @@ class StoreAdverseEventRequest extends FormRequest
     {
         return $this->adverseEventRules();
     }
+
+    /**
+     * Get the custom messages for the validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return $this->adverseEventMessages();
+    }
 }

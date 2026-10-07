@@ -30,6 +30,7 @@ return [
         'registration_date' => 'data de cadastro',
         'risk_id' => 'risco',
         'risk_subdomain_id' => 'subdomínio de risco',
+        'risk_subdomains' => 'subdomínios de risco',
         'source_type' => 'origem',
         'trigger_reason' => 'motivo',
         'uncertainty_level' => 'nível de incerteza',

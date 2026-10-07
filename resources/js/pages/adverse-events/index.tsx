@@ -1,7 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
+import { FilterLink } from '@/components/filter-link';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
-import { Badge } from '@/components/ui/badge';
+import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -12,17 +13,31 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
-import { adverseEventTypeLabels } from '@/lib/labels';
+import { termLabel } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
-import type { AdverseEvent, Paginated } from '@/types/models';
+import type { AdverseEvent, Paginated, TaxonomyCategory } from '@/types/models';
 
 type Props = {
     adverseEvents: Paginated<AdverseEvent>;
+    /** The MIT risk domain the list is narrowed to, if any. */
+    filters: { domain: string | null };
+    riskDomains: TaxonomyCategory[];
 };
 
-export default function AdverseEventsIndex({ adverseEvents }: Props) {
+/** The list URL for a domain, or for every event. */
+function eventsIn(domain: string | null) {
+    return index({ query: domain ? { domain } : {} });
+}
+
+export default function AdverseEventsIndex({
+    adverseEvents,
+    filters,
+    riskDomains,
+}: Props) {
+    const domain = riskDomains.find((option) => option.code === filters.domain);
+
     return (
         <>
             <Head title="Eventos adversos" />
@@ -37,17 +52,52 @@ export default function AdverseEventsIndex({ adverseEvents }: Props) {
                     </Button>
                 </div>
 
+                <nav
+                    aria-label="Filtrar por domínio de risco"
+                    className="flex flex-wrap gap-2"
+                >
+                    <FilterLink
+                        href={eventsIn(null)}
+                        active={filters.domain === null}
+                    >
+                        Todos
+                    </FilterLink>
+                    {riskDomains.map((option) => (
+                        <FilterLink
+                            key={option.code}
+                            href={eventsIn(option.code)}
+                            active={filters.domain === option.code}
+                        >
+                            {termLabel(option)}
+                        </FilterLink>
+                    ))}
+                </nav>
+
                 {adverseEvents.data.length === 0 ? (
-                    <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
-                        <p className="text-muted-foreground text-sm">
-                            Nenhum evento adverso foi registrado.
-                        </p>
-                        <Button asChild>
-                            <Link href={create()}>
-                                Registrar evento adverso
-                            </Link>
-                        </Button>
-                    </div>
+                    domain ? (
+                        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+                            <p className="text-muted-foreground text-sm">
+                                Nenhum evento adverso materializa riscos do
+                                domínio {termLabel(domain)}.
+                            </p>
+                            <Button variant="outline" asChild>
+                                <Link href={eventsIn(null)}>
+                                    Ver todos os eventos
+                                </Link>
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+                            <p className="text-muted-foreground text-sm">
+                                Nenhum evento adverso foi registrado.
+                            </p>
+                            <Button asChild>
+                                <Link href={create()}>
+                                    Registrar evento adverso
+                                </Link>
+                            </Button>
+                        </div>
+                    )
                 ) : (
                     <>
                         <EventsTable events={adverseEvents.data} />
@@ -67,7 +117,7 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Tipo</TableHead>
+                        <TableHead>Subdomínios de risco</TableHead>
                         <TableHead>Sistema</TableHead>
                         <TableHead>Ocorrência</TableHead>
                         <TableHead>Descrição</TableHead>
@@ -84,9 +134,9 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
                             onClick={rowLink(show(event.id))}
                         >
                             <TableCell>
-                                <Badge variant="outline">
-                                    {adverseEventTypeLabels[event.event_type]}
-                                </Badge>
+                                <RiskSubdomainBadges
+                                    subdomains={event.risk_subdomains}
+                                />
                             </TableCell>
                             <TableCell>
                                 {event.ai_system && (
