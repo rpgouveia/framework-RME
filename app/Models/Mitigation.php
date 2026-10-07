@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read TaxonomyTerm $saeriSubcategory
+ * @property-read Collection<int, TaxonomyTerm> $targetRiskSubdomains
  * @property-read Collection<int, Link> $links
  * @property-read int|null $links_count
  */
@@ -77,6 +79,19 @@ class Mitigation extends Model
     public function saeriSubcategory(): BelongsTo
     {
         return $this->belongsTo(TaxonomyTerm::class, 'saeri_subcategory_id');
+    }
+
+    /**
+     * The risk subdomains (MIT AI Risk Repository) the mitigation treats.
+     * Every catalogue entry names at least one: it is what lets a risk be
+     * matched with the mitigations meant for it.
+     *
+     * @return BelongsToMany<TaxonomyTerm, $this>
+     */
+    public function targetRiskSubdomains(): BelongsToMany
+    {
+        return $this->belongsToMany(TaxonomyTerm::class, 'mitigation_target_subdomains', 'mitigation_id', 'risk_subdomain_id')
+            ->orderBy('position');
     }
 
     /**

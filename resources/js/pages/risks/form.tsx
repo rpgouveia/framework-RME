@@ -16,17 +16,18 @@ import { Textarea } from '@/components/ui/textarea';
 import {
     labelFor,
     lifecyclePhaseLabels,
-    riskCategoryLabels,
+    termLabel,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
-import type { AiSystem, EnumOption, Risk } from '@/types/models';
+import type { AiSystem, EnumOption, Risk, RiskDomain } from '@/types/models';
 
 /** Mirrors the `max:2000` rule in RiskValidationRules. */
 const DESCRIPTION_MAX = 2000;
 
 type Props = {
     aiSystems: Pick<AiSystem, 'id' | 'name'>[];
-    categories: EnumOption[];
+    /** The MIT AI risk domains, each with its subdomains. */
+    riskDomains: RiskDomain[];
     lifecyclePhases: EnumOption[];
     uncertaintyLevels: EnumOption[];
     errors: Partial<Record<string, string>>;
@@ -45,7 +46,7 @@ type Props = {
  */
 export function RiskForm({
     aiSystems,
-    categories,
+    riskDomains,
     lifecyclePhases,
     uncertaintyLevels,
     errors,
@@ -59,6 +60,25 @@ export function RiskForm({
     const linkCount = risk?.links_count ?? 0;
     const [descriptionLength, setDescriptionLength] = useState(
         risk?.description.length ?? 0,
+    );
+    // Only the subdomain is sent; the domain narrows the list and is derived
+    // from it on the server.
+    const [domainCode, setDomainCode] = useState(
+        () =>
+            riskDomains.find((domain) =>
+                domain.children.some(
+                    (subdomain) => subdomain.id === risk?.risk_subdomain_id,
+                ),
+            )?.code ?? '',
+    );
+    const [subdomainId, setSubdomainId] = useState(
+        risk === undefined ? '' : String(risk.risk_subdomain_id),
+    );
+    const subdomains =
+        riskDomains.find((domain) => domain.code === domainCode)?.children ??
+        [];
+    const subdomain = subdomains.find(
+        (option) => String(option.id) === subdomainId,
     );
 
     return (
@@ -166,24 +186,76 @@ export function RiskForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="category">Categoria</Label>
-                <Select name="category" defaultValue={risk?.category} required>
-                    <SelectTrigger
-                        id="category"
-                        className="w-full"
-                        aria-invalid={errors.category ? true : undefined}
-                    >
-                        <SelectValue placeholder="Selecione a categoria" />
+                <Label htmlFor="risk_domain">Domínio de risco</Label>
+                <Select
+                    value={domainCode}
+                    onValueChange={(code) => {
+                        setDomainCode(code);
+                        setSubdomainId('');
+                    }}
+                >
+                    <SelectTrigger id="risk_domain" className="w-full">
+                        <SelectValue placeholder="Selecione o domínio" />
                     </SelectTrigger>
                     <SelectContent>
-                        {categories.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                                {labelFor(riskCategoryLabels, option.value)}
+                        {riskDomains.map((domain) => (
+                            <SelectItem key={domain.code} value={domain.code}>
+                                {termLabel(domain)}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
-                <InputError message={errors.category} />
+                <p className="text-muted-foreground text-sm">
+                    Taxonomia de domínios do MIT AI Risk Repository (Slattery et
+                    al.).
+                </p>
+            </div>
+
+            <div className="grid gap-2">
+                <Label htmlFor="risk_subdomain_id">Subdomínio de risco</Label>
+                <Select
+                    name="risk_subdomain_id"
+                    value={subdomainId}
+                    onValueChange={setSubdomainId}
+                    disabled={domainCode === ''}
+                    required
+                >
+                    <SelectTrigger
+                        id="risk_subdomain_id"
+                        className="w-full"
+                        aria-invalid={
+                            errors.risk_subdomain_id ? true : undefined
+                        }
+                    >
+                        <SelectValue
+                            placeholder={
+                                domainCode === ''
+                                    ? 'Selecione primeiro o domínio'
+                                    : 'Selecione o subdomínio'
+                            }
+                        />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {subdomains.map((option) => (
+                            <SelectItem
+                                key={option.id}
+                                value={String(option.id)}
+                            >
+                                {termLabel(option)}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                {subdomain?.description && (
+                    // The definition in the source, verbatim.
+                    <p
+                        lang="en"
+                        className="text-muted-foreground border-l-2 pl-3 text-sm"
+                    >
+                        {subdomain.description}
+                    </p>
+                )}
+                <InputError message={errors.risk_subdomain_id} />
             </div>
 
             <div className="grid gap-2">

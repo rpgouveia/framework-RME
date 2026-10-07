@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\AiRiskDomains;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -44,7 +45,11 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+/**
+ * The id of a subdomain of the MIT AI risk domain taxonomy, such as "2.2",
+ * loading the taxonomy if the test has not yet.
+ */
+function riskSubdomainId(string $code): int
 {
-    // ..
+    return app(AiRiskDomains::class)->subdomains()->firstWhere('code', $code)->id;
 }

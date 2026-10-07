@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { dateFromToday } from '@/lib/format';
-import { availableMitigations } from '@/lib/link-options';
+import { availableMitigations, recommendMitigations } from '@/lib/link-options';
 import {
     costLevelLabels,
     labelFor,
@@ -40,8 +40,14 @@ import type {
     TaxonomyCategory,
 } from '@/types/models';
 
+/** A term of a taxonomy, as the form shows it. */
+type Term = { code: string; name: string };
+
 type RiskOption = Pick<Risk, 'id' | 'name'> & {
     ai_system: Pick<AiSystem, 'id' | 'name'>;
+    /** The MIT domain and subdomain of the risk. */
+    domain: Term | null;
+    subdomain: Term;
     /** Mitigations this risk is already linked to (R-6). */
     linked_mitigation_ids: number[];
 };
@@ -52,7 +58,9 @@ type MitigationOption = Pick<
     'id' | 'name' | 'suggested_cost' | 'uncertainty_level' | 'estimate_source'
 > & {
     category: string | null;
-    subcategory: { code: string; name: string };
+    subcategory: Term;
+    /** The MIT risk subdomains the entry treats. */
+    target_risk_subdomains: Term[];
 };
 
 type Props = {
@@ -145,11 +153,20 @@ function LinkForm({
 
     const risk = risks.find((option) => String(option.id) === riskId);
     const linked = risk?.linked_mitigation_ids ?? [];
-    // R-6: a pair already linked is not offered again.
-    const available = availableMitigations(risk, mitigations, {
+    // R-6: a pair already linked is not offered again. What treats the
+    // risk's subdomain comes first; the rest stays on offer (R-8).
+    const { recommended, others } = recommendMitigations(risk, mitigations, {
         category,
         subcategory,
     });
+    const available = [...recommended, ...others];
+    const mitigationGroups = [
+        { label: 'Recomendadas para este risco', options: recommended },
+        {
+            label: risk ? 'Outras do catálogo' : 'Catálogo',
+            options: others,
+        },
+    ].filter((group) => group.options.length > 0);
     const categoryOption = saeriCategories.find(
         (option) => option.code === category,
     );
@@ -251,6 +268,14 @@ function LinkForm({
                                 ))}
                             </SelectContent>
                         </Select>
+                        {risk && (
+                            <p className="text-muted-foreground text-sm">
+                                Subdomínio de risco (MIT):{' '}
+                                {termLabel(risk.subdomain)}
+                                {risk.domain &&
+                                    `, em ${termLabel(risk.domain)}`}
+                            </p>
+                        )}
                         <InputError message={errors.risk_id} />
                     </div>
 
@@ -319,16 +344,30 @@ function LinkForm({
                                 <SelectValue placeholder="Selecione uma mitigação do catálogo" />
                             </SelectTrigger>
                             <SelectContent>
-                                {available.map((option) => (
-                                    <SelectItem
-                                        key={option.id}
-                                        value={String(option.id)}
-                                    >
-                                        {option.name}
-                                    </SelectItem>
+                                {mitigationGroups.map((group) => (
+                                    <SelectGroup key={group.label}>
+                                        <SelectLabel>{group.label}</SelectLabel>
+                                        {group.options.map((option) => (
+                                            <SelectItem
+                                                key={option.id}
+                                                value={String(option.id)}
+                                            >
+                                                {option.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectGroup>
                                 ))}
                             </SelectContent>
                         </Select>
+                        {risk &&
+                            available.length > 0 &&
+                            recommended.length === 0 && (
+                                <p className="text-muted-foreground text-sm">
+                                    Nenhuma mitigação deste filtro trata o
+                                    subdomínio {risk.subdomain.code}; todas
+                                    continuam disponíveis.
+                                </p>
+                            )}
                         {available.length === 0 && (
                             <p className="text-muted-foreground text-sm">
                                 {linked.length > 0 && category === null
@@ -344,6 +383,25 @@ function LinkForm({
                             <dl className="bg-muted/40 grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
                                 <DetailItem label="Subcategoria (Saeri et al.)">
                                     {termLabel(mitigation.subcategory)}
+                                </DetailItem>
+                                <DetailItem label="Subdomínios de risco tratados (MIT)">
+                                    <ul className="grid gap-1">
+                                        {mitigation.target_risk_subdomains.map(
+                                            (term) => (
+                                                <li
+                                                    key={term.code}
+                                                    className={
+                                                        term.code ===
+                                                        risk?.subdomain.code
+                                                            ? undefined
+                                                            : 'font-normal'
+                                                    }
+                                                >
+                                                    {termLabel(term)}
+                                                </li>
+                                            ),
+                                        )}
+                                    </ul>
                                 </DetailItem>
                                 <DetailItem label="Custo sugerido">
                                     {costLevelLabels[mitigation.suggested_cost]}

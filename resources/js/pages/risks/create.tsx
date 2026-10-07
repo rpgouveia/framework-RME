@@ -4,19 +4,19 @@ import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { create as createAiSystem } from '@/routes/ai-systems';
 import { index } from '@/routes/risks';
-import type { AiSystem, EnumOption } from '@/types/models';
+import type { AiSystem, EnumOption, RiskDomain } from '@/types/models';
 import { RiskForm } from './form';
 
 type Props = {
     aiSystems: Pick<AiSystem, 'id' | 'name'>[];
-    categories: EnumOption[];
+    riskDomains: RiskDomain[];
     lifecyclePhases: EnumOption[];
     uncertaintyLevels: EnumOption[];
 };
 
 export default function RisksCreate({
     aiSystems,
-    categories,
+    riskDomains,
     lifecyclePhases,
     uncertaintyLevels,
 }: Props) {
@@ -60,7 +60,7 @@ export default function RisksCreate({
                         {({ processing, errors }) => (
                             <RiskForm
                                 aiSystems={aiSystems}
-                                categories={categories}
+                                riskDomains={riskDomains}
                                 lifecyclePhases={lifecyclePhases}
                                 uncertaintyLevels={uncertaintyLevels}
                                 errors={errors}

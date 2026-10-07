@@ -13,16 +13,6 @@ export type SystemSourceType =
 
 export type AiSystemCategory = 'unacceptable' | 'high' | 'limited' | 'minimal';
 
-export type RiskCategory =
-    | 'privacy'
-    | 'security'
-    | 'fairness'
-    | 'safety'
-    | 'transparency'
-    | 'accountability'
-    | 'robustness'
-    | 'societal';
-
 export type LifecyclePhase =
     | 'inception'
     | 'design'
@@ -107,7 +97,10 @@ export interface Risk extends Timestamps {
     id: number;
     name: string;
     description: string;
-    category: RiskCategory;
+    /** A subdomain (level 2) of the MIT AI risk domain taxonomy. */
+    risk_subdomain_id: number;
+    /** The subdomain; its parent is the domain. */
+    risk_subdomain?: TaxonomyTerm;
     lifecycle_phase: LifecyclePhase;
     uncertainty_level: UncertaintyLevel;
     ai_system_id: number;
@@ -139,6 +132,18 @@ export interface TaxonomyCategory {
     children: { code: string; name: string }[];
 }
 
+/** A MIT risk domain with its subdomains, as the risk form offers them. */
+export interface RiskDomain {
+    code: string;
+    name: string;
+    children: {
+        id: number;
+        code: string;
+        name: string;
+        description: string | null;
+    }[];
+}
+
 export interface Mitigation extends Timestamps {
     id: number;
     /** The Portuguese name shown in the app. */
@@ -159,6 +164,8 @@ export interface Mitigation extends Timestamps {
     uncertainty_level: UncertaintyLevel;
     /** What backs the cost, uncertainty and expected evidence (RNF03). */
     estimate_source: string;
+    /** The MIT risk subdomains the mitigation treats; never empty. */
+    target_risk_subdomains?: TaxonomyTerm[];
     links?: Link[];
     links_count?: number;
 }

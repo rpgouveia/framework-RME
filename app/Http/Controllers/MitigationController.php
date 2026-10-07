@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mitigation;
-use App\Models\TaxonomyTerm;
+use App\Support\AiRiskDomains;
 use App\Support\MitigationCatalog;
 use App\Support\SaeriTaxonomy;
 use Illuminate\Database\Eloquent\Builder;
@@ -69,11 +69,7 @@ class MitigationController extends Controller
                 'subcategory' => $subcategory?->code,
                 'q' => $search,
             ],
-            'categories' => $categories->map(fn (TaxonomyTerm $term): array => [
-                'code' => $term->code,
-                'name' => $term->name,
-                'children' => $term->children->map->only(['code', 'name'])->values(),
-            ]),
+            'categories' => $this->saeri->tree(),
             'catalog' => $this->catalog(),
         ]);
     }
@@ -90,12 +86,14 @@ class MitigationController extends Controller
         return Inertia::render('mitigations/show', [
             'mitigation' => $mitigation->load([
                 'saeriSubcategory.parent',
+                'targetRiskSubdomains.parent',
                 'links.risk',
                 'links.mitigation',
                 'links.owner',
             ]),
             'sourceDocument' => $this->saeri->documents()[$mitigation->source_document] ?? null,
             'taxonomy' => $taxonomy->only(['citation', 'version', 'url']),
+            'riskTaxonomy' => app(AiRiskDomains::class)->taxonomy()->only(['citation', 'version', 'url']),
             'catalog' => $this->catalog(),
         ]);
     }

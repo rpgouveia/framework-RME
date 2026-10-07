@@ -17,7 +17,8 @@
             "expected_evidence": "Registro das revisões realizadas, com quem revisou e o resultado",
             "suggested_cost": "high",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["5.2", "7.3"]
         },
         {
             "name": "Registro de riscos com limiares",
@@ -30,7 +31,8 @@
             "expected_evidence": "Registro de riscos atualizado e ata da última revisão",
             "suggested_cost": "low",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["6.5"]
         },
         {
             "name": "Auditoria de equidade",
@@ -43,7 +45,8 @@
             "expected_evidence": "Relatório de auditoria assinado, com as métricas de disparidade por grupo",
             "suggested_cost": "medium",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["1.1", "1.3"]
         },
         {
             "name": "Controle de acesso ao modelo",
@@ -56,7 +59,8 @@
             "expected_evidence": "Política de acesso e registro das revisões de permissão",
             "suggested_cost": "medium",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["2.2"]
         },
         {
             "name": "Treinamento adversarial",
@@ -69,7 +73,8 @@
             "expected_evidence": "Comparativo de desempenho antes e depois em conjunto adversarial",
             "suggested_cost": "high",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["2.2", "7.3"]
         },
         {
             "name": "Filtragem de conteúdo gerado",
@@ -82,7 +87,8 @@
             "expected_evidence": "Relatório de eficácia dos filtros sobre um conjunto de teste",
             "suggested_cost": "medium",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["1.2", "4.3"]
         },
         {
             "name": "Red teaming",
@@ -95,7 +101,8 @@
             "expected_evidence": "Relatório do exercício com as vulnerabilidades encontradas e as correções",
             "suggested_cost": "high",
             "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["2.2", "4.2", "7.2"]
         },
         {
             "name": "Privacidade diferencial",
@@ -108,7 +115,8 @@
             "expected_evidence": "Parâmetros de privacidade documentados e resultado dos testes de ataque",
             "suggested_cost": "high",
             "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["2.1"]
         },
         {
             "name": "Monitoramento de deriva de dados",
@@ -121,7 +129,8 @@
             "expected_evidence": "Painel de monitoramento e registro dos alertas tratados",
             "suggested_cost": "medium",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["7.3"]
         },
         {
             "name": "Plano de resposta a incidentes",
@@ -134,7 +143,8 @@
             "expected_evidence": "Plano aprovado e ata do último exercício simulado",
             "suggested_cost": "medium",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["2.2", "7.3"]
         },
         {
             "name": "Documentação com model cards",
@@ -147,7 +157,8 @@
             "expected_evidence": "Model card publicado e revisado na última versão",
             "suggested_cost": "low",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["7.4"]
         },
         {
             "name": "Explicações das decisões aos usuários",
@@ -160,7 +171,8 @@
             "expected_evidence": "Amostra de explicações exibidas e avaliação de compreensão pelos usuários",
             "suggested_cost": "medium",
             "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
+            "target_risk_subdomains": ["7.4", "5.1"]
         }
     ]
 }

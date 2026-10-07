@@ -2,6 +2,7 @@
 
 use App\Models\Taxonomy;
 use App\Models\TaxonomyTerm;
+use App\Support\AiRiskDomains;
 use App\Support\InvalidTaxonomy;
 use App\Support\SaeriTaxonomy;
 use App\Support\TaxonomyFile;
@@ -82,14 +83,51 @@ test('the Saeri taxonomy lists the 13 source documents of the evidence scan', fu
         ->and($documents['nist-2024']['title'])->toBe('NIST AI Risk Management Framework: Generative AI Profile');
 });
 
+// The MIT AI Risk Repository domain taxonomy shipped with the project.
+
+test('the MIT risk domain taxonomy file in the repository is valid', function () {
+    $definition = app(TaxonomyFile::class)->read(AiRiskDomains::path());
+
+    expect($definition['meta']['key'])->toBe(AiRiskDomains::KEY)
+        ->and($definition['meta']['url'])->toBe('https://airisk.mit.edu')
+        ->and($definition['meta']['version_notes'])->toContain('7.6');
+});
+
+test('the MIT taxonomy has its seven domains and 24 subdomains', function () {
+    $domains = app(AiRiskDomains::class);
+
+    expect($domains->domains()->pluck('code')->all())->toBe(['1', '2', '3', '4', '5', '6', '7'])
+        ->and($domains->domains()->map(fn (TaxonomyTerm $domain) => $domain->children->count())->all())->toBe([3, 2, 2, 3, 2, 6, 6])
+        ->and($domains->subdomains())->toHaveCount(24)
+        // Added in the April 2025 update; the 2024 preprint had 23.
+        ->and($domains->subdomains()->firstWhere('code', '7.6')->original_name)->toBe('Multi-agent risks');
+});
+
+test('an MIT subdomain keeps its original name and description', function () {
+    $term = app(AiRiskDomains::class)->subdomains()->firstWhere('code', '2.2');
+
+    expect($term->original_name)->toBe('AI system security vulnerabilities and attacks')
+        ->and($term->name)->toBe('Vulnerabilidades de segurança e ataques a sistemas de IA')
+        ->and($term->description)->toStartWith('Vulnerabilities that can be exploited in AI systems')
+        ->and($term->parent->original_name)->toBe('Privacy & security');
+});
+
 test('the seeder loads every taxonomy file', function () {
     $this->seed(TaxonomySeeder::class);
 
-    $taxonomy = Taxonomy::sole();
+    expect(Taxonomy::query()->orderBy('key')->pluck('key')->all())->toBe([AiRiskDomains::KEY, SaeriTaxonomy::KEY])
+        ->and(Taxonomy::firstWhere('key', SaeriTaxonomy::KEY)->terms()->count())->toBe(27)
+        ->and(Taxonomy::firstWhere('key', AiRiskDomains::KEY)->terms()->count())->toBe(31)
+        ->and(Taxonomy::firstWhere('key', SaeriTaxonomy::KEY)->accessed_at->toDateString())->toBe('2026-10-06');
+});
 
-    expect($taxonomy->key)->toBe(SaeriTaxonomy::KEY)
-        ->and($taxonomy->terms()->count())->toBe(27)
-        ->and($taxonomy->accessed_at->toDateString())->toBe('2026-10-06');
+test('the seeder keeps a taxonomy that is already loaded', function () {
+    $loaded = app(AiRiskDomains::class)->taxonomy();
+
+    $this->seed(TaxonomySeeder::class);
+
+    expect(Taxonomy::count())->toBe(2)
+        ->and(Taxonomy::firstWhere('key', AiRiskDomains::KEY)->id)->toBe($loaded->id);
 });
 
 // Loading any taxonomy file.

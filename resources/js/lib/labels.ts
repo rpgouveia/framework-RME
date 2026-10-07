@@ -6,7 +6,6 @@ import type {
     LifecyclePhase,
     Link,
     LinkStatus,
-    RiskCategory,
     SystemSourceType,
     UncertaintyLevel,
 } from '@/types/models';
@@ -40,17 +39,6 @@ export const categoryBadgeClasses: Record<AiSystemCategory, string> = {
     high: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
     limited: 'border-transparent bg-secondary text-secondary-foreground',
     minimal: 'border-transparent bg-secondary text-secondary-foreground',
-};
-
-export const riskCategoryLabels: Record<RiskCategory, string> = {
-    privacy: 'Privacidade',
-    security: 'Cibersegurança',
-    fairness: 'Equidade',
-    safety: 'Segurança',
-    transparency: 'Transparência',
-    accountability: 'Responsabilização',
-    robustness: 'Robustez',
-    societal: 'Impacto social',
 };
 
 export const lifecyclePhaseLabels: Record<LifecyclePhase, string> = {

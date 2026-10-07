@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Enums\CostLevel;
 use App\Enums\UncertaintyLevel;
 use App\Models\Mitigation;
+use App\Support\AiRiskDomains;
 use App\Support\SaeriTaxonomy;
 use Database\Factories\Concerns\PicksUnusedNames;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -87,5 +88,31 @@ class MitigationFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'suggested_cost' => CostLevel::Low,
         ]);
+    }
+
+    /**
+     * Every catalogue entry treats at least one risk subdomain.
+     */
+    public function configure(): static
+    {
+        return $this->afterCreating(function (Mitigation $mitigation): void {
+            if ($mitigation->targetRiskSubdomains()->doesntExist()) {
+                $mitigation->targetRiskSubdomains()->attach(
+                    app(AiRiskDomains::class)->subdomains()->random(fake()->numberBetween(1, 2))->pluck('id'),
+                );
+            }
+        });
+    }
+
+    /**
+     * Treat exactly these risk subdomains, such as ["2.2", "7.3"].
+     *
+     * @param  list<string>  $codes
+     */
+    public function targeting(array $codes): static
+    {
+        return $this->afterCreating(fn (Mitigation $mitigation) => $mitigation->targetRiskSubdomains()->sync(
+            app(AiRiskDomains::class)->subdomains()->whereIn('code', $codes)->pluck('id'),
+        ));
     }
 }

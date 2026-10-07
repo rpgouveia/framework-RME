@@ -3,11 +3,12 @@
 namespace App\Concerns;
 
 use App\Enums\LifecyclePhase;
-use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\AiSystem;
 use App\Models\Risk;
+use App\Models\TaxonomyTerm;
 use App\Rules\UniqueNameIgnoringCase;
+use App\Support\AiRiskDomains;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -39,10 +40,30 @@ trait RiskValidationRules
                 ),
             ],
             'description' => ['required', 'string', 'max:2000'],
-            'category' => ['required', Rule::enum(RiskCategory::class)],
+            // A subdomain (level 2) of the MIT AI risk domains: a domain, or a
+            // term of another taxonomy, is refused.
+            'risk_subdomain_id' => [
+                'required',
+                'integer',
+                Rule::exists(TaxonomyTerm::class, 'id')
+                    ->where('level', 2)
+                    ->where('taxonomy_id', app(AiRiskDomains::class)->taxonomy()->id),
+            ],
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
             'uncertainty_level' => ['required', Rule::enum(UncertaintyLevel::class)],
             'ai_system_id' => ['required', 'integer', Rule::exists(AiSystem::class, 'id')],
+        ];
+    }
+
+    /**
+     * Get the custom messages shared by the store and update requests.
+     *
+     * @return array<string, string>
+     */
+    protected function riskMessages(): array
+    {
+        return [
+            'risk_subdomain_id.exists' => __('Choose a subdomain of the MIT AI risk domain taxonomy.'),
         ];
     }
 }

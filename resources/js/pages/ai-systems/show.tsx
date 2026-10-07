@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
+import { RiskSubdomain } from '@/components/risk-subdomain';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,7 +26,6 @@ import {
     categoryBadgeClasses,
     categoryLabels,
     lifecyclePhaseLabels,
-    riskCategoryLabels,
     sourceTypeLabels,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
@@ -166,7 +166,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
             <TableHeader>
                 <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>Categoria</TableHead>
+                    <TableHead>Subdomínio de risco</TableHead>
                     <TableHead>Fase do ciclo de vida</TableHead>
                     <TableHead>Incerteza</TableHead>
                     <TableHead className="text-right">Vínculos</TableHead>
@@ -184,7 +184,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                             </Link>
                         </TableCell>
                         <TableCell>
-                            {riskCategoryLabels[risk.category]}
+                            <RiskSubdomain subdomain={risk.risk_subdomain} />
                         </TableCell>
                         <TableCell>
                             {lifecyclePhaseLabels[risk.lifecycle_phase]}

@@ -29,7 +29,10 @@ class CompileTraceabilityReport
         'risk_id',
         'risk_name',
         'risk_description',
-        'risk_category',
+        'risk_domain_code',
+        'risk_domain_name',
+        'risk_subdomain_code',
+        'risk_subdomain_name',
         'risk_lifecycle_phase',
         'risk_uncertainty_level',
         'mitigation_id',
@@ -58,7 +61,7 @@ class CompileTraceabilityReport
     {
         $links = Link::query()
             ->whereHas('risk', fn (Builder $query) => $query->whereBelongsTo($aiSystem))
-            ->with(['risk', 'mitigation.saeriSubcategory.parent', 'owner', 'evidence' => fn ($query) => $query->orderBy('registration_date')])
+            ->with(['risk.riskSubdomain.parent', 'mitigation.saeriSubcategory.parent', 'owner', 'evidence' => fn ($query) => $query->orderBy('registration_date')])
             ->orderBy('id')
             ->get();
 
@@ -95,7 +98,10 @@ class CompileTraceabilityReport
             $link['risk']['id'],
             $link['risk']['name'],
             $link['risk']['description'],
-            $link['risk']['category'],
+            $link['risk']['domain']['code'],
+            $link['risk']['domain']['name'],
+            $link['risk']['subdomain']['code'],
+            $link['risk']['subdomain']['name'],
             $link['risk']['lifecycle_phase'],
             $link['risk']['uncertainty_level'],
             $link['mitigation']['id'],
@@ -153,7 +159,9 @@ class CompileTraceabilityReport
                 'id' => $link->risk->id,
                 'name' => $link->risk->name,
                 'description' => $link->risk->description,
-                'category' => $link->risk->category->value,
+                // MIT AI Risk Repository: the domain is the subdomain's parent.
+                'domain' => $link->risk->riskSubdomain->parent?->only(['code', 'name']),
+                'subdomain' => $link->risk->riskSubdomain->only(['code', 'name']),
                 'lifecycle_phase' => $link->risk->lifecycle_phase->value,
                 'uncertainty_level' => $link->risk->uncertainty_level->value,
             ],

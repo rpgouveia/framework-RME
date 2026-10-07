@@ -6,7 +6,6 @@ use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
-use App\Enums\RiskCategory;
 use App\Enums\SystemSourceType;
 use App\Enums\UncertaintyLevel;
 
@@ -20,7 +19,6 @@ function domainEnums(): array
         EvidenceType::class,
         LifecyclePhase::class,
         LinkStatus::class,
-        RiskCategory::class,
         SystemSourceType::class,
         UncertaintyLevel::class,
     ];

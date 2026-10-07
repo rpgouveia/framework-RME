@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { DetailItem } from '@/components/detail-item';
+import { RiskSubdomain } from '@/components/risk-subdomain';
 import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -42,6 +43,8 @@ type Props = {
     mitigation: Mitigation;
     sourceDocument: SourceDocument | null;
     taxonomy: { citation: string; version: string; url: string };
+    /** The MIT AI risk domain taxonomy the target subdomains come from. */
+    riskTaxonomy: { citation: string; version: string; url: string };
     catalog: { fictional: boolean };
 };
 
@@ -49,6 +52,7 @@ export default function MitigationsShow({
     mitigation,
     sourceDocument,
     taxonomy,
+    riskTaxonomy,
     catalog,
 }: Props) {
     const links = mitigation.links ?? [];
@@ -179,6 +183,31 @@ export default function MitigationsShow({
                         </CardHeader>
                         <CardContent>
                             <dl className="grid gap-4">
+                                <DetailItem label="Subdomínios de risco tratados">
+                                    <ul className="grid gap-2">
+                                        {mitigation.target_risk_subdomains?.map(
+                                            (term) => (
+                                                <li key={term.code}>
+                                                    <RiskSubdomain
+                                                        subdomain={term}
+                                                    />
+                                                </li>
+                                            ),
+                                        )}
+                                    </ul>
+                                    <p className="text-muted-foreground mt-2 text-xs font-normal">
+                                        Taxonomia de domínios do{' '}
+                                        <a
+                                            href={riskTaxonomy.url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="underline underline-offset-4"
+                                        >
+                                            MIT AI Risk Repository
+                                        </a>{' '}
+                                        ({riskTaxonomy.version}).
+                                    </p>
+                                </DetailItem>
                                 <DetailItem label="Risco-alvo sugerido">
                                     <p className="font-normal whitespace-pre-line">
                                         {mitigation.suggested_target_risk}

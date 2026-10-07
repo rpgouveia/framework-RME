@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use App\Models\Taxonomy;
 use App\Models\TaxonomyTerm;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -11,23 +10,18 @@ use Illuminate\Database\Eloquent\Collection;
  * mitigation catalogue (C2): four categories (level 1) and 23 subcategories
  * (level 2), plus the 13 source documents of their evidence scan.
  */
-class SaeriTaxonomy
+class SaeriTaxonomy extends ReferenceTaxonomy
 {
     public const KEY = 'saeri-mitigations';
+
+    public static function key(): string
+    {
+        return self::KEY;
+    }
 
     public static function path(): string
     {
         return database_path('data/taxonomies/saeri-mitigation-taxonomy.json');
-    }
-
-    /**
-     * The taxonomy as stored, loading it from its file when it is missing,
-     * as in a fresh test database.
-     */
-    public function taxonomy(): Taxonomy
-    {
-        return Taxonomy::query()->where('key', self::KEY)->first()
-            ?? app(TaxonomyFile::class)->load(self::path());
     }
 
     /**
@@ -37,11 +31,7 @@ class SaeriTaxonomy
      */
     public function categories(): Collection
     {
-        return $this->taxonomy()->terms()
-            ->where('level', 1)
-            ->orderBy('position')
-            ->with('children')
-            ->get();
+        return $this->topLevel();
     }
 
     /**
@@ -51,7 +41,7 @@ class SaeriTaxonomy
      */
     public function subcategories(): Collection
     {
-        return $this->taxonomy()->terms()->where('level', 2)->orderBy('position')->get();
+        return $this->secondLevel();
     }
 
     /**

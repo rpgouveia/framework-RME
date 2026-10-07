@@ -21,7 +21,7 @@ use Illuminate\Validation\Rule;
  * The file is checked as a whole against the Saeri taxonomy file before
  * anything is stored, and every problem is reported at once.
  *
- * @phpstan-type Catalogue array{meta: array{saeri_database_version: string, accessed_at: string, curation_criterion: string, fictional: bool}, entries: list<array<string, string>>}
+ * @phpstan-type Catalogue array{meta: array{saeri_database_version: string, accessed_at: string, curation_criterion: string, fictional: bool}, entries: list<array<string, mixed>>}
  */
 class MitigationCatalog
 {
@@ -41,6 +41,7 @@ class MitigationCatalog
         'suggested_cost',
         'uncertainty_level',
         'estimate_source',
+        'target_risk_subdomains',
     ];
 
     public function __construct(
@@ -83,6 +84,8 @@ class MitigationCatalog
         }
 
         $taxonomy = $this->taxonomyFile->read(SaeriTaxonomy::path());
+        $riskDomains = $this->taxonomyFile->read(AiRiskDomains::path());
+        $riskSubdomains = array_column(array_filter($riskDomains['terms'], fn (array $term): bool => $term['level'] === 2), 'code');
         $subcategories = array_column(array_filter($taxonomy['terms'], fn (array $term): bool => $term['level'] === 2), 'code');
         /** @var list<array{key: string}> $documents */
         $documents = $taxonomy['meta']['documents'] ?? [];
@@ -117,9 +120,13 @@ class MitigationCatalog
             }
 
             // Name each field by its key, so the message points at the file.
-            $validator = Validator::make($entry, $this->entryRules($subcategories, $documentKeys), [
+            $validator = Validator::make($entry, $this->entryRules($subcategories, $documentKeys, $riskSubdomains), [
                 'saeri_subcategory.in' => 'A subcategoria :input não existe na taxonomia de Saeri et al. (use um código de nível 2, como 1.2).',
                 'source_document.in' => 'O documento :input não está entre os documentos de origem da taxonomia.',
+                'target_risk_subdomains.required' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em target_risk_subdomains.',
+                'target_risk_subdomains.min' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em target_risk_subdomains.',
+                'target_risk_subdomains.*.in' => 'O subdomínio de risco :input não existe na taxonomia de domínios do MIT (use um código de nível 2, como 2.2).',
+                'target_risk_subdomains.*.distinct' => 'O subdomínio de risco :input se repete em target_risk_subdomains.',
             ], array_combine(self::FIELDS, self::FIELDS));
 
             foreach ($validator->errors()->all() as $message) {
@@ -175,9 +182,10 @@ class MitigationCatalog
      *
      * @param  list<string>  $subcategories
      * @param  list<string>  $documentKeys
+     * @param  list<string>  $riskSubdomains
      * @return array<string, array<mixed>>
      */
-    protected function entryRules(array $subcategories, array $documentKeys): array
+    protected function entryRules(array $subcategories, array $documentKeys, array $riskSubdomains): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -191,6 +199,10 @@ class MitigationCatalog
             'suggested_cost' => ['required', Rule::enum(CostLevel::class)],
             'uncertainty_level' => ['required', Rule::enum(UncertaintyLevel::class)],
             'estimate_source' => ['required', 'string', 'max:1000'],
+            // The success criterion of the artefact: every entry names the
+            // risks it treats, as MIT AI Risk Repository subdomains.
+            'target_risk_subdomains' => ['required', 'list', 'min:1'],
+            'target_risk_subdomains.*' => ['string', 'distinct', Rule::in($riskSubdomains)],
         ];
     }
 }

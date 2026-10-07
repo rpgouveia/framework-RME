@@ -120,21 +120,24 @@ class LinkController extends Controller
     {
         return [
             // Each risk carries the mitigations it already has, so the form
-            // never offers a pair that R-6 would refuse.
+            // never offers a pair that R-6 would refuse, and its MIT
+            // subdomain, so the form can recommend what treats it.
             'risks' => Risk::query()
-                ->with(['aiSystem:id,name', 'links:id,risk_id,mitigation_id'])
+                ->with(['aiSystem:id,name', 'links:id,risk_id,mitigation_id', 'riskSubdomain.parent'])
                 ->orderBy('name')
-                ->get(['id', 'name', 'ai_system_id'])
+                ->get(['id', 'name', 'ai_system_id', 'risk_subdomain_id'])
                 ->map(fn (Risk $risk): array => [
                     'id' => $risk->id,
                     'name' => $risk->name,
                     'ai_system' => $risk->aiSystem->only(['id', 'name']),
+                    'domain' => $risk->riskSubdomain->parent?->only(['code', 'name']),
+                    'subdomain' => $risk->riskSubdomain->only(['code', 'name']),
                     'linked_mitigation_ids' => $risk->links->pluck('mitigation_id')->all(),
                 ]),
             // The catalogue fields the form shows next to the choice (RNF03),
             // with the Saeri category derived from the subcategory.
             'mitigations' => Mitigation::query()
-                ->with('saeriSubcategory.parent')
+                ->with(['saeriSubcategory.parent', 'targetRiskSubdomains'])
                 ->orderBy('name')
                 ->get()
                 ->map(fn (Mitigation $mitigation): array => [
@@ -145,14 +148,13 @@ class LinkController extends Controller
                     'suggested_cost' => $mitigation->suggested_cost,
                     'uncertainty_level' => $mitigation->uncertainty_level,
                     'estimate_source' => $mitigation->estimate_source,
+                    'target_risk_subdomains' => $mitigation->targetRiskSubdomains
+                        ->map(fn (TaxonomyTerm $term): array => $term->only(['code', 'name']))
+                        ->all(),
                 ]),
             // Retired roles take no new links.
             'owners' => Owner::query()->active()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
-            'saeriCategories' => app(SaeriTaxonomy::class)->categories()->map(fn (TaxonomyTerm $term): array => [
-                'code' => $term->code,
-                'name' => $term->name,
-                'children' => $term->children->map->only(['code', 'name'])->values(),
-            ]),
+            'saeriCategories' => app(SaeriTaxonomy::class)->tree(),
             'lifecyclePhases' => LifecyclePhase::options(),
             'costLevels' => CostLevel::options(),
             'reviewIntervalDays' => Config::integer('rme.review.interval_days'),
