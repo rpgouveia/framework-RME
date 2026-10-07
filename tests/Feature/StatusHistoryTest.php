@@ -125,6 +125,30 @@ test('a change can name the adverse event that forced it', function () {
         ->and($statusHistory->adverseEvent->is($adverseEvent))->toBeTrue();
 });
 
+test('the status screens tell the adverse event by its risk subdomains', function () {
+    $link = Link::factory()->create(['status' => LinkStatus::Implemented]);
+    $adverseEvent = AdverseEvent::factory()->materializing(['2.1', '2.2'])->create();
+    $statusHistory = StatusHistory::factory()->for($link)->create(['adverse_event_id' => $adverseEvent->id]);
+
+    $this->get(route('links.status-histories.create', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('adverseEvents.0.id', $adverseEvent->id)
+            ->where('adverseEvents.0.risk_subdomains.0.code', '2.1')
+            ->where('adverseEvents.0.risk_subdomains.1.code', '2.2')
+    );
+
+    $this->get(route('links.status-histories.index', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('statusHistories.data.0.adverse_event.risk_subdomains.0.code', '2.1')
+    );
+
+    $this->get(route('status-histories.show', $statusHistory))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('statusHistory.adverse_event.risk_subdomains.1.code', '2.2')
+            ->where('statusHistory.adverse_event.risk_subdomains.1.parent.code', '2')
+    );
+});
+
 test('a change cannot name an adverse event that does not exist', function () {
     $link = Link::factory()->create();
 

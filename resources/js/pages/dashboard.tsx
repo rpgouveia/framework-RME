@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
+import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +21,6 @@ import {
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
 import {
-    adverseEventTypeLabels,
     linkLabel,
     linkStatusBadgeClasses,
     linkStatusLabels,
@@ -197,7 +197,7 @@ function Overview({
                                         key={risk.id}
                                         className="flex items-center justify-between gap-4 py-2"
                                     >
-                                        <span className="grid">
+                                        <span className="grid gap-1">
                                             <Link
                                                 href={showRisk(risk.id)}
                                                 className="font-medium hover:underline"
@@ -333,15 +333,13 @@ function Overview({
                                                 )}
                                                 className="font-medium hover:underline"
                                             >
-                                                {
-                                                    adverseEventTypeLabels[
-                                                        event.event_type
-                                                    ]
-                                                }
-                                            </Link>
-                                            <span className="text-muted-foreground text-xs">
                                                 {event.ai_system?.name}
-                                            </span>
+                                            </Link>
+                                            <RiskSubdomainBadges
+                                                subdomains={
+                                                    event.risk_subdomains
+                                                }
+                                            />
                                         </span>
                                         <span className="text-muted-foreground text-sm whitespace-nowrap">
                                             {formatDate(event.occurrence_date)}

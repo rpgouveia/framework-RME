@@ -4,7 +4,7 @@ import { PaginationLinks } from '@/components/pagination-links';
 import { StatusTransition } from '@/components/status-transition';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
-import { adverseEventTypeLabels, linkLabel } from '@/lib/labels';
+import { linkLabel, subdomainCodes } from '@/lib/labels';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/status-histories';
 import { show } from '@/routes/status-histories';
@@ -74,11 +74,7 @@ export default function StatusHistoriesIndex({ link, statusHistories }: Props) {
                                         <span className="text-muted-foreground">
                                             Evento adverso:{' '}
                                         </span>
-                                        {
-                                            adverseEventTypeLabels[
-                                                history.adverse_event.event_type
-                                            ]
-                                        }{' '}
+                                        {subdomainCodes(history.adverse_event)}{' '}
                                         em{' '}
                                         {formatDate(
                                             history.adverse_event

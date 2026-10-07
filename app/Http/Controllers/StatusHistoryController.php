@@ -32,7 +32,7 @@ class StatusHistoryController extends Controller
         return Inertia::render('status-histories/index', [
             'link' => $link->load(['risk', 'mitigation']),
             'statusHistories' => $link->statusHistories()
-                ->with(['owner', 'adverseEvent'])
+                ->with(['owner', 'adverseEvent.riskSubdomains'])
                 ->latest('change_date')
                 ->paginate(15)
                 ->withQueryString(),
@@ -53,9 +53,9 @@ class StatusHistoryController extends Controller
             // Retired roles record no new changes.
             'owners' => Owner::query()->active()->orderBy('organizational_role')->get(),
             'adverseEvents' => AdverseEvent::query()
-                ->with('aiSystem:id,name')
+                ->with(['aiSystem:id,name', 'riskSubdomains'])
                 ->latest('occurrence_date')
-                ->get(['id', 'event_type', 'description', 'occurrence_date', 'ai_system_id']),
+                ->get(['id', 'description', 'occurrence_date', 'ai_system_id']),
         ]);
     }
 
@@ -85,7 +85,7 @@ class StatusHistoryController extends Controller
         Gate::authorize('view', $statusHistory);
 
         return Inertia::render('status-histories/show', [
-            'statusHistory' => $statusHistory->load(['link.risk', 'link.mitigation', 'owner', 'adverseEvent.aiSystem']),
+            'statusHistory' => $statusHistory->load(['link.risk', 'link.mitigation', 'owner', 'adverseEvent.aiSystem', 'adverseEvent.riskSubdomains.parent']),
         ]);
     }
 }

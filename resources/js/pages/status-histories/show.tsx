@@ -1,9 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
 import { DetailItem } from '@/components/detail-item';
+import { RiskSubdomain } from '@/components/risk-subdomain';
 import { StatusTransition } from '@/components/status-transition';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
-import { adverseEventTypeLabels, linkLabel } from '@/lib/labels';
+import { linkLabel } from '@/lib/labels';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { index as historyIndex } from '@/routes/links/status-histories';
 import { show } from '@/routes/status-histories';
@@ -86,8 +87,18 @@ export default function StatusHistoriesShow({ statusHistory }: Props) {
                         </CardHeader>
                         <CardContent className="grid gap-6">
                             <dl className="grid gap-4 sm:grid-cols-3">
-                                <DetailItem label="Tipo">
-                                    {adverseEventTypeLabels[event.event_type]}
+                                <DetailItem label="Subdomínios de risco">
+                                    <ul className="grid gap-2">
+                                        {event.risk_subdomains?.map(
+                                            (subdomain) => (
+                                                <li key={subdomain.code}>
+                                                    <RiskSubdomain
+                                                        subdomain={subdomain}
+                                                    />
+                                                </li>
+                                            ),
+                                        )}
+                                    </ul>
                                 </DetailItem>
                                 <DetailItem label="Ocorrência">
                                     {formatDate(event.occurrence_date)}

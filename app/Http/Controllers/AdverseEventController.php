@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAdverseEventRequest;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
+use App\Support\AiRiskDomains;
 use App\Support\MonitoringProtocol;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,17 +26,27 @@ class AdverseEventController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request, AiRiskDomains $riskDomains): Response
     {
         Gate::authorize('viewAny', AdverseEvent::class);
 
+        // An unknown domain is ignored rather than emptying the list.
+        $domain = $riskDomains->domains()->firstWhere('code', (string) $request->query('domain'));
+
         return Inertia::render('adverse-events/index', [
             'adverseEvents' => AdverseEvent::query()
-                ->with('aiSystem')
+                ->when($domain, fn (Builder $query) => $query->whereHas(
+                    'riskSubdomains',
+                    fn (Builder $subdomains) => $subdomains->where('parent_id', $domain?->id),
+                ))
+                ->with(['aiSystem', 'riskSubdomains'])
                 ->withCount('statusHistories')
                 ->latest('occurrence_date')
+                ->latest('id')
                 ->paginate(15)
                 ->withQueryString(),
+            'filters' => ['domain' => $domain?->code],
+            'riskDomains' => $riskDomains->tree(),
         ]);
     }
 
@@ -49,11 +63,19 @@ class AdverseEventController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAdverseEventRequest $request): RedirectResponse
+    public function store(StoreAdverseEventRequest $request, AiRiskDomains $riskDomains): RedirectResponse
     {
         Gate::authorize('create', AdverseEvent::class);
 
-        $adverseEvent = AdverseEvent::create($request->validated());
+        $adverseEvent = DB::transaction(function () use ($request, $riskDomains): AdverseEvent {
+            $adverseEvent = AdverseEvent::create($request->safe()->except('risk_subdomains'));
+
+            $adverseEvent->riskSubdomains()->attach(
+                $riskDomains->subdomains()->whereIn('code', $request->validated('risk_subdomains'))->pluck('id'),
+            );
+
+            return $adverseEvent;
+        });
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Adverse event recorded.')]);
 
@@ -70,6 +92,7 @@ class AdverseEventController extends Controller
         return Inertia::render('adverse-events/show', [
             'adverseEvent' => $adverseEvent->load([
                 'aiSystem',
+                'riskSubdomains.parent',
                 'statusHistories.link.risk',
                 'statusHistories.link.mitigation',
                 'statusHistories.owner',
@@ -89,9 +112,11 @@ class AdverseEventController extends Controller
 
         return [
             'aiSystems' => $aiSystems,
-            // RF04: the form swaps the type options when the system changes.
-            'eventTypesBySystem' => $aiSystems->mapWithKeys(
-                fn (AiSystem $aiSystem): array => [$aiSystem->id => $protocol->eventTypeOptionsFor($aiSystem)],
+            // RF04: the form swaps the subdomains offered when the system
+            // changes. For now every system offers all of them (see
+            // MonitoringProtocol).
+            'riskDomainsBySystem' => $aiSystems->mapWithKeys(
+                fn (AiSystem $aiSystem): array => [$aiSystem->id => $protocol->riskSubdomainOptionsFor($aiSystem)],
             ),
         ];
     }

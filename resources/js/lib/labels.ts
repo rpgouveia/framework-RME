@@ -1,5 +1,4 @@
 import type {
-    AdverseEventType,
     AiSystemCategory,
     CostLevel,
     EvidenceType,
@@ -106,16 +105,6 @@ export const costLevelLabels: Record<CostLevel, string> = {
     high: 'Alto',
 };
 
-export const adverseEventTypeLabels: Record<AdverseEventType, string> = {
-    malfunction: 'Falha de funcionamento',
-    data_breach: 'Vazamento de dados',
-    biased_outcome: 'Resultado enviesado',
-    safety_incident: 'Incidente de segurança',
-    compliance_violation: 'Violação de conformidade',
-    user_harm: 'Dano ao usuário',
-    service_disruption: 'Interrupção do serviço',
-};
-
 export const evidenceTypeLabels: Record<EvidenceType, string> = {
     document: 'Documento',
     report: 'Relatório',
@@ -128,6 +117,15 @@ export const evidenceTypeLabels: Record<EvidenceType, string> = {
 /** A taxonomy term as its code and name, such as "1.2 Gestão de riscos". */
 export function termLabel(term: { code: string; name: string }): string {
     return `${term.code} ${term.name}`;
+}
+
+/** The codes of an adverse event's risk subdomains, such as "2.1, 2.2". */
+export function subdomainCodes(event: {
+    risk_subdomains?: { code: string }[];
+}): string {
+    return (event.risk_subdomains ?? [])
+        .map((subdomain) => subdomain.code)
+        .join(', ');
 }
 
 /** Looks up an enum value's label, falling back to the raw value. */

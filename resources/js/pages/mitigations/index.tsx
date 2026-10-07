@@ -1,6 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
+import { FilterLink } from '@/components/filter-link';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Badge } from '@/components/ui/badge';
@@ -191,43 +192,6 @@ export default function MitigationsIndex({
                 )}
             </div>
         </>
-    );
-}
-
-function FilterLink({
-    href,
-    active,
-    subtle = false,
-    children,
-}: {
-    href: ReturnType<typeof index>;
-    active: boolean;
-    subtle?: boolean;
-    children: React.ReactNode;
-}) {
-    return (
-        <Button
-            size="sm"
-            variant={
-                active
-                    ? subtle
-                        ? 'secondary'
-                        : 'default'
-                    : subtle
-                      ? 'ghost'
-                      : 'outline'
-            }
-            asChild
-        >
-            <Link
-                href={href}
-                preserveState
-                preserveScroll
-                aria-current={active ? 'page' : undefined}
-            >
-                {children}
-            </Link>
-        </Button>
     );
 }
 

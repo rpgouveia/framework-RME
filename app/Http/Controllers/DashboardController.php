@@ -80,7 +80,7 @@ class DashboardController extends Controller
             'recentEvents' => [
                 'days' => self::RECENT_EVENT_DAYS,
                 'count' => (clone $recentEvents)->count(),
-                'items' => $recentEvents->with('aiSystem:id,name')
+                'items' => $recentEvents->with(['aiSystem:id,name', 'riskSubdomains'])
                     ->latest('occurrence_date')->latest('id')->limit(self::LIST_SIZE)->get(),
             ],
             'reviews' => [

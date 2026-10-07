@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { DetailItem } from '@/components/detail-item';
+import { RiskSubdomain } from '@/components/risk-subdomain';
 import { StatusTransition } from '@/components/status-transition';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -11,7 +12,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
-import { adverseEventTypeLabels, linkLabel } from '@/lib/labels';
+import { linkLabel, termLabel } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
@@ -27,11 +28,11 @@ export default function AdverseEventsShow({ adverseEvent }: Props) {
 
     return (
         <>
-            <Head title={adverseEventTypeLabels[adverseEvent.event_type]} />
+            <Head title={eventTitle(adverseEvent)} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="grid gap-1">
                     <h1 className="text-xl font-semibold tracking-tight">
-                        {adverseEventTypeLabels[adverseEvent.event_type]}
+                        {eventTitle(adverseEvent)}
                     </h1>
                     {adverseEvent.ai_system && (
                         <Link
@@ -57,6 +58,21 @@ export default function AdverseEventsShow({ adverseEvent }: Props) {
                         <dl>
                             <DetailItem label="Data de ocorrência">
                                 {formatDate(adverseEvent.occurrence_date)}
+                            </DetailItem>
+                        </dl>
+                        <dl>
+                            <DetailItem label="Subdomínios de risco materializados">
+                                <ul className="grid gap-3">
+                                    {adverseEvent.risk_subdomains?.map(
+                                        (subdomain) => (
+                                            <li key={subdomain.code}>
+                                                <RiskSubdomain
+                                                    subdomain={subdomain}
+                                                />
+                                            </li>
+                                        ),
+                                    )}
+                                </ul>
                             </DetailItem>
                         </dl>
                         <dl>
@@ -143,11 +159,20 @@ function ChangesTable({ changes }: { changes: StatusHistory[] }) {
     );
 }
 
+/** The event has no name of its own: it is told by its subdomains. */
+function eventTitle(event: AdverseEvent): string {
+    const subdomains = event.risk_subdomains ?? [];
+
+    return subdomains.length === 1
+        ? `Evento adverso: ${termLabel(subdomains[0])}`
+        : `Evento adverso: ${subdomains.map((term) => term.code).join(', ')}`;
+}
+
 AdverseEventsShow.layout = ({ adverseEvent }: Props) => ({
     breadcrumbs: [
         { title: 'Eventos adversos', href: index() },
         {
-            title: adverseEventTypeLabels[adverseEvent.event_type],
+            title: eventTitle(adverseEvent),
             href: show(adverseEvent.id),
         },
     ],
