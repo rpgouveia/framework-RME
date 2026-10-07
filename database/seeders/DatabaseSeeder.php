@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             AiSystemSeeder::class,
             AdverseEventSeeder::class,
             RiskSeeder::class,
+            TaxonomySeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,
             LinkSeeder::class,

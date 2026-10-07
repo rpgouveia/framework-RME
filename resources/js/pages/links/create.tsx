@@ -23,7 +23,7 @@ import {
     costLevelLabels,
     labelFor,
     lifecyclePhaseLabels,
-    saeriCategoryLabels,
+    termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
@@ -37,7 +37,7 @@ import type {
     Mitigation,
     Owner,
     Risk,
-    SaeriCategory,
+    TaxonomyCategory,
 } from '@/types/models';
 
 type RiskOption = Pick<Risk, 'id' | 'name'> & {
@@ -46,27 +46,24 @@ type RiskOption = Pick<Risk, 'id' | 'name'> & {
     linked_mitigation_ids: number[];
 };
 
+/** A catalogue entry with its Saeri category derived from the subcategory. */
 type MitigationOption = Pick<
     Mitigation,
-    | 'id'
-    | 'name'
-    | 'saeri_category'
-    | 'suggested_cost'
-    | 'uncertainty_level'
-    | 'bibliography_source'
->;
+    'id' | 'name' | 'suggested_cost' | 'uncertainty_level' | 'estimate_source'
+> & {
+    category: string | null;
+    subcategory: { code: string; name: string };
+};
 
 type Props = {
     risks: RiskOption[];
     mitigations: MitigationOption[];
     owners: Pick<Owner, 'id' | 'organizational_role' | 'area'>[];
-    saeriCategories: EnumOption[];
+    saeriCategories: TaxonomyCategory[];
     lifecyclePhases: EnumOption[];
     costLevels: EnumOption[];
     reviewIntervalDays: number;
 };
-
-type CategoryFilter = SaeriCategory | 'all';
 
 export default function LinksCreate(props: Props) {
     const { risks, mitigations, owners } = props;
@@ -141,14 +138,21 @@ function LinkForm({
             ? (requested ?? '')
             : '',
     );
-    const [category, setCategory] = useState<CategoryFilter>('all');
+    const [category, setCategory] = useState<string | null>(null);
+    const [subcategory, setSubcategory] = useState<string | null>(null);
     const [mitigationId, setMitigationId] = useState('');
     const [estimatedCost, setEstimatedCost] = useState('');
 
     const risk = risks.find((option) => String(option.id) === riskId);
     const linked = risk?.linked_mitigation_ids ?? [];
     // R-6: a pair already linked is not offered again.
-    const available = availableMitigations(risk, mitigations, category);
+    const available = availableMitigations(risk, mitigations, {
+        category,
+        subcategory,
+    });
+    const categoryOption = saeriCategories.find(
+        (option) => option.code === category,
+    );
     const mitigation = mitigations.find(
         (option) => String(option.id) === mitigationId,
     );
@@ -166,22 +170,33 @@ function LinkForm({
 
         if (
             mitigation &&
-            !availableMitigations(chosen, mitigations, 'all').includes(
-                mitigation,
-            )
+            !availableMitigations(chosen, mitigations, {
+                category: null,
+                subcategory: null,
+            }).includes(mitigation)
         ) {
             setMitigationId('');
         }
     }
 
     function chooseCategory(value: string) {
-        const next = (value || 'all') as CategoryFilter;
+        const next = value === '' || value === 'all' ? null : value;
         setCategory(next);
+        setSubcategory(null);
+
+        if (mitigation && next !== null && mitigation.category !== next) {
+            setMitigationId('');
+        }
+    }
+
+    function chooseSubcategory(value: string) {
+        const next = value === 'all' ? null : value;
+        setSubcategory(next);
 
         if (
             mitigation &&
-            next !== 'all' &&
-            mitigation.saeri_category !== next
+            next !== null &&
+            mitigation.subcategory.code !== next
         ) {
             setMitigationId('');
         }
@@ -245,24 +260,49 @@ function LinkForm({
                             type="single"
                             variant="outline"
                             size="sm"
-                            value={category}
+                            value={category ?? 'all'}
                             onValueChange={chooseCategory}
-                            aria-label="Filtrar por categoria SAERI"
+                            aria-label="Filtrar por categoria da taxonomia de Saeri et al."
                             className="flex-wrap"
                         >
                             <ToggleGroupItem value="all">Todas</ToggleGroupItem>
                             {saeriCategories.map((option) => (
                                 <ToggleGroupItem
-                                    key={option.value}
-                                    value={option.value}
+                                    key={option.code}
+                                    value={option.code}
                                 >
-                                    {labelFor(
-                                        saeriCategoryLabels,
-                                        option.value,
-                                    )}
+                                    {termLabel(option)}
                                 </ToggleGroupItem>
                             ))}
                         </ToggleGroup>
+                        {/* The subcategory narrows further, but is optional. */}
+                        {categoryOption && (
+                            <Select
+                                value={subcategory ?? 'all'}
+                                onValueChange={chooseSubcategory}
+                            >
+                                <SelectTrigger
+                                    className="w-full"
+                                    aria-label="Filtrar por subcategoria"
+                                >
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        Todas as subcategorias de{' '}
+                                        {categoryOption.name}
+                                    </SelectItem>
+                                    {categoryOption.children.map((option) => (
+                                        <SelectItem
+                                            key={option.code}
+                                            value={option.code}
+                                        >
+                                            {termLabel(option)}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                         <Select
                             name="mitigation_id"
                             value={mitigationId}
@@ -291,9 +331,9 @@ function LinkForm({
                         </Select>
                         {available.length === 0 && (
                             <p className="text-muted-foreground text-sm">
-                                {linked.length > 0 && category === 'all'
+                                {linked.length > 0 && category === null
                                     ? 'Este risco já está vinculado a todas as mitigações do catálogo.'
-                                    : 'Nenhuma mitigação disponível nesta categoria.'}
+                                    : 'Nenhuma mitigação disponível neste filtro.'}
                             </p>
                         )}
                         <InputError message={errors.mitigation_id} />
@@ -302,12 +342,8 @@ function LinkForm({
                             // RNF03: a qualitative estimate comes with its
                             // source and its uncertainty.
                             <dl className="bg-muted/40 grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-                                <DetailItem label="Categoria SAERI">
-                                    {
-                                        saeriCategoryLabels[
-                                            mitigation.saeri_category
-                                        ]
-                                    }
+                                <DetailItem label="Subcategoria (Saeri et al.)">
+                                    {termLabel(mitigation.subcategory)}
                                 </DetailItem>
                                 <DetailItem label="Custo sugerido">
                                     {costLevelLabels[mitigation.suggested_cost]}
@@ -327,9 +363,9 @@ function LinkForm({
                                         }
                                     </Badge>
                                 </DetailItem>
-                                <DetailItem label="Fonte">
+                                <DetailItem label="Fonte da estimativa">
                                     <span className="font-normal">
-                                        {mitigation.bibliography_source}
+                                        {mitigation.estimate_source}
                                     </span>
                                 </DetailItem>
                             </dl>

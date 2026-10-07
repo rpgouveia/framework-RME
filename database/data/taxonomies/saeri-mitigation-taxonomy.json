@@ -1,0 +1,321 @@
+{
+    "meta": {
+        "key": "saeri-mitigations",
+        "name": "Taxonomia preliminar de mitigações de riscos de IA (Saeri et al.)",
+        "citation": "Saeri, A. K., Lloyd George, S., Graham, J., Lacarriere, C. D., Slattery, P., Noetel, M., & Thompson, N. (2025). Mapping AI Risk Mitigations: Evidence Scan and Preliminary AI Risk Mitigation Taxonomy. MIT FutureTech.",
+        "version": "Preliminar, dezembro de 2025",
+        "url": "https://airisk.mit.edu",
+        "accessed_at": "2026-10-06",
+        "documents": [
+            {
+                "key": "bengio-2025",
+                "title": "International AI Safety Report 2025",
+                "first_author": "Bengio, Y.",
+                "year": 2025,
+                "mitigations": 26
+            },
+            {
+                "key": "campos-2025",
+                "title": "A Frontier AI Risk Management Framework",
+                "first_author": "Campos, S.",
+                "year": 2025,
+                "mitigations": 20
+            },
+            {
+                "key": "eisenberg-2025",
+                "title": "The Unified Control Framework",
+                "first_author": "Eisenberg, I.",
+                "year": 2025,
+                "mitigations": 42
+            },
+            {
+                "key": "gipiskis-2024",
+                "title": "Risk Sources and Risk Management Measures in support of standards for general-purpose AI systems",
+                "first_author": "Gipiškis, D.",
+                "year": 2024,
+                "mitigations": 83
+            },
+            {
+                "key": "uuk-2024",
+                "title": "Effective Mitigations for Systemic Risks from General-Purpose AI",
+                "first_author": "Uuk, R.",
+                "year": 2024,
+                "mitigations": 28
+            },
+            {
+                "key": "fli-2024",
+                "title": "FLI AI Safety Index 2024",
+                "first_author": "Future of Life Institute",
+                "year": 2024,
+                "mitigations": 87
+            },
+            {
+                "key": "schuett-2023",
+                "title": "Towards Best Practices in AGI Safety and Governance",
+                "first_author": "Schuett, J.",
+                "year": 2023,
+                "mitigations": 51
+            },
+            {
+                "key": "casper-2025",
+                "title": "Pitfalls of Evidence-Based AI Policy",
+                "first_author": "Casper, S.",
+                "year": 2025,
+                "mitigations": 15
+            },
+            {
+                "key": "eu-ai-office-2025",
+                "title": "EU AI Act: General Purpose AI Code of Practice (Draft 3)",
+                "first_author": "EU AI Office",
+                "year": 2025,
+                "mitigations": 16
+            },
+            {
+                "key": "dsit-2023",
+                "title": "Emerging Processes for Frontier AI Safety",
+                "first_author": "Department for Science, Innovation and Technology (UK)",
+                "year": 2023,
+                "mitigations": 170
+            },
+            {
+                "key": "nist-2024",
+                "title": "NIST AI Risk Management Framework: Generative AI Profile",
+                "first_author": "National Institute of Standards and Technology (USA)",
+                "year": 2024,
+                "mitigations": 203
+            },
+            {
+                "key": "barrett-2024",
+                "title": "AI Risk Management Standards Profile for GPAIS",
+                "first_author": "Barrett, A. M.",
+                "year": 2024,
+                "mitigations": 80
+            },
+            {
+                "key": "ca-sb1047-2024",
+                "title": "California Senate Bill 1047",
+                "first_author": "California State Legislature",
+                "year": 2024,
+                "mitigations": 10
+            }
+        ]
+    },
+    "terms": [
+        {
+            "code": "1",
+            "parent": null,
+            "level": 1,
+            "name": "Governança e Supervisão",
+            "original_name": "Governance & Oversight",
+            "description": "Formal organizational structures and policy frameworks that establish human oversight mechanisms and decision protocols to ensure human accountability, ethical conduct, and risk management throughout AI development and deployment."
+        },
+        {
+            "code": "1.1",
+            "parent": "1",
+            "level": 2,
+            "name": "Estrutura de conselho e supervisão",
+            "original_name": "Board Structure & Oversight",
+            "description": "Governance structures and leadership roles that establish executive accountability for AI safety and risk management."
+        },
+        {
+            "code": "1.2",
+            "parent": "1",
+            "level": 2,
+            "name": "Gestão de riscos",
+            "original_name": "Risk Management",
+            "description": "Systematic methods that identify, evaluate, and manage AI risks for comprehensive risk governance across organizations."
+        },
+        {
+            "code": "1.3",
+            "parent": "1",
+            "level": 2,
+            "name": "Proteção contra conflitos de interesse",
+            "original_name": "Conflict of Interest Protections",
+            "description": "Governance mechanisms that manage financial interests and organizational structures to ensure leadership can prioritize safety over profit motives in critical situations."
+        },
+        {
+            "code": "1.4",
+            "parent": "1",
+            "level": 2,
+            "name": "Canal de denúncia e proteção ao denunciante",
+            "original_name": "Whistleblower Reporting & Protection",
+            "description": "Policies and systems that enable confidential reporting of safety concerns or ethical violations to prevent retaliation and encourage disclosure of risks."
+        },
+        {
+            "code": "1.5",
+            "parent": "1",
+            "level": 2,
+            "name": "Estruturas de decisão de segurança",
+            "original_name": "Safety Decision Frameworks",
+            "description": "Protocols and commitments that constrain decision-making about model development, deployment, and capability scaling, and govern safety-capability resource allocation to prevent unsafe AI advancement."
+        },
+        {
+            "code": "1.6",
+            "parent": "1",
+            "level": 2,
+            "name": "Gestão de impacto ambiental",
+            "original_name": "Environmental Impact Management",
+            "description": "Processes for measuring, reporting, and reducing the environmental footprint of AI systems to ensure sustainability and responsible resource use."
+        },
+        {
+            "code": "1.7",
+            "parent": "1",
+            "level": 2,
+            "name": "Avaliação de impacto social",
+            "original_name": "Societal Impact Assessment",
+            "description": "Processes that assess AI systems' effects on society, including impacts on employment, power dynamics, political processes, and cultural values."
+        },
+        {
+            "code": "2",
+            "parent": null,
+            "level": 1,
+            "name": "Técnica e Segurança",
+            "original_name": "Technical & Security",
+            "description": "Technical, physical, and engineering safeguards that secure AI systems and constrain model behaviors to ensure security, safety, alignment with human values, and content integrity."
+        },
+        {
+            "code": "2.1",
+            "parent": "2",
+            "level": 2,
+            "name": "Segurança do modelo e da infraestrutura",
+            "original_name": "Model & Infrastructure Security",
+            "description": "Technical and physical safeguards that secure AI models, weights, and infrastructure to prevent unauthorized access, theft, tampering, and espionage."
+        },
+        {
+            "code": "2.2",
+            "parent": "2",
+            "level": 2,
+            "name": "Alinhamento do modelo",
+            "original_name": "Model Alignment",
+            "description": "Technical methods to ensure AI systems understand and adhere to human values and intentions."
+        },
+        {
+            "code": "2.3",
+            "parent": "2",
+            "level": 2,
+            "name": "Engenharia de segurança do modelo",
+            "original_name": "Model Safety Engineering",
+            "description": "Technical methods and safeguards that constrain model behaviors and protect against exploitation and vulnerabilities."
+        },
+        {
+            "code": "2.4",
+            "parent": "2",
+            "level": 2,
+            "name": "Controles de segurança de conteúdo",
+            "original_name": "Content Safety Controls",
+            "description": "Technical systems and processes that detect, filter, and label AI-generated content to identify misuse and enable content provenance tracking."
+        },
+        {
+            "code": "3",
+            "parent": null,
+            "level": 1,
+            "name": "Processos Operacionais",
+            "original_name": "Operational Process",
+            "description": "Processes and management frameworks governing AI system deployment, usage, monitoring, incident handling, and validation, which promote safety, security, and accountability throughout the system lifecycle."
+        },
+        {
+            "code": "3.1",
+            "parent": "3",
+            "level": 2,
+            "name": "Testes e auditoria",
+            "original_name": "Testing & Auditing",
+            "description": "Systematic internal and external evaluations that assess AI systems, infrastructure, and compliance processes to identify risks, verify safety, and ensure performance meets standards."
+        },
+        {
+            "code": "3.2",
+            "parent": "3",
+            "level": 2,
+            "name": "Governança de dados",
+            "original_name": "Data Governance",
+            "description": "Policies and procedures that govern responsible data acquisition, curation, and usage to ensure compliance, quality, user privacy, and removal of harmful content."
+        },
+        {
+            "code": "3.3",
+            "parent": "3",
+            "level": 2,
+            "name": "Gestão de acesso",
+            "original_name": "Access Management",
+            "description": "Operational policies and verification systems that govern who can use AI systems and for what purposes to prevent safety circumvention, deliberate misuse, and deployment in high-risk contexts."
+        },
+        {
+            "code": "3.4",
+            "parent": "3",
+            "level": 2,
+            "name": "Implantação em etapas",
+            "original_name": "Staged Deployment",
+            "description": "Implementation protocols that deploy AI systems in stages, requiring safety validation before expanding user access or capabilities."
+        },
+        {
+            "code": "3.5",
+            "parent": "3",
+            "level": 2,
+            "name": "Monitoramento pós-implantação",
+            "original_name": "Post-Deployment Monitoring",
+            "description": "Ongoing monitoring processes that track AI behavior, user interactions, and societal impacts post-deployment to detect misuse, emergent dangerous capabilities, and harmful effects."
+        },
+        {
+            "code": "3.6",
+            "parent": "3",
+            "level": 2,
+            "name": "Resposta a incidentes e recuperação",
+            "original_name": "Incident Response & Recovery",
+            "description": "Protocols and technical systems that respond to security incidents, safety failures, or capability misuse to contain harm and restore safe operations."
+        },
+        {
+            "code": "4",
+            "parent": null,
+            "level": 1,
+            "name": "Transparência e Responsabilização",
+            "original_name": "Transparency & Accountability",
+            "description": "Formal disclosure practices and verification mechanisms that communicate AI system information and enable external scrutiny to build trust, facilitate oversight, and ensure accountability to users, regulators, and the public."
+        },
+        {
+            "code": "4.1",
+            "parent": "4",
+            "level": 2,
+            "name": "Documentação do sistema",
+            "original_name": "System Documentation",
+            "description": "Comprehensive documentation protocols that record technical specifications, intended uses, capabilities, and limitations of AI systems to enable informed evaluation and governance."
+        },
+        {
+            "code": "4.2",
+            "parent": "4",
+            "level": 2,
+            "name": "Divulgação de riscos",
+            "original_name": "Risk Disclosure",
+            "description": "Formal reporting protocols and notification systems that communicate risk information, mitigation plans, safety evaluations, and significant AI activities to enable external oversight and inform stakeholders."
+        },
+        {
+            "code": "4.3",
+            "parent": "4",
+            "level": 2,
+            "name": "Relato de incidentes",
+            "original_name": "Incident Reporting",
+            "description": "Formal processes and protocols that document and share AI safety incidents, security breaches, near-misses, and relevant threat intelligence with appropriate stakeholders to enable coordinated responses and systemic improvements."
+        },
+        {
+            "code": "4.4",
+            "parent": "4",
+            "level": 2,
+            "name": "Divulgação da governança",
+            "original_name": "Governance Disclosure",
+            "description": "Formal disclosure mechanisms that communicate governance structures, decision frameworks, and safety commitments to enhance transparency and enable external oversight of high-stakes AI decisions."
+        },
+        {
+            "code": "4.5",
+            "parent": "4",
+            "level": 2,
+            "name": "Acesso de terceiros ao sistema",
+            "original_name": "Third-Party System Access",
+            "description": "Mechanisms granting controlled system access to vetted external parties to enable independent assessment, validation, and safety research of AI models and capabilities."
+        },
+        {
+            "code": "4.6",
+            "parent": "4",
+            "level": 2,
+            "name": "Direitos e recursos dos usuários",
+            "original_name": "User Rights & Recourse",
+            "description": "Frameworks and procedures that enable users to identify and understand AI system interactions, report issues, request explanations, and seek recourse or remediation when affected by AI systems."
+        }
+    ]
+}

@@ -1,14 +1,15 @@
 <?php
 
 use App\Enums\CostLevel;
-use App\Enums\SaeriCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\Link;
 use App\Models\Mitigation;
+use App\Models\ReferenceDataset;
 use App\Models\User;
 use App\Support\InvalidMitigationCatalog;
 use App\Support\MitigationCatalog;
 use Database\Seeders\MitigationSeeder;
+use Database\Seeders\TaxonomySeeder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Inertia\Testing\AssertableInertia;
 
@@ -26,25 +27,46 @@ function catalogueEntry(array $overrides = []): array
 {
     return array_merge([
         'name' => 'Auditoria de equidade',
-        'saeri_category' => SaeriCategory::Governance->value,
+        'source_name' => 'Fairness impact assessment',
+        'source_reference' => 'FICT-001',
+        'source_document' => 'nist-2024',
+        'saeri_subcategory' => '1.7',
         'description' => 'Avaliar periodicamente se as saídas tratam os grupos de forma equivalente.',
         'suggested_target_risk' => 'Viés contra grupos protegidos',
         'expected_evidence' => 'Relatório de auditoria assinado',
         'suggested_cost' => CostLevel::Medium->value,
         'uncertainty_level' => UncertaintyLevel::Low->value,
-        'bibliography_source' => 'Saeri et al.',
+        'estimate_source' => 'Estimativa do grupo',
     ], $overrides);
 }
 
 /**
- * Write catalogue entries to a temporary file and return its path.
+ * A catalogue file content: its metadata and entries.
  *
- * @param  mixed  $entries
+ * @param  list<mixed>  $entries
+ * @param  array<string, mixed>  $meta
+ * @return array<string, mixed>
  */
-function catalogueFile($entries): string
+function catalogue(array $entries, array $meta = []): array
+{
+    return [
+        'meta' => array_merge([
+            'saeri_database_version' => 'Preliminar, dezembro de 2025',
+            'accessed_at' => '2026-10-06',
+            'curation_criterion' => 'Aplicáveis a quem implanta e opera sistemas de IA.',
+            'fictional' => true,
+        ], $meta),
+        'entries' => $entries,
+    ];
+}
+
+/**
+ * Write a catalogue to a temporary file and return its path.
+ */
+function catalogueFile(mixed $content): string
 {
     $path = tempnam(sys_get_temp_dir(), 'catalogue');
-    file_put_contents($path, is_string($entries) ? $entries : json_encode($entries));
+    file_put_contents($path, is_string($content) ? $content : json_encode($content));
 
     return $path;
 }
@@ -69,9 +91,19 @@ test('the catalogue cannot be changed through the app', function () {
     expect(Mitigation::count())->toBe(1);
 });
 
-// The index: filter by SAERI category and search by name, on the server.
+// The category is derived from the subcategory.
 
-test('the index lists the catalogue with its link counts', function () {
+test('a mitigation takes its category from its subcategory', function () {
+    $mitigation = Mitigation::factory()->inSubcategory('3.1')->create();
+
+    expect($mitigation->saeriSubcategory->code)->toBe('3.1')
+        ->and($mitigation->saeriSubcategory->parent->code)->toBe('3')
+        ->and($mitigation->saeriSubcategory->parent->name)->toBe('Processos Operacionais');
+});
+
+// The index: filter by category and subcategory and search, on the server.
+
+test('the index lists the catalogue with the two filter levels', function () {
     $mitigation = Mitigation::factory()->create();
     Link::factory(2)->for($mitigation)->create();
 
@@ -80,47 +112,77 @@ test('the index lists the catalogue with its link counts', function () {
             ->component('mitigations/index')
             ->has('mitigations.data', 1)
             ->where('mitigations.data.0.links_count', 2)
-            ->has('saeriCategories', 4)
-            ->where('filters', ['saeri_category' => null, 'q' => ''])
+            ->has('mitigations.data.0.saeri_subcategory.parent')
+            ->has('categories', 4)
+            ->has('categories.2.children', 6)
+            ->where('filters', ['category' => null, 'subcategory' => null, 'q' => ''])
     );
 });
 
-test('the catalogue can be filtered by SAERI category', function () {
-    Mitigation::factory()->create(['name' => 'Red teaming', 'saeri_category' => SaeriCategory::Technical]);
-    Mitigation::factory()->create(['name' => 'Auditoria de equidade', 'saeri_category' => SaeriCategory::Governance]);
+test('the catalogue can be filtered by category', function () {
+    Mitigation::factory()->inSubcategory('2.3')->create(['name' => 'Treinamento adversarial']);
+    Mitigation::factory()->inSubcategory('2.4')->create(['name' => 'Filtragem de conteúdo']);
+    Mitigation::factory()->inSubcategory('3.1')->create(['name' => 'Red teaming']);
 
-    $this->get(route('mitigations.index', ['saeri_category' => 'technical']))->assertInertia(
+    $this->get(route('mitigations.index', ['category' => '2']))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('mitigations.data', 2)
+            ->where('filters.category', '2')
+            ->where('filters.subcategory', null)
+    );
+});
+
+test('the catalogue can be filtered by subcategory', function () {
+    Mitigation::factory()->inSubcategory('2.3')->create(['name' => 'Treinamento adversarial']);
+    Mitigation::factory()->inSubcategory('2.4')->create(['name' => 'Filtragem de conteúdo']);
+
+    $this->get(route('mitigations.index', ['category' => '2', 'subcategory' => '2.4']))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('mitigations.data', 1)
+            ->where('mitigations.data.0.name', 'Filtragem de conteúdo')
+            ->where('filters', ['category' => '2', 'subcategory' => '2.4', 'q' => ''])
+    );
+});
+
+test('a subcategory alone implies its category', function () {
+    Mitigation::factory()->inSubcategory('2.4')->create();
+
+    $this->get(route('mitigations.index', ['subcategory' => '2.4']))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('mitigations.data', 1)
+            ->where('filters.category', '2')
+    );
+});
+
+test('a subcategory from another category is ignored', function () {
+    Mitigation::factory()->inSubcategory('2.3')->create();
+    Mitigation::factory()->inSubcategory('2.4')->create();
+
+    $this->get(route('mitigations.index', ['category' => '2', 'subcategory' => '3.1']))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->has('mitigations.data', 2)
+            ->where('filters.subcategory', null)
+    );
+});
+
+test('the search matches the Portuguese or the original name, ignoring letter case', function () {
+    Mitigation::factory()->create(['name' => 'Revisão humana das decisões', 'source_name' => 'Human review']);
+    Mitigation::factory()->create(['name' => 'Red teaming', 'source_name' => 'Red teaming exercises']);
+
+    $this->get(route('mitigations.index', ['q' => 'HUMANA']))->assertInertia(
+        fn (AssertableInertia $page) => $page->has('mitigations.data', 1)
+    );
+
+    $this->get(route('mitigations.index', ['q' => 'exercises']))->assertInertia(
         fn (AssertableInertia $page) => $page
             ->has('mitigations.data', 1)
             ->where('mitigations.data.0.name', 'Red teaming')
-            ->where('filters.saeri_category', 'technical')
-    );
-});
-
-test('an unknown category is ignored rather than emptying the list', function () {
-    Mitigation::factory(2)->create();
-
-    $this->get(route('mitigations.index', ['saeri_category' => 'nonsense']))->assertInertia(
-        fn (AssertableInertia $page) => $page
-            ->has('mitigations.data', 2)
-            ->where('filters.saeri_category', null)
-    );
-});
-
-test('the catalogue can be searched by name, ignoring letter case', function () {
-    Mitigation::factory()->create(['name' => 'Revisão humana das decisões']);
-    Mitigation::factory()->create(['name' => 'Red teaming']);
-
-    $this->get(route('mitigations.index', ['q' => 'HUMANA']))->assertInertia(
-        fn (AssertableInertia $page) => $page
-            ->has('mitigations.data', 1)
-            ->where('mitigations.data.0.name', 'Revisão humana das decisões')
     );
 });
 
 test('a search term is matched literally, not as a pattern', function () {
     Mitigation::factory()->create(['name' => 'Cobertura de 100% dos testes']);
-    Mitigation::factory()->create(['name' => 'Red teaming']);
+    Mitigation::factory()->create(['name' => 'Red teaming', 'source_name' => 'Red teaming']);
 
     $this->get(route('mitigations.index', ['q' => '%']))->assertInertia(
         fn (AssertableInertia $page) => $page
@@ -129,118 +191,169 @@ test('a search term is matched literally, not as a pattern', function () {
     );
 });
 
-test('the category filter and the search combine', function () {
-    Mitigation::factory()->create(['name' => 'Testes de robustez', 'saeri_category' => SaeriCategory::Process]);
-    Mitigation::factory()->create(['name' => 'Testes adversariais', 'saeri_category' => SaeriCategory::Technical]);
-    Mitigation::factory()->create(['name' => 'Retreinamento periódico', 'saeri_category' => SaeriCategory::Process]);
+test('the filters and the search combine', function () {
+    Mitigation::factory()->inSubcategory('3.1')->create(['name' => 'Testes de robustez', 'source_name' => 'Robustness testing']);
+    Mitigation::factory()->inSubcategory('3.5')->create(['name' => 'Testes em produção', 'source_name' => 'Production checks']);
+    Mitigation::factory()->inSubcategory('2.3')->create(['name' => 'Testes adversariais', 'source_name' => 'Adversarial tests']);
 
-    $this->get(route('mitigations.index', ['saeri_category' => 'process', 'q' => 'testes']))->assertInertia(
+    $this->get(route('mitigations.index', ['category' => '3', 'q' => 'testes']))->assertInertia(
+        fn (AssertableInertia $page) => $page->has('mitigations.data', 2)
+    );
+
+    $this->get(route('mitigations.index', ['category' => '3', 'subcategory' => '3.1', 'q' => 'testes']))->assertInertia(
         fn (AssertableInertia $page) => $page
             ->has('mitigations.data', 1)
             ->where('mitigations.data.0.name', 'Testes de robustez')
-            ->where('filters', ['saeri_category' => 'process', 'q' => 'testes'])
     );
 });
 
-test('the pages keep the category filter and the search', function () {
+test('the pages keep both filter levels and the search', function () {
     // Names that all match the search, so there is surely a second page.
     Mitigation::factory(20)
+        ->inSubcategory('2.3')
         ->sequence(fn ($sequence) => ['name' => "Mitigação técnica {$sequence->index}"])
-        ->create(['saeri_category' => SaeriCategory::Technical]);
+        ->create();
 
-    $this->get(route('mitigations.index', ['saeri_category' => 'technical', 'q' => 'a']))->assertInertia(
+    $this->get(route('mitigations.index', ['category' => '2', 'subcategory' => '2.3', 'q' => 'a']))->assertInertia(
         fn (AssertableInertia $page) => $page->where('mitigations.next_page_url', function (?string $url): bool {
             parse_str((string) parse_url((string) $url, PHP_URL_QUERY), $query);
 
-            return $query === ['saeri_category' => 'technical', 'q' => 'a', 'page' => '2'];
+            return $query === ['category' => '2', 'subcategory' => '2.3', 'q' => 'a', 'page' => '2'];
         })
     );
 });
 
-// The detail page.
+// The detail page and the fictional notice.
 
-test('the detail page loads the links that apply the mitigation', function () {
-    $mitigation = Mitigation::factory()->create();
+test('the detail page carries the Saeri block and the framework block apart', function () {
+    $mitigation = Mitigation::factory()->inSubcategory('3.1')->create(['source_document' => 'nist-2024']);
     Link::factory()->for($mitigation)->create();
 
     $this->get(route('mitigations.show', $mitigation))->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('mitigations/show')
+            // Saeri et al.: classification and trace to the source.
+            ->where('mitigation.saeri_subcategory.code', '3.1')
+            ->where('mitigation.saeri_subcategory.original_name', 'Testing & Auditing')
+            ->where('mitigation.saeri_subcategory.parent.code', '3')
+            ->has('mitigation.source_name')
+            ->has('mitigation.source_reference')
+            ->where('sourceDocument.title', 'NIST AI Risk Management Framework: Generative AI Profile')
+            ->has('taxonomy.citation')
+            // The framework's contribution, with its source (RNF03).
+            ->has('mitigation.estimate_source')
+            ->has('mitigation.suggested_target_risk')
             ->has('mitigation.links', 1)
             ->has('mitigation.links.0.risk')
-            ->has('mitigation.links.0.mitigation')
-            ->has('mitigation.links.0.owner')
+    );
+});
+
+test('the screens say when the loaded catalogue is fictional', function () {
+    $mitigation = Mitigation::factory()->create();
+
+    ReferenceDataset::create(['key' => MitigationCatalog::DATASET, 'metadata' => ['fictional' => true]]);
+
+    $this->get(route('mitigations.index'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('catalog.fictional', true)
+    );
+    $this->get(route('mitigations.show', $mitigation))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('catalog.fictional', true)
+    );
+
+    ReferenceDataset::where('key', MitigationCatalog::DATASET)->update(['metadata' => ['fictional' => false]]);
+
+    $this->get(route('mitigations.index'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('catalog.fictional', false)
     );
 });
 
 // The catalogue data file.
 
-test('the seeder loads the catalogue from its data file', function () {
-    $entries = json_decode((string) file_get_contents(database_path('data/mitigation-catalog.json')), true);
+test('the seeder loads the catalogue and its metadata from the data file', function () {
+    $file = json_decode((string) file_get_contents(MitigationCatalog::path()), true);
 
-    $this->seed(MitigationSeeder::class);
+    $this->seed([TaxonomySeeder::class, MitigationSeeder::class]);
 
-    expect(Mitigation::count())->toBe(count($entries))
-        ->and(Mitigation::where('name', $entries[0]['name'])->exists())->toBeTrue();
+    $first = Mitigation::where('source_reference', $file['entries'][0]['source_reference'])->sole();
+
+    expect(Mitigation::count())->toBe(count($file['entries']))
+        ->and($first->saeriSubcategory->code)->toBe($file['entries'][0]['saeri_subcategory'])
+        ->and(MitigationCatalog::loadedMeta()['fictional'])->toBe($file['meta']['fictional']);
 });
 
 test('the catalogue data file in the repository is valid', function () {
     // Guards the curated file: a mistake there breaks this test, not a seed.
-    $entries = app(MitigationCatalog::class)->entries(database_path('data/mitigation-catalog.json'));
+    $data = app(MitigationCatalog::class)->read(MitigationCatalog::path());
 
-    expect($entries)->not->toBeEmpty();
+    expect($data['entries'])->not->toBeEmpty();
 });
 
 test('a valid catalogue file is read as it is', function () {
-    $entries = app(MitigationCatalog::class)->entries(catalogueFile([catalogueEntry()]));
+    $data = app(MitigationCatalog::class)->read(catalogueFile(catalogue([catalogueEntry()])));
 
-    expect($entries)->toBe([catalogueEntry()]);
+    expect($data['entries'])->toBe([catalogueEntry()])
+        ->and($data['meta']['fictional'])->toBeTrue();
 });
 
 test('an invalid catalogue file is refused with a clear message', function (mixed $content, string $message) {
-    expect(fn () => app(MitigationCatalog::class)->entries(catalogueFile($content)))
+    expect(fn () => app(MitigationCatalog::class)->read(catalogueFile($content)))
         ->toThrow(InvalidMitigationCatalog::class, $message);
 })->with([
-    'not a list' => ['{"name": "Red teaming"}', 'deve ser um JSON com uma lista'],
-    'not JSON' => ['not json', 'deve ser um JSON com uma lista'],
-    'unknown category' => [[catalogueEntry(['saeri_category' => 'ethics'])], 'entrada 1 ("Auditoria de equidade")'],
-    'cost outside the scale' => [[catalogueEntry(['suggested_cost' => 'huge'])], 'entrada 1'],
-    'uncertainty outside the scale' => [[catalogueEntry(['uncertainty_level' => 'unknown'])], 'entrada 1'],
-    'missing field' => [[array_diff_key(catalogueEntry(), ['expected_evidence' => true])], 'entrada 1'],
-    'unknown field' => [[catalogueEntry(['bibliografy' => 'typo'])], 'campos desconhecidos: bibliografy'],
+    'not an object' => ['[]', 'deve ser um JSON com "meta" e uma lista "entries"'],
+    'not JSON' => ['not json', 'deve ser um JSON com "meta"'],
+    'unknown subcategory' => [catalogue([catalogueEntry(['saeri_subcategory' => '9.9'])]), 'A subcategoria 9.9 não existe'],
+    'category instead of subcategory' => [catalogue([catalogueEntry(['saeri_subcategory' => '1'])]), 'A subcategoria 1 não existe'],
+    'unknown document' => [catalogue([catalogueEntry(['source_document' => 'nowhere-2030'])]), 'O documento nowhere-2030 não está entre'],
+    'repeated source reference' => [
+        catalogue([catalogueEntry(), catalogueEntry(['name' => 'Outra', 'source_reference' => 'FICT-001'])]),
+        'o source_reference "FICT-001" se repete nas entradas 1, 2',
+    ],
     'repeated name' => [
-        [catalogueEntry(), catalogueEntry(['name' => 'AUDITORIA de equidade'])],
+        catalogue([catalogueEntry(), catalogueEntry(['name' => 'AUDITORIA de equidade', 'source_reference' => 'FICT-002'])]),
         'se repete nas entradas 1, 2',
     ],
+    'cost outside the scale' => [catalogue([catalogueEntry(['suggested_cost' => 'huge'])]), 'entrada 1'],
+    'missing field' => [catalogue([array_diff_key(catalogueEntry(), ['estimate_source' => true])]), 'estimate_source'],
+    'unknown field' => [catalogue([catalogueEntry(['bibliography_source' => 'old'])]), 'campos desconhecidos: bibliography_source'],
+    'fictional not a boolean' => [catalogue([catalogueEntry()], ['fictional' => 1]), 'meta:'],
+    'missing curation criterion' => [catalogue([catalogueEntry()], ['curation_criterion' => null]), 'meta:'],
 ]);
 
 test('every problem in the catalogue file is reported at once', function () {
-    $file = catalogueFile([
-        catalogueEntry(['saeri_category' => 'ethics']),
-        catalogueEntry(['name' => 'Red teaming', 'suggested_cost' => 'huge']),
-    ]);
+    $file = catalogueFile(catalogue([
+        catalogueEntry(['saeri_subcategory' => '9.9']),
+        catalogueEntry(['name' => 'Red teaming', 'source_reference' => 'FICT-002', 'source_document' => 'nowhere-2030']),
+    ], ['fictional' => 'sim']));
 
     try {
-        app(MitigationCatalog::class)->entries($file);
+        app(MitigationCatalog::class)->read($file);
         $this->fail('The catalogue should have been refused.');
     } catch (InvalidMitigationCatalog $exception) {
         expect($exception->getMessage())
+            ->toContain('meta:')
             ->toContain('entrada 1 ("Auditoria de equidade")')
             ->toContain('entrada 2 ("Red teaming")');
     }
 });
 
 test('a missing catalogue file is reported', function () {
-    expect(fn () => app(MitigationCatalog::class)->entries('/nowhere/catalogue.json'))
+    expect(fn () => app(MitigationCatalog::class)->read('/nowhere/catalogue.json'))
         ->toThrow(InvalidMitigationCatalog::class, 'não encontrado');
 });
 
-// Names stay unique, so the catalogue can be picked by name.
+// Names and references stay unique.
 
 test('the database refuses a mitigation name in another letter case', function () {
     Mitigation::factory()->create(['name' => 'Red teaming']);
 
     expect(fn () => Mitigation::factory()->create(['name' => 'red TEAMING']))
+        ->toThrow(UniqueConstraintViolationException::class);
+});
+
+test('the database refuses a repeated source reference', function () {
+    Mitigation::factory()->create(['source_reference' => 'FICT-001']);
+
+    expect(fn () => Mitigation::factory()->create(['source_reference' => 'FICT-001']))
         ->toThrow(UniqueConstraintViolationException::class);
 });
 

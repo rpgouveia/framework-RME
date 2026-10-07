@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Actions\CreateLink;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
-use App\Enums\SaeriCategory;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
 use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
+use App\Models\TaxonomyTerm;
+use App\Support\SaeriTaxonomy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
@@ -130,13 +131,28 @@ class LinkController extends Controller
                     'ai_system' => $risk->aiSystem->only(['id', 'name']),
                     'linked_mitigation_ids' => $risk->links->pluck('mitigation_id')->all(),
                 ]),
-            // The catalogue fields the form shows next to the choice (RNF03).
+            // The catalogue fields the form shows next to the choice (RNF03),
+            // with the Saeri category derived from the subcategory.
             'mitigations' => Mitigation::query()
+                ->with('saeriSubcategory.parent')
                 ->orderBy('name')
-                ->get(['id', 'name', 'saeri_category', 'suggested_cost', 'uncertainty_level', 'bibliography_source']),
+                ->get()
+                ->map(fn (Mitigation $mitigation): array => [
+                    'id' => $mitigation->id,
+                    'name' => $mitigation->name,
+                    'category' => $mitigation->saeriSubcategory->parent?->code,
+                    'subcategory' => $mitigation->saeriSubcategory->only(['code', 'name']),
+                    'suggested_cost' => $mitigation->suggested_cost,
+                    'uncertainty_level' => $mitigation->uncertainty_level,
+                    'estimate_source' => $mitigation->estimate_source,
+                ]),
             // Retired roles take no new links.
             'owners' => Owner::query()->active()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
-            'saeriCategories' => SaeriCategory::options(),
+            'saeriCategories' => app(SaeriTaxonomy::class)->categories()->map(fn (TaxonomyTerm $term): array => [
+                'code' => $term->code,
+                'name' => $term->name,
+                'children' => $term->children->map->only(['code', 'name'])->values(),
+            ]),
             'lifecyclePhases' => LifecyclePhase::options(),
             'costLevels' => CostLevel::options(),
             'reviewIntervalDays' => Config::integer('rme.review.interval_days'),

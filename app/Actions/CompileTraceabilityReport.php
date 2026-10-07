@@ -35,7 +35,13 @@ class CompileTraceabilityReport
         'mitigation_id',
         'mitigation_name',
         'mitigation_description',
-        'mitigation_saeri_category',
+        'mitigation_saeri_category_code',
+        'mitigation_saeri_category_name',
+        'mitigation_saeri_subcategory_code',
+        'mitigation_saeri_subcategory_name',
+        'mitigation_source_reference',
+        'mitigation_source_document',
+        'mitigation_estimate_source',
         'owner_id',
         'owner_organizational_role',
         'owner_area',
@@ -52,7 +58,7 @@ class CompileTraceabilityReport
     {
         $links = Link::query()
             ->whereHas('risk', fn (Builder $query) => $query->whereBelongsTo($aiSystem))
-            ->with(['risk', 'mitigation', 'owner', 'evidence' => fn ($query) => $query->orderBy('registration_date')])
+            ->with(['risk', 'mitigation.saeriSubcategory.parent', 'owner', 'evidence' => fn ($query) => $query->orderBy('registration_date')])
             ->orderBy('id')
             ->get();
 
@@ -95,7 +101,13 @@ class CompileTraceabilityReport
             $link['mitigation']['id'],
             $link['mitigation']['name'],
             $link['mitigation']['description'],
-            $link['mitigation']['saeri_category'],
+            $link['mitigation']['saeri_category']['code'],
+            $link['mitigation']['saeri_category']['name'],
+            $link['mitigation']['saeri_subcategory']['code'],
+            $link['mitigation']['saeri_subcategory']['name'],
+            $link['mitigation']['source_reference'],
+            $link['mitigation']['source_document'],
+            $link['mitigation']['estimate_source'],
             $link['owner']['id'],
             $link['owner']['organizational_role'],
             $link['owner']['area'],
@@ -149,7 +161,13 @@ class CompileTraceabilityReport
                 'id' => $link->mitigation->id,
                 'name' => $link->mitigation->name,
                 'description' => $link->mitigation->description,
-                'saeri_category' => $link->mitigation->saeri_category->value,
+                // Traceable to Saeri et al.: the category is the parent of
+                // the subcategory the entry is classified under.
+                'saeri_category' => $link->mitigation->saeriSubcategory->parent?->only(['code', 'name']),
+                'saeri_subcategory' => $link->mitigation->saeriSubcategory->only(['code', 'name']),
+                'source_reference' => $link->mitigation->source_reference,
+                'source_document' => $link->mitigation->source_document,
+                'estimate_source' => $link->mitigation->estimate_source,
             ],
             'owner' => [
                 'id' => $link->owner->id,

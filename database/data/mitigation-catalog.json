@@ -1,122 +1,166 @@
-[
-    {
-        "name": "Auditoria de equidade",
-        "saeri_category": "governance",
-        "description": "Avaliar periodicamente se as saídas do modelo tratam grupos protegidos de forma equivalente, com métricas de disparidade definidas.",
-        "suggested_target_risk": "Viés e discriminação contra grupos protegidos",
-        "expected_evidence": "Relatório de auditoria assinado, com as métricas de disparidade por grupo",
-        "suggested_cost": "medium",
-        "uncertainty_level": "medium",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
+{
+    "meta": {
+        "saeri_database_version": "Preliminar, dezembro de 2025 (a confirmar na base de airisk.mit.edu)",
+        "accessed_at": "2026-10-06",
+        "curation_criterion": "PROVISÓRIO, a preencher pelo grupo: mitigações aplicáveis a organizações que implantam e operam sistemas de IA, não a desenvolvedores de modelos de fronteira.",
+        "fictional": true
     },
-    {
-        "name": "Revisão humana das decisões",
-        "saeri_category": "governance",
-        "description": "Exigir que decisões de alto impacto tomadas pelo sistema passem por revisão de uma pessoa antes de produzirem efeito.",
-        "suggested_target_risk": "Decisões automatizadas sem possibilidade de contestação",
-        "expected_evidence": "Registro das revisões realizadas, com quem revisou e o resultado",
-        "suggested_cost": "high",
-        "uncertainty_level": "low",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Plano de resposta a incidentes",
-        "saeri_category": "governance",
-        "description": "Definir papéis, prazos e passos para conter e comunicar falhas graves do sistema em produção.",
-        "suggested_target_risk": "Danos prolongados por falhas sem resposta coordenada",
-        "expected_evidence": "Plano aprovado e ata do último exercício simulado",
-        "suggested_cost": "medium",
-        "uncertainty_level": "medium",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Red teaming",
-        "saeri_category": "technical",
-        "description": "Submeter o sistema a ataques simulados por uma equipe dedicada a encontrar formas de fazê-lo falhar ou ser abusado.",
-        "suggested_target_risk": "Prompt injection, jailbreak e usos maliciosos",
-        "expected_evidence": "Relatório do exercício com as vulnerabilidades encontradas e as correções",
-        "suggested_cost": "high",
-        "uncertainty_level": "high",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Privacidade diferencial",
-        "saeri_category": "technical",
-        "description": "Adicionar ruído calibrado no treinamento ou nas consultas para impedir a reidentificação de pessoas nos dados.",
-        "suggested_target_risk": "Vazamento de dados pessoais e inferência de pertencimento",
-        "expected_evidence": "Parâmetros de privacidade documentados e resultado dos testes de ataque",
-        "suggested_cost": "high",
-        "uncertainty_level": "high",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Treinamento adversarial",
-        "saeri_category": "technical",
-        "description": "Incluir no treinamento exemplos construídos para enganar o modelo, aumentando sua robustez a entradas manipuladas.",
-        "suggested_target_risk": "Ataques adversariais e degradação sob entradas atípicas",
-        "expected_evidence": "Comparativo de desempenho antes e depois em conjunto adversarial",
-        "suggested_cost": "high",
-        "uncertainty_level": "medium",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Monitoramento de deriva de dados",
-        "saeri_category": "process",
-        "description": "Acompanhar continuamente a distribuição dos dados de entrada e alertar quando ela se afastar da usada no treinamento.",
-        "suggested_target_risk": "Degradação de desempenho por mudança nos dados",
-        "expected_evidence": "Painel de monitoramento e registro dos alertas tratados",
-        "suggested_cost": "medium",
-        "uncertainty_level": "low",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Retreinamento periódico",
-        "saeri_category": "process",
-        "description": "Retreinar o modelo em intervalos definidos ou quando o monitoramento indicar perda de desempenho.",
-        "suggested_target_risk": "Perda de desempenho ao longo do tempo",
-        "expected_evidence": "Histórico de versões do modelo com as métricas de cada retreinamento",
-        "suggested_cost": "medium",
-        "uncertainty_level": "medium",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Testes de robustez",
-        "saeri_category": "process",
-        "description": "Executar, a cada nova versão, uma bateria de testes com entradas ruidosas, extremas e fora da distribuição.",
-        "suggested_target_risk": "Falhas silenciosas diante de entradas inesperadas",
-        "expected_evidence": "Relatório da bateria de testes anexado à versão publicada",
-        "suggested_cost": "low",
-        "uncertainty_level": "low",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Documentação com model cards",
-        "saeri_category": "transparency",
-        "description": "Publicar, para cada modelo, uma ficha com propósito, dados de treino, limitações conhecidas e métricas por grupo.",
-        "suggested_target_risk": "Uso fora do escopo previsto e falta de transparência",
-        "expected_evidence": "Model card publicado e revisado na última versão",
-        "suggested_cost": "low",
-        "uncertainty_level": "low",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Explicações locais das predições",
-        "saeri_category": "transparency",
-        "description": "Oferecer, junto de cada decisão, os fatores que mais pesaram nela, em linguagem compreensível para quem é afetado.",
-        "suggested_target_risk": "Falta de explicabilidade e dificuldade de contestar decisões",
-        "expected_evidence": "Amostra de explicações exibidas e avaliação de compreensão pelos usuários",
-        "suggested_cost": "medium",
-        "uncertainty_level": "high",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    },
-    {
-        "name": "Registro de auditoria das inferências",
-        "saeri_category": "transparency",
-        "description": "Guardar, para cada decisão, a versão do modelo, as entradas relevantes e a saída, por um prazo definido.",
-        "suggested_target_risk": "Impossibilidade de reconstruir e auditar decisões passadas",
-        "expected_evidence": "Política de retenção e amostra de registros recuperados",
-        "suggested_cost": "low",
-        "uncertainty_level": "low",
-        "bibliography_source": "Placeholder: substituir pela referência do portfólio bibliográfico (PBL1)"
-    }
-]
+    "entries": [
+        {
+            "name": "Revisão humana das decisões",
+            "source_name": "Human review of high-stakes decisions",
+            "source_reference": "FICT-001",
+            "source_document": "eisenberg-2025",
+            "saeri_subcategory": "1.1",
+            "description": "Exigir que decisões de alto impacto tomadas pelo sistema passem por revisão de uma pessoa antes de produzirem efeito.",
+            "suggested_target_risk": "Decisões automatizadas sem possibilidade de contestação",
+            "expected_evidence": "Registro das revisões realizadas, com quem revisou e o resultado",
+            "suggested_cost": "high",
+            "uncertainty_level": "low",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Registro de riscos com limiares",
+            "source_name": "Risk register with capability thresholds",
+            "source_reference": "FICT-002",
+            "source_document": "campos-2025",
+            "saeri_subcategory": "1.2",
+            "description": "Manter um registro dos riscos de cada sistema, com limiares que disparam ações quando ultrapassados.",
+            "suggested_target_risk": "Riscos conhecidos sem acompanhamento nem gatilho de ação",
+            "expected_evidence": "Registro de riscos atualizado e ata da última revisão",
+            "suggested_cost": "low",
+            "uncertainty_level": "medium",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Auditoria de equidade",
+            "source_name": "Fairness impact assessment",
+            "source_reference": "FICT-003",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "1.7",
+            "description": "Avaliar periodicamente se as saídas do modelo tratam grupos protegidos de forma equivalente, com métricas de disparidade definidas.",
+            "suggested_target_risk": "Viés e discriminação contra grupos protegidos",
+            "expected_evidence": "Relatório de auditoria assinado, com as métricas de disparidade por grupo",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Controle de acesso ao modelo",
+            "source_name": "Multifactor access controls for model infrastructure",
+            "source_reference": "FICT-004",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "2.1",
+            "description": "Restringir o acesso aos modelos e à infraestrutura com autenticação multifator e perfis de permissão revisados.",
+            "suggested_target_risk": "Acesso indevido, roubo ou adulteração do modelo",
+            "expected_evidence": "Política de acesso e registro das revisões de permissão",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Treinamento adversarial",
+            "source_name": "Adversarial robustness training",
+            "source_reference": "FICT-005",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "2.3",
+            "description": "Incluir no treinamento exemplos construídos para enganar o modelo, aumentando sua robustez a entradas manipuladas.",
+            "suggested_target_risk": "Ataques adversariais e degradação sob entradas atípicas",
+            "expected_evidence": "Comparativo de desempenho antes e depois em conjunto adversarial",
+            "suggested_cost": "high",
+            "uncertainty_level": "medium",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Filtragem de conteúdo gerado",
+            "source_name": "Content filtering mechanisms",
+            "source_reference": "FICT-006",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "2.4",
+            "description": "Detectar e bloquear conteúdo proibido nas saídas do sistema antes que chegue ao usuário.",
+            "suggested_target_risk": "Geração de conteúdo nocivo ou ilegal",
+            "expected_evidence": "Relatório de eficácia dos filtros sobre um conjunto de teste",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Red teaming",
+            "source_name": "Red teaming exercises",
+            "source_reference": "FICT-007",
+            "source_document": "schuett-2023",
+            "saeri_subcategory": "3.1",
+            "description": "Submeter o sistema a ataques simulados por uma equipe dedicada a encontrar formas de fazê-lo falhar ou ser abusado.",
+            "suggested_target_risk": "Prompt injection, jailbreak e usos maliciosos",
+            "expected_evidence": "Relatório do exercício com as vulnerabilidades encontradas e as correções",
+            "suggested_cost": "high",
+            "uncertainty_level": "high",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Privacidade diferencial",
+            "source_name": "Differential privacy for user data",
+            "source_reference": "FICT-008",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.2",
+            "description": "Adicionar ruído calibrado no treinamento ou nas consultas para impedir a reidentificação de pessoas nos dados.",
+            "suggested_target_risk": "Vazamento de dados pessoais e inferência de pertencimento",
+            "expected_evidence": "Parâmetros de privacidade documentados e resultado dos testes de ataque",
+            "suggested_cost": "high",
+            "uncertainty_level": "high",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Monitoramento de deriva de dados",
+            "source_name": "Usage pattern and drift monitoring",
+            "source_reference": "FICT-009",
+            "source_document": "barrett-2024",
+            "saeri_subcategory": "3.5",
+            "description": "Acompanhar continuamente a distribuição dos dados de entrada e alertar quando ela se afastar da usada no treinamento.",
+            "suggested_target_risk": "Degradação de desempenho por mudança nos dados",
+            "expected_evidence": "Painel de monitoramento e registro dos alertas tratados",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Plano de resposta a incidentes",
+            "source_name": "Incident response plan",
+            "source_reference": "FICT-010",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "3.6",
+            "description": "Definir papéis, prazos e passos para conter e comunicar falhas graves do sistema em produção.",
+            "suggested_target_risk": "Danos prolongados por falhas sem resposta coordenada",
+            "expected_evidence": "Plano aprovado e ata do último exercício simulado",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Documentação com model cards",
+            "source_name": "Model cards",
+            "source_reference": "FICT-011",
+            "source_document": "fli-2024",
+            "saeri_subcategory": "4.1",
+            "description": "Publicar, para cada modelo, uma ficha com propósito, dados de treino, limitações conhecidas e métricas por grupo.",
+            "suggested_target_risk": "Uso fora do escopo previsto e falta de transparência",
+            "expected_evidence": "Model card publicado e revisado na última versão",
+            "suggested_cost": "low",
+            "uncertainty_level": "low",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        },
+        {
+            "name": "Explicações das decisões aos usuários",
+            "source_name": "Explanation request systems",
+            "source_reference": "FICT-012",
+            "source_document": "eu-ai-office-2025",
+            "saeri_subcategory": "4.6",
+            "description": "Oferecer, junto de cada decisão, os fatores que mais pesaram nela, em linguagem compreensível para quem é afetado.",
+            "suggested_target_risk": "Falta de explicabilidade e dificuldade de contestar decisões",
+            "expected_evidence": "Amostra de explicações exibidas e avaliação de compreensão pelos usuários",
+            "suggested_cost": "medium",
+            "uncertainty_level": "high",
+            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)"
+        }
+    ]
+}

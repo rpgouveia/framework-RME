@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Enums\CostLevel;
-use App\Enums\SaeriCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\Mitigation;
+use App\Support\SaeriTaxonomy;
 use Database\Factories\Concerns\PicksUnusedNames;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Mitigation>
@@ -53,14 +54,29 @@ class MitigationFactory extends Factory
         return [
             // Unique across the whole catalogue.
             'name' => fn (): string => $this->unusedName(self::NAMES, Mitigation::query()->pluck('name')->all()),
+            'source_name' => fake()->sentence(3),
+            'source_reference' => fn (): string => 'TEST-'.Str::upper(Str::random(12)),
+            // Real subcategories and documents of the Saeri taxonomy, loaded
+            // on demand in a fresh test database.
+            'source_document' => fn (): string => (string) array_rand(app(SaeriTaxonomy::class)->documents()),
+            'saeri_subcategory_id' => fn (): int => app(SaeriTaxonomy::class)->subcategories()->random()->id,
             'description' => fake()->sentence(),
-            'saeri_category' => fake()->randomElement(SaeriCategory::cases()),
             'suggested_target_risk' => fake()->sentence(),
             'expected_evidence' => fake()->sentence(),
             'suggested_cost' => fake()->randomElement(CostLevel::cases()),
             'uncertainty_level' => fake()->randomElement(UncertaintyLevel::cases()),
-            'bibliography_source' => fake()->sentence(4),
+            'estimate_source' => 'Estimativa do grupo',
         ];
+    }
+
+    /**
+     * Classify the mitigation under a Saeri subcategory, such as "1.2".
+     */
+    public function inSubcategory(string $code): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'saeri_subcategory_id' => app(SaeriTaxonomy::class)->subcategories()->firstWhere('code', $code)?->id,
+        ]);
     }
 
     /**
