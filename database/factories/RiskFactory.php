@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use App\Enums\LifecyclePhase;
-use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\AiSystem;
 use App\Models\Risk;
+use App\Support\AiRiskDomains;
 use Database\Factories\Concerns\PicksUnusedNames;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -54,7 +54,9 @@ class RiskFactory extends Factory
             // Varied lengths up to the 2000 character limit, so seeded data shows
             // how the screens cope with long descriptions.
             'description' => fake()->text(fake()->numberBetween(100, 2000)),
-            'category' => fake()->randomElement(RiskCategory::cases()),
+            // Varied subdomains of the MIT AI risk domains, loaded on demand in
+            // a fresh test database.
+            'risk_subdomain_id' => fn (): int => app(AiRiskDomains::class)->subdomains()->random()->id,
             'lifecycle_phase' => fake()->randomElement(LifecyclePhase::cases()),
             'uncertainty_level' => fake()->randomElement(UncertaintyLevel::cases()),
             'ai_system_id' => AiSystem::factory(),
@@ -75,6 +77,17 @@ class RiskFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'uncertainty_level' => UncertaintyLevel::High,
+        ]);
+    }
+
+    /**
+     * Classify the risk under a subdomain of the MIT AI risk domains, such as
+     * "2.2".
+     */
+    public function inSubdomain(string $code): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'risk_subdomain_id' => app(AiRiskDomains::class)->subdomains()->firstWhere('code', $code)?->id,
         ]);
     }
 }

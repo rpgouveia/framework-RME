@@ -31,10 +31,10 @@ class DatabaseSeeder extends Seeder
          * Order matters: every seeder below depends on the ones above it.
          */
         $this->call([
+            TaxonomySeeder::class,
             AiSystemSeeder::class,
             AdverseEventSeeder::class,
             RiskSeeder::class,
-            TaxonomySeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,
             LinkSeeder::class,

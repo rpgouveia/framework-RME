@@ -108,8 +108,10 @@ test('the create form offers only pairs that can still be linked', function () {
             ->component('links/create')
             ->where('risks.0.linked_mitigation_ids', [$existing->mitigation_id])
             ->has('risks.0.ai_system.name')
+            ->has('risks.0.subdomain.code')
+            ->has('risks.0.domain.code')
             ->has('mitigations.0', fn (AssertableInertia $mitigation) => $mitigation
-                ->hasAll(['id', 'name', 'category', 'subcategory', 'suggested_cost', 'uncertainty_level', 'estimate_source'])
+                ->hasAll(['id', 'name', 'category', 'subcategory', 'suggested_cost', 'uncertainty_level', 'estimate_source', 'target_risk_subdomains'])
             )
             ->has('saeriCategories', 4)
             ->has('saeriCategories.0.children', 7)
@@ -141,6 +143,35 @@ test('the create form lists each mitigation once and each risk with exactly its 
     expect($linkedIds[$linkedRisk->id])->toBe(collect([$first->id, $second->id])->sort()->values()->all())
         ->and($linkedIds[$otherRisk->id])->toBe([$third->id])
         ->and($linkedIds[$freeRisk->id])->toBe([]);
+});
+
+test('the create form carries what it needs to recommend mitigations for a risk', function () {
+    $risk = Risk::factory()->inSubdomain('2.2')->create();
+    $mitigation = Mitigation::factory()->targeting(['7.3', '2.2'])->create();
+
+    $this->get(route('links.create'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('risks.0.id', $risk->id)
+            ->where('risks.0.subdomain', ['code' => '2.2', 'name' => 'Vulnerabilidades de segurança e ataques a sistemas de IA'])
+            ->where('risks.0.domain', ['code' => '2', 'name' => 'Privacidade e segurança'])
+            ->where('mitigations.0.id', $mitigation->id)
+            ->where('mitigations.0.target_risk_subdomains', [
+                ['code' => '2.2', 'name' => 'Vulnerabilidades de segurança e ataques a sistemas de IA'],
+                ['code' => '7.3', 'name' => 'Falta de capacidade ou robustez'],
+            ])
+    );
+});
+
+test('a mitigation not recommended for the risk can still be linked (R-8)', function () {
+    $risk = Risk::factory()->inSubdomain('1.1')->create();
+    $mitigation = Mitigation::factory()->targeting(['2.2'])->create();
+
+    $this->post(route('links.store'), linkPayload([
+        'risk_id' => $risk->id,
+        'mitigation_id' => $mitigation->id,
+    ]))->assertSessionHasNoErrors();
+
+    expect(Link::sole()->mitigation_id)->toBe($mitigation->id);
 });
 
 test('an inactive owner is neither offered nor accepted for a new link', function () {

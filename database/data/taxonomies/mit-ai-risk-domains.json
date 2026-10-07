@@ -1,0 +1,261 @@
+{
+    "meta": {
+        "key": "mit-ai-risk-domains",
+        "name": "Taxonomia de domínios de riscos de IA (MIT AI Risk Repository)",
+        "citation": "Slattery, P., Saeri, A. K., Grundy, E. A. C., Graham, J., Noetel, M., Uuk, R., Dao, J., Pour, S., Casper, S., & Thompson, N. (2026). A meta-review, database, and taxonomy of risks from artificial intelligence. Patterns. https://doi.org/10.1016/j.patter.2026.101517",
+        "version": "Domain Taxonomy vigente: 7 domínios e 24 subdomínios (versão publicada na Patterns, março de 2026)",
+        "url": "https://airisk.mit.edu",
+        "accessed_at": "2026-10-06",
+        "version_notes": "A publicação original (arXiv v1, agosto de 2024) tinha 23 subdomínios. A atualização do repositório de abril de 2025 (versão 3) acrescentou o subdomínio 7.6 Multi-agent risks. Nomes originais e descrições conferidos na Tabela 2 da versão publicada. Os domínios não têm descrição própria na tabela."
+    },
+    "terms": [
+        {
+            "code": "1",
+            "parent": null,
+            "level": 1,
+            "name": "Discriminação e toxicidade",
+            "original_name": "Discrimination & toxicity",
+            "description": null
+        },
+        {
+            "code": "1.1",
+            "parent": "1",
+            "level": 2,
+            "name": "Discriminação injusta e representação distorcida",
+            "original_name": "Unfair discrimination and misrepresentation",
+            "description": "Unequal treatment of individuals or groups by AI, often based on race, gender, or other sensitive characteristics, resulting in unfair outcomes and unfair representation of those groups."
+        },
+        {
+            "code": "1.2",
+            "parent": "1",
+            "level": 2,
+            "name": "Exposição a conteúdo tóxico",
+            "original_name": "Exposure to toxic content",
+            "description": "AI that exposes users to harmful, abusive, unsafe or inappropriate content. May involve providing advice or encouraging action. Examples of toxic content include hate speech, violence, extremism, illegal acts, or child sexual abuse material, as well as content that violates community norms such as profanity, inflammatory political speech, or pornography."
+        },
+        {
+            "code": "1.3",
+            "parent": "1",
+            "level": 2,
+            "name": "Desempenho desigual entre grupos",
+            "original_name": "Unequal performance across groups",
+            "description": "Accuracy and effectiveness of AI decisions and actions is dependent on group membership, where decisions in AI system design and biased training data lead to unequal outcomes, reduced benefits, increased effort, and alienation of users."
+        },
+        {
+            "code": "2",
+            "parent": null,
+            "level": 1,
+            "name": "Privacidade e segurança",
+            "original_name": "Privacy & security",
+            "description": null
+        },
+        {
+            "code": "2.1",
+            "parent": "2",
+            "level": 2,
+            "name": "Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis",
+            "original_name": "Compromise of privacy by obtaining, leaking, or correctly inferring sensitive information",
+            "description": "AI systems that memorize and leak sensitive personal data or infer private information about individuals without their consent. Unexpected or unauthorized sharing of data and information can compromise user expectation of privacy, assist identity theft, or cause loss of confidential intellectual property."
+        },
+        {
+            "code": "2.2",
+            "parent": "2",
+            "level": 2,
+            "name": "Vulnerabilidades de segurança e ataques a sistemas de IA",
+            "original_name": "AI system security vulnerabilities and attacks",
+            "description": "Vulnerabilities that can be exploited in AI systems, software development toolchains, and hardware, resulting in unauthorized access, data and privacy breaches, or system manipulation causing unsafe outputs or behavior."
+        },
+        {
+            "code": "3",
+            "parent": null,
+            "level": 1,
+            "name": "Informação incorreta",
+            "original_name": "Misinformation",
+            "description": null
+        },
+        {
+            "code": "3.1",
+            "parent": "3",
+            "level": 2,
+            "name": "Informação falsa ou enganosa",
+            "original_name": "False or misleading information",
+            "description": "AI systems that inadvertently generate or spread incorrect or deceptive information, which can lead to inaccurate beliefs in users and undermine their autonomy. Humans that make decisions based on false beliefs can experience physical, emotional, or material harms"
+        },
+        {
+            "code": "3.2",
+            "parent": "3",
+            "level": 2,
+            "name": "Poluição do ecossistema de informação e perda de uma realidade comum",
+            "original_name": "Pollution of information ecosystem and loss of consensus reality",
+            "description": "Highly personalized AI-generated misinformation that creates “filter bubbles” where individuals only see what matches their existing beliefs, undermining shared reality and weakening social cohesion and political processes."
+        },
+        {
+            "code": "4",
+            "parent": null,
+            "level": 1,
+            "name": "Agentes maliciosos e uso indevido",
+            "original_name": "Malicious actors & misuse",
+            "description": null
+        },
+        {
+            "code": "4.1",
+            "parent": "4",
+            "level": 2,
+            "name": "Desinformação, vigilância e influência em larga escala",
+            "original_name": "Disinformation, surveillance, and influence at scale",
+            "description": "Using AI systems to conduct large-scale disinformation campaigns, malicious surveillance, or targeted and sophisticated automated censorship and propaganda, with the aim of manipulating political processes, public opinion, and behavior."
+        },
+        {
+            "code": "4.2",
+            "parent": "4",
+            "level": 2,
+            "name": "Ciberataques, desenvolvimento ou uso de armas e danos em massa",
+            "original_name": "Cyberattacks, weapon development or use, and mass harm",
+            "description": "Using AI systems to develop cyber weapons (e.g., by coding cheaper, more effective malware), develop new or enhance existing weapons (e.g., Lethal Autonomous Weapons or chemical, biological, radiological, nuclear, and high-yield explosives), or use weapons to cause mass harm."
+        },
+        {
+            "code": "4.3",
+            "parent": "4",
+            "level": 2,
+            "name": "Fraudes, golpes e manipulação direcionada",
+            "original_name": "Fraud, scams, and targeted manipulation",
+            "description": "Using AI systems to gain a personal advantage over others such as through cheating, fraud, scams, blackmail, or targeted manipulation of beliefs or behavior. Examples include AI-facilitated plagiarism for research or education, impersonating a trusted or fake individual for illegitimate financial benefit, or creating humiliating or sexual imagery."
+        },
+        {
+            "code": "5",
+            "parent": null,
+            "level": 1,
+            "name": "Interação humano-computador",
+            "original_name": "Human-computer interaction",
+            "description": null
+        },
+        {
+            "code": "5.1",
+            "parent": "5",
+            "level": 2,
+            "name": "Dependência excessiva e uso inseguro",
+            "original_name": "Overreliance and unsafe use",
+            "description": "Anthropomorphizing, trusting, or relying on AI systems by users, leading to emotional or material dependence and to inappropriate relationships with or expectations of AI systems. Trust can be exploited by malicious actors (e.g., to harvest information or enable manipulation), or result in harm from inappropriate use of AI in critical situations (e.g., medical emergency). Over reliance on AI systems can compromise autonomy and weaken social ties."
+        },
+        {
+            "code": "5.2",
+            "parent": "5",
+            "level": 2,
+            "name": "Perda de agência e autonomia humanas",
+            "original_name": "Loss of human agency and autonomy",
+            "description": "Delegating by humans of key decisions to AI systems, or AI systems that make decisions that diminish human control and autonomy, potentially leading to humans feeling disempowered, losing the ability to shape a fulfilling life trajectory, or becoming cognitively enfeebled."
+        },
+        {
+            "code": "6",
+            "parent": null,
+            "level": 1,
+            "name": "Danos socioeconômicos e ambientais",
+            "original_name": "Socioeconomic & environmental harm",
+            "description": null
+        },
+        {
+            "code": "6.1",
+            "parent": "6",
+            "level": 2,
+            "name": "Centralização de poder e distribuição injusta de benefícios",
+            "original_name": "Power centralization and unfair distribution of benefits",
+            "description": "AI-driven concentration of power and resources within certain entities or groups, especially those with access to or ownership of powerful AI systems, leading to inequitable distribution of benefits and increased societal inequality."
+        },
+        {
+            "code": "6.2",
+            "parent": "6",
+            "level": 2,
+            "name": "Aumento da desigualdade e piora na qualidade do emprego",
+            "original_name": "Increased inequality and decline in employment quality",
+            "description": "Social and economic inequalities caused by widespread use of AI, such as by automating jobs, reducing the quality of employment, or producing exploitative dependencies between workers and their employers."
+        },
+        {
+            "code": "6.3",
+            "parent": "6",
+            "level": 2,
+            "name": "Desvalorização econômica e cultural do esforço humano",
+            "original_name": "Economic and cultural devaluation of human effort",
+            "description": "AI systems capable of creating economic or cultural value, including through reproduction of human innovation or creativity (e.g., art, music, writing, coding, invention), destabilizing economic and social systems that rely on human effort. The ubiquity of AI-generated content may lead to reduced appreciation for human skills, disruption of creative and knowledge-based industries, and homogenization of cultural experiences."
+        },
+        {
+            "code": "6.4",
+            "parent": "6",
+            "level": 2,
+            "name": "Dinâmicas competitivas",
+            "original_name": "Competitive dynamics",
+            "description": "Competition by AI developers or state-like actors in an AI “race” by rapidly developing, deploying, and applying AI systems to maximize strategic or economic advantage, increasing the risk they release unsafe and error-prone systems."
+        },
+        {
+            "code": "6.5",
+            "parent": "6",
+            "level": 2,
+            "name": "Falha de governança",
+            "original_name": "Governance failure",
+            "description": "Inadequate regulatory frameworks and oversight mechanisms that fail to keep pace with AI development, leading to ineffective governance and the inability to manage AI risks appropriately."
+        },
+        {
+            "code": "6.6",
+            "parent": "6",
+            "level": 2,
+            "name": "Danos ambientais",
+            "original_name": "Environmental harm",
+            "description": "The development and operation of AI systems that cause environmental harm, such as through energy consumption of data centers or the materials and carbon footprints associated with AI hardware."
+        },
+        {
+            "code": "7",
+            "parent": null,
+            "level": 1,
+            "name": "Segurança, falhas e limitações de sistemas de IA",
+            "original_name": "AI system safety, failures & limitations",
+            "description": null
+        },
+        {
+            "code": "7.1",
+            "parent": "7",
+            "level": 2,
+            "name": "IA perseguindo objetivos próprios em conflito com objetivos ou valores humanos",
+            "original_name": "AI pursuing its own goals in conflict with human goals or values",
+            "description": "AI systems that act in conflict with ethical standards or human goals or values, especially the goals of designers or users. These misaligned behaviors may be introduced by humans during design and development, such as through reward hacking and goal misgeneralisation, and may result in AI using dangerous capabilities such as manipulation, deception, or situational awareness to seek power, self-proliferate, or achieve other goals."
+        },
+        {
+            "code": "7.2",
+            "parent": "7",
+            "level": 2,
+            "name": "IA com capacidades perigosas",
+            "original_name": "AI possessing dangerous capabilities",
+            "description": "AI systems that develop, access, or are provided with capabilities that increase their potential to cause mass harm through deception, weapons development and acquisition, persuasion and manipulation, political strategy, cyber-offense, AI development, situational awareness, and self-proliferation. These capabilities may cause mass harm due to malicious human actors, misaligned AI systems, or failure in the AI system."
+        },
+        {
+            "code": "7.3",
+            "parent": "7",
+            "level": 2,
+            "name": "Falta de capacidade ou robustez",
+            "original_name": "Lack of capability or robustness",
+            "description": "AI systems that fail to perform reliably or effectively under varying conditions, exposing them to errors and failures that can have significant consequences, especially in critical applications or areas that require moral reasoning."
+        },
+        {
+            "code": "7.4",
+            "parent": "7",
+            "level": 2,
+            "name": "Falta de transparência ou interpretabilidade",
+            "original_name": "Lack of transparency or interpretability",
+            "description": "Challenges in understanding or explaining the decision-making processes of AI systems, which can lead to mistrust, difficulty in enforcing compliance standards or holding relevant actors accountable for harms, and the inability to identify and correct errors."
+        },
+        {
+            "code": "7.5",
+            "parent": "7",
+            "level": 2,
+            "name": "Bem-estar e direitos da IA",
+            "original_name": "AI welfare and rights",
+            "description": "Ethical considerations regarding the treatment of potentially sentient AI entities, including discussions around their potential rights and welfare, particularly as AI systems become more advanced and autonomous."
+        },
+        {
+            "code": "7.6",
+            "parent": "7",
+            "level": 2,
+            "name": "Riscos multiagentes",
+            "original_name": "Multi-agent risks",
+            "description": "Risks from multi-agent interactions due to incentives (which can lead to conflict or collusion) and/or the structure of multi-agent systems, which can create cascading failures, selection pressures, new security vulnerabilities, and a lack of shared information and trust."
+        }
+    ]
+}

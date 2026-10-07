@@ -37,6 +37,7 @@ function catalogueEntry(array $overrides = []): array
         'suggested_cost' => CostLevel::Medium->value,
         'uncertainty_level' => UncertaintyLevel::Low->value,
         'estimate_source' => 'Estimativa do grupo',
+        'target_risk_subdomains' => ['1.1', '1.3'],
     ], $overrides);
 }
 
@@ -226,7 +227,7 @@ test('the pages keep both filter levels and the search', function () {
 // The detail page and the fictional notice.
 
 test('the detail page carries the Saeri block and the framework block apart', function () {
-    $mitigation = Mitigation::factory()->inSubcategory('3.1')->create(['source_document' => 'nist-2024']);
+    $mitigation = Mitigation::factory()->inSubcategory('3.1')->targeting(['7.3', '2.2'])->create(['source_document' => 'nist-2024']);
     Link::factory()->for($mitigation)->create();
 
     $this->get(route('mitigations.show', $mitigation))->assertInertia(
@@ -243,6 +244,12 @@ test('the detail page carries the Saeri block and the framework block apart', fu
             // The framework's contribution, with its source (RNF03).
             ->has('mitigation.estimate_source')
             ->has('mitigation.suggested_target_risk')
+            // The risks it treats, as MIT subdomains in taxonomy order.
+            ->has('mitigation.target_risk_subdomains', 2)
+            ->where('mitigation.target_risk_subdomains.0.code', '2.2')
+            ->where('mitigation.target_risk_subdomains.0.parent.code', '2')
+            ->where('mitigation.target_risk_subdomains.1.code', '7.3')
+            ->where('riskTaxonomy.url', 'https://airisk.mit.edu')
             ->has('mitigation.links', 1)
             ->has('mitigation.links.0.risk')
     );
@@ -278,6 +285,9 @@ test('the seeder loads the catalogue and its metadata from the data file', funct
 
     expect(Mitigation::count())->toBe(count($file['entries']))
         ->and($first->saeriSubcategory->code)->toBe($file['entries'][0]['saeri_subcategory'])
+        ->and($first->targetRiskSubdomains->pluck('code')->sort()->values()->all())->toBe(collect($file['entries'][0]['target_risk_subdomains'])->sort()->values()->all())
+        // Every entry treats at least one risk subdomain.
+        ->and(Mitigation::query()->whereDoesntHave('targetRiskSubdomains')->exists())->toBeFalse()
         ->and(MitigationCatalog::loadedMeta()['fictional'])->toBe($file['meta']['fictional']);
 });
 
@@ -304,6 +314,13 @@ test('an invalid catalogue file is refused with a clear message', function (mixe
     'unknown subcategory' => [catalogue([catalogueEntry(['saeri_subcategory' => '9.9'])]), 'A subcategoria 9.9 não existe'],
     'category instead of subcategory' => [catalogue([catalogueEntry(['saeri_subcategory' => '1'])]), 'A subcategoria 1 não existe'],
     'unknown document' => [catalogue([catalogueEntry(['source_document' => 'nowhere-2030'])]), 'O documento nowhere-2030 não está entre'],
+    'no target subdomain' => [catalogue([catalogueEntry(['target_risk_subdomains' => []])]), 'ao menos um subdomínio de risco'],
+    'target subdomains missing' => [catalogue([array_diff_key(catalogueEntry(), ['target_risk_subdomains' => true])]), 'ao menos um subdomínio de risco'],
+    'unknown target subdomain' => [catalogue([catalogueEntry(['target_risk_subdomains' => ['2.2', '8.1']])]), 'O subdomínio de risco 8.1 não existe'],
+    'domain instead of subdomain' => [catalogue([catalogueEntry(['target_risk_subdomains' => ['2']])]), 'O subdomínio de risco 2 não existe'],
+    'Saeri code as target' => [catalogue([catalogueEntry(['target_risk_subdomains' => ['3.6']])]), 'O subdomínio de risco 3.6 não existe'],
+    'repeated target subdomain' => [catalogue([catalogueEntry(['target_risk_subdomains' => ['2.2', '2.2']])]), 'se repete em target_risk_subdomains'],
+    'target subdomains not a list' => [catalogue([catalogueEntry(['target_risk_subdomains' => '2.2'])]), 'target_risk_subdomains'],
     'repeated source reference' => [
         catalogue([catalogueEntry(), catalogueEntry(['name' => 'Outra', 'source_reference' => 'FICT-001'])]),
         'o source_reference "FICT-001" se repete nas entradas 1, 2',

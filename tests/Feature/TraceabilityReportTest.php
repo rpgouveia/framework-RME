@@ -38,7 +38,7 @@ test('guests are redirected to the login page', function () {
 test('the json report compiles the chain of every link of the system', function () {
     $aiSystem = AiSystem::factory()->create();
     $link = Link::factory()
-        ->for(Risk::factory()->for($aiSystem))
+        ->for(Risk::factory()->for($aiSystem)->inSubdomain('5.1'))
         ->create(['status' => LinkStatus::Implemented]);
     Evidence::factory()->for($link)->create([
         'type' => EvidenceType::cases()[0],
@@ -58,6 +58,9 @@ test('the json report compiles the chain of every link of the system', function 
         ->assertJsonPath('links.0.status', LinkStatus::Implemented->value)
         ->assertJsonPath('links.0.risk.id', $link->risk_id)
         ->assertJsonPath('links.0.risk.name', $link->risk->name)
+        // Traceable to the MIT AI risk domain taxonomy.
+        ->assertJsonPath('links.0.risk.domain', ['code' => '5', 'name' => 'Interação humano-computador'])
+        ->assertJsonPath('links.0.risk.subdomain', ['code' => '5.1', 'name' => 'Dependência excessiva e uso inseguro'])
         ->assertJsonPath('links.0.mitigation.id', $link->mitigation_id)
         ->assertJsonPath('links.0.mitigation.name', $link->mitigation->name)
         ->assertJsonPath('links.0.mitigation.saeri_subcategory.code', $link->mitigation->saeriSubcategory->code)
@@ -75,7 +78,7 @@ test('the json report compiles the chain of every link of the system', function 
 
 test('the csv report has one row per link with the evidence joined', function () {
     $aiSystem = AiSystem::factory()->create();
-    $risk = Risk::factory()->for($aiSystem)->create();
+    $risk = Risk::factory()->for($aiSystem)->inSubdomain('7.6')->create();
     $link = Link::factory()->for($risk)->create();
     Link::factory()->for($risk)->create();
     Evidence::factory(2)->for($link)->create();
@@ -98,6 +101,10 @@ test('the csv report has one row per link with the evidence joined', function ()
     expect($row['link_id'])->toBe((string) $link->id)
         ->and($row['risk_id'])->toBe((string) $risk->id)
         ->and($row['risk_name'])->toBe($risk->name)
+        ->and($row['risk_domain_code'])->toBe('7')
+        ->and($row['risk_domain_name'])->toBe('Segurança, falhas e limitações de sistemas de IA')
+        ->and($row['risk_subdomain_code'])->toBe('7.6')
+        ->and($row['risk_subdomain_name'])->toBe('Riscos multiagentes')
         ->and($row['mitigation_name'])->toBe($link->mitigation->name)
         // Traceable to Saeri et al.: the subcategory, its category, the entry
         // in their database and the source of the estimates.

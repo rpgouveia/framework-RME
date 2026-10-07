@@ -44,3 +44,45 @@ export function availableMitigations<
                 mitigation.subcategory.code === filter.subcategory),
     );
 }
+
+/** The catalogue split for a risk: what treats its subdomain, then the rest. */
+export type Recommendation<T> = {
+    recommended: T[];
+    others: T[];
+};
+
+/**
+ * The mitigations a risk can still be linked to, with the ones that target
+ * its MIT subdomain first.
+ *
+ * Both groups follow the same rules as availableMitigations (R-6 and the
+ * Saeri filter). The others stay on offer: the recommendation only orders
+ * the catalogue, any entry of it may be chosen (R-8). With no risk chosen,
+ * nothing is recommended.
+ */
+export function recommendMitigations<
+    T extends {
+        id: Id;
+        category: string | null;
+        subcategory: { code: string };
+        target_risk_subdomains: { code: string }[];
+    },
+>(
+    risk:
+        | { linked_mitigation_ids: Id[]; subdomain: { code: string } }
+        | undefined,
+    catalogue: T[],
+    filter: CatalogueFilter,
+): Recommendation<T> {
+    const available = availableMitigations(risk, catalogue, filter);
+    const treats = (mitigation: T): boolean =>
+        risk !== undefined &&
+        mitigation.target_risk_subdomains.some(
+            (subdomain) => subdomain.code === risk.subdomain.code,
+        );
+
+    return {
+        recommended: available.filter(treats),
+        others: available.filter((mitigation) => !treats(mitigation)),
+    };
+}

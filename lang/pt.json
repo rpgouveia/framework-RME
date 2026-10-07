@@ -29,5 +29,6 @@
     "Owner deleted.": "Responsável excluído.",
     "This owner is still referenced by a link.": "Este responsável ainda é usado na cadeia de rastreabilidade.",
     "Adverse event recorded.": "Evento adverso registrado.",
-    "This event type does not apply to this AI system.": "Este tipo de evento não se aplica a este sistema de IA."
+    "This event type does not apply to this AI system.": "Este tipo de evento não se aplica a este sistema de IA.",
+    "Choose a subdomain of the MIT AI risk domain taxonomy.": "Escolha um subdomínio da taxonomia de domínios de risco do MIT."
 }

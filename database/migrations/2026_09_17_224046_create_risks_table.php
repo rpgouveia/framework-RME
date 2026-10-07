@@ -16,7 +16,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description');
-            $table->string('category');
+            // A subdomain (level 2) of the MIT AI Risk Repository Domain
+            // Taxonomy; the domain is its parent.
+            $table->foreignId('risk_subdomain_id')->constrained('taxonomy_terms');
             $table->string('lifecycle_phase');
             $table->string('uncertainty_level');
             $table->foreignId('ai_system_id')->constrained('ai_systems');

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\LifecyclePhase;
-use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Http\Requests\StoreRiskRequest;
 use App\Http\Requests\UpdateRiskRequest;
 use App\Models\AiSystem;
 use App\Models\Risk;
+use App\Support\AiRiskDomains;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -25,7 +25,7 @@ class RiskController extends Controller
 
         return Inertia::render('risks/index', [
             'risks' => Risk::query()
-                ->with('aiSystem')
+                ->with(['aiSystem', 'riskSubdomain.parent'])
                 ->withCount('links')
                 ->latest()
                 ->paginate(15)
@@ -65,7 +65,7 @@ class RiskController extends Controller
         Gate::authorize('view', $risk);
 
         return Inertia::render('risks/show', [
-            'risk' => $risk->load(['aiSystem', 'links.mitigation', 'links.owner']),
+            'risk' => $risk->load(['aiSystem', 'riskSubdomain.parent', 'links.mitigation', 'links.owner']),
         ]);
     }
 
@@ -126,7 +126,9 @@ class RiskController extends Controller
     {
         return [
             'aiSystems' => AiSystem::query()->orderBy('name')->get(['id', 'name']),
-            'categories' => RiskCategory::options(),
+            // Domains with their subdomains, so the form can narrow by domain
+            // and show what each subdomain covers.
+            'riskDomains' => app(AiRiskDomains::class)->tree(withIds: true, withDescriptions: true),
             'lifecyclePhases' => LifecyclePhase::options(),
             'uncertaintyLevels' => UncertaintyLevel::options(),
         ];

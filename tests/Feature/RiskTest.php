@@ -2,12 +2,13 @@
 
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
-use App\Enums\RiskCategory;
 use App\Enums\UncertaintyLevel;
 use App\Models\AiSystem;
 use App\Models\Link;
 use App\Models\Risk;
 use App\Models\User;
+use App\Support\AiRiskDomains;
+use App\Support\SaeriTaxonomy;
 use Database\Seeders\AiSystemSeeder;
 use Database\Seeders\RiskSeeder;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -42,7 +43,7 @@ test('a risk can be registered for a system', function () {
     $response = $this->post(route('risks.store'), [
         'name' => 'Viés de seleção',
         'description' => 'The model degrades for under represented groups',
-        'category' => RiskCategory::Fairness->value,
+        'risk_subdomain_id' => riskSubdomainId('1.1'),
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
         'uncertainty_level' => UncertaintyLevel::High->value,
         'ai_system_id' => $aiSystem->id,
@@ -53,7 +54,8 @@ test('a risk can be registered for a system', function () {
     $response->assertSessionHasNoErrors()->assertRedirect(route('risks.show', $risk));
 
     expect($risk->name)->toBe('Viés de seleção')
-        ->and($risk->category)->toBe(RiskCategory::Fairness)
+        ->and($risk->riskSubdomain->code)->toBe('1.1')
+        ->and($risk->riskSubdomain->parent->code)->toBe('1')
         ->and($risk->uncertainty_level)->toBe(UncertaintyLevel::High)
         ->and($risk->ai_system_id)->toBe($aiSystem->id);
 });
@@ -62,7 +64,7 @@ test('a risk description may run up to 2000 characters', function (int $length, 
     $response = $this->post(route('risks.store'), [
         'name' => 'Viés de seleção',
         'description' => str_repeat('a', $length),
-        'category' => RiskCategory::Fairness->value,
+        'risk_subdomain_id' => riskSubdomainId('1.1'),
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
         'uncertainty_level' => UncertaintyLevel::High->value,
         'ai_system_id' => AiSystem::factory()->create()->id,
@@ -84,7 +86,7 @@ test('a risk requires an existing system', function () {
     $response = $this->post(route('risks.store'), [
         'name' => 'Viés de seleção',
         'description' => 'The model degrades for under represented groups',
-        'category' => RiskCategory::Fairness->value,
+        'risk_subdomain_id' => riskSubdomainId('1.1'),
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
         'uncertainty_level' => UncertaintyLevel::High->value,
         'ai_system_id' => 999,
@@ -101,7 +103,7 @@ test('registering a risk requires every field', function () {
     $response->assertSessionHasErrors([
         'name',
         'description',
-        'category',
+        'risk_subdomain_id',
         'lifecycle_phase',
         'uncertainty_level',
         'ai_system_id',
@@ -116,7 +118,7 @@ test('a risk can be updated', function () {
     $response = $this->put(route('risks.update', $risk), [
         'name' => 'Updated name',
         'description' => 'Updated description',
-        'category' => RiskCategory::Privacy->value,
+        'risk_subdomain_id' => riskSubdomainId('2.1'),
         'lifecycle_phase' => LifecyclePhase::Development->value,
         'uncertainty_level' => UncertaintyLevel::Low->value,
         'ai_system_id' => $risk->ai_system_id,
@@ -126,7 +128,7 @@ test('a risk can be updated', function () {
 
     expect($risk->refresh()->name)->toBe('Updated name')
         ->and($risk->description)->toBe('Updated description')
-        ->and($risk->category)->toBe(RiskCategory::Privacy);
+        ->and($risk->riskSubdomain->code)->toBe('2.1');
 });
 
 test('a risk without links can be deleted', function () {
@@ -158,7 +160,7 @@ function riskPayload(AiSystem $aiSystem, array $overrides = []): array
     return array_merge([
         'name' => 'Prompt injection',
         'description' => 'Crafted inputs override the system instructions',
-        'category' => RiskCategory::Security->value,
+        'risk_subdomain_id' => riskSubdomainId('2.2'),
         'lifecycle_phase' => LifecyclePhase::Deployment->value,
         'uncertainty_level' => UncertaintyLevel::Medium->value,
         'ai_system_id' => $aiSystem->id,
@@ -312,4 +314,83 @@ test('the edit form knows how many links the risk has', function () {
     $this->get(route('risks.edit', $risk))->assertInertia(
         fn (AssertableInertia $page) => $page->where('risk.links_count', 2)
     );
+});
+
+// The MIT AI risk domain taxonomy (Slattery et al.).
+
+test('a risk is classified by an MIT subdomain, and its domain is derived', function () {
+    $this->post(route('risks.store'), riskPayload(AiSystem::factory()->create(), [
+        'risk_subdomain_id' => riskSubdomainId('7.6'),
+    ]))->assertSessionHasNoErrors();
+
+    $subdomain = Risk::sole()->riskSubdomain;
+
+    expect($subdomain->code)->toBe('7.6')
+        ->and($subdomain->original_name)->toBe('Multi-agent risks')
+        ->and($subdomain->parent->code)->toBe('7')
+        ->and($subdomain->parent->original_name)->toBe('AI system safety, failures & limitations');
+});
+
+test('a risk requires an existing subdomain of the MIT taxonomy', function (int $subdomainId) {
+    $this->post(route('risks.store'), riskPayload(AiSystem::factory()->create(), [
+        'risk_subdomain_id' => $subdomainId,
+    ]))->assertSessionHasErrors([
+        'risk_subdomain_id' => __('Choose a subdomain of the MIT AI risk domain taxonomy.'),
+    ]);
+
+    $this->assertDatabaseEmpty('risks');
+})->with([
+    'unknown id' => [fn () => 999_999],
+    // A domain (level 1) is too broad: the risk takes a subdomain.
+    'a domain' => [fn () => app(AiRiskDomains::class)->domains()->firstWhere('code', '2')->id],
+    // A term of another taxonomy is not a risk subdomain.
+    'a Saeri subcategory' => [fn () => app(SaeriTaxonomy::class)->subcategories()->firstWhere('code', '2.1')->id],
+]);
+
+test('the risk forms offer the MIT domains with their subdomains', function () {
+    $risk = Risk::factory()->inSubdomain('4.3')->create();
+
+    foreach ([route('risks.create'), route('risks.edit', $risk)] as $url) {
+        $this->get($url)->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->has('riskDomains', 7)
+                ->where('riskDomains.6.code', '7')
+                ->has('riskDomains.6.children', 6)
+                ->where('riskDomains.6.children.5.code', '7.6')
+                ->has('riskDomains.0.children.0', fn (AssertableInertia $term) => $term
+                    ->where('code', '1.1')
+                    ->where('name', 'Discriminação injusta e representação distorcida')
+                    ->has('id')
+                    ->where('description', fn (string $description) => str_starts_with($description, 'Unequal treatment'))
+                )
+        );
+    }
+});
+
+test('the risk screens show its domain and subdomain', function () {
+    $risk = Risk::factory()->inSubdomain('3.1')->create();
+
+    $this->get(route('risks.show', $risk))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('risk.risk_subdomain.code', '3.1')
+            ->where('risk.risk_subdomain.parent.code', '3')
+    );
+
+    $this->get(route('risks.index'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('risks.data.0.risk_subdomain.code', '3.1')
+            ->where('risks.data.0.risk_subdomain.parent.code', '3')
+    );
+
+    $this->get(route('ai-systems.show', $risk->aiSystem))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('aiSystem.risks.0.risk_subdomain.code', '3.1')
+            ->where('aiSystem.risks.0.risk_subdomain.parent.code', '3')
+    );
+});
+
+test('the risk seeder spreads the risks over several subdomains', function () {
+    $this->seed([AiSystemSeeder::class, RiskSeeder::class]);
+
+    expect(Risk::query()->distinct()->count('risk_subdomain_id'))->toBeGreaterThan(1);
 });

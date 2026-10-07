@@ -3,6 +3,7 @@ import RiskController from '@/actions/App/Http/Controllers/RiskController';
 import { DeleteDialog } from '@/components/delete-dialog';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
+import { RiskSubdomain } from '@/components/risk-subdomain';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/table';
 import {
     lifecyclePhaseLabels,
-    riskCategoryLabels,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
@@ -76,7 +76,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                     <TableRow>
                         <TableHead>Nome</TableHead>
                         <TableHead>Sistema</TableHead>
-                        <TableHead>Categoria</TableHead>
+                        <TableHead>Subdomínio de risco</TableHead>
                         <TableHead>Fase do ciclo de vida</TableHead>
                         <TableHead>Incerteza</TableHead>
                         <TableHead className="text-right">Vínculos</TableHead>
@@ -119,7 +119,9 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                 )}
                             </TableCell>
                             <TableCell>
-                                {riskCategoryLabels[risk.category]}
+                                <RiskSubdomain
+                                    subdomain={risk.risk_subdomain}
+                                />
                             </TableCell>
                             <TableCell>
                                 {lifecyclePhaseLabels[risk.lifecycle_phase]}

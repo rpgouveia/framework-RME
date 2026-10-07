@@ -37,6 +37,15 @@ return new class extends Migration
         // The catalogue is picked by name: no two entries may share one, in
         // any letter case.
         DB::statement('CREATE UNIQUE INDEX mitigations_name_unique ON mitigations (lower(name))');
+
+        // The risk subdomains (MIT AI Risk Repository) each mitigation treats:
+        // every catalogue entry names at least one.
+        Schema::create('mitigation_target_subdomains', function (Blueprint $table) {
+            $table->foreignId('mitigation_id')->constrained('mitigations')->cascadeOnDelete();
+            $table->foreignId('risk_subdomain_id')->constrained('taxonomy_terms');
+
+            $table->primary(['mitigation_id', 'risk_subdomain_id']);
+        });
     }
 
     /**
@@ -44,6 +53,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('mitigation_target_subdomains');
         Schema::dropIfExists('mitigations');
     }
 };

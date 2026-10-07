@@ -19,7 +19,7 @@ import {
     lifecyclePhaseLabels,
     linkStatusBadgeClasses,
     linkStatusLabels,
-    riskCategoryLabels,
+    termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
@@ -70,7 +70,27 @@ export default function RisksShow({ risk }: Props) {
                                 </p>
                             </DetailItem>
                         </dl>
-                        <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        {risk.risk_subdomain && (
+                            <dl className="grid gap-4 sm:grid-cols-2">
+                                <DetailItem label="Domínio de risco">
+                                    {risk.risk_subdomain.parent &&
+                                        termLabel(risk.risk_subdomain.parent)}
+                                </DetailItem>
+                                <DetailItem label="Subdomínio de risco">
+                                    {termLabel(risk.risk_subdomain)}
+                                    {risk.risk_subdomain.description && (
+                                        // The definition in the source, verbatim.
+                                        <p
+                                            lang="en"
+                                            className="text-muted-foreground mt-1 text-sm font-normal"
+                                        >
+                                            {risk.risk_subdomain.description}
+                                        </p>
+                                    )}
+                                </DetailItem>
+                            </dl>
+                        )}
+                        <dl className="grid gap-4 sm:grid-cols-3">
                             <DetailItem label="Sistema de IA">
                                 {risk.ai_system && (
                                     <Link
@@ -80,9 +100,6 @@ export default function RisksShow({ risk }: Props) {
                                         {risk.ai_system.name}
                                     </Link>
                                 )}
-                            </DetailItem>
-                            <DetailItem label="Categoria">
-                                {riskCategoryLabels[risk.category]}
                             </DetailItem>
                             <DetailItem label="Fase do ciclo de vida">
                                 {lifecyclePhaseLabels[risk.lifecycle_phase]}

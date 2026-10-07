@@ -2,13 +2,13 @@ import { Form, Head } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
 import Heading from '@/components/heading';
 import { index, show } from '@/routes/risks';
-import type { AiSystem, EnumOption, Risk } from '@/types/models';
+import type { AiSystem, EnumOption, Risk, RiskDomain } from '@/types/models';
 import { RiskForm } from './form';
 
 type Props = {
     risk: Risk;
     aiSystems: Pick<AiSystem, 'id' | 'name'>[];
-    categories: EnumOption[];
+    riskDomains: RiskDomain[];
     lifecyclePhases: EnumOption[];
     uncertaintyLevels: EnumOption[];
 };
@@ -16,7 +16,7 @@ type Props = {
 export default function RisksEdit({
     risk,
     aiSystems,
-    categories,
+    riskDomains,
     lifecyclePhases,
     uncertaintyLevels,
 }: Props) {
@@ -33,7 +33,7 @@ export default function RisksEdit({
                     {({ processing, errors }) => (
                         <RiskForm
                             aiSystems={aiSystems}
-                            categories={categories}
+                            riskDomains={riskDomains}
                             lifecyclePhases={lifecyclePhases}
                             uncertaintyLevels={uncertaintyLevels}
                             errors={errors}
