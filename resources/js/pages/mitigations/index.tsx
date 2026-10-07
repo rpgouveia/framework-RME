@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Badge } from '@/components/ui/badge';
@@ -15,32 +16,34 @@ import {
 } from '@/components/ui/table';
 import {
     costLevelLabels,
-    labelFor,
-    saeriCategoryLabels,
+    termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { index, show } from '@/routes/mitigations';
-import type { EnumOption, Mitigation, Paginated } from '@/types/models';
+import type { Mitigation, Paginated, TaxonomyCategory } from '@/types/models';
 
 type Filters = {
-    saeri_category: string | null;
+    category: string | null;
+    subcategory: string | null;
     q: string;
 };
 
 type Props = {
     mitigations: Paginated<Mitigation>;
     filters: Filters;
-    saeriCategories: EnumOption[];
+    categories: TaxonomyCategory[];
+    catalog: { fictional: boolean };
 };
 
 /** The catalogue URL for a set of filters, leaving out the empty ones. */
 function catalogue(filters: Filters) {
     return index({
         query: {
-            ...(filters.saeri_category
-                ? { saeri_category: filters.saeri_category }
+            ...(filters.category ? { category: filters.category } : {}),
+            ...(filters.subcategory
+                ? { subcategory: filters.subcategory }
                 : {}),
             ...(filters.q ? { q: filters.q } : {}),
         },
@@ -50,10 +53,10 @@ function catalogue(filters: Filters) {
 export default function MitigationsIndex({
     mitigations,
     filters,
-    saeriCategories,
+    categories,
+    catalog,
 }: Props) {
-    // The server filters; the search keeps the category, and the category
-    // links keep the search.
+    // The server filters; every link and the search keep the other filters.
     function search(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const value = new FormData(event.currentTarget).get('q');
@@ -62,7 +65,10 @@ export default function MitigationsIndex({
         router.visit(catalogue({ ...filters, q }), { preserveState: true });
     }
 
-    const filtered = filters.saeri_category !== null || filters.q !== '';
+    const category = categories.find(
+        (option) => option.code === filters.category,
+    );
+    const filtered = filters.category !== null || filters.q !== '';
 
     return (
         <>
@@ -70,72 +76,95 @@ export default function MitigationsIndex({
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <Heading
                     title="Catálogo de mitigações"
-                    description="O catálogo curado (C2), organizado pelas quatro categorias de Saeri et al. Toda mitigação aplicada a um risco vem daqui."
+                    description="O catálogo curado (C2), organizado pela taxonomia de Saeri et al. (2025): 4 categorias e 23 subcategorias. Toda mitigação aplicada a um risco vem daqui."
                 />
 
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                    <nav
-                        aria-label="Filtrar por categoria SAERI"
-                        className="flex flex-wrap gap-2"
-                    >
-                        {[
-                            { value: null, label: 'Todas' },
-                            ...saeriCategories.map((option) => ({
-                                value: option.value,
-                                label: labelFor(
-                                    saeriCategoryLabels,
-                                    option.value,
-                                ),
-                            })),
-                        ].map((option) => {
-                            const active =
-                                filters.saeri_category === option.value;
+                {catalog.fictional && <FictionalCatalogAlert />}
 
-                            return (
-                                <Button
-                                    key={option.label}
-                                    size="sm"
-                                    variant={active ? 'default' : 'outline'}
-                                    asChild
+                <div className="grid gap-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <nav
+                            aria-label="Filtrar por categoria"
+                            className="flex flex-wrap gap-2"
+                        >
+                            <FilterLink
+                                href={catalogue({
+                                    ...filters,
+                                    category: null,
+                                    subcategory: null,
+                                })}
+                                active={filters.category === null}
+                            >
+                                Todas
+                            </FilterLink>
+                            {categories.map((option) => (
+                                <FilterLink
+                                    key={option.code}
+                                    href={catalogue({
+                                        ...filters,
+                                        category: option.code,
+                                        subcategory: null,
+                                    })}
+                                    active={filters.category === option.code}
                                 >
-                                    <Link
-                                        href={catalogue({
-                                            ...filters,
-                                            saeri_category: option.value,
-                                        })}
-                                        preserveState
-                                        preserveScroll
-                                        aria-current={
-                                            active ? 'page' : undefined
-                                        }
-                                    >
-                                        {option.label}
-                                    </Link>
-                                </Button>
-                            );
-                        })}
-                    </nav>
+                                    {termLabel(option)}
+                                </FilterLink>
+                            ))}
+                        </nav>
 
-                    <form
-                        onSubmit={search}
-                        className="flex gap-2"
-                        role="search"
-                    >
-                        <Input
-                            name="q"
-                            defaultValue={filters.q}
-                            placeholder="Buscar pelo nome"
-                            aria-label="Buscar mitigação pelo nome"
-                            className="w-56"
-                        />
-                        <Button type="submit" variant="outline">
-                            Buscar
-                        </Button>
-                    </form>
+                        <form
+                            onSubmit={search}
+                            className="flex gap-2"
+                            role="search"
+                        >
+                            <Input
+                                name="q"
+                                defaultValue={filters.q}
+                                placeholder="Buscar pelo nome"
+                                aria-label="Buscar pelo nome em português ou pelo nome original"
+                                className="w-56"
+                            />
+                            <Button type="submit" variant="outline">
+                                Buscar
+                            </Button>
+                        </form>
+                    </div>
+
+                    {/* The second level only makes sense inside a category. */}
+                    {category && (
+                        <nav
+                            aria-label="Filtrar por subcategoria"
+                            className="flex flex-wrap gap-2"
+                        >
+                            <FilterLink
+                                href={catalogue({
+                                    ...filters,
+                                    subcategory: null,
+                                })}
+                                active={filters.subcategory === null}
+                                subtle
+                            >
+                                Todas de {category.name}
+                            </FilterLink>
+                            {category.children.map((option) => (
+                                <FilterLink
+                                    key={option.code}
+                                    href={catalogue({
+                                        ...filters,
+                                        subcategory: option.code,
+                                    })}
+                                    active={filters.subcategory === option.code}
+                                    subtle
+                                >
+                                    {termLabel(option)}
+                                </FilterLink>
+                            ))}
+                        </nav>
+                    )}
                 </div>
 
                 {mitigations.data.length === 0 ? (
-                    <EmptyState filters={filters} />
+                    <EmptyState filters={filters} categories={categories} />
                 ) : (
                     <>
                         <MitigationsTable mitigations={mitigations.data} />
@@ -165,26 +194,75 @@ export default function MitigationsIndex({
     );
 }
 
-function EmptyState({ filters }: { filters: Filters }) {
-    const category = filters.saeri_category
-        ? labelFor(saeriCategoryLabels, filters.saeri_category)
-        : null;
+function FilterLink({
+    href,
+    active,
+    subtle = false,
+    children,
+}: {
+    href: ReturnType<typeof index>;
+    active: boolean;
+    subtle?: boolean;
+    children: React.ReactNode;
+}) {
+    return (
+        <Button
+            size="sm"
+            variant={
+                active
+                    ? subtle
+                        ? 'secondary'
+                        : 'default'
+                    : subtle
+                      ? 'ghost'
+                      : 'outline'
+            }
+            asChild
+        >
+            <Link
+                href={href}
+                preserveState
+                preserveScroll
+                aria-current={active ? 'page' : undefined}
+            >
+                {children}
+            </Link>
+        </Button>
+    );
+}
+
+function EmptyState({
+    filters,
+    categories,
+}: {
+    filters: Filters;
+    categories: TaxonomyCategory[];
+}) {
+    const category = categories.find(
+        (option) => option.code === filters.category,
+    );
+    const subcategory = category?.children.find(
+        (option) => option.code === filters.subcategory,
+    );
+    const scope = subcategory
+        ? `na subcategoria ${termLabel(subcategory)}`
+        : category
+          ? `na categoria ${termLabel(category)}`
+          : null;
 
     let message =
         'O catálogo está vazio. Ele é carregado a partir do arquivo de dados do projeto, pelo seeder.';
 
     if (filters.q !== '') {
-        message = category
-            ? `Nenhuma mitigação de ${category} com "${filters.q}" no nome.`
-            : `Nenhuma mitigação com "${filters.q}" no nome.`;
-    } else if (category) {
-        message = `Nenhuma mitigação na categoria ${category}.`;
+        message = `Nenhuma mitigação com "${filters.q}" no nome${scope ? ` ${scope}` : ''}.`;
+    } else if (scope) {
+        message = `Nenhuma mitigação ${scope}.`;
     }
 
     return (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">{message}</p>
-            {(filters.q !== '' || category) && (
+            {(filters.q !== '' || scope) && (
                 <Link
                     href={index()}
                     className="text-sm font-medium hover:underline"
@@ -203,7 +281,7 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                 <TableHeader>
                     <TableRow>
                         <TableHead>Nome</TableHead>
-                        <TableHead>Categoria SAERI</TableHead>
+                        <TableHead>Subcategoria</TableHead>
                         <TableHead>Custo sugerido</TableHead>
                         <TableHead>Incerteza</TableHead>
                         <TableHead className="text-right">Vínculos</TableHead>
@@ -217,21 +295,32 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                             onClick={rowLink(show(mitigation.id))}
                         >
                             <TableCell>
-                                <Link
-                                    href={show(mitigation.id)}
-                                    className="font-medium hover:underline"
-                                >
-                                    {mitigation.name}
-                                </Link>
+                                <div className="grid max-w-sm">
+                                    <Link
+                                        href={show(mitigation.id)}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {mitigation.name}
+                                    </Link>
+                                    <span
+                                        className="text-muted-foreground truncate text-xs"
+                                        lang="en"
+                                    >
+                                        {mitigation.source_name}
+                                    </span>
+                                </div>
                             </TableCell>
                             <TableCell>
-                                <Badge variant="outline">
-                                    {
-                                        saeriCategoryLabels[
-                                            mitigation.saeri_category
-                                        ]
-                                    }
-                                </Badge>
+                                {mitigation.saeri_subcategory && (
+                                    <Badge
+                                        variant="outline"
+                                        className="max-w-xs whitespace-normal"
+                                    >
+                                        {termLabel(
+                                            mitigation.saeri_subcategory,
+                                        )}
+                                    </Badge>
+                                )}
                             </TableCell>
                             <TableCell>
                                 {costLevelLabels[mitigation.suggested_cost]}

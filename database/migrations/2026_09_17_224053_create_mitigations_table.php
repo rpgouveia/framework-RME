@@ -14,14 +14,23 @@ return new class extends Migration
     {
         Schema::create('mitigations', function (Blueprint $table) {
             $table->id();
+            // The Portuguese name shown in the app.
             $table->string('name');
+            // Traceability to Saeri et al.: the literal name and identifier in
+            // their database, and the source document it was extracted from.
+            $table->string('source_name');
+            $table->string('source_reference')->unique();
+            $table->string('source_document');
+            // Level 2 of the Saeri taxonomy; the category is its parent.
+            $table->foreignId('saeri_subcategory_id')->constrained('taxonomy_terms');
             $table->text('description');
-            $table->string('saeri_category');
+            // The framework's own contribution (C2), which Saeri does not
+            // assess, and the source that backs it (RNF03).
             $table->text('suggested_target_risk');
             $table->text('expected_evidence');
             $table->string('suggested_cost');
             $table->string('uncertainty_level');
-            $table->string('bibliography_source');
+            $table->text('estimate_source');
             $table->timestamps();
         });
 

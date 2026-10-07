@@ -109,9 +109,10 @@ test('the create form offers only pairs that can still be linked', function () {
             ->where('risks.0.linked_mitigation_ids', [$existing->mitigation_id])
             ->has('risks.0.ai_system.name')
             ->has('mitigations.0', fn (AssertableInertia $mitigation) => $mitigation
-                ->hasAll(['id', 'name', 'saeri_category', 'suggested_cost', 'uncertainty_level', 'bibliography_source'])
+                ->hasAll(['id', 'name', 'category', 'subcategory', 'suggested_cost', 'uncertainty_level', 'estimate_source'])
             )
             ->has('saeriCategories', 4)
+            ->has('saeriCategories.0.children', 7)
             ->where('reviewIntervalDays', 30)
     );
 });

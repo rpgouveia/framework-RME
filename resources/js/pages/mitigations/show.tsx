@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { DetailItem } from '@/components/detail-item';
+import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
 import { Badge } from '@/components/ui/badge';
 import {
     Card,
@@ -21,7 +22,7 @@ import {
     linkLabel,
     linkStatusBadgeClasses,
     linkStatusLabels,
-    saeriCategoryLabels,
+    termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
 } from '@/lib/labels';
@@ -30,12 +31,29 @@ import { show as showLink } from '@/routes/links';
 import { index, show } from '@/routes/mitigations';
 import type { Link as RiskLink, Mitigation } from '@/types/models';
 
-type Props = {
-    mitigation: Mitigation;
+type SourceDocument = {
+    key: string;
+    title: string;
+    first_author: string;
+    year: number;
 };
 
-export default function MitigationsShow({ mitigation }: Props) {
+type Props = {
+    mitigation: Mitigation;
+    sourceDocument: SourceDocument | null;
+    taxonomy: { citation: string; version: string; url: string };
+    catalog: { fictional: boolean };
+};
+
+export default function MitigationsShow({
+    mitigation,
+    sourceDocument,
+    taxonomy,
+    catalog,
+}: Props) {
     const links = mitigation.links ?? [];
+    const subcategory = mitigation.saeri_subcategory;
+    const category = subcategory?.parent;
 
     return (
         <>
@@ -44,9 +62,11 @@ export default function MitigationsShow({ mitigation }: Props) {
                 <header className="grid gap-2">
                     <h1 className="flex flex-wrap items-center gap-3 text-xl font-semibold tracking-tight">
                         {mitigation.name}
-                        <Badge variant="outline">
-                            {saeriCategoryLabels[mitigation.saeri_category]}
-                        </Badge>
+                        {subcategory && (
+                            <Badge variant="outline">
+                                {termLabel(subcategory)}
+                            </Badge>
+                        )}
                     </h1>
                     <p className="text-muted-foreground text-sm">
                         Entrada do catálogo curado (C2). Mitigações não são
@@ -54,70 +74,154 @@ export default function MitigationsShow({ mitigation }: Props) {
                     </p>
                 </header>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Conteúdo</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid gap-6">
-                        <dl className="grid gap-6">
-                            <DetailItem label="Descrição">
-                                <p className="font-normal whitespace-pre-line">
-                                    {mitigation.description}
-                                </p>
-                            </DetailItem>
-                            <DetailItem label="Risco-alvo sugerido">
-                                <p className="font-normal whitespace-pre-line">
-                                    {mitigation.suggested_target_risk}
-                                </p>
-                            </DetailItem>
-                            <DetailItem label="Evidência esperada">
-                                <p className="font-normal whitespace-pre-line">
-                                    {mitigation.expected_evidence}
-                                </p>
-                            </DetailItem>
-                        </dl>
-                    </CardContent>
-                </Card>
+                {catalog.fictional && <FictionalCatalogAlert />}
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Estimativas</CardTitle>
-                        {/* RNF03: a qualitative estimate always comes with
-                            its source and its uncertainty. */}
-                        <CardDescription>
-                            Sugestões do catálogo, com a fonte e a margem de
-                            incerteza. O custo real de cada aplicação fica no
-                            vínculo.
-                        </CardDescription>
+                        <CardTitle>Descrição</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <dl className="grid gap-4 sm:grid-cols-3">
-                            <DetailItem label="Custo sugerido">
-                                {costLevelLabels[mitigation.suggested_cost]}
-                            </DetailItem>
-                            <DetailItem label="Incerteza">
-                                <Badge
-                                    className={
-                                        uncertaintyBadgeClasses[
-                                            mitigation.uncertainty_level
-                                        ]
-                                    }
-                                >
-                                    {
-                                        uncertaintyLevelLabels[
-                                            mitigation.uncertainty_level
-                                        ]
-                                    }
-                                </Badge>
-                            </DetailItem>
-                            <DetailItem label="Fonte">
-                                <span className="font-normal">
-                                    {mitigation.bibliography_source}
-                                </span>
-                            </DetailItem>
-                        </dl>
+                        <p className="whitespace-pre-line">
+                            {mitigation.description}
+                        </p>
                     </CardContent>
                 </Card>
+
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* What comes from the source, kept apart from what the
+                        framework adds, so each claim has its author. */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Taxonomia de Saeri et al.</CardTitle>
+                            <CardDescription>
+                                Classificação e rastreio até a fonte.{' '}
+                                <a
+                                    href={taxonomy.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="hover:underline"
+                                >
+                                    {taxonomy.version}
+                                </a>
+                                .
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <dl className="grid gap-4">
+                                {category && (
+                                    <DetailItem label="Categoria">
+                                        {termLabel(category)}
+                                        <span
+                                            className="text-muted-foreground block text-sm font-normal"
+                                            lang="en"
+                                        >
+                                            {category.original_name}
+                                        </span>
+                                    </DetailItem>
+                                )}
+                                {subcategory && (
+                                    <DetailItem label="Subcategoria">
+                                        {termLabel(subcategory)}
+                                        <span
+                                            className="text-muted-foreground block text-sm font-normal"
+                                            lang="en"
+                                        >
+                                            {subcategory.original_name}
+                                        </span>
+                                        {subcategory.description && (
+                                            <span
+                                                className="mt-1 block text-sm font-normal"
+                                                lang="en"
+                                            >
+                                                {subcategory.description}
+                                            </span>
+                                        )}
+                                    </DetailItem>
+                                )}
+                                <DetailItem label="Nome original">
+                                    <span lang="en">
+                                        {mitigation.source_name}
+                                    </span>
+                                </DetailItem>
+                                <DetailItem label="Documento de origem">
+                                    {sourceDocument ? (
+                                        <span className="font-normal">
+                                            {sourceDocument.title} (
+                                            {sourceDocument.first_author},{' '}
+                                            {sourceDocument.year})
+                                        </span>
+                                    ) : (
+                                        mitigation.source_document
+                                    )}
+                                </DetailItem>
+                                <DetailItem label="Identificador na base">
+                                    <code className="text-sm">
+                                        {mitigation.source_reference}
+                                    </code>
+                                </DetailItem>
+                            </dl>
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>
+                                Contribuição do framework (C2)
+                            </CardTitle>
+                            {/* RNF03: every qualitative estimate comes with
+                                its source and its uncertainty. */}
+                            <CardDescription>
+                                Saeri et al. não avaliam risco tratado, custo
+                                nem eficácia: estes campos são do grupo, com a
+                                fonte que os fundamenta. O custo real de cada
+                                aplicação fica no vínculo.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <dl className="grid gap-4">
+                                <DetailItem label="Risco-alvo sugerido">
+                                    <p className="font-normal whitespace-pre-line">
+                                        {mitigation.suggested_target_risk}
+                                    </p>
+                                </DetailItem>
+                                <DetailItem label="Evidência esperada">
+                                    <p className="font-normal whitespace-pre-line">
+                                        {mitigation.expected_evidence}
+                                    </p>
+                                </DetailItem>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <DetailItem label="Custo sugerido">
+                                        {
+                                            costLevelLabels[
+                                                mitigation.suggested_cost
+                                            ]
+                                        }
+                                    </DetailItem>
+                                    <DetailItem label="Incerteza">
+                                        <Badge
+                                            className={
+                                                uncertaintyBadgeClasses[
+                                                    mitigation.uncertainty_level
+                                                ]
+                                            }
+                                        >
+                                            {
+                                                uncertaintyLevelLabels[
+                                                    mitigation.uncertainty_level
+                                                ]
+                                            }
+                                        </Badge>
+                                    </DetailItem>
+                                </div>
+                                <DetailItem label="Fonte da estimativa">
+                                    <span className="font-normal">
+                                        {mitigation.estimate_source}
+                                    </span>
+                                </DetailItem>
+                            </dl>
+                        </CardContent>
+                    </Card>
+                </div>
 
                 <Card>
                     <CardHeader>

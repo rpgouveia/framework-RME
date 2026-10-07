@@ -47,12 +47,6 @@ export type AdverseEventType =
     | 'user_harm'
     | 'service_disruption';
 
-export type SaeriCategory =
-    | 'governance'
-    | 'technical'
-    | 'process'
-    | 'transparency';
-
 export type LinkStatus =
     | 'planned'
     | 'in_progress'
@@ -122,16 +116,49 @@ export interface Risk extends Timestamps {
     links_count?: number;
 }
 
+/** A node of a reference taxonomy, such as a Saeri category or subcategory. */
+export interface TaxonomyTerm extends Timestamps {
+    id: number;
+    taxonomy_id: number;
+    parent_id: number | null;
+    code: string;
+    level: number;
+    /** The Portuguese name shown in the app. */
+    name: string;
+    /** The name in the source, verbatim. */
+    original_name: string;
+    description: string | null;
+    position: number;
+    parent?: TaxonomyTerm | null;
+}
+
+/** A category of a taxonomy with its subcategories, for the filters. */
+export interface TaxonomyCategory {
+    code: string;
+    name: string;
+    children: { code: string; name: string }[];
+}
+
 export interface Mitigation extends Timestamps {
     id: number;
+    /** The Portuguese name shown in the app. */
     name: string;
+    /** The name in the Saeri database, verbatim. */
+    source_name: string;
+    /** The identifier of the mitigation in the Saeri database. */
+    source_reference: string;
+    /** The key of one of the taxonomy's source documents. */
+    source_document: string;
+    saeri_subcategory_id: number;
+    /** The subcategory; its parent is the category. */
+    saeri_subcategory?: TaxonomyTerm;
     description: string;
-    saeri_category: SaeriCategory;
     suggested_target_risk: string;
     expected_evidence: string;
     suggested_cost: CostLevel;
     uncertainty_level: UncertaintyLevel;
-    bibliography_source: string;
+    /** What backs the cost, uncertainty and expected evidence (RNF03). */
+    estimate_source: string;
     links?: Link[];
     links_count?: number;
 }

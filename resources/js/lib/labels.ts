@@ -7,7 +7,6 @@ import type {
     Link,
     LinkStatus,
     RiskCategory,
-    SaeriCategory,
     SystemSourceType,
     UncertaintyLevel,
 } from '@/types/models';
@@ -138,13 +137,10 @@ export const evidenceTypeLabels: Record<EvidenceType, string> = {
     meeting_minutes: 'Ata de reunião',
 };
 
-/** The four mitigation categories of Saeri et al. (C2). */
-export const saeriCategoryLabels: Record<SaeriCategory, string> = {
-    governance: 'Governança',
-    technical: 'Técnica',
-    process: 'Processo',
-    transparency: 'Transparência',
-};
+/** A taxonomy term as its code and name, such as "1.2 Gestão de riscos". */
+export function termLabel(term: { code: string; name: string }): string {
+    return `${term.code} ${term.name}`;
+}
 
 /** Looks up an enum value's label, falling back to the raw value. */
 export function labelFor(

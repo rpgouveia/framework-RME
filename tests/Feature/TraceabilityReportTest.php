@@ -60,6 +60,12 @@ test('the json report compiles the chain of every link of the system', function 
         ->assertJsonPath('links.0.risk.name', $link->risk->name)
         ->assertJsonPath('links.0.mitigation.id', $link->mitigation_id)
         ->assertJsonPath('links.0.mitigation.name', $link->mitigation->name)
+        ->assertJsonPath('links.0.mitigation.saeri_subcategory.code', $link->mitigation->saeriSubcategory->code)
+        ->assertJsonPath('links.0.mitigation.saeri_subcategory.name', $link->mitigation->saeriSubcategory->name)
+        ->assertJsonPath('links.0.mitigation.saeri_category.code', $link->mitigation->saeriSubcategory->parent->code)
+        ->assertJsonPath('links.0.mitigation.source_reference', $link->mitigation->source_reference)
+        ->assertJsonPath('links.0.mitigation.source_document', $link->mitigation->source_document)
+        ->assertJsonPath('links.0.mitigation.estimate_source', $link->mitigation->estimate_source)
         ->assertJsonPath('links.0.owner.organizational_role', $link->owner->organizational_role)
         ->assertJsonPath('links.0.evidence.0.description', 'Relatório de auditoria')
         ->assertJsonPath('links.0.evidence.0.registration_date', '2026-03-01');
@@ -93,6 +99,14 @@ test('the csv report has one row per link with the evidence joined', function ()
         ->and($row['risk_id'])->toBe((string) $risk->id)
         ->and($row['risk_name'])->toBe($risk->name)
         ->and($row['mitigation_name'])->toBe($link->mitigation->name)
+        // Traceable to Saeri et al.: the subcategory, its category, the entry
+        // in their database and the source of the estimates.
+        ->and($row['mitigation_saeri_subcategory_code'])->toBe($link->mitigation->saeriSubcategory->code)
+        ->and($row['mitigation_saeri_subcategory_name'])->toBe($link->mitigation->saeriSubcategory->name)
+        ->and($row['mitigation_saeri_category_code'])->toBe($link->mitigation->saeriSubcategory->parent->code)
+        ->and($row['mitigation_source_reference'])->toBe($link->mitigation->source_reference)
+        ->and($row['mitigation_source_document'])->toBe($link->mitigation->source_document)
+        ->and($row['mitigation_estimate_source'])->toBe($link->mitigation->estimate_source)
         ->and($row['evidence_count'])->toBe('2')
         ->and(substr_count($row['evidence'], ' | '))->toBe(1);
 });

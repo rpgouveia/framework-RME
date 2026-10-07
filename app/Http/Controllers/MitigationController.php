@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\SaeriCategory;
 use App\Models\Mitigation;
+use App\Models\TaxonomyTerm;
+use App\Support\MitigationCatalog;
+use App\Support\SaeriTaxonomy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -17,32 +19,62 @@ use Inertia\Response;
  */
 class MitigationController extends Controller
 {
+    public function __construct(
+        protected SaeriTaxonomy $saeri,
+    ) {}
+
     /**
-     * Display the catalogue, filtered by SAERI category and searched by name.
+     * Display the catalogue, filtered by Saeri category and subcategory and
+     * searched by name, on the server.
      */
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Mitigation::class);
 
-        $category = SaeriCategory::tryFrom((string) $request->query('saeri_category'));
+        $categories = $this->saeri->categories();
+        $subcategory = $categories->flatMap->children->firstWhere('code', (string) $request->query('subcategory'));
+        $category = $categories->firstWhere('code', (string) $request->query('category'));
+
+        // A subcategory implies its category; one from another category is
+        // ignored rather than emptying the list.
+        if ($subcategory !== null && $category !== null && $subcategory->parent_id !== $category->id) {
+            $subcategory = null;
+        }
+
+        $category ??= $subcategory === null ? null : $categories->firstWhere('id', $subcategory->parent_id);
         $search = trim((string) $request->query('q'));
 
         return Inertia::render('mitigations/index', [
             'mitigations' => Mitigation::query()
-                ->when($category, fn (Builder $query) => $query->where('saeri_category', $category))
-                ->when($search !== '', fn (Builder $query) => $query->whereRaw(
-                    "lower(name) like ? escape '!'",
-                    ['%'.$this->escapeLike(mb_strtolower($search)).'%'],
+                ->when($subcategory, fn (Builder $query) => $query->where('saeri_subcategory_id', $subcategory?->id))
+                ->when($subcategory === null && $category !== null, fn (Builder $query) => $query->whereIn(
+                    'saeri_subcategory_id',
+                    $category?->children->pluck('id') ?? [],
                 ))
+                // The Portuguese name or Saeri's original one.
+                ->when($search !== '', function (Builder $query) use ($search): void {
+                    $term = '%'.$this->escapeLike(mb_strtolower($search)).'%';
+
+                    $query->where(fn (Builder $match) => $match
+                        ->whereRaw("lower(name) like ? escape '!'", [$term])
+                        ->orWhereRaw("lower(source_name) like ? escape '!'", [$term]));
+                })
+                ->with('saeriSubcategory.parent')
                 ->withCount('links')
                 ->orderBy('name')
                 ->paginate(15)
                 ->withQueryString(),
             'filters' => [
-                'saeri_category' => $category?->value,
+                'category' => $category?->code,
+                'subcategory' => $subcategory?->code,
                 'q' => $search,
             ],
-            'saeriCategories' => SaeriCategory::options(),
+            'categories' => $categories->map(fn (TaxonomyTerm $term): array => [
+                'code' => $term->code,
+                'name' => $term->name,
+                'children' => $term->children->map->only(['code', 'name'])->values(),
+            ]),
+            'catalog' => $this->catalog(),
         ]);
     }
 
@@ -53,9 +85,29 @@ class MitigationController extends Controller
     {
         Gate::authorize('view', $mitigation);
 
+        $taxonomy = $this->saeri->taxonomy();
+
         return Inertia::render('mitigations/show', [
-            'mitigation' => $mitigation->load(['links.risk', 'links.mitigation', 'links.owner']),
+            'mitigation' => $mitigation->load([
+                'saeriSubcategory.parent',
+                'links.risk',
+                'links.mitigation',
+                'links.owner',
+            ]),
+            'sourceDocument' => $this->saeri->documents()[$mitigation->source_document] ?? null,
+            'taxonomy' => $taxonomy->only(['citation', 'version', 'url']),
+            'catalog' => $this->catalog(),
         ]);
+    }
+
+    /**
+     * What the screens tell about the catalogue as loaded.
+     *
+     * @return array{fictional: bool}
+     */
+    protected function catalog(): array
+    {
+        return ['fictional' => (bool) (MitigationCatalog::loadedMeta()['fictional'] ?? false)];
     }
 
     /**
