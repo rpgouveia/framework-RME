@@ -1,345 +1,267 @@
-import { Head } from '@inertiajs/react';
-import { useState } from 'react';
-import { index } from '@/routes/mitigations';
-import type {
-    EnumOption,
-    Mitigation,
-    Paginated,
-    SaeriCategory,
-} from '@/types/models';
+import { Head, Link, router } from '@inertiajs/react';
+import type { FormEvent } from 'react';
+import Heading from '@/components/heading';
+import { PaginationLinks } from '@/components/pagination-links';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import {
+    costLevelLabels,
+    labelFor,
+    saeriCategoryLabels,
+    uncertaintyBadgeClasses,
+    uncertaintyLevelLabels,
+} from '@/lib/labels';
+import { rowLink } from '@/lib/row-link';
+import { index, show } from '@/routes/mitigations';
+import type { EnumOption, Mitigation, Paginated } from '@/types/models';
 
-import '../../../css/mitigations.css';
+type Filters = {
+    saeri_category: string | null;
+    q: string;
+};
 
 type Props = {
     mitigations: Paginated<Mitigation>;
+    filters: Filters;
     saeriCategories: EnumOption[];
 };
 
-type FiltroCategoria = SaeriCategory | 'all';
+/** The catalogue URL for a set of filters, leaving out the empty ones. */
+function catalogue(filters: Filters) {
+    return index({
+        query: {
+            ...(filters.saeri_category
+                ? { saeri_category: filters.saeri_category }
+                : {}),
+            ...(filters.q ? { q: filters.q } : {}),
+        },
+    });
+}
 
 export default function MitigationsIndex({
     mitigations,
+    filters,
     saeriCategories,
 }: Props) {
-    const [categoria, setCategoria] = useState<FiltroCategoria>('all');
+    // The server filters; the search keeps the category, and the category
+    // links keep the search.
+    function search(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const value = new FormData(event.currentTarget).get('q');
+        const q = typeof value === 'string' ? value.trim() : '';
 
-    const [mitigacaoSelecionada, setMitigacaoSelecionada] = useState<
-        number | null
-    >(null);
+        router.visit(catalogue({ ...filters, q }), { preserveState: true });
+    }
 
-    const [riscoSelecionado, setRiscoSelecionado] = useState('');
-
-    const [responsavel, setResponsavel] = useState('');
-
-    const [custoEstimado, setCustoEstimado] = useState('');
-
-    const mitigacoesFiltradas =
-        categoria === 'all'
-            ? mitigations.data
-            : mitigations.data.filter(
-                  (mitigation) => mitigation.saeri_category === categoria,
-              );
-
-    const podeSalvar =
-        riscoSelecionado !== '' &&
-        mitigacaoSelecionada !== null &&
-        responsavel !== '' &&
-        custoEstimado !== '';
+    const filtered = filters.saeri_category !== null || filters.q !== '';
 
     return (
         <>
-            <Head title="Mitigações" />
+            <Head title="Catálogo de mitigações" />
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+                <Heading
+                    title="Catálogo de mitigações"
+                    description="O catálogo curado (C2), organizado pelas quatro categorias de Saeri et al. Toda mitigação aplicada a um risco vem daqui."
+                />
 
-            <main className="mitigations-page">
-                {/* CABEÇALHO */}
-
-                <header className="mitigations-header">
-                    <p className="mitigations-subtitle">
-                        Cadastro de sistema de IA
-                    </p>
-
-                    <h1 className="mitigations-title">
-                        Selecionar mitigação e vincular ao risco
-                    </h1>
-
-                    <p className="mitigations-description">
-                        Escolha o risco já cadastrado, uma mitigação do catálogo
-                        e defina o responsável e o custo estimado. Campos
-                        marcados com * são obrigatórios.
-                    </p>
-                </header>
-
-                {/* ETAPAS */}
-
-                <div className="mitigations-steps">
-                    <span>✓ Sistema e risco</span>
-
-                    <span className="mitigations-step-active">
-                        2 Mitigação e vínculo
-                    </span>
-
-                    <span>3 Registro de evidência</span>
-
-                    <span>4 Monitoramento e eventos</span>
-
-                    <span>5 Reavaliação</span>
-                </div>
-
-                {/* RISCO */}
-
-                <section className="mitigations-section">
-                    <h2 className="mitigations-section-title">
-                        Risco a ser mitigado
-                    </h2>
-
-                    <label className="mitigations-label">
-                        Risco cadastrado
-                        <span className="mitigations-required"> *</span>
-                    </label>
-
-                    <select
-                        className="mitigations-select"
-                        value={riscoSelecionado}
-                        onChange={(event) =>
-                            setRiscoSelecionado(event.target.value)
-                        }
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <nav
+                        aria-label="Filtrar por categoria SAERI"
+                        className="flex flex-wrap gap-2"
                     >
-                        <option value="">
-                            Selecione um risco já cadastrado
-                        </option>
-
-                        <option value="1">Viés algorítmico</option>
-
-                        <option value="2">Alucinação em respostas</option>
-                    </select>
-
-                    <p className="mitigations-help">
-                        Somente riscos já cadastrados podem ser selecionados.
-                    </p>
-                </section>
-
-                {/* CATÁLOGO */}
-
-                <section className="mitigations-section">
-                    <div className="mitigations-catalog-header">
-                        <h2 className="mitigations-section-title">
-                            Mitigação do catálogo
-                        </h2>
-                    </div>
-
-                    <div className="mitigations-filter-area">
-                        <p className="mitigations-filter-title">
-                            Selecione uma mitigação
-                            <span className="mitigations-required"> *</span>
-                        </p>
-
-                        <p className="mitigations-filter-title">
-                            Filtrar por categoria
-                        </p>
-
-                        <div className="mitigations-filters">
-                            <button
-                                type="button"
-                                className={`mitigations-filter-button ${
-                                    categoria === 'all' ? 'active' : ''
-                                }`}
-                                onClick={() => setCategoria('all')}
-                            >
-                                Todas
-                            </button>
-
-                            {saeriCategories.map((category) => (
-                                <button
-                                    key={category.value}
-                                    type="button"
-                                    className={`mitigations-filter-button ${
-                                        categoria === category.value
-                                            ? 'active'
-                                            : ''
-                                    }`}
-                                    onClick={() =>
-                                        setCategoria(
-                                            category.value as SaeriCategory,
-                                        )
-                                    }
-                                >
-                                    {category.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* CARDS */}
-
-                    <div className="mitigations-grid">
-                        {mitigacoesFiltradas.map((mitigation) => {
-                            const selecionada =
-                                mitigacaoSelecionada === mitigation.id;
+                        {[
+                            { value: null, label: 'Todas' },
+                            ...saeriCategories.map((option) => ({
+                                value: option.value,
+                                label: labelFor(
+                                    saeriCategoryLabels,
+                                    option.value,
+                                ),
+                            })),
+                        ].map((option) => {
+                            const active =
+                                filters.saeri_category === option.value;
 
                             return (
-                                <button
-                                    key={mitigation.id}
-                                    type="button"
-                                    className={`mitigation-card ${
-                                        selecionada ? 'selected' : ''
-                                    }`}
-                                    onClick={() =>
-                                        setMitigacaoSelecionada(mitigation.id)
-                                    }
+                                <Button
+                                    key={option.label}
+                                    size="sm"
+                                    variant={active ? 'default' : 'outline'}
+                                    asChild
                                 >
-                                    <h3 className="mitigation-card-title">
-                                        {mitigation.name}
-                                    </h3>
-
-                                    <span className="mitigation-category">
-                                        {mitigation.saeri_category}
-                                    </span>
-
-                                    <p className="mitigation-risk">
-                                        {mitigation.suggested_target_risk}
-                                    </p>
-
-                                    <p className="mitigation-cost">
-                                        Custo sugerido:{' '}
-                                        <strong>
-                                            {mitigation.suggested_cost}
-                                        </strong>
-                                    </p>
-                                </button>
+                                    <Link
+                                        href={catalogue({
+                                            ...filters,
+                                            saeri_category: option.value,
+                                        })}
+                                        preserveState
+                                        preserveScroll
+                                        aria-current={
+                                            active ? 'page' : undefined
+                                        }
+                                    >
+                                        {option.label}
+                                    </Link>
+                                </Button>
                             );
                         })}
-                    </div>
+                    </nav>
 
-                    {mitigacoesFiltradas.length === 0 && (
-                        <p className="mitigations-empty">
-                            Nenhuma mitigação encontrada nesta categoria.
-                        </p>
-                    )}
-                </section>
-
-                {/* DETALHES DO VÍNCULO */}
-
-                <section className="mitigations-section">
-                    <h2 className="mitigations-section-title">
-                        Detalhes do vínculo
-                    </h2>
-
-                    <div className="mitigations-details-grid">
-                        {/* RESPONSÁVEL */}
-
-                        <div>
-                            <label className="mitigations-label">
-                                Responsável
-                                <span className="mitigations-required"> *</span>
-                            </label>
-
-                            <select
-                                className="mitigations-select"
-                                value={responsavel}
-                                onChange={(event) =>
-                                    setResponsavel(event.target.value)
-                                }
-                            >
-                                <option value="">
-                                    Selecione um papel organizacional
-                                </option>
-
-                                <option value="gestor">
-                                    Gestor de Risco de IA
-                                </option>
-
-                                <option value="seguranca">
-                                    Equipe de Segurança da Informação
-                                </option>
-
-                                <option value="compliance">
-                                    Equipe de Compliance
-                                </option>
-                            </select>
-
-                            <p className="mitigations-help">
-                                Papel organizacional — não é permitido registrar
-                                o nome de uma pessoa.
-                            </p>
-                        </div>
-
-                        {/* CUSTO */}
-
-                        <div>
-                            <label className="mitigations-label">
-                                Custo estimado
-                                <span className="mitigations-required"> *</span>
-                            </label>
-
-                            <select
-                                className="mitigations-select"
-                                value={custoEstimado}
-                                onChange={(event) =>
-                                    setCustoEstimado(event.target.value)
-                                }
-                            >
-                                <option value="">
-                                    Selecione o custo estimado
-                                </option>
-
-                                <option value="low">Baixo</option>
-
-                                <option value="medium">Médio</option>
-
-                                <option value="high">Alto</option>
-                            </select>
-
-                            <p className="mitigations-help">
-                                Escala qualitativa de custo.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* REGRA DE NEGÓCIO */}
-
-                <section className="mitigations-rule">
-                    <p>
-                        <strong>Antes de salvar:</strong> o botão "Salvar
-                        vínculo" permanece desabilitado enquanto nenhum risco
-                        estiver selecionado — não é possível cadastrar uma
-                        mitigação sem um risco alvo.
-                    </p>
-
-                    <p>
-                        <strong>Ao salvar:</strong> o vínculo nasce com status
-                        Declarada, gera um registro no histórico e o sistema
-                        calcula automaticamente a próxima data de revisão
-                        somando a data de criação ao intervalo de revisão
-                        periódica definido no protocolo de monitoramento.
-                    </p>
-                </section>
-
-                {/* BOTÕES */}
-
-                <div className="mitigations-actions">
-                    <button type="button" className="mitigations-back-button">
-                        Voltar
-                    </button>
-
-                    <button
-                        type="button"
-                        className="mitigations-save-button"
-                        disabled={!podeSalvar}
+                    <form
+                        onSubmit={search}
+                        className="flex gap-2"
+                        role="search"
                     >
-                        Salvar vínculo
-                    </button>
+                        <Input
+                            name="q"
+                            defaultValue={filters.q}
+                            placeholder="Buscar pelo nome"
+                            aria-label="Buscar mitigação pelo nome"
+                            className="w-56"
+                        />
+                        <Button type="submit" variant="outline">
+                            Buscar
+                        </Button>
+                    </form>
                 </div>
-            </main>
+
+                {mitigations.data.length === 0 ? (
+                    <EmptyState filters={filters} />
+                ) : (
+                    <>
+                        <MitigationsTable mitigations={mitigations.data} />
+                        {mitigations.last_page > 1 && (
+                            <PaginationLinks links={mitigations.links} />
+                        )}
+                    </>
+                )}
+
+                {filtered && mitigations.data.length > 0 && (
+                    <p className="text-muted-foreground text-sm">
+                        {mitigations.total}{' '}
+                        {mitigations.total === 1
+                            ? 'mitigação encontrada'
+                            : 'mitigações encontradas'}
+                        .{' '}
+                        <Link
+                            href={index()}
+                            className="text-foreground hover:underline"
+                        >
+                            Limpar filtros
+                        </Link>
+                    </p>
+                )}
+            </div>
         </>
     );
 }
 
+function EmptyState({ filters }: { filters: Filters }) {
+    const category = filters.saeri_category
+        ? labelFor(saeriCategoryLabels, filters.saeri_category)
+        : null;
+
+    let message =
+        'O catálogo está vazio. Ele é carregado a partir do arquivo de dados do projeto, pelo seeder.';
+
+    if (filters.q !== '') {
+        message = category
+            ? `Nenhuma mitigação de ${category} com "${filters.q}" no nome.`
+            : `Nenhuma mitigação com "${filters.q}" no nome.`;
+    } else if (category) {
+        message = `Nenhuma mitigação na categoria ${category}.`;
+    }
+
+    return (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
+            <p className="text-muted-foreground text-sm">{message}</p>
+            {(filters.q !== '' || category) && (
+                <Link
+                    href={index()}
+                    className="text-sm font-medium hover:underline"
+                >
+                    Ver o catálogo inteiro
+                </Link>
+            )}
+        </div>
+    );
+}
+
+function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
+    return (
+        <div className="rounded-xl border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Nome</TableHead>
+                        <TableHead>Categoria SAERI</TableHead>
+                        <TableHead>Custo sugerido</TableHead>
+                        <TableHead>Incerteza</TableHead>
+                        <TableHead className="text-right">Vínculos</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {mitigations.map((mitigation) => (
+                        <TableRow
+                            key={mitigation.id}
+                            className="cursor-pointer"
+                            onClick={rowLink(show(mitigation.id))}
+                        >
+                            <TableCell>
+                                <Link
+                                    href={show(mitigation.id)}
+                                    className="font-medium hover:underline"
+                                >
+                                    {mitigation.name}
+                                </Link>
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant="outline">
+                                    {
+                                        saeriCategoryLabels[
+                                            mitigation.saeri_category
+                                        ]
+                                    }
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                {costLevelLabels[mitigation.suggested_cost]}
+                            </TableCell>
+                            <TableCell>
+                                <Badge
+                                    className={
+                                        uncertaintyBadgeClasses[
+                                            mitigation.uncertainty_level
+                                        ]
+                                    }
+                                >
+                                    {
+                                        uncertaintyLevelLabels[
+                                            mitigation.uncertainty_level
+                                        ]
+                                    }
+                                </Badge>
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">
+                                {mitigation.links_count ?? 0}
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
+}
+
 MitigationsIndex.layout = {
-    breadcrumbs: [
-        {
-            title: 'Mitigations',
-            href: index(),
-        },
-    ],
+    breadcrumbs: [{ title: 'Catálogo de mitigações', href: index() }],
 };

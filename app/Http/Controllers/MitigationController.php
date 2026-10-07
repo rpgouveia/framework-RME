@@ -2,58 +2,48 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\CostLevel;
 use App\Enums\SaeriCategory;
-use App\Enums\UncertaintyLevel;
-use App\Http\Requests\StoreMitigationRequest;
-use App\Http\Requests\UpdateMitigationRequest;
 use App\Models\Mitigation;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
+/**
+ * The mitigation catalogue (C2), read only: it is consulted (UC004) and every
+ * mitigation comes from it (R-8). The catalogue is curated in a data file and
+ * loaded by the MitigationSeeder, never edited through the app.
+ */
 class MitigationController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the catalogue, filtered by SAERI category and searched by name.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Mitigation::class);
 
+        $category = SaeriCategory::tryFrom((string) $request->query('saeri_category'));
+        $search = trim((string) $request->query('q'));
+
         return Inertia::render('mitigations/index', [
             'mitigations' => Mitigation::query()
+                ->when($category, fn (Builder $query) => $query->where('saeri_category', $category))
+                ->when($search !== '', fn (Builder $query) => $query->whereRaw(
+                    "lower(name) like ? escape '!'",
+                    ['%'.$this->escapeLike(mb_strtolower($search)).'%'],
+                ))
                 ->withCount('links')
-                ->latest()
+                ->orderBy('name')
                 ->paginate(15)
                 ->withQueryString(),
+            'filters' => [
+                'saeri_category' => $category?->value,
+                'q' => $search,
+            ],
             'saeriCategories' => SaeriCategory::options(),
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        Gate::authorize('create', Mitigation::class);
-
-        return Inertia::render('mitigations/create', $this->formOptions());
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreMitigationRequest $request): RedirectResponse
-    {
-        Gate::authorize('create', Mitigation::class);
-
-        $mitigation = Mitigation::create($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Mitigation registered.')]);
-
-        return to_route('mitigations.show', $mitigation);
     }
 
     /**
@@ -64,68 +54,15 @@ class MitigationController extends Controller
         Gate::authorize('view', $mitigation);
 
         return Inertia::render('mitigations/show', [
-            'mitigation' => $mitigation->load(['links.risk', 'links.owner']),
+            'mitigation' => $mitigation->load(['links.risk', 'links.mitigation', 'links.owner']),
         ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Match a search term literally, so "%" or "_" in it are not wildcards.
      */
-    public function edit(Mitigation $mitigation): Response
+    protected function escapeLike(string $term): string
     {
-        Gate::authorize('update', $mitigation);
-
-        return Inertia::render('mitigations/edit', [
-            'mitigation' => $mitigation,
-            ...$this->formOptions(),
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateMitigationRequest $request, Mitigation $mitigation): RedirectResponse
-    {
-        Gate::authorize('update', $mitigation);
-
-        $mitigation->update($request->validated());
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Mitigation updated.')]);
-
-        return to_route('mitigations.show', $mitigation);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Mitigation $mitigation): RedirectResponse
-    {
-        Gate::authorize('delete', $mitigation);
-
-        if ($mitigation->links()->exists()) {
-            Inertia::flash('toast', ['type' => 'error', 'message' => __('Delete the mitigation links first.')]);
-
-            return back();
-        }
-
-        $mitigation->delete();
-
-        Inertia::flash('toast', ['type' => 'success', 'message' => __('Mitigation deleted.')]);
-
-        return to_route('mitigations.index');
-    }
-
-    /**
-     * Get the select options shared by the create and edit forms.
-     *
-     * @return array<string, mixed>
-     */
-    protected function formOptions(): array
-    {
-        return [
-            'saeriCategories' => SaeriCategory::options(),
-            'costLevels' => CostLevel::options(),
-            'uncertaintyLevels' => UncertaintyLevel::options(),
-        ];
+        return str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term);
     }
 }

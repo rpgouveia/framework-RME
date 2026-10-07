@@ -24,7 +24,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // the system or date later would leave those changes unexplained.
     Route::resource('adverse-events', AdverseEventController::class)
         ->only(['index', 'create', 'store', 'show']);
-    Route::resource('mitigations', MitigationController::class);
+    // The catalogue (C2) is only consulted (UC004): mitigations come from the
+    // curated data file loaded by the seeder, never from a form (R-8).
+    Route::resource('mitigations', MitigationController::class)->only(['index', 'show']);
     Route::resource('owners', OwnerController::class);
     // Used owners are never deleted or edited; they are retired instead.
     Route::post('owners/{owner}/deactivate', [OwnerController::class, 'deactivate'])->name('owners.deactivate');
