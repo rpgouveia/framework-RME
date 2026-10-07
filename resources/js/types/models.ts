@@ -75,6 +75,8 @@ interface Timestamps {
 export interface AiSystem extends Timestamps {
     id: number;
     name: string;
+    /** Descriptive only, such as "Atendimento ao cliente". */
+    application_domain: string | null;
     source_type: SystemSourceType;
     category: AiSystemCategory;
     registration_date: string;

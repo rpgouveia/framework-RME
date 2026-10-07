@@ -56,6 +56,32 @@ export function AiSystemForm({
             </div>
 
             <div className="grid gap-2">
+                <Label htmlFor="application_domain">
+                    Domínio de aplicação{' '}
+                    <span className="text-muted-foreground font-normal">
+                        (opcional)
+                    </span>
+                </Label>
+                <Input
+                    id="application_domain"
+                    name="application_domain"
+                    defaultValue={aiSystem?.application_domain ?? ''}
+                    maxLength={255}
+                    placeholder="Ex.: Atendimento ao cliente"
+                    aria-describedby="application_domain-help"
+                    aria-invalid={errors.application_domain ? true : undefined}
+                />
+                <p
+                    id="application_domain-help"
+                    className="text-muted-foreground text-sm"
+                >
+                    Onde o sistema é usado, para contextualizá-lo. Não altera
+                    nenhuma classificação.
+                </p>
+                <InputError message={errors.application_domain} />
+            </div>
+
+            <div className="grid gap-2">
                 <Label htmlFor="source_type">Origem</Label>
                 <Select
                     name="source_type"

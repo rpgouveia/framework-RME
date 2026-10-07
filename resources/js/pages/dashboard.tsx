@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
+import { AiSystemName } from '@/components/ai-system-name';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -52,7 +53,7 @@ import type {
 
 type Pending<T> = { count: number; items: T[] };
 
-type SystemSummary = Pick<AiSystem, 'id' | 'name'> & {
+type SystemSummary = Pick<AiSystem, 'id' | 'name' | 'application_domain'> & {
     risks_count: number;
     unlinked_risks_count: number;
     links_count: number;
@@ -513,12 +514,14 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                 {systems.map((system) => (
                     <TableRow key={system.id}>
                         <TableCell>
-                            <Link
-                                href={showAiSystem(system.id)}
-                                className="font-medium hover:underline"
-                            >
-                                {system.name}
-                            </Link>
+                            <AiSystemName domain={system.application_domain}>
+                                <Link
+                                    href={showAiSystem(system.id)}
+                                    className="font-medium hover:underline"
+                                >
+                                    {system.name}
+                                </Link>
+                            </AiSystemName>
                         </TableCell>
                         <NumberCell value={system.risks_count} />
                         <NumberCell

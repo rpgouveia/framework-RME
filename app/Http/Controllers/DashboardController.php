@@ -105,7 +105,7 @@ class DashboardController extends Controller
                     'adverseEvents as recent_events_count' => fn (Builder $query) => $query->where('occurrence_date', '>=', $recentSince),
                 ])
                 ->orderBy('name')
-                ->get(['id', 'name', 'category']),
+                ->get(['id', 'name', 'application_domain', 'category']),
         ]);
     }
 }

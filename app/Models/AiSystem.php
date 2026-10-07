@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  *
  * @property int $id
  * @property string $name
+ * @property string|null $application_domain
  * @property SystemSourceType $source_type
  * @property AiSystemCategory $category
  * @property CarbonImmutable $registration_date
@@ -30,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property-read Collection<int, Link> $links
  * @property-read int|null $links_count
  */
-#[Fillable(['name', 'source_type', 'category', 'registration_date'])]
+#[Fillable(['name', 'application_domain', 'source_type', 'category', 'registration_date'])]
 class AiSystem extends Model
 {
     /** @use HasFactory<AiSystemFactory> */

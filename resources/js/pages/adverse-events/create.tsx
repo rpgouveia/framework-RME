@@ -1,6 +1,7 @@
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { TriangleAlertIcon } from 'lucide-react';
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import AdverseEventController from '@/actions/App/Http/Controllers/AdverseEventController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -27,13 +28,17 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { dateInputValue } from '@/lib/format';
 import { termLabel } from '@/lib/labels';
+import { splitByRiskProfile } from '@/lib/risk-profile';
+import type { ExpectedSubdomain } from '@/lib/risk-profile';
 import { create, index } from '@/routes/adverse-events';
 import type { AiSystem, RiskDomainOption } from '@/types/models';
 
 type Props = {
-    aiSystems: Pick<AiSystem, 'id' | 'name'>[];
-    /** RF04: the MIT subdomains each system offers, keyed by system id. */
-    riskDomainsBySystem: Record<string, RiskDomainOption[]>;
+    aiSystems: Pick<AiSystem, 'id' | 'name' | 'application_domain'>[];
+    /** Every MIT subdomain, grouped by domain: all are always on offer. */
+    riskDomains: RiskDomainOption[];
+    /** RF04: each system's risk profile, keyed by system id. */
+    expectedRiskSubdomainsBySystem: Record<string, ExpectedSubdomain[]>;
 };
 
 /** Lets the confirm button, rendered in a dialog outside the form, submit it. */
@@ -41,7 +46,8 @@ const FORM_ID = 'adverse-event-form';
 
 export default function AdverseEventsCreate({
     aiSystems,
-    riskDomainsBySystem,
+    riskDomains,
+    expectedRiskSubdomainsBySystem,
 }: Props) {
     const { url } = usePage();
 
@@ -56,19 +62,11 @@ export default function AdverseEventsCreate({
     const [missingSubdomain, setMissingSubdomain] = useState(false);
     const [confirming, setConfirming] = useState(false);
 
-    const riskDomains = aiSystemId
-        ? (riskDomainsBySystem[aiSystemId] ?? [])
+    // Every subdomain is offered to every system, so a choice survives a
+    // change of system; only the order follows the new risk profile.
+    const expected = aiSystemId
+        ? (expectedRiskSubdomainsBySystem[aiSystemId] ?? [])
         : [];
-
-    function chooseSystem(value: string) {
-        setAiSystemId(value);
-
-        // Another system may not offer every subdomain already chosen.
-        const offered = (riskDomainsBySystem[value] ?? []).flatMap((domain) =>
-            domain.children.map((subdomain) => subdomain.code),
-        );
-        setSelected((codes) => codes.filter((code) => offered.includes(code)));
-    }
 
     function toggleSubdomain(code: string, checked: boolean) {
         setMissingSubdomain(false);
@@ -127,7 +125,7 @@ export default function AdverseEventsCreate({
                                     <Select
                                         name="ai_system_id"
                                         value={aiSystemId}
-                                        onValueChange={chooseSystem}
+                                        onValueChange={setAiSystemId}
                                         required
                                     >
                                         <SelectTrigger
@@ -148,6 +146,15 @@ export default function AdverseEventsCreate({
                                                     value={String(system.id)}
                                                 >
                                                     {system.name}
+                                                    {system.application_domain && (
+                                                        <span className="text-muted-foreground">
+                                                            {' '}
+                                                            ·{' '}
+                                                            {
+                                                                system.application_domain
+                                                            }
+                                                        </span>
+                                                    )}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -157,6 +164,7 @@ export default function AdverseEventsCreate({
 
                                 <RiskSubdomainPicker
                                     domains={riskDomains}
+                                    expected={expected}
                                     selected={selected}
                                     onToggle={toggleSubdomain}
                                     disabled={!aiSystemId}
@@ -291,23 +299,40 @@ function subdomainError(
 }
 
 /**
- * Checkboxes for the MIT risk subdomains, grouped by domain, each with the
- * definition from the source to help the classification. Checked ones are
- * sent as `risk_subdomains[]`.
+ * Checkboxes for the MIT risk subdomains, each with the definition from the
+ * source to help the classification. The system's risk profile comes first;
+ * the rest follows grouped by domain. Checked ones are sent as
+ * `risk_subdomains[]`.
  */
 function RiskSubdomainPicker({
     domains,
+    expected,
     selected,
     onToggle,
     disabled,
     error,
 }: {
     domains: RiskDomainOption[];
+    expected: ExpectedSubdomain[];
     selected: string[];
     onToggle: (code: string, checked: boolean) => void;
     disabled: boolean;
     error?: string;
 }) {
+    const profile = splitByRiskProfile(domains, expected);
+    const checkbox = (
+        subdomain: RiskDomainOption['children'][number],
+        extra?: ReactNode,
+    ) => (
+        <SubdomainCheckbox
+            key={subdomain.code}
+            subdomain={subdomain}
+            checked={selected.includes(subdomain.code)}
+            onToggle={onToggle}
+            extra={extra}
+        />
+    );
+
     return (
         <fieldset
             className="grid gap-2"
@@ -340,63 +365,104 @@ function RiskSubdomainPicker({
                             {selected.join(', ')}
                         </p>
                     )}
-                    <div className="grid max-h-[28rem] gap-4 overflow-y-auto rounded-lg border p-4">
-                        {domains.map((domain) => (
-                            <div key={domain.code} className="grid gap-2">
-                                <p className="text-sm font-semibold">
-                                    {termLabel(domain)}
-                                </p>
-                                {domain.children.map((subdomain) => {
-                                    const id = `risk_subdomain_${subdomain.code}`;
+                    <div className="grid max-h-[32rem] gap-6 overflow-y-auto rounded-lg border p-4">
+                        {profile.expected.length > 0 ? (
+                            <section className="grid gap-3">
+                                <h3 className="text-sm font-semibold">
+                                    Esperados para este sistema
+                                </h3>
+                                {profile.expected.map((subdomain) =>
+                                    checkbox(
+                                        subdomain,
+                                        <span className="text-muted-foreground text-xs">
+                                            {termLabel(subdomain.domain)} ·{' '}
+                                            {subdomain.risks_count}{' '}
+                                            {subdomain.risks_count === 1
+                                                ? 'risco cadastrado'
+                                                : 'riscos cadastrados'}
+                                        </span>,
+                                    ),
+                                )}
+                            </section>
+                        ) : (
+                            <p className="text-muted-foreground text-sm">
+                                Este sistema ainda não tem riscos cadastrados:
+                                todos os subdomínios aparecem abaixo, por
+                                domínio.
+                            </p>
+                        )}
 
-                                    return (
-                                        <div
-                                            key={subdomain.code}
-                                            className="flex items-start gap-3"
-                                        >
-                                            <Checkbox
-                                                id={id}
-                                                name="risk_subdomains[]"
-                                                value={subdomain.code}
-                                                checked={selected.includes(
-                                                    subdomain.code,
-                                                )}
-                                                onCheckedChange={(checked) =>
-                                                    onToggle(
-                                                        subdomain.code,
-                                                        checked === true,
-                                                    )
-                                                }
-                                                className="mt-0.5"
-                                            />
-                                            <div className="grid gap-0.5">
-                                                <Label
-                                                    htmlFor={id}
-                                                    className="leading-snug"
-                                                >
-                                                    {termLabel(subdomain)}
-                                                </Label>
-                                                {subdomain.description && (
-                                                    // The definition in the
-                                                    // source, verbatim.
-                                                    <p
-                                                        lang="en"
-                                                        className="text-muted-foreground text-xs"
-                                                    >
-                                                        {subdomain.description}
-                                                    </p>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
+                        <section className="grid gap-4">
+                            {profile.expected.length > 0 && (
+                                <div className="grid gap-1">
+                                    <h3 className="text-sm font-semibold">
+                                        Outros subdomínios
+                                    </h3>
+                                    <p className="text-muted-foreground text-xs">
+                                        Um evento fora dos riscos cadastrados
+                                        pode indicar um risco ainda não
+                                        identificado.
+                                    </p>
+                                </div>
+                            )}
+                            {profile.others.map((domain) => (
+                                <div key={domain.code} className="grid gap-2">
+                                    <p className="text-sm font-medium">
+                                        {termLabel(domain)}
+                                    </p>
+                                    {domain.children.map((subdomain) =>
+                                        checkbox(subdomain),
+                                    )}
+                                </div>
+                            ))}
+                        </section>
                     </div>
                 </>
             )}
             <InputError message={error} />
         </fieldset>
+    );
+}
+
+function SubdomainCheckbox({
+    subdomain,
+    checked,
+    onToggle,
+    extra,
+}: {
+    subdomain: RiskDomainOption['children'][number];
+    checked: boolean;
+    onToggle: (code: string, checked: boolean) => void;
+    /** A line under the name, such as the domain and risk count. */
+    extra?: ReactNode;
+}) {
+    const id = `risk_subdomain_${subdomain.code}`;
+
+    return (
+        <div className="flex items-start gap-3">
+            <Checkbox
+                id={id}
+                name="risk_subdomains[]"
+                value={subdomain.code}
+                checked={checked}
+                onCheckedChange={(state) =>
+                    onToggle(subdomain.code, state === true)
+                }
+                className="mt-0.5"
+            />
+            <div className="grid gap-0.5">
+                <Label htmlFor={id} className="leading-snug">
+                    {termLabel(subdomain)}
+                </Label>
+                {extra}
+                {subdomain.description && (
+                    // The definition in the source, verbatim.
+                    <p lang="en" className="text-muted-foreground text-xs">
+                        {subdomain.description}
+                    </p>
+                )}
+            </div>
+        </div>
     );
 }
 

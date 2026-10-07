@@ -2,13 +2,13 @@
 
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
+use App\Models\Link;
+use App\Models\Risk;
 use App\Models\StatusHistory;
 use App\Models\TaxonomyTerm;
 use App\Models\User;
-use App\Support\AiRiskDomains;
 use App\Support\MonitoringProtocol;
 use Database\Seeders\AdverseEventSeeder;
-use Illuminate\Database\Eloquent\Collection;
 use Inertia\Testing\AssertableInertia;
 
 beforeEach(function () {
@@ -143,50 +143,16 @@ test('an event is refused without a valid list of risk subdomains', function (mi
     'not a list' => ['2.1', 'risk_subdomains', 'Selecione ao menos um subdomínio de risco que a ocorrência materializa.'],
 ]);
 
-test('a risk subdomain the protocol does not offer for the system is refused', function () {
-    // Stand in for the C3 mapping: this system offers only 7.3. The test
-    // holds once the real protocol exists, since validation asks it.
-    $this->app->instance(MonitoringProtocol::class, new class extends MonitoringProtocol
-    {
-        public function riskSubdomainsFor(AiSystem $aiSystem): Collection
-        {
-            return app(AiRiskDomains::class)->subdomains()->where('code', '7.3')->values();
-        }
-    });
+// The risk profile of the system: the subdomains of its risks.
 
-    $this->post(route('adverse-events.store'), adverseEventPayload([
-        'risk_subdomains' => ['7.3', '2.1'],
-    ]))->assertSessionHasErrors([
-        'risk_subdomains.1' => __('The risk subdomain :code is not offered for this AI system.', ['code' => '2.1']),
-    ]);
-
-    $this->post(route('adverse-events.store'), adverseEventPayload([
-        'risk_subdomains' => ['7.3'],
-    ]))->assertSessionHasNoErrors();
-
-    expect(AdverseEvent::sole()->riskSubdomains->pluck('code')->all())->toBe(['7.3']);
-});
-
-test('the create form sends the subdomains each system offers, grouped by domain', function () {
-    [$first, $second] = AiSystem::factory(2)->create();
-
-    $this->app->instance(MonitoringProtocol::class, new class extends MonitoringProtocol
-    {
-        public function riskSubdomainsFor(AiSystem $aiSystem): Collection
-        {
-            return $aiSystem->name === 'Only robustness'
-                ? app(AiRiskDomains::class)->subdomains()->where('code', '7.3')->values()
-                : parent::riskSubdomainsFor($aiSystem);
-        }
-    });
-    $second->update(['name' => 'Only robustness']);
+test('the create form offers every subdomain, grouped by domain', function () {
+    AiSystem::factory()->create();
 
     $this->get(route('adverse-events.create'))->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('adverse-events/create')
-            // For now every system offers all seven domains.
-            ->has("riskDomainsBySystem.{$first->id}", 7)
-            ->has("riskDomainsBySystem.{$first->id}.0", fn (AssertableInertia $domain) => $domain
+            ->has('riskDomains', 7)
+            ->has('riskDomains.0', fn (AssertableInertia $domain) => $domain
                 ->where('code', '1')
                 ->where('name', 'Discriminação e toxicidade')
                 ->has('children', 3)
@@ -196,12 +162,75 @@ test('the create form sends the subdomains each system offers, grouped by domain
                     ->where('description', fn (string $description) => str_starts_with($description, 'Unequal treatment'))
                 )
             )
-            ->has("riskDomainsBySystem.{$first->id}.6.children", 6)
-            // A domain with nothing to offer is left out.
-            ->has("riskDomainsBySystem.{$second->id}", 1)
-            ->where("riskDomainsBySystem.{$second->id}.0.code", '7')
-            ->where("riskDomainsBySystem.{$second->id}.0.children.0.code", '7.3')
-            ->has("riskDomainsBySystem.{$second->id}.0.children", 1)
+            ->has('riskDomains.6.children', 6)
+            ->has('aiSystems.0.application_domain')
+    );
+});
+
+test('the create form sends the subdomains each system expects from its risks', function () {
+    $spread = AiSystem::factory()->create();
+    Risk::factory()->for($spread)->inSubdomain('7.3')->create();
+    Risk::factory()->for($spread)->inSubdomain('2.1')->create();
+
+    $repeated = AiSystem::factory()->create();
+    Risk::factory()->for($repeated)->inSubdomain('2.2')->create();
+    // Every risk counts, linked or not.
+    Link::factory()->for(Risk::factory()->for($repeated)->inSubdomain('2.2'))->create();
+
+    $empty = AiSystem::factory()->create();
+
+    $this->get(route('adverse-events.create'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            // In taxonomy order, whatever order the risks were registered in.
+            ->where("expectedRiskSubdomainsBySystem.{$spread->id}", [
+                ['code' => '2.1', 'risks_count' => 1],
+                ['code' => '7.3', 'risks_count' => 1],
+            ])
+            ->where("expectedRiskSubdomainsBySystem.{$repeated->id}", [
+                ['code' => '2.2', 'risks_count' => 2],
+            ])
+            ->where("expectedRiskSubdomainsBySystem.{$empty->id}", [])
+    );
+});
+
+test('the protocol reads the profile of a single system too', function () {
+    $aiSystem = AiSystem::factory()->create();
+    Risk::factory()->for($aiSystem)->inSubdomain('5.1')->create();
+    Risk::factory()->inSubdomain('6.2')->create();
+
+    expect(app(MonitoringProtocol::class)->expectedRiskSubdomainsFor($aiSystem))
+        ->toBe([['code' => '5.1', 'risks_count' => 1]]);
+});
+
+test('an event outside the risk profile of the system is still recorded', function () {
+    // It may reveal a risk not yet identified, so it is neither refused nor
+    // flagged.
+    $aiSystem = AiSystem::factory()->create();
+    Risk::factory()->for($aiSystem)->inSubdomain('2.1')->create();
+
+    $this->post(route('adverse-events.store'), adverseEventPayload([
+        'ai_system_id' => $aiSystem->id,
+        'risk_subdomains' => ['2.1', '6.4'],
+    ]))->assertSessionHasNoErrors()->assertSessionMissing('errors');
+
+    expect(AdverseEvent::sole()->riskSubdomains->pluck('code')->all())->toBe(['2.1', '6.4']);
+});
+
+test('a system without risks takes any subdomain', function () {
+    $this->post(route('adverse-events.store'), adverseEventPayload([
+        'risk_subdomains' => ['4.1'],
+    ]))->assertSessionHasNoErrors();
+
+    expect(AdverseEvent::sole()->riskSubdomains->pluck('code')->all())->toBe(['4.1']);
+});
+
+test('the event detail shows the application domain of its system', function () {
+    $adverseEvent = AdverseEvent::factory()
+        ->for(AiSystem::factory()->state(['application_domain' => 'Detecção de fraudes']))
+        ->create();
+
+    $this->get(route('adverse-events.show', $adverseEvent))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('adverseEvent.ai_system.application_domain', 'Detecção de fraudes')
     );
 });
 

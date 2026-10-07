@@ -3,63 +3,89 @@
 namespace App\Support;
 
 use App\Models\AiSystem;
+use App\Models\Risk;
 use App\Models\TaxonomyTerm;
-use Illuminate\Database\Eloquent\Collection;
 
 /**
  * The monitoring protocol (C3): what may happen to an AI system in production.
  *
  * An adverse event is a risk that materialized, so it is classified by the
  * same MIT AI risk subdomains as the risk register: one or more, never free
- * text and never "other". This is the one place that decides which
- * subdomains a system offers (RF04): the create form shows them and
- * validation enforces them.
+ * text and never "other". As the group decided, the EU AI Act tier of the
+ * system sets how closely it is monitored (not yet modelled here), and its
+ * risk profile sets which events are expected.
  *
- * @todo Every subdomain is offered for every system for now. Ordering them
- *       by the system's risk profile depends on a decision still open, the
- *       class of the system (EU AI Act tier or application domain), and is
- *       left out on purpose. Once it is settled, change it here; the form and
- *       the validation need no change.
+ * The risk profile of a system is the set of subdomains of all its risks,
+ * linked or not. The event form shows those first; every other subdomain
+ * stays available, since an event outside the profile may reveal a risk not
+ * yet identified. This is the one place that decides it.
  */
 class MonitoringProtocol
 {
     /**
-     * The subdomains offered for a system, in taxonomy order.
-     *
-     * @return Collection<int, TaxonomyTerm>
-     */
-    public function riskSubdomainsFor(AiSystem $aiSystem): Collection
-    {
-        return app(AiRiskDomains::class)->subdomains();
-    }
-
-    public function allows(AiSystem $aiSystem, string $code): bool
-    {
-        return in_array($code, $this->riskSubdomainsFor($aiSystem)->pluck('code')->all(), true);
-    }
-
-    /**
-     * The subdomains a system offers, grouped by domain for the form, each
-     * with its description to help the classification.
+     * Every subdomain, grouped by domain and described, for the event form.
      *
      * @return list<array{code: string, name: string, children: list<array<string, mixed>>}>
      */
-    public function riskSubdomainOptionsFor(AiSystem $aiSystem): array
+    public function riskSubdomainOptions(): array
     {
-        $offered = $this->riskSubdomainsFor($aiSystem)->pluck('code')->all();
-        $domains = [];
+        return array_values(array_map(
+            fn (array $domain): array => [...$domain, 'children' => array_values($domain['children'])],
+            app(AiRiskDomains::class)->tree(withDescriptions: true),
+        ));
+    }
 
-        foreach (app(AiRiskDomains::class)->tree(withDescriptions: true) as $domain) {
-            $children = array_values(array_filter(
-                $domain['children'],
-                fn (array $subdomain): bool => in_array($subdomain['code'], $offered, true),
-            ));
+    /**
+     * The expected subdomains of each system, in taxonomy order, with how
+     * many of its risks fall in each. A system with no risks expects none.
+     *
+     * @param  iterable<AiSystem>  $aiSystems
+     * @return array<int, list<array{code: string, risks_count: int}>>
+     */
+    public function expectedRiskSubdomainsBySystem(iterable $aiSystems): array
+    {
+        $ids = [];
 
-            if ($children !== []) {
-                $domains[] = [...$domain, 'children' => $children];
+        foreach ($aiSystems as $aiSystem) {
+            $ids[] = $aiSystem->id;
+        }
+
+        $profile = array_fill_keys($ids, []);
+        $subdomains = app(AiRiskDomains::class)->subdomains()->keyBy('id');
+
+        $counts = Risk::query()
+            ->whereIn('ai_system_id', $ids)
+            ->selectRaw('ai_system_id, risk_subdomain_id, count(*) as risks_count')
+            ->groupBy('ai_system_id', 'risk_subdomain_id')
+            ->toBase()
+            ->get();
+
+        foreach ($counts as $row) {
+            /** @var TaxonomyTerm|null $subdomain */
+            $subdomain = $subdomains->get((int) $row->risk_subdomain_id);
+
+            if ($subdomain !== null) {
+                $profile[(int) $row->ai_system_id][$subdomain->position] = [
+                    'code' => $subdomain->code,
+                    'risks_count' => (int) $row->risks_count,
+                ];
             }
         }
 
-        return $domains;
+        return array_map(function (array $expected): array {
+            ksort($expected);
+
+            return array_values($expected);
+        }, $profile);
+    }
+
+    /**
+     * The expected subdomains of one system.
+     *
+     * @return list<array{code: string, risks_count: int}>
+     */
+    public function expectedRiskSubdomainsFor(AiSystem $aiSystem): array
+    {
+        return $this->expectedRiskSubdomainsBySystem([$aiSystem])[$aiSystem->id];
     }
 }

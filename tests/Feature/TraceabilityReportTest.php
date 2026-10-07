@@ -53,6 +53,7 @@ test('the json report compiles the chain of every link of the system', function 
     $response->assertOk()
         ->assertHeader('Content-Disposition', 'attachment; filename="traceability-report-'.$aiSystem->id.'-'.now()->toDateString().'.json"')
         ->assertJsonPath('system.id', $aiSystem->id)
+        ->assertJsonPath('system.application_domain', $aiSystem->application_domain)
         ->assertJsonCount(1, 'links')
         ->assertJsonPath('links.0.id', $link->id)
         ->assertJsonPath('links.0.status', LinkStatus::Implemented->value)
@@ -77,7 +78,7 @@ test('the json report compiles the chain of every link of the system', function 
 });
 
 test('the csv report has one row per link with the evidence joined', function () {
-    $aiSystem = AiSystem::factory()->create();
+    $aiSystem = AiSystem::factory()->create(['application_domain' => 'Crédito e concessão financeira']);
     $risk = Risk::factory()->for($aiSystem)->inSubdomain('7.6')->create();
     $link = Link::factory()->for($risk)->create();
     Link::factory()->for($risk)->create();
@@ -98,7 +99,10 @@ test('the csv report has one row per link with the evidence joined', function ()
 
     $row = array_combine($rows[0], $rows[1]);
 
-    expect($row['link_id'])->toBe((string) $link->id)
+    expect($row['system_id'])->toBe((string) $aiSystem->id)
+        ->and($row['system_name'])->toBe($aiSystem->name)
+        ->and($row['system_application_domain'])->toBe('Crédito e concessão financeira')
+        ->and($row['link_id'])->toBe((string) $link->id)
         ->and($row['risk_id'])->toBe((string) $risk->id)
         ->and($row['risk_name'])->toBe($risk->name)
         ->and($row['risk_domain_code'])->toBe('7')
@@ -147,4 +151,16 @@ test('a system without links exports empty files', function () {
 test('an unknown system returns not found', function () {
     $this->get(route('ai-systems.report.json', 999))->assertNotFound();
     $this->get(route('ai-systems.report.csv', 999))->assertNotFound();
+});
+
+test('a system without an application domain exports it empty', function () {
+    $aiSystem = AiSystem::factory()->create(['application_domain' => null]);
+    Link::factory()->for(Risk::factory()->for($aiSystem))->create();
+
+    $this->get(route('ai-systems.report.json', $aiSystem))
+        ->assertJsonPath('system.application_domain', null);
+
+    $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
+
+    expect(array_combine($rows[0], $rows[1])['system_application_domain'])->toBe('');
 });

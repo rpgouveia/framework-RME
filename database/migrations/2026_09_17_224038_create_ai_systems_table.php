@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('ai_systems', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            // Descriptive only, such as "Atendimento ao cliente": it takes
+            // part in no classification or rule.
+            $table->string('application_domain')->nullable();
             $table->string('source_type');
             $table->string('category');
             $table->date('registration_date');

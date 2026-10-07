@@ -35,12 +35,16 @@ export default function AdverseEventsShow({ adverseEvent }: Props) {
                         {eventTitle(adverseEvent)}
                     </h1>
                     {adverseEvent.ai_system && (
-                        <Link
-                            href={showAiSystem(adverseEvent.ai_system.id)}
-                            className="text-muted-foreground text-sm hover:underline"
-                        >
-                            {adverseEvent.ai_system.name}
-                        </Link>
+                        <p className="text-muted-foreground text-sm">
+                            <Link
+                                href={showAiSystem(adverseEvent.ai_system.id)}
+                                className="hover:underline"
+                            >
+                                {adverseEvent.ai_system.name}
+                            </Link>
+                            {adverseEvent.ai_system.application_domain &&
+                                ` · ${adverseEvent.ai_system.application_domain}`}
+                        </p>
                     )}
                 </header>
 
