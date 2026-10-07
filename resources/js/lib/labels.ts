@@ -84,7 +84,11 @@ export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
         'border-transparent bg-violet-100 text-violet-900 dark:bg-violet-900/40 dark:text-violet-200',
     suspended:
         'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    cancelled: 'text-muted-foreground',
+    // Out of the flow, so outlined instead of filled, but still legible:
+    // at least 7:1 on the page, a hovered row or a muted panel, in both
+    // themes (WCAG 2.1 AA asks 4.5:1 for text this size).
+    cancelled:
+        'border-border bg-transparent text-neutral-600 dark:text-neutral-300',
 };
 
 /**
