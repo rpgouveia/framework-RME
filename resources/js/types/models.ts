@@ -45,7 +45,26 @@ export type ChangeOrigin =
     | 'manual'
     | 'review_due'
     | 'adverse_event'
-    | 'system_reclassification';
+    | 'system_reclassification'
+    | 'model_version'
+    | 'data_change';
+
+/** What changed in a system, as a reassessment trigger (0021). */
+export type SystemChangeType = 'model_version' | 'data_change';
+
+/** A change of a system that triggers reassessment (0021): append only. */
+export interface SystemChange extends Timestamps {
+    id: number;
+    ai_system_id: number;
+    type: SystemChangeType;
+    description: string;
+    change_date: string;
+    ai_system?: AiSystem;
+    /** The affected subdomains; none means every verified link was reverted. */
+    risk_subdomains?: TaxonomyTerm[];
+    reversals?: StatusHistory[];
+    reversals_count?: number;
+}
 
 export type LinkStatus =
     | 'planned'
@@ -103,6 +122,7 @@ export interface AiSystem extends Timestamps {
     risks_count?: number;
     adverse_events?: AdverseEvent[];
     adverse_events_count?: number;
+    system_changes?: SystemChange[];
 }
 
 export interface Risk extends Timestamps {
@@ -283,6 +303,9 @@ export interface StatusHistory extends Timestamps {
     /** Null only for an automatic entry. */
     owner_id: number | null;
     adverse_event_id: number | null;
+    /** The change of the system that caused a reversal (0021). */
+    system_change_id: number | null;
+    system_change?: SystemChange | null;
     link?: Link;
     owner?: Owner | null;
     /** For a reversal: the reassessment that concluded it. */

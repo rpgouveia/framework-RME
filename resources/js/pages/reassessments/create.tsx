@@ -36,9 +36,11 @@ import {
     linkStatusLabels,
     reassessmentOutcomeLabels,
     subdomainCodes,
+    systemChangeTypeLabels,
 } from '@/lib/labels';
 import { cn } from '@/lib/utils';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
+import { show as showSystemChange } from '@/routes/system-changes';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create } from '@/routes/links/reassessments';
 import type {
@@ -388,6 +390,26 @@ function ReversalContext({
                             <p className="font-normal">
                                 {reversal.trigger_reason}
                             </p>
+                        </DetailItem>
+                    </dl>
+                )}
+                {reversal.system_change && (
+                    <dl>
+                        <DetailItem label="Mudança do sistema">
+                            <Link
+                                href={showSystemChange(
+                                    reversal.system_change.id,
+                                )}
+                                className="hover:underline"
+                            >
+                                {
+                                    systemChangeTypeLabels[
+                                        reversal.system_change.type
+                                    ]
+                                }{' '}
+                                de{' '}
+                                {formatDate(reversal.system_change.change_date)}
+                            </Link>
                         </DetailItem>
                     </dl>
                 )}

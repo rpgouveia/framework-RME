@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
+import { SystemChangesTable } from '@/components/system-changes-table';
 import { DeleteDialog } from '@/components/delete-dialog';
 import {
     UNACCEPTABLE_ALERT_ID,
@@ -38,7 +39,9 @@ import {
     adverseEvents as adverseEventsCsv,
     csv as reportCsv,
     json as reportJson,
+    systemChanges as systemChangesCsv,
 } from '@/routes/ai-systems/report';
+import { create as createSystemChange } from '@/routes/ai-systems/system-changes';
 import { create as createRisk, show as showRisk } from '@/routes/risks';
 import type { AiSystem, Risk } from '@/types/models';
 
@@ -150,14 +153,44 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                 </Card>
 
                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between gap-4">
+                        <div className="grid gap-1.5">
+                            <CardTitle>Mudanças do sistema</CardTitle>
+                            <CardDescription>
+                                Novas versões do modelo e alterações na base de
+                                dados levam os vínculos verificados à
+                                reavaliação.
+                            </CardDescription>
+                        </div>
+                        <Button size="sm" asChild>
+                            <Link href={createSystemChange(aiSystem.id)}>
+                                Registrar mudança
+                            </Link>
+                        </Button>
+                    </CardHeader>
+                    <CardContent>
+                        {(aiSystem.system_changes ?? []).length === 0 ? (
+                            <p className="text-muted-foreground text-sm">
+                                Nenhuma mudança foi registrada para este
+                                sistema.
+                            </p>
+                        ) : (
+                            <SystemChangesTable
+                                changes={aiSystem.system_changes ?? []}
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card>
                     <CardHeader>
                         <CardTitle>Relatório de rastreabilidade</CardTitle>
                         <CardDescription>
                             O arquivo traz a cadeia completa de cada risco deste
                             sistema: as mitigações aplicadas e as evidências que
-                            as comprovam. A planilha de eventos adversos traz
-                            uma linha por evento, inclusive os que não
-                            reverteram vínculos.
+                            as comprovam. As planilhas de eventos adversos e de
+                            mudanças do sistema trazem uma linha por registro,
+                            inclusive os que não reverteram vínculos.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-2">
@@ -179,6 +212,14 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                 download
                             >
                                 Baixar eventos adversos (CSV)
+                            </a>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <a
+                                href={systemChangesCsv(aiSystem.id).url}
+                                download
+                            >
+                                Baixar mudanças do sistema (CSV)
                             </a>
                         </Button>
                     </CardContent>

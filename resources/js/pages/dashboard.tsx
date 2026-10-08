@@ -52,6 +52,7 @@ import {
     show as showLink,
 } from '@/routes/links';
 import { create as createEvidence } from '@/routes/links/evidence';
+import { show as showSystemChange } from '@/routes/system-changes';
 import {
     create as createRisk,
     index as risksIndex,
@@ -83,8 +84,12 @@ type SystemSummary = Pick<
 type UnmappedRisk = {
     ai_system: { id: number; name: string };
     subdomain: { code: string; name: string; domain: string | null };
+    /** Where the case came from: adverse events, system changes, or both. */
+    sources: ('adverse_event' | 'system_change')[];
     events_count: number;
-    latest_event: { id: number; occurrence_date: string };
+    latest_event: { id: number; occurrence_date: string } | null;
+    changes_count: number;
+    latest_change: { id: number; change_date: string } | null;
 };
 
 type Props = {
@@ -683,8 +688,9 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
             <CardHeader>
                 <CardTitle>Riscos não mapeados</CardTitle>
                 <CardDescription>
-                    Eventos adversos em subdomínios em que o sistema não tem
-                    risco cadastrado: um risco que ainda não foi identificado.
+                    Subdomínios citados por eventos adversos ou por mudanças do
+                    sistema em que o sistema não tem risco cadastrado: um risco
+                    que ainda não foi identificado.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -714,22 +720,48 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
                                         >
                                             {risk.ai_system.name}
                                         </Link>{' '}
-                                        ·{' '}
-                                        {risk.events_count === 1
-                                            ? '1 evento'
-                                            : `${risk.events_count} eventos`}
-                                        , o mais recente em{' '}
-                                        <Link
-                                            href={showAdverseEvent(
-                                                risk.latest_event.id,
-                                            )}
-                                            className="hover:underline"
-                                        >
-                                            {formatDate(
-                                                risk.latest_event
-                                                    .occurrence_date,
-                                            )}
-                                        </Link>
+                                        {risk.latest_event && (
+                                            <>
+                                                {' '}
+                                                · Evento adverso:{' '}
+                                                {risk.events_count === 1
+                                                    ? '1 evento'
+                                                    : `${risk.events_count} eventos`}
+                                                , o mais recente em{' '}
+                                                <Link
+                                                    href={showAdverseEvent(
+                                                        risk.latest_event.id,
+                                                    )}
+                                                    className="hover:underline"
+                                                >
+                                                    {formatDate(
+                                                        risk.latest_event
+                                                            .occurrence_date,
+                                                    )}
+                                                </Link>
+                                            </>
+                                        )}
+                                        {risk.latest_change && (
+                                            <>
+                                                {' '}
+                                                · Mudança do sistema:{' '}
+                                                {risk.changes_count === 1
+                                                    ? '1 mudança'
+                                                    : `${risk.changes_count} mudanças`}
+                                                , a mais recente em{' '}
+                                                <Link
+                                                    href={showSystemChange(
+                                                        risk.latest_change.id,
+                                                    )}
+                                                    className="hover:underline"
+                                                >
+                                                    {formatDate(
+                                                        risk.latest_change
+                                                            .change_date,
+                                                    )}
+                                                </Link>
+                                            </>
+                                        )}
                                     </span>
                                 </span>
                                 <Button size="sm" variant="outline" asChild>

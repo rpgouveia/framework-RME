@@ -82,5 +82,10 @@
     "The replaced link must be of the same risk.": "O vínculo substituído deve ser do mesmo risco.",
     "Only a link cancelled by a reassessment that chose to replace it can be replaced.": "Só pode ser substituído um vínculo cancelado por uma reavaliação que escolheu substituí-lo.",
     "This link was already replaced.": "Este vínculo já foi substituído.",
-    "Create the link that replaces it.": "Crie o vínculo que o substitui."
+    "Create the link that replaces it.": "Crie o vínculo que o substitui.",
+    "Model Version": "Nova versão do modelo",
+    "Data Change": "Alteração na base de dados",
+    ":type of :date.": ":type de :date.",
+    "System change recorded.": "Mudança do sistema registrada.",
+    "The change date cannot be in the future.": "A data da mudança não pode ser futura."
 }

@@ -55,6 +55,21 @@ class TraceabilityReportController extends Controller
     }
 
     /**
+     * Download the system's changes as CSV, one row per change, also those
+     * that reverted no link (0021).
+     */
+    public function systemChangesCsv(AiSystem $aiSystem, CompileTraceabilityReport $report): StreamedResponse
+    {
+        Gate::authorize('view', $aiSystem);
+
+        return $this->streamCsv(
+            CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER,
+            $report->systemChangeRows($aiSystem),
+            "system-changes-{$aiSystem->id}-".now()->toDateString().'.csv',
+        );
+    }
+
+    /**
      * Stream rows as a CSV download for spreadsheet tools.
      *
      * @param  list<string>  $header

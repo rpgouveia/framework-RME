@@ -97,6 +97,8 @@ class DashboardController extends Controller
                     ChangeOrigin::ReviewDue,
                     ChangeOrigin::AdverseEvent,
                     ChangeOrigin::SystemReclassification,
+                    ChangeOrigin::ModelVersion,
+                    ChangeOrigin::DataChange,
                     ChangeOrigin::Manual,
                 ])->map(fn (ChangeOrigin $origin): array => [
                     'origin' => $origin->value,

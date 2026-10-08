@@ -25,5 +25,6 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0018](0018-verificacao-do-vinculo.md)               | Verificação do vínculo: regras da etapa 4a                           | Aceita; implementada na etapa 4a                      |
 | [0019](0019-gatilhos-de-reavaliacao.md)              | Gatilhos de reavaliação e eventos adversos                           | Aceita; implementada na etapa 4b                      |
 | [0020](0020-reavaliacao-e-desfechos.md)              | Reavaliação do vínculo e seus desfechos                              | Aceita; implementada na etapa 4c                      |
+| [0021](0021-mudancas-do-sistema.md)                  | Mudanças do sistema como gatilho de reavaliação                      | Aceita; implementada na etapa 4d                      |
 
 Itens em aberto: [PENDENTES.md](PENDENTES.md).

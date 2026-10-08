@@ -36,10 +36,12 @@ import {
     changeOriginLabels,
     reassessmentOutcomeLabels,
     subdomainCodes,
+    systemChangeTypeLabels,
 } from '@/lib/labels';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { show as showReassessment } from '@/routes/reassessments';
+import { show as showSystemChange } from '@/routes/system-changes';
 import type { Link, Owner } from '@/types/models';
 
 type VerifierOption = Pick<Owner, 'id' | 'organizational_role' | 'area'>;
@@ -140,6 +142,27 @@ export function LinkVerificationCard({
                         </p>
                         {reversal.trigger_reason && (
                             <p>Motivo: {reversal.trigger_reason}</p>
+                        )}
+                        {reversal.system_change && (
+                            <p>
+                                Mudança do sistema:{' '}
+                                <InertiaLink
+                                    href={showSystemChange(
+                                        reversal.system_change.id,
+                                    )}
+                                    className="font-medium underline underline-offset-4"
+                                >
+                                    {
+                                        systemChangeTypeLabels[
+                                            reversal.system_change.type
+                                        ]
+                                    }{' '}
+                                    de{' '}
+                                    {formatDate(
+                                        reversal.system_change.change_date,
+                                    )}
+                                </InertiaLink>
+                            </p>
                         )}
                         {reversal.adverse_event && (
                             <p>

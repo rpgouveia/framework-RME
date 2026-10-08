@@ -43,6 +43,8 @@ class DatabaseSeeder extends Seeder
             LinkSeeder::class,
             // The reassessment triggers (0019), on the links as they stand.
             ReassessmentSeeder::class,
+            // System changes as reassessment triggers (0021).
+            SystemChangeSeeder::class,
         ]);
     }
 }

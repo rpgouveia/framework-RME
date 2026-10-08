@@ -121,6 +121,7 @@ class LinkController extends Controller
             'lastVerification.owner',
             'lastReversal.owner',
             'lastReversal.adverseEvent.riskSubdomains',
+            'lastReversal.systemChange',
             'lastReversal.reassessment',
             'reassessments.owner',
             'reassessments.reversal',

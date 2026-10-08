@@ -24,6 +24,7 @@ return [
         'intercepting_link_id' => 'vínculo interceptador',
         'nature' => 'natureza',
         'category' => 'categoria',
+        'change_date' => 'data da mudança',
         'description' => 'descrição',
         'estimated_cost' => 'custo estimado',
         'lifecycle_phase' => 'fase do ciclo de vida',

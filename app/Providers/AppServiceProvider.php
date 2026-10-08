@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
      */
     protected function configureRoutePatterns(): void
     {
-        foreach (['ai_system', 'risk', 'adverse_event', 'mitigation', 'owner', 'link', 'evidence', 'status_history', 'reassessment'] as $parameter) {
+        foreach (['ai_system', 'risk', 'adverse_event', 'mitigation', 'owner', 'link', 'evidence', 'status_history', 'reassessment', 'system_change'] as $parameter) {
             Route::pattern($parameter, '[0-9]+');
         }
     }
