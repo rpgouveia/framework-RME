@@ -44,11 +44,11 @@ erDiagram
 | `Reassessment`  | `reassessments`    | The conclusion of one reversal: outcome (maintain, adjust, replace, close), owner, justification, cause analysis and changes made.   |
 | `Taxonomy`      | `taxonomies`       | A versioned reference taxonomy (MIT AI risk domains, Saeri et al. mitigations), with its citation; `TaxonomyTerm` holds its entries. |
 
-A link has **two status dimensions**: its progress (`planned`,`in_progress`, 
-`implemented`, `monitoring`, `suspended`, `cancelled`) and its verification 
-(`declared` or `verified`). A link is only _verified_ on evidence recorded 
-after its last verification change, and a verified link carries a review 
-date. Links are never deleted: they end by cancellation, and a replacement 
+A link has **two status dimensions**: its progress (`planned`,`in_progress`,
+`implemented`, `monitoring`, `suspended`, `cancelled`) and its verification
+(`declared` or `verified`). A link is only _verified_ on evidence recorded
+after its last verification change, and a verified link carries a review
+date. Links are never deleted: they end by cancellation, and a replacement
 points at the link it replaces.
 
 Every classification field is a PHP backed enum in [`app/Enums`](app/Enums),
@@ -81,6 +81,12 @@ seeders and validated on load (`app/Support`):
 | `taxonomies/saeri-mitigation-taxonomy.json` | The preliminary mitigation taxonomy of Saeri et al., classifying the catalogue.                      |
 | `mitigation-catalog.json`                   | The mitigation catalogue. **Currently fictional** (`meta.fictional`), pending the group's curation.  |
 | `protocols/c3-monitoring-protocol.json`     | The C3 monitoring protocol: review interval per EU AI Act tier and the dashboard windows.            |
+
+### Using the app
+
+[`docs/tutorial.md`](docs/tutorial.md) is a step-by-step guide to the app, in
+Portuguese: from registering a system, its risks and mitigations to reassessing
+a link after an adverse event, plus a 15-minute tour of the sample data.
 
 ### Domain decisions
 
