@@ -1,9 +1,12 @@
 # Framework RME
 
-A web application for managing the risks of AI systems: it keeps a registry of
+A web application for managing the risks of AI systems. It keeps a registry of
 the AI systems an organization runs, the risks identified for each one, the
-adverse events they actually caused, the mitigations that address those risks,
-who is accountable for them, and the evidence proving they are in place.
+mitigations applied to those risks, who is accountable for each, and the
+evidence proving they are in place. It then keeps that claim honest over time:
+review deadlines, adverse events and changes to a system take verified
+mitigations back to reassessment, and every step lands in an append-only audit
+trail exported as a traceability report.
 
 Applied research project — PUCPR.
 
@@ -13,42 +16,79 @@ Applied research project — PUCPR.
 erDiagram
     AI_SYSTEM     ||--o{ RISK           : "is exposed to"
     AI_SYSTEM     ||--o{ ADVERSE_EVENT  : "suffers"
+    AI_SYSTEM     ||--o{ SYSTEM_CHANGE  : "goes through"
     RISK          ||--o{ LINK           : "is addressed by"
     MITIGATION    ||--o{ LINK           : "is applied through"
     OWNER         ||--o{ LINK           : "is accountable for"
     LINK          ||--o{ STATUS_HISTORY : "changes through"
     LINK          ||--o{ EVIDENCE       : "is proven by"
-    OWNER         ||--o{ STATUS_HISTORY : "records"
-    ADVERSE_EVENT ||--o{ STATUS_HISTORY : "triggers"
+    LINK          ||--o{ REASSESSMENT   : "is reassessed in"
+    LINK          |o--o| LINK           : "replaces"
+    ADVERSE_EVENT ||--o{ STATUS_HISTORY : "reverts"
+    SYSTEM_CHANGE ||--o{ STATUS_HISTORY : "reverts"
+    STATUS_HISTORY ||--o| REASSESSMENT  : "is concluded by"
+    TAXONOMY_TERM ||--o{ RISK           : "classifies"
 ```
 
-| Entity          | Table              | What it holds                                                                                         |
-| --------------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `AiSystem`      | `ai_systems`       | An AI system in the portfolio: name, source type, category, registration date.                        |
-| `Risk`          | `risks`            | A risk identified for one system: description, category, lifecycle phase, uncertainty level.          |
-| `AdverseEvent`  | `adverse_events`   | Something that went wrong on a system in production: type, description, date.                         |
-| `Mitigation`    | `mitigations`      | The reusable catalogue entry: measure, SAERI category, target risk, expected evidence, cost, source.  |
-| `Owner`         | `owners`           | The organizational role accountable for a mitigation, and its area.                                   |
-| `Link`          | `links`            | **The core entity.** Applies one mitigation to one risk under one owner, with cost, dates and status. |
-| `StatusHistory` | `status_histories` | The audit trail of status changes on a link, and what triggered each one.                             |
-| `Evidence`      | `evidence`         | An artifact proving a link is in place.                                                               |
+| Entity          | Table              | What it holds                                                                                                                        |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `AiSystem`      | `ai_systems`       | An AI system in the portfolio: name, application domain, source type, EU AI Act tier, registration date.                             |
+| `Risk`          | `risks`            | A risk identified for one system: name, description, MIT risk subdomain, lifecycle phase, uncertainty level.                         |
+| `Mitigation`    | `mitigations`      | A read-only catalogue entry: measure, Saeri et al. subcategory, target risk subdomains, expected evidence, suggested cost, source.   |
+| `Owner`         | `owners`           | The organizational role accountable for a mitigation, and its area. Deactivated rather than deleted once in use.                     |
+| `Link`          | `links`            | **The core entity.** Applies one mitigation to one risk under one owner, with a progress status and a verification status.           |
+| `Evidence`      | `evidence`         | An artifact proving a link is in place, optionally with the cost actually observed. Append-only.                                     |
+| `StatusHistory` | `status_histories` | The append-only audit trail of a link: every change of progress or verification, with its origin, author or trigger.                 |
+| `AdverseEvent`  | `adverse_events`   | An incident or a near miss on a system, classified by MIT risk subdomains. Append-only.                                              |
+| `SystemChange`  | `system_changes`   | A new model version or a data change of a system, optionally naming the risk subdomains it reaches. Append-only.                     |
+| `Reassessment`  | `reassessments`    | The conclusion of one reversal: outcome (maintain, adjust, replace, close), owner, justification, cause analysis and changes made.   |
+| `Taxonomy`      | `taxonomies`       | A versioned reference taxonomy (MIT AI risk domains, Saeri et al. mitigations), with its citation; `TaxonomyTerm` holds its entries. |
+
+A link has **two status dimensions** (decision 0013): its progress (`planned`,
+`in_progress`, `implemented`, `monitoring`, `suspended`, `cancelled`) and its
+verification (`declared` or `verified`). A link is only _verified_ on evidence
+recorded after its last verification change, and a verified link carries a
+review date. Links are never deleted: they end by cancellation, and a
+replacement points at the link it replaces.
 
 Every classification field is a PHP backed enum in [`app/Enums`](app/Enums),
 cast on the model and validated with `Rule::enum()`. The columns are plain
-strings, so changing an enum needs no migration.
+strings, so changing an enum needs no migration. The TypeScript mirror of every
+enum lives in [`resources/js/types/models.ts`](resources/js/types/models.ts),
+with its pt-BR labels in [`resources/js/lib/labels.ts`](resources/js/lib/labels.ts),
+and both must be updated alongside the PHP one.
 
 Cost is one of those enums: `CostLevel` (low/medium/high) backs a mitigation's
-`suggested_cost` and both cost columns of a link, so an estimate and the cost
-actually observed stay comparable. It is deliberately qualitative — if the team
-later needs real currency amounts, add a numeric column next to it rather than
-widening the scale.
+`suggested_cost`, a link's `estimated_cost` and the cost observed on evidence,
+so an estimate and the actual cost stay comparable. It is deliberately
+qualitative — if the team later needs real currency amounts, add a numeric
+column next to it rather than widening the scale.
 
-> **Before building on them:** the enum values are a first proposal and several
-> carry a `@todo`. `SaeriCategory` and `AdverseEventType` in particular are
-> placeholders — replace their cases with the real taxonomy from the source
-> paper. The TypeScript mirror of every enum lives in
-> [`resources/js/types/models.ts`](resources/js/types/models.ts) and must be
-> updated alongside the PHP one.
+> **Still to confirm:** several enums (`AiSystemCategory`, `CostLevel`,
+> `EvidenceType`, `LifecyclePhase`, `LinkStatus`, `SystemSourceType`,
+> `UncertaintyLevel`) carry a `@todo` to check their values against the RME
+> framework definition.
+
+### Reference data
+
+The taxonomies, the mitigation catalogue and the monitoring protocol are
+versioned JSON files under [`database/data`](database/data), loaded by the
+seeders and validated on load (`app/Support`):
+
+| File                                        | What it holds                                                                                        |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `taxonomies/mit-ai-risk-domains.json`       | The MIT AI Risk Repository domain taxonomy (7 domains, 24 subdomains), classifying risks and events. |
+| `taxonomies/saeri-mitigation-taxonomy.json` | The preliminary mitigation taxonomy of Saeri et al., classifying the catalogue.                      |
+| `mitigation-catalog.json`                   | The mitigation catalogue. **Currently fictional** (`meta.fictional`), pending the group's curation.  |
+| `protocols/c3-monitoring-protocol.json`     | The C3 monitoring protocol: review interval per EU AI Act tier and the dashboard windows.            |
+
+### Domain decisions
+
+The business rules are recorded, in Portuguese, in
+[`docs/decisions`](docs/decisions/README.md), one numbered decision per file.
+Read the matching decision before changing a rule, and check
+[`PENDENTES.md`](docs/decisions/PENDENTES.md) before implementing anything
+not yet decided there.
 
 ## Stack
 
@@ -162,7 +202,7 @@ Worth knowing:
 - **`scheduler` runs the schedule**: `schedule:work` checks `routes/console.php`
   every minute and runs what is due, such as `links:flag-due-for-review` at
   07:00. It only lives while the containers are up; see
-  [Periodic reassessment](#periodic-reassessment) for production.
+  [Running the schedule](#running-the-schedule) for production.
 - **`node_modules` is a named volume**, not the host directory: the container
   installs the Linux builds of Rollup, Tailwind Oxide and lightningcss without
   touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
@@ -199,11 +239,22 @@ routes/web.php                          Route::resource('ai-systems', AiSystemCo
      ├─ app/Policies/AiSystemPolicy.php          Gate::authorize(...)
      ├─ app/Http/Requests/StoreAiSystemRequest.php
      │   └─ app/Concerns/AiSystemValidationRules.php   rules shared by store + update
+     ├─ app/Actions/UpdateAiSystem.php           writes with side effects
      ├─ app/Models/AiSystem.php                  #[Fillable], casts, relationships
      └─ Inertia::render('ai-systems/index')
          └─ resources/js/pages/ai-systems/index.tsx
 ```
 
+- **Writes with side effects go through an Action** in `app/Actions`, inside a
+  transaction. In particular, `RecordStatusChange` is the **single write path**
+  for a link's status: opening, progress changes, verification and reversal all
+  pass through it, so the history and the rules cannot be bypassed (decision
+  0007). The other actions — `RecordAdverseEvent`, `RecordSystemChange`,
+  `RecordReassessment`, `UpdateAiSystem`, `RevertOverdueLinks` — call it.
+- **Append-only records** (status history, evidence, adverse events, system
+  changes, reassessments) expose no `edit`, `update` or `destroy` routes. Those
+  that belong to another record are nested under it with `shallow()`, such as
+  `/links/{link}/reassessments/create` and `/reassessments/{reassessment}`.
 - **Validation rules live in a trait** under `app/Concerns`, shared by the
   `Store*` and `Update*` requests, following the existing
   `ProfileValidationRules` convention.
@@ -219,29 +270,25 @@ routes/web.php                          Route::resource('ai-systems', AiSystemCo
     <Link href={show(aiSystem.id)}>{aiSystem.name}</Link>;
     ```
 
-### Pages still to build
+- **The interface is in pt-BR**, while code, routes and enum values are in
+  English. Backend messages are translated in `lang/pt.json` and
+  `lang/pt/validation.php`.
 
-Every page under `resources/js/pages/` for the domain entities is currently a
-**placeholder**: it renders the props the controller sent and a TODO note.
-Pick one, delete the `<ScaffoldPlaceholder>` and build the real UI — the
-backend behind it is done and tested.
+Run `php artisan route:list --except-vendor` for the full route map.
 
-| Section        | Page components                             |
-| -------------- | ------------------------------------------- |
-| AI systems     | `ai-systems/{index,create,show,edit}`       |
-| Risks          | `risks/{index,create,show,edit}`            |
-| Adverse events | `adverse-events/{index,create,show,edit}`   |
-| Mitigations    | `mitigations/{index,create,show,edit}`      |
-| Owners         | `owners/{index,create,show,edit}`           |
-| Links          | `links/{index,create,show,edit}`            |
-| Evidence       | `evidence/{index,create,show,edit}`         |
-| Status history | `status-histories/{index,create,show,edit}` |
+### Screens
 
-Evidence and status history are nested under a link
-(`/links/{link}/evidence`), because neither exists on its own. Adverse events
-hang off an AI system the same way risks do, so they are a top level resource
-with the system picked on the form. Run
-`php artisan route:list --except-vendor` for the full map.
+| Section        | What it does                                                                                                                                                                             |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard      | Portfolio totals, risks without links, links without evidence, links awaiting verification or reassessment (by origin), reviews coming due, recent adverse events, risks not yet mapped. |
+| AI systems     | The portfolio; each system shows its risks, system changes, and the traceability report downloads.                                                                                       |
+| Risks          | Risks per system, classified by MIT subdomain, with their links.                                                                                                                         |
+| Mitigations    | The read-only catalogue, with its Saeri et al. classification and source.                                                                                                                |
+| Owners         | Accountable roles; deactivated instead of deleted once used.                                                                                                                             |
+| Links          | Filterable list by progress, verification and reversal origin; each link has its timeline, evidence and reassessments.                                                                   |
+| Adverse events | Recording an incident or near miss, with a preview of the links it will revert.                                                                                                          |
+| System changes | Recording a model version or data change on a system, with a preview of the links it will revert.                                                                                        |
+| Reassessments  | Concluding a reversal with an outcome, cause analysis and adjustments.                                                                                                                   |
 
 ## Testing
 
@@ -255,9 +302,21 @@ Prefix them with `docker compose exec app` to run them in the container; the
 same goes for the quality commands below.
 
 Each entity has a feature test in `tests/Feature/` covering the guest
-redirect, the listing, creation, validation failures, updates and deletion.
-CI runs the same suite against its own PostgreSQL service
-(`.github/workflows/tests.yml`).
+redirect, the listing, creation, validation failures and, where allowed,
+updates and deletion. The rules of each decision have their own files
+(`LinkVerificationTest`, `ReassessmentTest`, `SystemChangeTest`, ...), and a
+seeder test checks that the sample data tells every story through the actions.
+
+Locally the suite runs on an in-memory SQLite database (`phpunit.xml`); CI runs
+it against its own PostgreSQL service (`.github/workflows/tests.yml`). Some
+rules are database CHECK constraints, so run it on PostgreSQL too before
+pushing a schema change:
+
+```bash
+docker compose exec postgres createdb -U root testing     # once
+docker compose exec -e DB_CONNECTION=pgsql -e DB_HOST=postgres -e DB_DATABASE=testing \
+    app php artisan test --compact
+```
 
 ## Code quality
 
@@ -279,21 +338,30 @@ Commit messages follow the conventional style already used in the history:
 
 ```
 app/
+├── Actions/           the write paths: RecordStatusChange and the actions built on it
 ├── Concerns/          validation rule traits + the enum options helper
+├── Console/Commands/  links:flag-due-for-review
 ├── Enums/             every classification used by the domain
 ├── Http/
-│   ├── Controllers/   one resource controller per entity
+│   ├── Controllers/   one controller per entity, plus the dashboard and the report
 │   └── Requests/      Store*/Update* form requests
-├── Models/            the eight domain models
-└── Policies/          one policy per entity
+├── Models/            the domain models
+├── Policies/          one policy per entity
+└── Support/           reference data loaders: taxonomies, catalogue, monitoring protocol
 
 database/
-├── factories/         factories with states (implemented, dueForReview, ...)
+├── data/              versioned reference files (taxonomies, catalogue, protocol)
+├── factories/         factories with states (implemented, highRisk, inSubdomain, ...)
 ├── migrations/        the schema
 └── seeders/           one seeder per entity, chained by DatabaseSeeder
 
+docs/decisions/        the domain decision records, in Portuguese
+
+lang/                  pt-BR translations of backend messages
+
 resources/js/
 ├── components/        shared React components
+├── lib/               labels, formatting and the pure preview functions
 ├── pages/             one directory per entity, mapped to Inertia::render()
 ├── routes/            generated by Wayfinder — do not edit
 └── types/models.ts    TypeScript mirror of the models and enums
@@ -304,18 +372,25 @@ docker/
 compose.yml            every service of the development stack
 ```
 
-## Periodic reassessment
+The seeders build the sample portfolio **through the actions**, travelling in
+time, so the data follows the same rules as the app: links verified on
+evidence, reversed by each trigger, reassessed with each outcome.
+
+## Verification and reassessment
 
 A link's `next_review_date` is set when the link is verified: the verification
 date plus the review interval of the EU AI Act tier of the risk's system, as the
-versioned C3 protocol file `database/data/protocols/c3-monitoring-protocol.json`
-sets it (high 90 days, limited 180, minimal 365). A declared link has no review
-date, and a system in the unacceptable tier never operates, so its links cannot
-be verified. The same file holds the dashboard windows (recent events, upcoming
-reviews). The rules are recorded in `docs/decisions` (0017, 0018 and 0019).
+C3 protocol file `database/data/protocols/c3-monitoring-protocol.json` sets it
+(high 90 days, limited 180, minimal 365). A declared link has no review date,
+and a system in the unacceptable tier never operates, so its links cannot be
+verified — they serve to plan its discontinuation. The rules are recorded in
+decisions 0017 and 0018.
 
-Three triggers take a verified link back to declared, awaiting reassessment,
-each recorded in the status history with its origin and no author:
+### Triggers
+
+Five triggers take a verified link back to declared, awaiting reassessment.
+Each reversal is recorded in the status history with its origin and, when
+automatic, no author (decisions 0019 and 0021):
 
 - **Review due** — `links:flag-due-for-review` reverts the links past their
   review date. The date is the last valid day: a link due today is shown as
@@ -326,6 +401,48 @@ each recorded in the status history with its origin and no author:
   except the link that intercepted a near miss.
 - **Reclassification** — editing a system into the unacceptable tier reverts
   all its verified links.
+- **New model version** and **data change** — recording a system change
+  reverts the verified links of the system whose risk is in one of the
+  subdomains it names, or **all** of them when it names none.
+- **Manual** — a user may revert a verified link by hand, with a reason.
+
+An event or a change naming a subdomain the system has no risk for shows on the
+dashboard as a risk not yet mapped, with a shortcut to register it.
+
+### Reassessment
+
+Each reversal is concluded by one reassessment (decision 0020), with an owner
+and a justification:
+
+| Outcome      | Effect                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| **Maintain** | Verifies the link again, on evidence recorded after the reversal.                                       |
+| **Adjust**   | Changes the owner, estimated cost, lifecycle phase or progress; verifying in the same step is optional. |
+| **Replace**  | Cancels the link and opens the form for its replacement, of the same risk.                              |
+| **Close**    | Cancels the link.                                                                                       |
+
+A reversal from an adverse event or a manual one asks for a cause analysis
+(identified, with the cause and its lifecycle phase, or not identified); a
+review due, a reclassification or a system change does not. Maintain and
+replace are unavailable for a system in the unacceptable tier.
+
+### Traceability report
+
+Each AI system page offers four downloads:
+
+| Download             | Route                                | Content                                                                          |
+| -------------------- | ------------------------------------ | -------------------------------------------------------------------------------- |
+| JSON                 | `ai-systems/{id}/report.json`        | The full chain: risks, links, evidence, history, reassessments, events, changes. |
+| CSV                  | `ai-systems/{id}/report.csv`         | One row per link.                                                                |
+| Adverse events (CSV) | `ai-systems/{id}/adverse-events.csv` | One row per event, including those that reverted nothing.                        |
+| System changes (CSV) | `ai-systems/{id}/system-changes.csv` | One row per change, including those that reverted nothing.                       |
+
+The CSV files are UTF-8 with a BOM and `;` as the delimiter, so they open
+directly in a pt-BR spreadsheet, and cells that look like formulas are
+neutralised. Every file carries the version of the monitoring protocol it was
+produced under.
+
+### Running the schedule
 
 The schedule runs `links:flag-due-for-review` daily at 07:00. In development
 the `scheduler` service runs the schedule while the containers are up; outside
