@@ -3,7 +3,7 @@ import type { ChangeOrigin } from '@/types/models';
 
 /** The verification filters of the link list: the pending lists of Tela 3. */
 export type VerificationFilter =
-    | 'awaiting_first'
+    | 'awaiting_verification'
     | 'awaiting_reassessment'
     | 'verified';
 

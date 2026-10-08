@@ -32,9 +32,14 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/lib/format';
-import { changeOriginLabels, subdomainCodes } from '@/lib/labels';
+import {
+    changeOriginLabels,
+    reassessmentOutcomeLabels,
+    subdomainCodes,
+} from '@/lib/labels';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
+import { show as showReassessment } from '@/routes/reassessments';
 import type { Link, Owner } from '@/types/models';
 
 type VerifierOption = Pick<Owner, 'id' | 'organizational_role' | 'area'>;
@@ -92,7 +97,27 @@ export function LinkVerificationCard({
                     // but cannot be verified again: what it calls for is to
                     // plan the discontinuation (0019, addendum).
                     <div className="grid gap-1 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                        {unacceptable && aiSystem ? (
+                        {reversal.reassessment ? (
+                            // Decided, still to be proven (0020, item 4).
+                            <p className="font-semibold">
+                                Reavaliado (
+                                <InertiaLink
+                                    href={showReassessment(
+                                        reversal.reassessment.id,
+                                    )}
+                                    className="underline underline-offset-4"
+                                >
+                                    {reassessmentOutcomeLabels[
+                                        reversal.reassessment.outcome
+                                    ].toLowerCase()}{' '}
+                                    em{' '}
+                                    {formatDate(
+                                        reversal.reassessment.reassessment_date,
+                                    )}
+                                </InertiaLink>
+                                ): aguardando verificação
+                            </p>
+                        ) : unacceptable && aiSystem ? (
                             <p className="font-semibold">
                                 <InertiaLink
                                     href={`${showAiSystem.url(aiSystem.id)}#${UNACCEPTABLE_ALERT_ID}`}

@@ -94,6 +94,8 @@ class AdverseEventController extends Controller
             'interceptingLink.mitigation',
             'reversals.link.risk',
             'reversals.link.mitigation',
+            // How far the reassessment of each reverted link went (0020).
+            'reversals.reassessment.owner',
             'statusHistories.link.risk',
             'statusHistories.link.mitigation',
             'statusHistories.owner',

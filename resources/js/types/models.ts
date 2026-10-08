@@ -31,6 +31,12 @@ export type CostLevel = 'low' | 'medium' | 'high';
 /** Whether an adverse event caused harm or was caught first (0019). */
 export type AdverseEventNature = 'incident' | 'near_miss';
 
+/** What a reassessment concluded (0020). */
+export type ReassessmentOutcome = 'maintain' | 'adjust' | 'replace' | 'close';
+
+/** Where the cause analysis of a reassessment stands (0020, item 6). */
+export type CauseStatus = 'identified' | 'not_identified' | 'not_applicable';
+
 /** Whether evidence proves a link (0013): born declared, verified on evidence. */
 export type VerificationStatus = 'declared' | 'verified';
 
@@ -226,6 +232,40 @@ export interface Link extends Timestamps {
     observed_cost_evidence?: Evidence | null;
     last_verification?: StatusHistory | null;
     last_reversal?: StatusHistory | null;
+    /** The link this one replaced after a reassessment (0020). */
+    replaces_link_id: number | null;
+    replaces?: Link | null;
+    replaced_by?: Link | null;
+    reassessments?: Reassessment[];
+}
+
+/** A field an adjustment changed, before and after (0020). */
+export interface ReassessmentChange {
+    field: 'owner_id' | 'estimated_cost' | 'lifecycle_phase' | 'status';
+    before: string | null;
+    after: string | null;
+}
+
+/** The reassessment of a link after a reversal (0020): append only. */
+export interface Reassessment extends Timestamps {
+    id: number;
+    link_id: number;
+    /** The reversal it concludes. */
+    reversal_id: number;
+    outcome: ReassessmentOutcome;
+    owner_id: number;
+    justification: string;
+    cause_status: CauseStatus;
+    cause: string | null;
+    cause_phase: LifecyclePhase | null;
+    changes: ReassessmentChange[] | null;
+    /** The verification recorded in the same act, if any. */
+    verification_id: number | null;
+    reassessment_date: string;
+    link?: Link;
+    reversal?: StatusHistory;
+    owner?: Owner;
+    verification?: StatusHistory | null;
 }
 
 /** One entry of a link's trail; it changes progress or verification, never both. */
@@ -245,6 +285,8 @@ export interface StatusHistory extends Timestamps {
     adverse_event_id: number | null;
     link?: Link;
     owner?: Owner | null;
+    /** For a reversal: the reassessment that concluded it. */
+    reassessment?: Reassessment | null;
     adverse_event?: AdverseEvent | null;
 }
 

@@ -25,6 +25,7 @@ import {
     adverseEventNatureBadgeClasses,
     adverseEventNatureLabels,
     linkLabel,
+    reassessmentOutcomeLabels,
     termLabel,
 } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
@@ -32,6 +33,7 @@ import { index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { show as showLink } from '@/routes/links';
 import { create as createEvidence } from '@/routes/links/evidence';
+import { show as showReassessment } from '@/routes/reassessments';
 import { create as createRisk } from '@/routes/risks';
 import type { AdverseEvent, StatusHistory } from '@/types/models';
 
@@ -49,6 +51,9 @@ export default function AdverseEventsShow({
     unmappedSubdomainCodes,
 }: Props) {
     const reversals = adverseEvent.reversals ?? [];
+    const reassessed = reversals.filter(
+        (reversal) => reversal.reassessment,
+    ).length;
     // The other entries that name the event, recorded by hand.
     const changes = (adverseEvent.status_histories ?? []).filter(
         (change) => change.origin !== 'adverse_event',
@@ -212,8 +217,18 @@ export default function AdverseEventsShow({
                         <CardDescription>
                             Ao registrar o evento, os vínculos verificados do
                             sistema cujo risco está em algum dos subdomínios
-                            voltaram a declarados, aguardando reavaliação.
+                            voltaram a declarados. Cada um é reavaliado
+                            separadamente.
                         </CardDescription>
+                        {reversals.length > 0 && (
+                            // How far the reassessments went (0020, item 7).
+                            <p className="text-sm font-medium">
+                                {reassessed} de {reversals.length}{' '}
+                                {reversals.length === 1
+                                    ? 'reavaliado'
+                                    : 'reavaliados'}
+                            </p>
+                        )}
                     </CardHeader>
                     <CardContent>
                         {reversals.length === 0 ? (
@@ -238,7 +253,33 @@ export default function AdverseEventsShow({
                                                 {linkLabel(reversal.link)}
                                             </Link>
                                         )}
-                                        <StatusTransition entry={reversal} />
+                                        {reversal.reassessment ? (
+                                            <Link
+                                                href={showReassessment(
+                                                    reversal.reassessment.id,
+                                                )}
+                                                className="flex items-center gap-2 text-sm hover:underline"
+                                            >
+                                                <Badge variant="outline">
+                                                    {
+                                                        reassessmentOutcomeLabels[
+                                                            reversal
+                                                                .reassessment
+                                                                .outcome
+                                                        ]
+                                                    }
+                                                </Badge>
+                                                em{' '}
+                                                {formatDate(
+                                                    reversal.reassessment
+                                                        .reassessment_date,
+                                                )}
+                                            </Link>
+                                        ) : (
+                                            <span className="text-sm text-amber-700 dark:text-amber-300">
+                                                Aguardando reavaliação
+                                            </span>
+                                        )}
                                     </li>
                                 ))}
                             </ul>

@@ -90,7 +90,7 @@ class DashboardController extends Controller
             // Verification (0018): the pending lists of Tela 3, with the same
             // rules as the filters of the link list.
             'verification' => [
-                'awaitingFirst' => Link::query()->awaitingFirstVerification()->count(),
+                'awaitingVerification' => Link::query()->awaitingVerification()->count(),
                 'awaitingReassessment' => Link::query()->awaitingReassessment()->count(),
                 // Split by the origin of the last reversal (0019, item 11).
                 'awaitingReassessmentByOrigin' => collect([
@@ -103,6 +103,11 @@ class DashboardController extends Controller
                     'count' => Link::query()->revertedBy($origin)->count(),
                 ])->values(),
                 'verified' => Link::query()->verified()->count(),
+                // The links waiting longest for their reassessment (0020).
+                'longestAwaiting' => Link::query()->awaitingReassessment()->longestAwaitingFirst()
+                    ->with(['risk:id,name', 'mitigation:id,name', 'lastReversal'])
+                    ->limit(self::LIST_SIZE)
+                    ->get(),
             ],
             // Events in subdomains where the system has no risk (0019, item 4).
             'unmappedRisks' => $protocol->unmappedRisks(),

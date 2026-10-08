@@ -15,7 +15,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
-import { costLevelLabels, lifecyclePhaseLabels, linkLabel } from '@/lib/labels';
+import {
+    changeOriginLabels,
+    costLevelLabels,
+    lifecyclePhaseLabels,
+    linkLabel,
+    reassessmentOutcomeLabels,
+} from '@/lib/labels';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { edit, index, show } from '@/routes/links';
 import {
@@ -27,15 +33,24 @@ import {
     index as statusHistoriesIndex,
 } from '@/routes/links/status-histories';
 import { show as showMitigation } from '@/routes/mitigations';
+import { show as showReassessment } from '@/routes/reassessments';
 import { show as showRisk } from '@/routes/risks';
+import { create as createReassessment } from '@/routes/links/reassessments';
 import type { Link as RiskLink } from '@/types/models';
 
 type Props = {
     link: RiskLink;
     verification: VerificationProps;
+    /** A reversal awaits its reassessment (0020). */
+    awaitingReassessment: boolean;
 };
 
-export default function LinksShow({ link, verification }: Props) {
+export default function LinksShow({
+    link,
+    verification,
+    awaitingReassessment,
+}: Props) {
+    const reassessments = link.reassessments ?? [];
     const evidenceCount = link.evidence_count ?? 0;
     const historyCount = link.status_histories_count ?? 0;
 
@@ -81,6 +96,13 @@ export default function LinksShow({ link, verification }: Props) {
                         <Button variant="outline" asChild>
                             <Link href={edit(link.id)}>Editar</Link>
                         </Button>
+                        {awaitingReassessment && (
+                            <Button asChild>
+                                <Link href={createReassessment(link.id)}>
+                                    Reavaliar
+                                </Link>
+                            </Button>
+                        )}
                         {/* Links are permanent: they are closed by cancelling
                             them through the status history, and reopened the
                             same way, since the pair cannot be linked twice. */}
@@ -164,6 +186,67 @@ export default function LinksShow({ link, verification }: Props) {
 
                 <LinkVerificationCard link={link} verification={verification} />
 
+                {(link.replaces || link.replaced_by) && (
+                    <RelatedLinks link={link} />
+                )}
+
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between gap-4">
+                        <CardTitle>Reavaliações</CardTitle>
+                        {awaitingReassessment && (
+                            <Button size="sm" asChild>
+                                <Link href={createReassessment(link.id)}>
+                                    Reavaliar
+                                </Link>
+                            </Button>
+                        )}
+                    </CardHeader>
+                    <CardContent>
+                        {reassessments.length === 0 ? (
+                            <p className="text-muted-foreground text-sm">
+                                {awaitingReassessment
+                                    ? 'A última reversão aguarda reavaliação.'
+                                    : 'Este vínculo ainda não foi reavaliado.'}
+                            </p>
+                        ) : (
+                            <ul className="divide-y">
+                                {reassessments.map((reassessment) => (
+                                    <li
+                                        key={reassessment.id}
+                                        className="flex flex-wrap items-center justify-between gap-4 py-2"
+                                    >
+                                        <Link
+                                            href={showReassessment(
+                                                reassessment.id,
+                                            )}
+                                            className="font-medium hover:underline"
+                                        >
+                                            {
+                                                reassessmentOutcomeLabels[
+                                                    reassessment.outcome
+                                                ]
+                                            }{' '}
+                                            em{' '}
+                                            {formatDate(
+                                                reassessment.reassessment_date,
+                                            )}
+                                        </Link>
+                                        <span className="text-muted-foreground text-sm">
+                                            {reassessment.reversal &&
+                                                `Reversão por ${changeOriginLabels[reassessment.reversal.origin].toLowerCase()}`}{' '}
+                                            ·{' '}
+                                            {
+                                                reassessment.owner
+                                                    ?.organizational_role
+                                            }
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </CardContent>
+                </Card>
+
                 <div className="grid gap-6 md:grid-cols-2">
                     <CountCard
                         title="Evidências"
@@ -190,6 +273,43 @@ export default function LinksShow({ link, verification }: Props) {
                 </div>
             </div>
         </>
+    );
+}
+
+/** The link this one replaced, or the one that replaced it (0020). */
+function RelatedLinks({ link }: { link: RiskLink }) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Substituição</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-2 text-sm">
+                {link.replaces && (
+                    <p>
+                        Este vínculo substitui{' '}
+                        <Link
+                            href={show(link.replaces.id)}
+                            className="font-medium underline underline-offset-4"
+                        >
+                            {link.replaces.mitigation?.name}
+                        </Link>
+                        , cancelado numa reavaliação.
+                    </p>
+                )}
+                {link.replaced_by && (
+                    <p>
+                        Este vínculo foi substituído por{' '}
+                        <Link
+                            href={show(link.replaced_by.id)}
+                            className="font-medium underline underline-offset-4"
+                        >
+                            {link.replaced_by.mitigation?.name}
+                        </Link>
+                        .
+                    </p>
+                )}
+            </CardContent>
+        </Card>
     );
 }
 
