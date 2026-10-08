@@ -30,6 +30,9 @@ As decisões 0018 e 0019 definiram quando um vínculo é sinalizado (a reversão
 - Mudanças de status de progresso feitas por um ajuste passam pelo caminho único de gravação (0007).
 - Substituir por outra mitigação para o mesmo risco é permitido; manter a mesma mitigação é feito por "Manter" ou "Ajustar", já que a R-6 impede recriar o mesmo par.
 - O relatório passa a reconstruir a história completa de cada sistema: risco, mitigação, prova, ocorrência, decisão e justificativa.
+- **Adendo (2026-10-08), regras acrescentadas na implementação:**
+    - um ajuste não leva o vínculo a "cancelado": para isso existem os desfechos "Encerrar" e "Substituir", que registram a decisão como tal;
+    - um vínculo cancelado só pode ser substituído uma vez: o vínculo novo registra qual substitui, e um segundo vínculo com o mesmo substituído é recusado.
 
 ## Implementação
 
@@ -47,7 +50,7 @@ Implementada na etapa 4c (2026-10-08).
 - **Item 7:** o detalhe do evento mostra o andamento ("2 de 5 reavaliados") e o desfecho de cada vínculo revertido.
 - **Item 8:** `RecordReassessment::outcomeProblems()` torna Manter e Substituir indisponíveis para sistema na faixa inaceitável, com o motivo; a tela mostra os desfechos indisponíveis desabilitados.
 - **Item 9:** a listagem de aguardando reavaliação e o painel ordenam pelos que esperam há mais tempo (escopo `longestAwaitingFirst()`) e mostram há quantos dias cada vínculo aguarda.
-- **Item 10 (relatório):** seção `adverse_events` no JSON. Em cada vínculo, as reavaliações (`reassessments`), os eventos que o reverteram (`reverting_adverse_events`) e o vínculo substituído e o substituto, nos dois formatos. O CSV, uma linha por vínculo, traz os eventos dentro dos vínculos que eles reverteram.
+- **Item 10 (relatório):** seção `adverse_events` no JSON. Em cada vínculo, as reavaliações (`reassessments`), os eventos que o reverteram (`reverting_adverse_events`) e o vínculo substituído e o substituto, nos dois formatos. O CSV, uma linha por vínculo, traz os eventos dentro dos vínculos que eles reverteram. Uma exportação CSV à parte, só de eventos adversos (`ai-systems/{id}/adverse-events.csv`, `CompileTraceabilityReport::adverseEventRows()`), traz uma linha por evento, inclusive os que não reverteram vínculos: natureza, subdomínios, ocorrência, detecção, vínculo interceptador, vínculos revertidos e subdomínios sem risco cadastrado no sistema.
 - **Telas:** página de reavaliação, com o contexto da reversão, desfechos com explicação, causa e ajustes; detalhe da reavaliação; botão "Reavaliar" e card "Reavaliações" no detalhe do vínculo; vínculo relacionado na substituição; reavaliações intercaladas na linha do tempo do histórico.
 - **Seeders:** o `ReassessmentSeeder` gera um evento com quatro vínculos revertidos, dos quais três foram reavaliados (manter; ajustar sem verificação; substituir, com o vínculo novo); um encerramento; um ajuste em sistema reclassificado para a faixa inaceitável; e vínculos ainda aguardando reavaliação, com idades diferentes.
 

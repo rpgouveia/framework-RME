@@ -32,9 +32,37 @@ class TraceabilityReportController extends Controller
     {
         Gate::authorize('view', $aiSystem);
 
-        $rows = $report->rows($report->handle($aiSystem));
+        return $this->streamCsv(
+            CompileTraceabilityReport::CSV_HEADER,
+            $report->rows($report->handle($aiSystem)),
+            $this->filename($aiSystem, 'csv'),
+        );
+    }
 
-        return response()->streamDownload(function () use ($rows): void {
+    /**
+     * Download the system's adverse events as CSV, one row per event, also
+     * those that reverted no link (0020).
+     */
+    public function adverseEventsCsv(AiSystem $aiSystem, CompileTraceabilityReport $report): StreamedResponse
+    {
+        Gate::authorize('view', $aiSystem);
+
+        return $this->streamCsv(
+            CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER,
+            $report->adverseEventRows($aiSystem),
+            "adverse-events-{$aiSystem->id}-".now()->toDateString().'.csv',
+        );
+    }
+
+    /**
+     * Stream rows as a CSV download for spreadsheet tools.
+     *
+     * @param  list<string>  $header
+     * @param  array<int, list<string|int|null>>  $rows
+     */
+    protected function streamCsv(array $header, array $rows, string $filename): StreamedResponse
+    {
+        return response()->streamDownload(function () use ($header, $rows): void {
             $output = fopen('php://output', 'w');
 
             if ($output === false) {
@@ -47,14 +75,14 @@ class TraceabilityReportController extends Controller
              */
             fwrite($output, "\u{FEFF}");
 
-            fputcsv($output, CompileTraceabilityReport::CSV_HEADER, ';', escape: '');
+            fputcsv($output, $header, ';', escape: '');
 
             foreach ($rows as $row) {
                 fputcsv($output, $row, ';', escape: '');
             }
 
             fclose($output);
-        }, $this->filename($aiSystem, 'csv'), ['Content-Type' => 'text/csv; charset=UTF-8']);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     /**

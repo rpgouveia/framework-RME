@@ -35,6 +35,7 @@ import {
 } from '@/lib/labels';
 import { edit, index, show } from '@/routes/ai-systems';
 import {
+    adverseEvents as adverseEventsCsv,
     csv as reportCsv,
     json as reportJson,
 } from '@/routes/ai-systems/report';
@@ -154,7 +155,9 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                         <CardDescription>
                             O arquivo traz a cadeia completa de cada risco deste
                             sistema: as mitigações aplicadas e as evidências que
-                            as comprovam.
+                            as comprovam. A planilha de eventos adversos traz
+                            uma linha por evento, inclusive os que não
+                            reverteram vínculos.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-2">
@@ -168,6 +171,14 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                         <Button variant="outline" asChild>
                             <a href={reportJson(aiSystem.id).url} download>
                                 Baixar JSON
+                            </a>
+                        </Button>
+                        <Button variant="outline" asChild>
+                            <a
+                                href={adverseEventsCsv(aiSystem.id).url}
+                                download
+                            >
+                                Baixar eventos adversos (CSV)
                             </a>
                         </Button>
                     </CardContent>

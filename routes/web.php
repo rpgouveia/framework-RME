@@ -62,6 +62,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('ai-systems.report.json');
     Route::get('ai-systems/{ai_system}/report.csv', [TraceabilityReportController::class, 'csv'])
         ->name('ai-systems.report.csv');
+    // The system's adverse events, one row per event (0020).
+    Route::get('ai-systems/{ai_system}/adverse-events.csv', [TraceabilityReportController::class, 'adverseEventsCsv'])
+        ->name('ai-systems.report.adverse-events');
 });
 
 require __DIR__.'/settings.php';

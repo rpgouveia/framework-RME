@@ -4,6 +4,7 @@ use App\Actions\CompileTraceabilityReport;
 use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LinkStatus;
+use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
@@ -167,4 +168,94 @@ test('the report quotes the protocol in force and leaves a missing review date e
     expect($rows[0][0])->toBe('protocol_version')
         ->and($row['protocol_version'])->toBe('1.0')
         ->and($row['next_review_date'])->toBe('');
+});
+
+// The adverse events CSV (0020): one row per event, also those that
+// reverted no link.
+
+test('the adverse events csv has one row per event of the system', function () {
+    $this->actingAs(User::factory()->create());
+    $this->travelTo('2026-05-20 10:00');
+
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $link = Link::factory()->verified()
+        ->for(Risk::factory()->for($aiSystem)->inSubdomain('2.1'))
+        ->create(['status' => LinkStatus::InProgress, 'next_review_date' => '2026-08-01']);
+    $interceptor = Link::factory()->verified()
+        ->for(Risk::factory()->for($aiSystem)->inSubdomain('2.2'))
+        ->create(['status' => LinkStatus::InProgress, 'next_review_date' => '2026-08-01']);
+
+    // An incident that reverts the 2.1 link, also touching 4.1, where the
+    // system has no risk.
+    $this->post(route('adverse-events.store'), [
+        'nature' => 'incident',
+        'risk_subdomains' => ['2.1', '4.1'],
+        'description' => 'Vazamento',
+        'occurrence_date' => '2026-05-10',
+        'detected_at' => '2026-05-12',
+        'ai_system_id' => $aiSystem->id,
+    ])->assertSessionHasNoErrors();
+    // A near miss intercepted by the 2.2 link: it reverts nothing.
+    $this->post(route('adverse-events.store'), [
+        'nature' => 'near_miss',
+        'risk_subdomains' => ['2.2'],
+        'description' => 'Tentativa barrada',
+        'occurrence_date' => '2026-05-15',
+        'ai_system_id' => $aiSystem->id,
+        'intercepting_link_id' => $interceptor->id,
+    ])->assertSessionHasNoErrors();
+    // Another system's event stays out.
+    AdverseEvent::factory()->create();
+
+    [$incident, $nearMiss] = AdverseEvent::query()->where('ai_system_id', $aiSystem->id)->orderBy('id')->get();
+
+    $response = $this->get(route('ai-systems.report.adverse-events', $aiSystem));
+
+    $response->assertOk()
+        ->assertHeader('Content-Type', 'text/csv; charset=UTF-8')
+        ->assertHeader('Content-Disposition', 'attachment; filename=adverse-events-'.$aiSystem->id.'-2026-05-20.csv');
+
+    $rows = parseCsv($response->streamedContent());
+
+    expect($rows)->toHaveCount(3)
+        ->and($rows[0])->toBe(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER);
+
+    $first = array_combine($rows[0], $rows[1]);
+    $second = array_combine($rows[0], $rows[2]);
+
+    expect($first['event_id'])->toBe((string) $incident->id)
+        ->and($first['nature'])->toBe('incident')
+        ->and($first['risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 4.1 ')
+        ->and($first['occurrence_date'])->toBe('2026-05-10')
+        ->and($first['detected_at'])->toBe('2026-05-12')
+        ->and($first['intercepting_link_id'])->toBe('')
+        ->and($first['reverted_link_ids'])->toBe((string) $link->id)
+        ->and($first['reverted_links'])->toBe("{$link->risk->name} -> {$link->mitigation->name}")
+        ->and($first['unmapped_risk_subdomains'])->toBe('4.1')
+        ->and($first['protocol_version'])->toBe('1.0')
+        ->and($first['system_name'])->toBe($aiSystem->name)
+        // Reverting nothing, it is still there.
+        ->and($second['event_id'])->toBe((string) $nearMiss->id)
+        ->and($second['nature'])->toBe('near_miss')
+        ->and($second['detected_at'])->toBe('')
+        ->and($second['intercepting_link_id'])->toBe((string) $interceptor->id)
+        ->and($second['intercepting_link'])->toBe("{$interceptor->risk->name} -> {$interceptor->mitigation->name}")
+        ->and($second['reverted_link_ids'])->toBe('')
+        ->and($second['unmapped_risk_subdomains'])->toBe('');
+});
+
+test('a system without events exports only the header of the adverse events csv', function () {
+    $this->actingAs(User::factory()->create());
+    $aiSystem = AiSystem::factory()->create();
+
+    $rows = parseCsv($this->get(route('ai-systems.report.adverse-events', $aiSystem))->streamedContent());
+
+    expect($rows)->toBe([CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER]);
+});
+
+test('guests cannot download the adverse events csv', function () {
+    auth()->logout();
+
+    $this->get(route('ai-systems.report.adverse-events', AiSystem::factory()->create()))
+        ->assertRedirect(route('login'));
 });
