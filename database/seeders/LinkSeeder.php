@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Actions\CreateLink;
 use App\Actions\RecordEvidence;
 use App\Actions\RecordStatusChange;
+use App\Actions\RevertOverdueLinks;
 use App\Enums\ChangeOrigin;
 use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
@@ -43,8 +44,13 @@ class LinkSeeder extends Seeder
         'ready',
         // Verified recently: the review is ahead.
         'verified',
-        // Verified long ago: the review is overdue.
+        // Verified one interval ago: the review is due today (0019).
+        'due_today',
+        // Verified long ago and reverted the day after its review date, as
+        // the daily trigger does (review due, 0019).
         'overdue',
+        // Verified, then renewed on new evidence before it fell due (0019).
+        'renewed',
         // Reverted by hand, with evidence only from before the reversal: a
         // verification is refused until new evidence comes in.
         'reverted_stale',
@@ -65,6 +71,7 @@ class LinkSeeder extends Seeder
         protected CreateLink $createLink,
         protected RecordStatusChange $recordStatusChange,
         protected RecordEvidence $recordEvidence,
+        protected RevertOverdueLinks $revertOverdueLinks,
         protected MonitoringProtocol $protocol,
     ) {}
 
@@ -134,7 +141,9 @@ class LinkSeeder extends Seeder
         // When the link is verified, if it ever is, and reverted.
         $verifiedOn = match ($story) {
             'verified' => $today->subDays(fake()->numberBetween(1, 30)),
+            'due_today' => $today->subDays($interval),
             'overdue' => $today->subDays($interval + fake()->numberBetween(5, 40)),
+            'renewed' => $today->subDays(fake()->numberBetween(40, 80)),
             'reverted_stale', 'reverted_ready' => $today->subDays(fake()->numberBetween(60, 120)),
             default => null,
         };
@@ -190,6 +199,17 @@ class LinkSeeder extends Seeder
 
         if ($verifiedOn !== null) {
             $this->at($verifiedOn, fn () => $this->recordStatusChange->verify($this->link(), $owner));
+        }
+
+        if ($story === 'overdue' && $verifiedOn !== null) {
+            // The first daily run after the last valid day.
+            $this->at($verifiedOn->addDays($interval + 1), fn () => $this->revertOverdueLinks->revert($this->link()));
+        }
+
+        if ($story === 'renewed' && $verifiedOn !== null) {
+            $renewedOn = $today->subDays(fake()->numberBetween(1, 10));
+            $this->at($this->between($verifiedOn, $renewedOn), fn () => $this->recordEvidence->handle($this->link(), $this->evidence()));
+            $this->at($renewedOn, fn () => $this->recordStatusChange->verify($this->link(), $owners->random()));
         }
 
         if ($revertedOn !== null) {

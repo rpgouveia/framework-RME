@@ -1,5 +1,6 @@
 import { Link } from '@inertiajs/react';
 import type { InertiaLinkProps } from '@inertiajs/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +24,11 @@ type Props = {
     submitLabel: string;
     cancelHref: NonNullable<InertiaLinkProps['href']>;
     aiSystem?: AiSystem;
+    /**
+     * On edit, how many verified links a move into the unacceptable tier
+     * would revert (0019, item 9).
+     */
+    verifiedLinksCount?: number;
 };
 
 /**
@@ -38,7 +44,14 @@ export function AiSystemForm({
     submitLabel,
     cancelHref,
     aiSystem,
+    verifiedLinksCount = 0,
 }: Props) {
+    const [category, setCategory] = useState(aiSystem?.category ?? '');
+    const reverting =
+        category === 'unacceptable' &&
+        aiSystem?.category !== 'unacceptable' &&
+        verifiedLinksCount > 0;
+
     return (
         <>
             <div className="grid gap-2">
@@ -110,7 +123,8 @@ export function AiSystemForm({
                 <Label htmlFor="category">Categoria</Label>
                 <Select
                     name="category"
-                    defaultValue={aiSystem?.category}
+                    value={category}
+                    onValueChange={setCategory}
                     required
                 >
                     <SelectTrigger
@@ -128,6 +142,21 @@ export function AiSystemForm({
                         ))}
                     </SelectContent>
                 </Select>
+                {reverting && (
+                    // Warned before saving: the move reverts in the same
+                    // transaction (0019, item 9).
+                    <p
+                        role="alert"
+                        className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                    >
+                        A faixa inaceitável corresponde a práticas proibidas: ao
+                        salvar,{' '}
+                        {verifiedLinksCount === 1
+                            ? '1 vínculo verificado deste sistema voltará a declarado'
+                            : `${verifiedLinksCount} vínculos verificados deste sistema voltarão a declarados`}
+                        , e o sistema deixa de ser considerado em operação.
+                    </p>
+                )}
                 <InputError message={errors.category} />
             </div>
 

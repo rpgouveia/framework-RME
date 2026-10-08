@@ -81,7 +81,7 @@ git clone <repo-url> framework-RME
 cd framework-RME
 
 cp .env.example .env       # the DB_* defaults already match compose.yml
-docker compose up -d       # database + app + vite + queue + logs
+docker compose up -d       # database + app + vite + queue + scheduler + logs
 ```
 
 The app is on http://localhost:8000 and the Vite dev server on
@@ -131,14 +131,15 @@ SQLite connection.
 `docker compose up -d` runs the processes of `composer dev`, each as its own
 service:
 
-| Service    | Command                                     | What it is                                              |
-| ---------- | ------------------------------------------- | ------------------------------------------------------- |
-| `postgres` | —                                           | PostgreSQL 18 on :5432                                  |
-| `setup`    | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations, first seed |
-| `app`      | `php artisan serve` → http://localhost:8000 | `composer dev` › server                                 |
-| `vite`     | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)                       |
-| `queue`    | `php artisan queue:listen`                  | `composer dev` › queue (the worker)                     |
-| `logs`     | `php artisan pail`                          | `composer dev` › logs                                   |
+| Service     | Command                                     | What it is                                              |
+| ----------- | ------------------------------------------- | ------------------------------------------------------- |
+| `postgres`  | —                                           | PostgreSQL 18 on :5432                                  |
+| `setup`     | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations, first seed |
+| `app`       | `php artisan serve` → http://localhost:8000 | `composer dev` › server                                 |
+| `vite`      | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)                       |
+| `queue`     | `php artisan queue:listen`                  | `composer dev` › queue (the worker)                     |
+| `scheduler` | `php artisan schedule:work`                 | the schedule of `routes/console.php`, every minute      |
+| `logs`      | `php artisan pail`                          | `composer dev` › logs                                   |
 
 ```bash
 docker compose up -d                  # start everything
@@ -158,6 +159,10 @@ Worth knowing:
 - **`queue` is the worker**: `queue:listen` reloads the code on every job, so
   a changed job class takes effect without restarting the container. Swap it
   for `queue:work` if you want the production behaviour instead.
+- **`scheduler` runs the schedule**: `schedule:work` checks `routes/console.php`
+  every minute and runs what is due, such as `links:flag-due-for-review` at
+  07:00. It only lives while the containers are up; see
+  [Periodic reassessment](#periodic-reassessment) for production.
 - **`node_modules` is a named volume**, not the host directory: the container
   installs the Linux builds of Rollup, Tailwind Oxide and lightningcss without
   touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
@@ -301,26 +306,36 @@ compose.yml            every service of the development stack
 
 ## Periodic reassessment
 
-A link's `next_review_date` is computed when the link is created: the creation
+A link's `next_review_date` is set when the link is verified: the verification
 date plus the review interval of the EU AI Act tier of the risk's system, as the
 versioned C3 protocol file `database/data/protocols/c3-monitoring-protocol.json`
-sets it (high 90 days, limited 180, minimal 365). A system in the unacceptable
-tier never operates, so its links get no review date. There is no interval of a
-system's own, and changing a system's tier does not move the dates already set.
-The same file holds the dashboard windows (recent events, upcoming reviews).
+sets it (high 90 days, limited 180, minimal 365). A declared link has no review
+date, and a system in the unacceptable tier never operates, so its links cannot
+be verified. The same file holds the dashboard windows (recent events, upcoming
+reviews). The rules are recorded in `docs/decisions` (0017, 0018 and 0019).
 
-`links:flag-due-for-review` lists the links whose review date has arrived and
-logs a warning with their count. It only reports: no status changes, no history
-rows, so every state change still has a person behind it. The schedule runs it
-daily at 07:00, and nothing runs the scheduler by itself — start it with
-`php artisan schedule:work`, or trigger the command by hand:
+Three triggers take a verified link back to declared, awaiting reassessment,
+each recorded in the status history with its origin and no author:
+
+- **Review due** — `links:flag-due-for-review` reverts the links past their
+  review date. The date is the last valid day: a link due today is shown as
+  "Vence hoje" and reverted from the next day. Running it twice on the same day
+  changes nothing more.
+- **Adverse event** — recording an event reverts, in the same transaction, the
+  verified links of the system whose risk is in one of the event's subdomains,
+  except the link that intercepted a near miss.
+- **Reclassification** — editing a system into the unacceptable tier reverts
+  all its verified links.
+
+The schedule runs `links:flag-due-for-review` daily at 07:00. In development
+the `scheduler` service runs the schedule while the containers are up; outside
+them, run `php artisan schedule:work`, or trigger the command by hand:
 
 ```bash
 php artisan links:flag-due-for-review
 ```
 
-## Not implemented yet
-
-Adverse events are recorded and can be named as the trigger of a status change,
-but nothing reacts to one yet: registering an event does not reopen or reassess
-the links covering the risk it materialized. That rule is still to be defined.
+In production nothing runs the schedule by itself: the server needs a cron
+entry that calls `php artisan schedule:run` every minute (or a process manager
+keeping `schedule:work` alive). Without it, links past their review date are
+never reverted.

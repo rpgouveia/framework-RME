@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\UpdateAiSystem;
 use App\Enums\AiSystemCategory;
 use App\Enums\SystemSourceType;
 use App\Http\Requests\StoreAiSystemRequest;
@@ -78,6 +79,9 @@ class AiSystemController extends Controller
 
         return Inertia::render('ai-systems/edit', [
             'aiSystem' => $aiSystem,
+            // Reclassifying into the unacceptable tier reverts these; the
+            // form warns before saving (0019, item 9).
+            'verifiedLinksCount' => app(UpdateAiSystem::class)->linksToRevert($aiSystem)->count(),
             'sourceTypes' => SystemSourceType::options(),
             'categories' => AiSystemCategory::options(),
         ]);
@@ -86,11 +90,11 @@ class AiSystemController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAiSystemRequest $request, AiSystem $aiSystem): RedirectResponse
+    public function update(UpdateAiSystemRequest $request, AiSystem $aiSystem, UpdateAiSystem $updateAiSystem): RedirectResponse
     {
         Gate::authorize('update', $aiSystem);
 
-        $aiSystem->update($request->validated());
+        $updateAiSystem->handle($aiSystem, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('AI system updated.')]);
 

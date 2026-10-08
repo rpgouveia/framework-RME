@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\AiSystemCategory;
+use App\Enums\ChangeOrigin;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
@@ -132,6 +133,20 @@ class Link extends Model
     }
 
     /**
+     * The verification changes of the link, oldest first: verifications,
+     * renewals and reversals, each with its origin.
+     *
+     * @return HasMany<StatusHistory, $this>
+     */
+    public function verificationChanges(): HasMany
+    {
+        return $this->hasMany(StatusHistory::class)
+            ->whereNotNull('new_verification')
+            ->orderBy('created_at')
+            ->orderBy('id');
+    }
+
+    /**
      * The entry that last verified the link.
      *
      * @return HasOne<StatusHistory, $this>
@@ -181,8 +196,9 @@ class Link extends Model
     }
 
     /**
-     * Scope the query to the monitorable links whose review date has
-     * arrived.
+     * Scope the query to the monitorable links past their review date. The
+     * review date is the last valid day of the verification (0019, item 1):
+     * a link due today is still valid, and is reverted from tomorrow on.
      *
      * @param  Builder<self>  $query
      */
@@ -190,7 +206,44 @@ class Link extends Model
     protected function dueForReview(Builder $query): void
     {
         $query->monitorable()
-            ->where($query->qualifyColumn('next_review_date'), '<=', today());
+            ->where($query->qualifyColumn('next_review_date'), '<', today());
+    }
+
+    /**
+     * Scope the query to the links of a system.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function ofSystem(Builder $query, int $aiSystemId): void
+    {
+        $query->whereHas('risk', fn (Builder $risk) => $risk->where('ai_system_id', $aiSystemId));
+    }
+
+    /**
+     * Scope the query to the links whose risk is in one of the given MIT
+     * subdomains.
+     *
+     * @param  Builder<self>  $query
+     * @param  iterable<int>  $subdomainIds
+     */
+    #[Scope]
+    protected function inRiskSubdomains(Builder $query, iterable $subdomainIds): void
+    {
+        $query->whereHas('risk', fn (Builder $risk) => $risk->whereIn('risk_subdomain_id', $subdomainIds));
+    }
+
+    /**
+     * Scope the query to the links awaiting reassessment whose last reversal
+     * came from the given origin.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function revertedBy(Builder $query, ChangeOrigin $origin): void
+    {
+        $query->awaitingReassessment()
+            ->whereHas('lastReversal', fn (Builder $reversal) => $reversal->where('origin', $origin));
     }
 
     /**
@@ -220,15 +273,18 @@ class Link extends Model
     }
 
     /**
-     * Scope the query to the verifiable links that were verified and then
-     * reverted: flagged for reassessment (0018, item 1).
+     * Scope the query to the links still in the chain that were verified and
+     * then reverted: flagged for reassessment (0018, item 1). Unlike the first
+     * verification, this includes links of systems reclassified into the
+     * unacceptable tier (0019, item 9): they cannot be verified again, but
+     * still await the reassessment that decides what to do with them.
      *
      * @param  Builder<self>  $query
      */
     #[Scope]
     protected function awaitingReassessment(Builder $query): void
     {
-        $query->verifiable()
+        $query->notCancelled()
             ->where($query->qualifyColumn('verification_status'), VerificationStatus::Declared)
             ->whereHas('statusHistories', fn (Builder $entries) => $entries->where('previous_verification', VerificationStatus::Verified));
     }

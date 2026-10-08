@@ -9,12 +9,15 @@ type Props = {
     aiSystem: AiSystem;
     sourceTypes: EnumOption[];
     categories: EnumOption[];
+    /** Verified links a move into the unacceptable tier would revert. */
+    verifiedLinksCount: number;
 };
 
 export default function AiSystemsEdit({
     aiSystem,
     sourceTypes,
     categories,
+    verifiedLinksCount,
 }: Props) {
     return (
         <>
@@ -38,6 +41,7 @@ export default function AiSystemsEdit({
                             submitLabel="Salvar"
                             cancelHref={index()}
                             aiSystem={aiSystem}
+                            verifiedLinksCount={verifiedLinksCount}
                         />
                     )}
                 </Form>

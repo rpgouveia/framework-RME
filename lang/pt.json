@@ -44,9 +44,20 @@
     "Say why the verification is being reverted.": "Informe o motivo da reversão da verificação.",
     "A cancelled link cannot be verified.": "Um vínculo cancelado não pode ser verificado.",
     "A link of a system in the unacceptable tier cannot be verified: the system never operates.": "Um vínculo de sistema na faixa inaceitável não pode ser verificado: o sistema nunca opera.",
-    "The link is already verified.": "O vínculo já está verificado.",
     "Register evidence before verifying the link.": "Registre uma evidência antes de verificar o vínculo.",
     "Register new evidence: the last reversal was on :date.": "Registre uma evidência nova: a última reversão foi em :date.",
     "Link verified.": "Vínculo verificado.",
-    "Verification reverted.": "Verificação revertida."
+    "Verification reverted.": "Verificação revertida.",
+    "Incident": "Incidente",
+    "Near Miss": "Quase-incidente",
+    "Register new evidence to renew: the last verification was on :date.": "Registre uma evidência nova para renovar: a última verificação foi em :date.",
+    "Adverse event of :date in a subdomain of this link's risk.": "Evento adverso de :date em um subdomínio do risco deste vínculo.",
+    "The review was due on :date.": "A revisão venceu em :date.",
+    "The system was reclassified into the unacceptable tier of the EU AI Act.": "O sistema foi reclassificado para a faixa inaceitável do EU AI Act.",
+    "The intercepting link must belong to the system of the event.": "O vínculo interceptador deve ser do mesmo sistema do evento.",
+    "A cancelled link cannot have intercepted the event.": "Um vínculo cancelado não pode ter interceptado o evento.",
+    "The risk of the intercepting link must be in one of the subdomains of the event.": "O risco do vínculo interceptador deve estar em um dos subdomínios do evento.",
+    "The detection date cannot be before the occurrence.": "A data de detecção não pode ser anterior à data de ocorrência.",
+    "The detection date cannot be in the future.": "A data de detecção não pode ser futura.",
+    "Only a near miss can name the link that intercepted it.": "Só um quase-incidente pode indicar o vínculo que o interceptou."
 }

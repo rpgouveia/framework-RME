@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
+use App\Models\StatusHistory;
 use App\Support\MonitoringProtocol;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -29,6 +30,7 @@ class CompileTraceabilityReport
         'verification_status',
         'last_verification_date',
         'last_verified_by',
+        'verification_changes',
         'lifecycle_phase',
         'estimated_cost',
         'observed_cost',
@@ -74,6 +76,7 @@ class CompileTraceabilityReport
                 'mitigation.saeriSubcategory.parent',
                 'owner',
                 'lastVerification.owner',
+                'verificationChanges.owner',
                 'observedCostEvidence',
                 'evidence' => fn ($query) => $query->orderBy('registration_date')->orderBy('id'),
             ])
@@ -116,6 +119,10 @@ class CompileTraceabilityReport
             $link['verification']['status'],
             $link['verification']['last_verified_on'],
             $link['verification']['verified_by'],
+            implode(' | ', array_map(
+                fn (array $change): string => "{$change['date']}: {$change['from']} -> {$change['to']} ({$change['origin']}".($change['recorded_by'] === null ? '' : ", {$change['recorded_by']}").')',
+                $link['verification']['changes'],
+            )),
             $link['lifecycle_phase'],
             $link['estimated_cost'],
             $link['observed_cost'],
@@ -182,6 +189,17 @@ class CompileTraceabilityReport
                 'last_verified_on' => $link->lastVerification?->change_date->toDateString(),
                 // A role, never a person (0018).
                 'verified_by' => $link->lastVerification?->owner?->organizational_role,
+                // Every verification, renewal and reversal, with what
+                // triggered it (0018, 0019): no author for an automatic one.
+                'changes' => $link->verificationChanges->map(fn (StatusHistory $change): array => [
+                    'date' => $change->change_date->toDateString(),
+                    'from' => $change->previous_verification?->value,
+                    'to' => $change->new_verification?->value,
+                    'origin' => $change->origin->value,
+                    'recorded_by' => $change->owner?->organizational_role,
+                    'reason' => $change->trigger_reason,
+                    'adverse_event_id' => $change->adverse_event_id,
+                ])->values()->all(),
             ],
             'lifecycle_phase' => $link->lifecycle_phase->value,
             'estimated_cost' => $link->estimated_cost->value,

@@ -84,8 +84,11 @@ class RecordStatusChange
     }
 
     /**
-     * Verify a declared link on its evidence (RF03, 0018). The review clock
-     * starts today, with the interval of the system's current tier.
+     * Verify a link on its evidence (RF03, 0018). A declared link becomes
+     * verified; a verified one is renewed before its review falls due
+     * (0019, item 2), with evidence stored since its last verification.
+     * Either way the review clock starts again today, with the interval of
+     * the system's current tier.
      *
      * @throws ValidationException When the link cannot be verified now, or
      *                             the verifier is not an active owner.
@@ -106,7 +109,7 @@ class RecordStatusChange
             $today = today();
 
             $entry = $locked->statusHistories()->create([
-                'previous_verification' => VerificationStatus::Declared,
+                'previous_verification' => $locked->verification_status,
                 'new_verification' => VerificationStatus::Verified,
                 'origin' => ChangeOrigin::Manual,
                 'change_date' => $today,
@@ -174,10 +177,14 @@ class RecordStatusChange
     }
 
     /**
-     * The first reason the link cannot be verified now, or null when it can.
-     * The verifier is chosen apart, so it is not checked here. Evidence
-     * counts by the exact moment it was stored, not by its registration
-     * date, which has only the day (0018).
+     * The first reason the link cannot be verified (or renewed) now, or null
+     * when it can. The verifier is chosen apart, so it is not checked here.
+     *
+     * Only evidence stored after the last change of verification counts: a
+     * reversal asks for new proof (0013), and so does a renewal (0019, item
+     * 2). With no change yet, any evidence does. Evidence counts by the exact
+     * moment it was stored, not by its registration date, which has only the
+     * day (0018).
      */
     public function verificationProblem(Link $link): ?string
     {
@@ -189,13 +196,9 @@ class RecordStatusChange
             return __('A link of a system in the unacceptable tier cannot be verified: the system never operates.');
         }
 
-        if ($link->verification_status === VerificationStatus::Verified) {
-            return __('The link is already verified.');
-        }
+        $lastChange = StatusHistory::lastVerificationChangeOf($link);
 
-        $reversal = $link->lastReversal()->first();
-
-        if ($reversal === null) {
+        if ($lastChange === null) {
             if ($link->evidence()->doesntExist()) {
                 return __('Register evidence before verifying the link.');
             }
@@ -203,11 +206,17 @@ class RecordStatusChange
             return null;
         }
 
-        if ($link->evidence()->where('created_at', '>', $reversal->created_at)->doesntExist()) {
-            return __('Register new evidence: the last reversal was on :date.', ['date' => $reversal->change_date->format('d/m/Y')]);
+        if ($link->evidence()->where('created_at', '>', $lastChange->created_at)->exists()) {
+            return null;
         }
 
-        return null;
+        $date = $lastChange->change_date->format('d/m/Y');
+
+        if ($lastChange->new_verification === VerificationStatus::Verified) {
+            return __('Register new evidence to renew: the last verification was on :date.', ['date' => $date]);
+        }
+
+        return __('Register new evidence: the last reversal was on :date.', ['date' => $date]);
     }
 
     /**

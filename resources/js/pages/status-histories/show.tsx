@@ -26,9 +26,12 @@ export default function StatusHistoriesShow({
 
     // Each entry changes one dimension (0013).
     const title =
-        statusHistory.new_verification !== null
-            ? 'Mudança de verificação'
-            : 'Mudança de status';
+        statusHistory.previous_verification === 'verified' &&
+        statusHistory.new_verification === 'verified'
+            ? 'Renovação da verificação'
+            : statusHistory.new_verification !== null
+              ? 'Mudança de verificação'
+              : 'Mudança de status';
 
     return (
         <>

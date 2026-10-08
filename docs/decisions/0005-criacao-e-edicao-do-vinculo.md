@@ -23,6 +23,10 @@ A edição do vínculo permitia alterar status, data de revisão, risco, mitiga�
 
 `StoreLinkRequest`, `UpdateLinkRequest` (regras próprias, campos travados ignorados) e telas `links/create.tsx` e `links/edit.tsx`.
 
+- **Criação:** a Action `CreateLink` grava o vínculo com status `planned`, verificação `declared`, data de criação de hoje e `next_review_date` nula, ignorando o que vier na requisição. Ela não calcula mais a data de revisão: a data é definida na verificação, por `RecordStatusChange::verify()` (0018).
+- **Edição:** `UpdateLinkRequest` aceita só responsável, fase do ciclo de vida e custo estimado. A coluna `links.observed_cost` foi removida. A edição mostra o custo observado como leitura, a partir da evidência mais recente que o informou (`Link::observedCostEvidence()`), com link para essa evidência.
+- **Custo observado:** o campo opcional fica no registro de evidência (`EvidenceValidationRules`, Action `RecordEvidence`).
+
 ## Referências
 
 - UC005 (R-4, R-7); Especificação, RF07 e RF09; Prototipação, Telas 2 e 3.

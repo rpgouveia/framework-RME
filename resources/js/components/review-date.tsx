@@ -3,14 +3,15 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { formatDate } from '@/lib/format';
+import { dateInputValue, formatDate } from '@/lib/format';
 import type { VerificationStatus } from '@/types/models';
 
 /**
  * A link's next review date. There is none for a link of a system in the
  * unacceptable tier, which never operates, nor for a declared link: the
  * periodic review starts at its first verification (0018). The reason shows
- * on hover or keyboard focus.
+ * on hover or keyboard focus. The date is the last valid day: on it, the link
+ * is "due today", and it is reverted from the next day (0019, item 1).
  */
 export function ReviewDate({
     date,
@@ -22,6 +23,14 @@ export function ReviewDate({
     /** Whether the link's system is in the unacceptable tier. */
     unacceptable?: boolean;
 }) {
+    if (date !== null && dateInputValue(date) === dateInputValue()) {
+        return (
+            <span className="font-semibold text-amber-700 dark:text-amber-300">
+                Vence hoje
+            </span>
+        );
+    }
+
     if (date !== null) {
         return <>{formatDate(date)}</>;
     }

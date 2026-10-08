@@ -20,6 +20,9 @@ return [
     'attributes' => [
         'application_domain' => 'domínio de aplicação',
         'ai_system_id' => 'sistema de IA',
+        'detected_at' => 'data de detecção',
+        'intercepting_link_id' => 'vínculo interceptador',
+        'nature' => 'natureza',
         'category' => 'categoria',
         'description' => 'descrição',
         'estimated_cost' => 'custo estimado',

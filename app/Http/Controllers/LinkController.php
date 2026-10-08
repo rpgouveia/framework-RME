@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Actions\CreateLink;
 use App\Actions\RecordStatusChange;
+use App\Enums\ChangeOrigin;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
-use App\Enums\VerificationStatus;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
 use App\Models\Link;
@@ -31,8 +31,10 @@ class LinkController extends Controller
     /**
      * Display a listing of the resource, optionally narrowed by verification:
      * awaiting the first verification, awaiting reassessment (reverted), or
-     * verified. The pending ones leave out cancelled links and links of
-     * unacceptable systems, which cannot be verified.
+     * verified. None of them shows cancelled links; the first verification
+     * also leaves out links of unacceptable systems, which cannot be
+     * verified, while the reassessment list keeps those a reclassification
+     * reverted (0019).
      */
     public function index(Request $request): Response
     {
@@ -41,12 +43,18 @@ class LinkController extends Controller
         $verification = in_array($request->query('verification'), self::VERIFICATION_FILTERS, true)
             ? (string) $request->query('verification')
             : null;
+        // Within the reassessment list, the origin of the last reversal
+        // (0019): manual, review due, adverse event or reclassification.
+        $origin = $verification === 'awaiting_reassessment'
+            ? ChangeOrigin::tryFrom((string) $request->query('origin'))
+            : null;
 
         return Inertia::render('links/index', [
-            'filters' => ['verification' => $verification],
+            'filters' => ['verification' => $verification, 'origin' => $origin?->value],
             'links' => Link::query()
                 ->when($verification === 'awaiting_first', fn (Builder $query) => $query->awaitingFirstVerification())
-                ->when($verification === 'awaiting_reassessment', fn (Builder $query) => $query->awaitingReassessment())
+                ->when($verification === 'awaiting_reassessment' && $origin === null, fn (Builder $query) => $query->awaitingReassessment())
+                ->when($origin !== null, fn (Builder $query) => $query->revertedBy($origin ?? ChangeOrigin::Manual))
                 ->when($verification === 'verified', fn (Builder $query) => $query->verified())
                 ->with(['risk.aiSystem', 'mitigation', 'owner'])
                 ->withCount(['evidence', 'statusHistories'])
@@ -98,17 +106,15 @@ class LinkController extends Controller
             'observedCostEvidence',
             'lastVerification.owner',
             'lastReversal.owner',
-            'lastReversal.adverseEvent',
+            'lastReversal.adverseEvent.riskSubdomains',
         ])->loadCount(['evidence', 'statusHistories']);
 
         return Inertia::render('links/show', [
             'link' => $link,
             'verification' => [
-                // Why the link cannot be verified now, shown next to the
-                // disabled button; null when it can.
-                'problem' => $link->verification_status === VerificationStatus::Declared
-                    ? app(RecordStatusChange::class)->verificationProblem($link)
-                    : null,
+                // Why the link cannot be verified (or renewed) now, shown
+                // next to the disabled button; null when it can.
+                'problem' => app(RecordStatusChange::class)->verificationProblem($link),
                 // Who may verify or revert: active roles, the link's owner
                 // first in the dialog.
                 'owners' => Owner::query()->active()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),

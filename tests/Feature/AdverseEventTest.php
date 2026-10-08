@@ -24,6 +24,7 @@ beforeEach(function () {
 function adverseEventPayload(array $overrides = []): array
 {
     return array_merge([
+        'nature' => 'incident',
         'risk_subdomains' => ['1.1'],
         'description' => 'The screening model rejected every applicant over 50',
         'occurrence_date' => '2026-05-20',

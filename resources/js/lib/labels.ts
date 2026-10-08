@@ -1,4 +1,5 @@
 import type {
+    AdverseEventNature,
     AiSystemCategory,
     ChangeOrigin,
     CostLevel,
@@ -91,6 +92,24 @@ export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
     // themes (WCAG 2.1 AA asks 4.5:1 for text this size).
     cancelled:
         'border-border bg-transparent text-neutral-600 dark:text-neutral-300',
+};
+
+export const adverseEventNatureLabels: Record<AdverseEventNature, string> = {
+    incident: 'Incidente',
+    near_miss: 'Quase-incidente',
+};
+
+/**
+ * Nature badges: an incident in red, a near miss outlined. Text contrast is
+ * at least 8:1 (WCAG 2.1 AA) in both themes.
+ */
+export const adverseEventNatureBadgeClasses: Record<
+    AdverseEventNature,
+    string
+> = {
+    incident:
+        'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
+    near_miss: 'border-border bg-transparent text-foreground',
 };
 
 export const verificationStatusLabels: Record<VerificationStatus, string> = {
