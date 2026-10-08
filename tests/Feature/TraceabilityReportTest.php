@@ -231,7 +231,7 @@ test('the adverse events csv has one row per event of the system', function () {
         ->and($first['intercepting_link_id'])->toBe('')
         ->and($first['reverted_link_ids'])->toBe((string) $link->id)
         ->and($first['reverted_links'])->toBe("{$link->risk->name} -> {$link->mitigation->name}")
-        ->and($first['unmapped_risk_subdomains'])->toBe('4.1')
+        ->and($first['unmapped_subdomains_at_export'])->toBe('4.1')
         ->and($first['protocol_version'])->toBe('1.0')
         ->and($first['system_name'])->toBe($aiSystem->name)
         // Reverting nothing, it is still there.
@@ -241,7 +241,7 @@ test('the adverse events csv has one row per event of the system', function () {
         ->and($second['intercepting_link_id'])->toBe((string) $interceptor->id)
         ->and($second['intercepting_link'])->toBe("{$interceptor->risk->name} -> {$interceptor->mitigation->name}")
         ->and($second['reverted_link_ids'])->toBe('')
-        ->and($second['unmapped_risk_subdomains'])->toBe('');
+        ->and($second['unmapped_subdomains_at_export'])->toBe('');
 });
 
 test('a system without events exports only the header of the adverse events csv', function () {
