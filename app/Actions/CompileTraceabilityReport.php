@@ -89,13 +89,15 @@ class CompileTraceabilityReport
         'intercepting_link',
         'reverted_link_ids',
         'reverted_links',
-        'unmapped_risk_subdomains',
+        'unmapped_subdomains_at_export',
     ];
 
     /**
      * Every adverse event of the system as a CSV row, oldest first, whether
      * it reverted links or not. The unmapped subdomains are those of the
-     * event in which the system has no risk registered today (0019, item 4).
+     * event in which the system has no risk registered on the day of the
+     * export, not on the day of the event (0019, item 4); the column name
+     * says so.
      *
      * @return array<int, list<string|int|null>>
      */

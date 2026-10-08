@@ -82,6 +82,19 @@ const outcomeEffects: Record<ReassessmentOutcome, string> = {
     close: 'Cancela este vínculo, sem substituto.',
 };
 
+/**
+ * What an outcome does for this link: for a system in the unacceptable tier,
+ * adjusting is how the discontinuation is planned (0020, item 8).
+ */
+function outcomeEffect(
+    outcome: ReassessmentOutcome,
+    unacceptable: boolean,
+): string {
+    return outcome === 'adjust' && unacceptable
+        ? 'Registre o plano de descontinuação, levando o vínculo à fase Descomissionamento.'
+        : outcomeEffects[outcome];
+}
+
 /** Radix Select items cannot be empty, so "no change" needs a stand-in. */
 const UNCHANGED = 'unchanged';
 
@@ -183,7 +196,10 @@ export default function ReassessmentsCreate(props: Props) {
                                                 }
                                             </span>
                                             <span className="text-muted-foreground text-sm">
-                                                {outcomeEffects[option.value]}
+                                                {outcomeEffect(
+                                                    option.value,
+                                                    unacceptable,
+                                                )}
                                             </span>
                                             {option.problem && (
                                                 <span className="text-sm text-amber-700 dark:text-amber-300">
@@ -308,8 +324,13 @@ export default function ReassessmentsCreate(props: Props) {
                                         Desfecho:{' '}
                                         {outcome &&
                                             reassessmentOutcomeLabels[outcome]}
-                                        . {outcome && outcomeEffects[outcome]} A
-                                        reavaliação é permanente: não pode ser
+                                        .{' '}
+                                        {outcome &&
+                                            outcomeEffect(
+                                                outcome,
+                                                unacceptable,
+                                            )}{' '}
+                                        A reavaliação é permanente: não pode ser
                                         editada nem excluída.
                                     </DialogDescription>
                                     <DialogFooter className="gap-2">
