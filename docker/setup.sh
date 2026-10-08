@@ -25,7 +25,7 @@ if [ ! -d node_modules/vite-plus ] || [ package-lock.json -nt node_modules/.pack
 fi
 
 echo '==> running migrations'
-php artisan migrate --force
+php artisan migrate:fresh   
 
 if [ "$(php artisan tinker --execute 'echo App\Models\User::count();' | tr -d '[:space:]')" = '0' ]; then
     echo '==> seeding an empty database'
