@@ -9,6 +9,9 @@ import { cn } from '@/lib/utils';
 export const unacceptableTone =
     'border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100';
 
+/** Anchor of the alert on the system page, so other pages can point at it. */
+export const UNACCEPTABLE_ALERT_ID = 'faixa-inaceitavel';
+
 /**
  * The warning for a system in the unacceptable tier of the EU AI Act: it
  * may be registered and planned for, but never operates. The short version
@@ -17,12 +20,14 @@ export const unacceptableTone =
 export function UnacceptableTierAlert({
     short = false,
     className,
+    id,
 }: {
     short?: boolean;
     className?: string;
+    id?: string;
 }) {
     return (
-        <Alert className={cn(unacceptableTone, className)}>
+        <Alert id={id} className={cn(unacceptableTone, className)}>
             <TriangleAlertIcon aria-hidden />
             <AlertTitle>Sistema na faixa inaceitável do EU AI Act</AlertTitle>
             <AlertDescription className="text-red-900 dark:text-red-200">

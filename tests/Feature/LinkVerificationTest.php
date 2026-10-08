@@ -8,6 +8,7 @@ use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LinkStatus;
 use App\Enums\VerificationStatus;
+use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
@@ -15,6 +16,7 @@ use App\Models\Owner;
 use App\Models\Risk;
 use App\Models\StatusHistory;
 use App\Models\User;
+use App\Support\MonitoringProtocol;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\DB;
@@ -384,7 +386,7 @@ test('an observed cost outside the scale is refused', function () {
 test('the link page carries the verification state, the last moves and why it cannot be verified', function () {
     $this->travelTo('2026-03-01 09:00');
     $link = declaredLink();
-    $owner = Owner::factory()->create(['organizational_role' => 'Auditor interno']);
+    $owner = Owner::factory()->create(['organizational_role' => 'Verificador independente']);
 
     $this->get(route('links.show', $link))->assertInertia(
         fn (AssertableInertia $page) => $page
@@ -408,7 +410,7 @@ test('the link page carries the verification state, the last moves and why it ca
         fn (AssertableInertia $page) => $page
             ->where('link.verification_status', 'declared')
             ->where('link.last_verification.change_date', '2026-03-01T00:00:00.000000Z')
-            ->where('link.last_verification.owner.organizational_role', 'Auditor interno')
+            ->where('link.last_verification.owner.organizational_role', 'Verificador independente')
             ->where('link.last_reversal.trigger_reason', 'Controle desativado.')
             ->where('link.last_reversal.origin', 'manual')
             ->where('verification.problem', 'Registre uma evidência nova: a última reversão foi em 20/03/2026.')
@@ -547,7 +549,7 @@ test('a verification entry shows the evidence it rested on instead of a reason',
 test('the report exports the verification and the observed cost', function () {
     $this->travelTo('2026-03-01 09:00');
     $link = declaredLink();
-    $verifier = Owner::factory()->create(['organizational_role' => 'Auditor interno']);
+    $verifier = Owner::factory()->create(['organizational_role' => 'Verificador independente']);
     evidenceFor($link, CostLevel::Medium);
     app(RecordStatusChange::class)->verify($link, $verifier);
     $aiSystem = $link->risk->aiSystem;
@@ -555,13 +557,13 @@ test('the report exports the verification and the observed cost', function () {
     $this->get(route('ai-systems.report.json', $aiSystem))
         ->assertJsonPath('links.0.verification.status', 'verified')
         ->assertJsonPath('links.0.verification.last_verified_on', '2026-03-01')
-        ->assertJsonPath('links.0.verification.verified_by', 'Auditor interno')
+        ->assertJsonPath('links.0.verification.verified_by', 'Verificador independente')
         ->assertJsonPath('links.0.verification.changes', [[
             'date' => '2026-03-01',
             'from' => 'declared',
             'to' => 'verified',
             'origin' => 'manual',
-            'recorded_by' => 'Auditor interno',
+            'recorded_by' => 'Verificador independente',
             'reason' => null,
             'adverse_event_id' => null,
         ]])
@@ -573,7 +575,7 @@ test('the report exports the verification and the observed cost', function () {
 
     expect($row['verification_status'])->toBe('verified')
         ->and($row['last_verification_date'])->toBe('2026-03-01')
-        ->and($row['last_verified_by'])->toBe('Auditor interno')
+        ->and($row['last_verified_by'])->toBe('Verificador independente')
         ->and($row['observed_cost'])->toBe('medium');
 });
 
@@ -618,4 +620,16 @@ test('the seeders tell every verification story through the actions', function (
 
     expect($problems->filter(fn (?string $problem) => $problem === null))->not->toBeEmpty()
         ->and($problems->filter(fn (?string $problem) => str_starts_with((string) $problem, 'Registre uma evidência nova')))->not->toBeEmpty();
+
+    // The triggers of 0019: a reversal of every origin, a renewal, an
+    // intercepted near miss, a risk not yet mapped, a reclassified system.
+    foreach (ChangeOrigin::cases() as $origin) {
+        expect(Link::revertedBy($origin)->exists())->toBeTrue("No link awaits reassessment from {$origin->value}.");
+    }
+
+    expect(StatusHistory::query()->where('previous_verification', 'verified')->where('new_verification', 'verified')->exists())->toBeTrue()
+        ->and(AdverseEvent::query()->where('nature', 'near_miss')->whereNotNull('intercepting_link_id')->exists())->toBeTrue()
+        ->and(AdverseEvent::query()->where('nature', 'incident')->exists())->toBeTrue()
+        ->and(app(MonitoringProtocol::class)->unmappedRisks())->not->toBeEmpty()
+        ->and(StatusHistory::query()->where('origin', 'system_reclassification')->exists())->toBeTrue();
 });

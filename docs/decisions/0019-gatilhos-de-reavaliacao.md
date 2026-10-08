@@ -26,6 +26,7 @@ Com a etapa 4a, a verificação só mudava por ação manual. O RF05 exige reava
 - Todas as reversões automáticas passam pelo caminho único de gravação (0007), com a origem da 0018.
 - Fora do ambiente de desenvolvimento, os gatilhos de vencimento dependem de agendamento no servidor, o que deve constar da especificação.
 - Diverge da prototipação na Tela 4 (item 10), com motivo registrado.
+- **Adendo (2026-10-08), vínculos de sistemas na faixa inaceitável:** um vínculo revertido de sistema na faixa inaceitável (por reclassificação, item 9, ou por outra origem antes dela) continua contado em "Aguardando reavaliação", no painel e na listagem filtrada, porque ainda espera uma decisão. Como não pode ser verificado de novo (0018, item 8), o detalhe do vínculo não o apresenta como "Aguardando reavaliação": o destaque diz "Sistema na faixa inaceitável: planejar a descontinuação", com link para o alerta do sistema. A primeira verificação continua deixando esses vínculos de fora das pendências.
 
 ## Implementação
 

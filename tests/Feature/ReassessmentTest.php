@@ -270,6 +270,30 @@ test('reclassifying a system into the unacceptable tier reverts its verified lin
         ->and(Link::revertedBy(ChangeOrigin::SystemReclassification)->pluck('id')->all())->toBe([$verified->id]);
 });
 
+test('a link reverted by reclassification carries what its page needs to point at the discontinuation', function () {
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $link = linkIn($aiSystem, '2.1');
+
+    $this->put(route('ai-systems.update', $aiSystem), [
+        'name' => $aiSystem->name,
+        'source_type' => $aiSystem->source_type->value,
+        'category' => AiSystemCategory::Unacceptable->value,
+        'registration_date' => $aiSystem->registration_date->toDateString(),
+    ])->assertSessionHasNoErrors();
+
+    // Still counted as awaiting reassessment (0019, addendum).
+    expect(Link::awaitingReassessment()->pluck('id')->all())->toBe([$link->id]);
+
+    $this->get(route('links.show', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('link.verification_status', 'declared')
+            ->where('link.risk.ai_system.id', $aiSystem->id)
+            ->where('link.risk.ai_system.category', 'unacceptable')
+            ->where('link.last_reversal.origin', 'system_reclassification')
+            ->where('verification.problem', 'Um vínculo de sistema na faixa inaceitável não pode ser verificado: o sistema nunca opera.')
+    );
+});
+
 test('moving a system between operable tiers reverts nothing', function () {
     $aiSystem = AiSystem::factory()->highRisk()->create();
     $link = linkIn($aiSystem, '2.1');
