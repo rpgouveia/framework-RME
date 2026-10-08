@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
@@ -17,8 +18,6 @@ import {
 import {
     costLevelLabels,
     lifecyclePhaseLabels,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
     termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
@@ -143,7 +142,12 @@ export default function RisksShow({ risk }: Props) {
                                 responde por isso.
                             </p>
                         ) : (
-                            <LinksTable links={links} />
+                            <LinksTable
+                                links={links}
+                                unacceptable={
+                                    risk.ai_system?.category === 'unacceptable'
+                                }
+                            />
                         )}
                     </CardContent>
                 </Card>
@@ -152,7 +156,14 @@ export default function RisksShow({ risk }: Props) {
     );
 }
 
-function LinksTable({ links }: { links: RiskLink[] }) {
+function LinksTable({
+    links,
+    unacceptable,
+}: {
+    links: RiskLink[];
+    /** Whether the risk's system is in the unacceptable tier. */
+    unacceptable: boolean;
+}) {
     return (
         <Table>
             <TableHeader>
@@ -192,17 +203,17 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             )}
                         </TableCell>
                         <TableCell>
-                            <Badge
-                                className={linkStatusBadgeClasses[link.status]}
-                            >
-                                {linkStatusLabels[link.status]}
-                            </Badge>
+                            <LinkStatusBadges link={link} />
                         </TableCell>
                         <TableCell>
                             {costLevelLabels[link.estimated_cost]}
                         </TableCell>
                         <TableCell>
-                            <ReviewDate date={link.next_review_date} />
+                            <ReviewDate
+                                date={link.next_review_date}
+                                verification={link.verification_status}
+                                unacceptable={unacceptable}
+                            />
                         </TableCell>
                     </TableRow>
                 ))}

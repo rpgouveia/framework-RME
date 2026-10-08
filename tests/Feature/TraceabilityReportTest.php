@@ -14,18 +14,6 @@ beforeEach(function () {
     $this->actingAs(User::factory()->create());
 });
 
-/**
- * Parse a streamed CSV download into rows, dropping the byte order mark.
- *
- * @return list<list<string|null>>
- */
-function parseCsv(string $content): array
-{
-    $lines = preg_split('/\R/', trim(str_replace("\u{FEFF}", '', $content)));
-
-    return array_map(fn (string $line): array => str_getcsv($line, ';', escape: ''), $lines);
-}
-
 test('guests are redirected to the login page', function () {
     auth()->logout();
 
@@ -126,7 +114,7 @@ test('the csv report neutralises formulas and exports the cost levels', function
     $aiSystem = AiSystem::factory()->create();
     Link::factory()
         ->for(Risk::factory()->for($aiSystem)->state(['description' => '=HYPERLINK("http://evil.test")']))
-        ->create(['estimated_cost' => CostLevel::High, 'observed_cost' => null]);
+        ->create(['estimated_cost' => CostLevel::High]);
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
     $row = array_combine($rows[0], $rows[1]);

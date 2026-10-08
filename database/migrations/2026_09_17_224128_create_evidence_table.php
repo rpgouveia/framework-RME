@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('type');
             $table->string('description');
             $table->date('registration_date');
+            // Optional (RF07): the latest evidence that reports it is the
+            // link's observed cost (0018).
+            $table->string('observed_cost')->nullable();
             $table->foreignId('link_id')->constrained('links');
             $table->timestamps();
         });

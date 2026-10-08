@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Actions\CreateLink;
+use App\Actions\RecordStatusChange;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
+use App\Enums\VerificationStatus;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
 use App\Models\Link;
@@ -14,22 +16,38 @@ use App\Models\Risk;
 use App\Models\TaxonomyTerm;
 use App\Support\MonitoringProtocol;
 use App\Support\SaeriTaxonomy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class LinkController extends Controller
 {
+    /** The verification filters of the list: the pending lists of Tela 3. */
+    public const VERIFICATION_FILTERS = ['awaiting_first', 'awaiting_reassessment', 'verified'];
+
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource, optionally narrowed by verification:
+     * awaiting the first verification, awaiting reassessment (reverted), or
+     * verified. The pending ones leave out cancelled links and links of
+     * unacceptable systems, which cannot be verified.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Link::class);
 
+        $verification = in_array($request->query('verification'), self::VERIFICATION_FILTERS, true)
+            ? (string) $request->query('verification')
+            : null;
+
         return Inertia::render('links/index', [
+            'filters' => ['verification' => $verification],
             'links' => Link::query()
+                ->when($verification === 'awaiting_first', fn (Builder $query) => $query->awaitingFirstVerification())
+                ->when($verification === 'awaiting_reassessment', fn (Builder $query) => $query->awaitingReassessment())
+                ->when($verification === 'verified', fn (Builder $query) => $query->verified())
                 ->with(['risk.aiSystem', 'mitigation', 'owner'])
                 ->withCount(['evidence', 'statusHistories'])
                 // Links with no review date (unacceptable systems) last, the
@@ -73,10 +91,28 @@ class LinkController extends Controller
     {
         Gate::authorize('view', $link);
 
+        $link->load([
+            'risk.aiSystem',
+            'mitigation',
+            'owner',
+            'observedCostEvidence',
+            'lastVerification.owner',
+            'lastReversal.owner',
+            'lastReversal.adverseEvent',
+        ])->loadCount(['evidence', 'statusHistories']);
+
         return Inertia::render('links/show', [
-            'link' => $link
-                ->load(['risk.aiSystem', 'mitigation', 'owner'])
-                ->loadCount(['evidence', 'statusHistories']),
+            'link' => $link,
+            'verification' => [
+                // Why the link cannot be verified now, shown next to the
+                // disabled button; null when it can.
+                'problem' => $link->verification_status === VerificationStatus::Declared
+                    ? app(RecordStatusChange::class)->verificationProblem($link)
+                    : null,
+                // Who may verify or revert: active roles, the link's owner
+                // first in the dialog.
+                'owners' => Owner::query()->active()->orderBy('organizational_role')->get(['id', 'organizational_role', 'area']),
+            ],
         ]);
     }
 
@@ -89,7 +125,7 @@ class LinkController extends Controller
 
         // Only the follow-up fields are editable; the pair is shown read only.
         return Inertia::render('links/edit', [
-            'link' => $link->load(['risk.aiSystem', 'mitigation']),
+            'link' => $link->load(['risk.aiSystem', 'mitigation', 'observedCostEvidence']),
             // Active owners, plus the current one even if retired, so the
             // link can keep it (marked as inactive on the form).
             'owners' => Owner::query()

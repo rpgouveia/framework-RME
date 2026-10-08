@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import OwnerController from '@/actions/App/Http/Controllers/OwnerController';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +24,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
-import {
-    linkLabel,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
-} from '@/lib/labels';
+import { linkLabel } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { show as showLink } from '@/routes/links';
 import { edit, index, show } from '@/routes/owners';
@@ -196,14 +193,17 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             </Link>
                         </TableCell>
                         <TableCell>
-                            <Badge
-                                className={linkStatusBadgeClasses[link.status]}
-                            >
-                                {linkStatusLabels[link.status]}
-                            </Badge>
+                            <LinkStatusBadges link={link} />
                         </TableCell>
                         <TableCell>
-                            <ReviewDate date={link.next_review_date} />
+                            <ReviewDate
+                                date={link.next_review_date}
+                                verification={link.verification_status}
+                                unacceptable={
+                                    link.risk?.ai_system?.category ===
+                                    'unacceptable'
+                                }
+                            />
                         </TableCell>
                     </TableRow>
                 ))}

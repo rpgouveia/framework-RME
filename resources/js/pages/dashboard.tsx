@@ -4,6 +4,7 @@ import type { InertiaLinkProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { AiSystemName } from '@/components/ai-system-name';
 import { ReviewDate } from '@/components/review-date';
+import { VerificationBadge } from '@/components/link-status-badges';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
 import { unacceptableTone } from '@/components/unacceptable-tier-alert';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -31,6 +32,8 @@ import {
     linkStatusBadgeClasses,
     linkStatusLabels,
 } from '@/lib/labels';
+import { linksWith } from '@/lib/link-filters';
+import type { VerificationFilter } from '@/lib/link-filters';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import {
@@ -89,6 +92,12 @@ type Props = {
         upcoming: RiskLink[];
     };
     systems: SystemSummary[];
+    /** The verification pending lists of Tela 3 (0018). */
+    verification: {
+        awaitingFirst: number;
+        awaitingReassessment: number;
+        verified: number;
+    };
     /** Systems that may not operate, left out of the review indicators. */
     unacceptableSystems: Pick<AiSystem, 'id' | 'name'>[];
 };
@@ -144,6 +153,7 @@ function Overview({
     reviews,
     systems,
     unacceptableSystems,
+    verification,
 }: Props) {
     return (
         <>
@@ -192,6 +202,8 @@ function Overview({
                     action="Ver eventos"
                 />
             </div>
+
+            <VerificationSummary counts={verification} />
 
             <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
@@ -298,9 +310,14 @@ function Overview({
                                             >
                                                 {linkLabel(link)}
                                             </Link>
-                                            <span className="text-muted-foreground text-xs">
+                                            <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
                                                 Criado em{' '}
                                                 {formatDate(link.creation_date)}
+                                                <VerificationBadge
+                                                    verification={
+                                                        link.verification_status
+                                                    }
+                                                />
                                             </span>
                                         </span>
                                         <Button
@@ -493,6 +510,84 @@ function UnacceptableSystemsAlert({
     );
 }
 
+/**
+ * Where the links stand on verification (0018), each count leading to the
+ * filtered link list: never verified, reverted and awaiting reassessment,
+ * and verified.
+ */
+function VerificationSummary({ counts }: { counts: Props['verification'] }) {
+    const rows: {
+        filter: VerificationFilter;
+        label: string;
+        sentence: string;
+        count: number;
+        pending: boolean;
+    }[] = [
+        {
+            filter: 'awaiting_first',
+            label: 'Aguardando primeira verificação',
+            sentence: 'Declarados, ainda sem verificação.',
+            count: counts.awaitingFirst,
+            pending: true,
+        },
+        {
+            filter: 'awaiting_reassessment',
+            label: 'Aguardando reavaliação',
+            sentence: 'Verificados antes e revertidos para declarados.',
+            count: counts.awaitingReassessment,
+            pending: true,
+        },
+        {
+            filter: 'verified',
+            label: 'Verificados',
+            sentence: 'Comprovados por evidência e em revisão periódica.',
+            count: counts.verified,
+            pending: false,
+        },
+    ];
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Verificação dos vínculos</CardTitle>
+                <CardDescription>
+                    Vínculos cancelados e de sistemas na faixa inaceitável ficam
+                    de fora das pendências.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <ul className="grid gap-4 sm:grid-cols-3">
+                    {rows.map((row) => (
+                        <li key={row.filter} className="grid gap-1">
+                            <Link
+                                href={linksWith(row.filter)}
+                                className="hover:bg-muted/50 grid gap-1 rounded-lg border p-4"
+                            >
+                                <span className="text-muted-foreground text-sm">
+                                    {row.label}
+                                </span>
+                                <span
+                                    className={cn(
+                                        'text-3xl font-semibold tabular-nums',
+                                        row.pending &&
+                                            row.count > 0 &&
+                                            'text-amber-700 dark:text-amber-300',
+                                    )}
+                                >
+                                    {row.count}
+                                </span>
+                                <span className="text-muted-foreground text-xs">
+                                    {row.sentence}
+                                </span>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+    );
+}
+
 function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
     return (
         <li className="flex items-center justify-between gap-4 py-2">
@@ -503,8 +598,17 @@ function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
                 >
                     {linkLabel(link)}
                 </Link>
-                <span className="text-muted-foreground text-xs">
-                    Revisão em <ReviewDate date={link.next_review_date} />
+                <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
+                    <span>
+                        Revisão em{' '}
+                        <ReviewDate
+                            date={link.next_review_date}
+                            verification={link.verification_status}
+                        />
+                    </span>
+                    <VerificationBadge
+                        verification={link.verification_status}
+                    />
                 </span>
             </span>
             <Badge className={due ? reviewBadge.due : reviewBadge.onTrack}>

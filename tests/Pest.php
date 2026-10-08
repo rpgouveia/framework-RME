@@ -53,3 +53,15 @@ function riskSubdomainId(string $code): int
 {
     return app(AiRiskDomains::class)->subdomains()->firstWhere('code', $code)->id;
 }
+
+/**
+ * Parse a streamed CSV download into rows, dropping the byte order mark.
+ *
+ * @return list<list<string|null>>
+ */
+function parseCsv(string $content): array
+{
+    $lines = preg_split('/\R/', trim(str_replace("\u{FEFF}", '', $content)));
+
+    return array_map(fn (string $line): array => str_getcsv($line, ';', escape: ''), $lines);
+}

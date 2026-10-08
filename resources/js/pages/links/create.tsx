@@ -18,7 +18,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
-import { dateFromToday } from '@/lib/format';
 import { availableMitigations, recommendMitigations } from '@/lib/link-options';
 import {
     categoryLabels,
@@ -555,8 +554,9 @@ function LinkForm({
 }
 
 /**
- * When the link will first be reviewed (R-7): one interval of the tier of
- * the risk's system after today, or never, for a system that cannot operate.
+ * When the periodic review starts (R-7 as revised by 0018): at the link's
+ * first verification, one interval of the tier of the risk's system later;
+ * never, for a system that cannot operate.
  */
 function ReviewNotice({
     tier,
@@ -568,8 +568,9 @@ function ReviewNotice({
     if (tier === undefined) {
         return (
             <p className="text-muted-foreground text-sm">
-                O vínculo nasce como Planejado. A data da próxima revisão
-                depende da faixa do sistema do risco escolhido.
+                O vínculo nasce Planejado e Declarado. A revisão periódica
+                começa na primeira verificação, com o intervalo da faixa do
+                sistema do risco escolhido.
             </p>
         );
     }
@@ -579,18 +580,20 @@ function ReviewNotice({
     if (days === null) {
         return (
             <p className="text-muted-foreground text-sm">
-                O vínculo nasce como Planejado e não terá revisão periódica: o
-                sistema está na faixa inaceitável e não pode operar. O vínculo
-                serve para planejar a descontinuação.
+                O vínculo nasce Planejado e Declarado e não terá revisão
+                periódica: o sistema está na faixa inaceitável e não pode
+                operar, então o vínculo não pode ser verificado. Ele serve para
+                planejar a descontinuação.
             </p>
         );
     }
 
     return (
         <p className="text-muted-foreground text-sm">
-            O vínculo nasce como Planejado. A próxima revisão será em{' '}
-            {dateFromToday(days)} ({days} dias: o sistema é de risco{' '}
-            {categoryLabels[tier].toLowerCase()}).
+            O vínculo nasce Planejado e Declarado. A revisão periódica começa na
+            primeira verificação: a próxima revisão será {days} dias depois
+            dela, porque o sistema é de risco{' '}
+            {categoryLabels[tier].toLowerCase()}.
         </p>
     );
 }

@@ -3,7 +3,7 @@ import { DetailItem } from '@/components/detail-item';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
-import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
+import { costLevelLabels, evidenceTypeLabels, linkLabel } from '@/lib/labels';
 import { show } from '@/routes/evidence';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import {
@@ -52,12 +52,21 @@ export default function EvidenceShow({ evidence }: Props) {
                         <CardTitle>Detalhes</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6">
-                        <dl className="grid gap-4 sm:grid-cols-2">
+                        <dl className="grid gap-4 sm:grid-cols-3">
                             <DetailItem label="Tipo">
                                 {evidenceTypeLabels[evidence.type]}
                             </DetailItem>
                             <DetailItem label="Registrada em">
                                 {formatDate(evidence.registration_date)}
+                            </DetailItem>
+                            <DetailItem label="Custo observado">
+                                {evidence.observed_cost ? (
+                                    costLevelLabels[evidence.observed_cost]
+                                ) : (
+                                    <span className="text-muted-foreground font-normal">
+                                        Não informado
+                                    </span>
+                                )}
                             </DetailItem>
                         </dl>
                         <dl>

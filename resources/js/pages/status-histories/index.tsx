@@ -4,7 +4,7 @@ import { PaginationLinks } from '@/components/pagination-links';
 import { StatusTransition } from '@/components/status-transition';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/lib/format';
-import { linkLabel, subdomainCodes } from '@/lib/labels';
+import { changeOriginLabels, linkLabel, subdomainCodes } from '@/lib/labels';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/status-histories';
 import { show } from '@/routes/status-histories';
@@ -52,17 +52,21 @@ export default function StatusHistoriesIndex({ link, statusHistories }: Props) {
                                     >
                                         {formatDate(history.change_date)}
                                     </Link>
-                                    <StatusTransition
-                                        from={history.previous_status}
-                                        to={history.new_status}
-                                    />
+                                    <StatusTransition entry={history} />
                                 </div>
-                                {history.owner && (
+                                {history.origin !== 'manual' ? (
                                     <p className="text-muted-foreground text-sm">
-                                        Registrado por{' '}
-                                        {history.owner.organizational_role} (
-                                        {history.owner.area})
+                                        Registrado pelo sistema (origem:{' '}
+                                        {changeOriginLabels[history.origin]})
                                     </p>
+                                ) : (
+                                    history.owner && (
+                                        <p className="text-muted-foreground text-sm">
+                                            Registrado por{' '}
+                                            {history.owner.organizational_role}{' '}
+                                            ({history.owner.area})
+                                        </p>
+                                    )
                                 )}
                                 {history.trigger_reason && (
                                     <p className="max-w-prose text-sm">

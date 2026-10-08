@@ -26,6 +26,9 @@ class CompileTraceabilityReport
         'system_application_domain',
         'link_id',
         'status',
+        'verification_status',
+        'last_verification_date',
+        'last_verified_by',
         'lifecycle_phase',
         'estimated_cost',
         'observed_cost',
@@ -66,7 +69,14 @@ class CompileTraceabilityReport
     {
         $links = Link::query()
             ->whereHas('risk', fn (Builder $query) => $query->whereBelongsTo($aiSystem))
-            ->with(['risk.riskSubdomain.parent', 'mitigation.saeriSubcategory.parent', 'owner', 'evidence' => fn ($query) => $query->orderBy('registration_date')])
+            ->with([
+                'risk.riskSubdomain.parent',
+                'mitigation.saeriSubcategory.parent',
+                'owner',
+                'lastVerification.owner',
+                'observedCostEvidence',
+                'evidence' => fn ($query) => $query->orderBy('registration_date')->orderBy('id'),
+            ])
             ->orderBy('id')
             ->get();
 
@@ -103,6 +113,9 @@ class CompileTraceabilityReport
             $report['system']['application_domain'],
             $link['id'],
             $link['status'],
+            $link['verification']['status'],
+            $link['verification']['last_verified_on'],
+            $link['verification']['verified_by'],
             $link['lifecycle_phase'],
             $link['estimated_cost'],
             $link['observed_cost'],
@@ -163,9 +176,17 @@ class CompileTraceabilityReport
         return [
             'id' => $link->id,
             'status' => $link->status->value,
+            // The second dimension (0013): whether evidence proves the link.
+            'verification' => [
+                'status' => $link->verification_status->value,
+                'last_verified_on' => $link->lastVerification?->change_date->toDateString(),
+                // A role, never a person (0018).
+                'verified_by' => $link->lastVerification?->owner?->organizational_role,
+            ],
             'lifecycle_phase' => $link->lifecycle_phase->value,
             'estimated_cost' => $link->estimated_cost->value,
-            'observed_cost' => $link->observed_cost?->value,
+            // From the latest evidence that reported it (0018).
+            'observed_cost' => $link->observedCostEvidence?->observed_cost?->value,
             'creation_date' => $link->creation_date->toDateString(),
             // Null when the system's tier has no periodic review.
             'next_review_date' => $link->next_review_date?->toDateString(),
@@ -200,6 +221,7 @@ class CompileTraceabilityReport
                 'type' => $evidence->type->value,
                 'description' => $evidence->description,
                 'registration_date' => $evidence->registration_date->toDateString(),
+                'observed_cost' => $evidence->observed_cost?->value,
             ])->values()->all(),
         ];
     }

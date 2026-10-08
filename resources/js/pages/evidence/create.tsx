@@ -23,7 +23,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { evidenceTypeLabels, labelFor, linkLabel } from '@/lib/labels';
+import {
+    costLevelLabels,
+    evidenceTypeLabels,
+    labelFor,
+    linkLabel,
+} from '@/lib/labels';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/evidence';
 import type { EnumOption, Link as RiskLink } from '@/types/models';
@@ -31,13 +36,18 @@ import type { EnumOption, Link as RiskLink } from '@/types/models';
 type Props = {
     link: RiskLink;
     types: EnumOption[];
+    costLevels: EnumOption[];
 };
+
+/** Radix Select items cannot be empty, so "not informed" needs a stand-in. */
+const NOT_INFORMED = 'none';
 
 /** Lets the confirm button, rendered in a dialog outside the form, submit it. */
 const FORM_ID = 'evidence-form';
 
-export default function EvidenceCreate({ link, types }: Props) {
+export default function EvidenceCreate({ link, types, costLevels }: Props) {
     const [confirming, setConfirming] = useState(false);
+    const [observedCost, setObservedCost] = useState(NOT_INFORMED);
 
     // Check the required fields first, so the dialog only asks about a form
     // that can actually be sent.
@@ -107,6 +117,68 @@ export default function EvidenceCreate({ link, types }: Props) {
                                     }
                                 />
                                 <InputError message={errors.description} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="observed_cost">
+                                    Custo observado{' '}
+                                    <span className="text-muted-foreground font-normal">
+                                        (opcional)
+                                    </span>
+                                </Label>
+                                <Select
+                                    value={observedCost}
+                                    onValueChange={setObservedCost}
+                                >
+                                    <SelectTrigger
+                                        id="observed_cost"
+                                        className="w-full sm:w-64"
+                                        aria-describedby="observed_cost-help"
+                                        aria-invalid={
+                                            errors.observed_cost
+                                                ? true
+                                                : undefined
+                                        }
+                                    >
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value={NOT_INFORMED}>
+                                            Não informado
+                                        </SelectItem>
+                                        {costLevels.map((option) => (
+                                            <SelectItem
+                                                key={option.value}
+                                                value={option.value}
+                                            >
+                                                {labelFor(
+                                                    costLevelLabels,
+                                                    option.value,
+                                                )}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {/* Sent as an empty string, which Laravel
+                                    turns into null. */}
+                                <input
+                                    type="hidden"
+                                    name="observed_cost"
+                                    value={
+                                        observedCost === NOT_INFORMED
+                                            ? ''
+                                            : observedCost
+                                    }
+                                />
+                                <p
+                                    id="observed_cost-help"
+                                    className="text-muted-foreground text-sm"
+                                >
+                                    O custo real da aplicação até agora (RF07).
+                                    O informado na evidência mais recente passa
+                                    a ser o custo observado do vínculo.
+                                </p>
+                                <InputError message={errors.observed_cost} />
                             </div>
 
                             <Alert>

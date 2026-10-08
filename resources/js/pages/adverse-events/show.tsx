@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { EntryAuthor } from '@/components/entry-author';
 import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { StatusTransition } from '@/components/status-transition';
@@ -138,22 +139,10 @@ function ChangesTable({ changes }: { changes: StatusHistory[] }) {
                             )}
                         </TableCell>
                         <TableCell>
-                            <StatusTransition
-                                from={change.previous_status}
-                                to={change.new_status}
-                            />
+                            <StatusTransition entry={change} />
                         </TableCell>
                         <TableCell>
-                            {change.owner && (
-                                <span className="grid">
-                                    <span>
-                                        {change.owner.organizational_role}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">
-                                        {change.owner.area}
-                                    </span>
-                                </span>
-                            )}
+                            <EntryAuthor entry={change} />
                         </TableCell>
                         <TableCell>{formatDate(change.change_date)}</TableCell>
                     </TableRow>

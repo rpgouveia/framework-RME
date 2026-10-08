@@ -1,5 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
+import { ShieldCheckIcon } from 'lucide-react';
 import Heading from '@/components/heading';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +13,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
-import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
+import { costLevelLabels, evidenceTypeLabels, linkLabel } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { show } from '@/routes/evidence';
 import { index as linksIndex, show as showLink } from '@/routes/links';
@@ -21,9 +23,11 @@ import type { Evidence, Link as RiskLink, Paginated } from '@/types/models';
 type Props = {
     link: RiskLink;
     evidence: Paginated<Evidence>;
+    /** The link is declared and its evidence now allows verifying it. */
+    canVerify: boolean;
 };
 
-export default function EvidenceIndex({ link, evidence }: Props) {
+export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
     return (
         <>
             <Head title="Evidências" />
@@ -34,6 +38,32 @@ export default function EvidenceIndex({ link, evidence }: Props) {
                         <Link href={create(link.id)}>Registrar evidência</Link>
                     </Button>
                 </div>
+
+                {canVerify && (
+                    // The shortcut after registering evidence on a declared
+                    // link (0018).
+                    <Alert>
+                        <ShieldCheckIcon aria-hidden />
+                        <AlertTitle>
+                            Este vínculo pode ser verificado
+                        </AlertTitle>
+                        <AlertDescription>
+                            <p>
+                                O vínculo está declarado e já tem a evidência
+                                que a verificação exige.
+                            </p>
+                            <Button size="sm" asChild>
+                                <Link
+                                    href={showLink(link.id, {
+                                        query: { verify: 1 },
+                                    })}
+                                >
+                                    Verificar vínculo
+                                </Link>
+                            </Button>
+                        </AlertDescription>
+                    </Alert>
+                )}
 
                 {evidence.data.length === 0 ? (
                     <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
@@ -69,6 +99,7 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                     <TableRow>
                         <TableHead>Tipo</TableHead>
                         <TableHead>Descrição</TableHead>
+                        <TableHead>Custo observado</TableHead>
                         <TableHead>Registrada em</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -91,6 +122,15 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                                 <p className="max-w-md truncate">
                                     {item.description}
                                 </p>
+                            </TableCell>
+                            <TableCell>
+                                {item.observed_cost ? (
+                                    costLevelLabels[item.observed_cost]
+                                ) : (
+                                    <span className="text-muted-foreground">
+                                        —
+                                    </span>
+                                )}
                             </TableCell>
                             <TableCell>
                                 {formatDate(item.registration_date)}

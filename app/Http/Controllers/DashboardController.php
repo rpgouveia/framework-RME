@@ -84,6 +84,13 @@ class DashboardController extends Controller
                 'items' => $recentEvents->with(['aiSystem:id,name', 'riskSubdomains'])
                     ->latest('occurrence_date')->latest('id')->limit(self::LIST_SIZE)->get(),
             ],
+            // Verification (0018): the pending lists of Tela 3, with the same
+            // rules as the filters of the link list.
+            'verification' => [
+                'awaitingFirst' => Link::query()->awaitingFirstVerification()->count(),
+                'awaitingReassessment' => Link::query()->awaitingReassessment()->count(),
+                'verified' => Link::query()->verified()->count(),
+            ],
             'reviews' => [
                 'upcomingDays' => $upcomingDays,
                 'dueCount' => (clone $dueReviews)->count(),

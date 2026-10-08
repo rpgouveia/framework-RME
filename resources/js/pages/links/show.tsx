@@ -1,7 +1,11 @@
 import { Head, Link } from '@inertiajs/react';
+import { LinkStatusBadges } from '@/components/link-status-badges';
+import { LinkVerificationCard } from '@/components/link-verification-card';
+import type { VerificationProps } from '@/components/link-verification-card';
+import { ObservedCost } from '@/components/observed-cost';
 import { ReviewDate } from '@/components/review-date';
 import { DetailItem } from '@/components/detail-item';
-import { Badge } from '@/components/ui/badge';
+import { UnacceptableTierAlert } from '@/components/unacceptable-tier-alert';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -11,16 +15,13 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { formatDate } from '@/lib/format';
-import {
-    costLevelLabels,
-    lifecyclePhaseLabels,
-    linkLabel,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
-} from '@/lib/labels';
+import { costLevelLabels, lifecyclePhaseLabels, linkLabel } from '@/lib/labels';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { edit, index, show } from '@/routes/links';
-import { index as evidenceIndex } from '@/routes/links/evidence';
+import {
+    create as createEvidence,
+    index as evidenceIndex,
+} from '@/routes/links/evidence';
 import {
     create as createStatusChange,
     index as statusHistoriesIndex,
@@ -31,9 +32,10 @@ import type { Link as RiskLink } from '@/types/models';
 
 type Props = {
     link: RiskLink;
+    verification: VerificationProps;
 };
 
-export default function LinksShow({ link }: Props) {
+export default function LinksShow({ link, verification }: Props) {
     const evidenceCount = link.evidence_count ?? 0;
     const historyCount = link.status_histories_count ?? 0;
 
@@ -64,11 +66,7 @@ export default function LinksShow({ link }: Props) {
                             </Link>
                         </h1>
                         <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <Badge
-                                className={linkStatusBadgeClasses[link.status]}
-                            >
-                                {linkStatusLabels[link.status]}
-                            </Badge>
+                            <LinkStatusBadges link={link} />
                             {link.risk?.ai_system && (
                                 <Link
                                     href={showAiSystem(link.risk.ai_system.id)}
@@ -139,23 +137,32 @@ export default function LinksShow({ link }: Props) {
                                 {costLevelLabels[link.estimated_cost]}
                             </DetailItem>
                             <DetailItem label="Custo observado">
-                                {link.observed_cost ? (
-                                    costLevelLabels[link.observed_cost]
-                                ) : (
-                                    <span className="text-muted-foreground font-normal">
-                                        Não informado
-                                    </span>
-                                )}
+                                <ObservedCost
+                                    evidence={link.observed_cost_evidence}
+                                />
                             </DetailItem>
                             <DetailItem label="Data de criação">
                                 {formatDate(link.creation_date)}
                             </DetailItem>
                             <DetailItem label="Próxima revisão">
-                                <ReviewDate date={link.next_review_date} />
+                                <ReviewDate
+                                    date={link.next_review_date}
+                                    verification={link.verification_status}
+                                    unacceptable={
+                                        link.risk?.ai_system?.category ===
+                                        'unacceptable'
+                                    }
+                                />
                             </DetailItem>
                         </dl>
                     </CardContent>
                 </Card>
+
+                {link.risk?.ai_system?.category === 'unacceptable' && (
+                    <UnacceptableTierAlert />
+                )}
+
+                <LinkVerificationCard link={link} verification={verification} />
 
                 <div className="grid gap-6 md:grid-cols-2">
                     <CountCard
@@ -164,11 +171,15 @@ export default function LinksShow({ link }: Props) {
                         description="Documentos e registros que comprovam a aplicação da mitigação."
                         href={evidenceIndex(link.id)}
                         action="Ver evidências"
+                        secondary={{
+                            href: createEvidence(link.id),
+                            label: 'Registrar evidência',
+                        }}
                     />
                     <CountCard
                         title="Histórico de status"
                         count={historyCount}
-                        description="Cada mudança de status do vínculo, com quem a registrou e quando."
+                        description="Cada mudança de status e de verificação do vínculo, com quem a registrou e quando."
                         href={statusHistoriesIndex(link.id)}
                         action="Ver histórico"
                         secondary={{

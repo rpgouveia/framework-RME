@@ -46,28 +46,28 @@ test('the dashboard shows where the chain is incomplete', function () {
     // both still need a mitigation.
     $unlinked = Risk::factory()->for($aiSystem)->create();
     $cancelledOnly = Risk::factory()->for($aiSystem)->create();
-    Link::factory()->for($cancelledOnly)->create([
+    Link::factory()->verified()->for($cancelledOnly)->create([
         'status' => LinkStatus::Cancelled,
         'next_review_date' => '2026-01-01',
     ]);
 
     $linked = Risk::factory()->for($aiSystem)->create();
-    $overdue = Link::factory()->for($linked)->create([
+    $overdue = Link::factory()->verified()->for($linked)->create([
         'status' => LinkStatus::InProgress,
         'creation_date' => '2026-01-01',
         'next_review_date' => '2026-06-10',
     ]);
-    $dueToday = Link::factory()->for($linked)->create([
+    $dueToday = Link::factory()->verified()->for($linked)->create([
         'status' => LinkStatus::Monitoring,
         'creation_date' => '2026-01-02',
         'next_review_date' => '2026-06-15',
     ]);
-    $upcoming = Link::factory()->for($linked)->create([
+    $upcoming = Link::factory()->verified()->for($linked)->create([
         'status' => LinkStatus::Planned,
         'creation_date' => '2026-01-03',
         'next_review_date' => '2026-06-20',
     ]);
-    $later = Link::factory()->for($linked)->create([
+    $later = Link::factory()->verified()->for($linked)->create([
         'status' => LinkStatus::Implemented,
         'creation_date' => '2026-01-04',
         'next_review_date' => '2026-09-01',
@@ -157,8 +157,8 @@ test('the dashboard windows follow the protocol file', function () {
     $inside = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-08']);
     AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-07']);
     $risk = Risk::factory()->for($aiSystem)->create();
-    $soon = Link::factory()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-18']);
-    Link::factory()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-19']);
+    $soon = Link::factory()->verified()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-18']);
+    Link::factory()->verified()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-19']);
 
     $this->get(route('dashboard'))->assertInertia(
         fn (AssertableInertia $page) => $page
@@ -178,12 +178,12 @@ test('unacceptable systems stay out of the review indicators and are flagged', f
     $operable = AiSystem::factory()->highRisk()->create(['name' => 'A operável']);
     $prohibited = AiSystem::factory()->unacceptable()->create(['name' => 'B proibido']);
 
-    $due = Link::factory()->for(Risk::factory()->for($operable))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
+    $due = Link::factory()->verified()->for(Risk::factory()->for($operable))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
     // Created while the system was unacceptable: no date at all.
     Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned]);
     // Dated before the system was reclassified as unacceptable.
-    Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
-    Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-20']);
+    Link::factory()->verified()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
+    Link::factory()->verified()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-20']);
 
     $this->get(route('dashboard'))->assertInertia(
         fn (AssertableInertia $page) => $page

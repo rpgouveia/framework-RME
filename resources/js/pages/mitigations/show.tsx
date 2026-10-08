@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
@@ -21,8 +22,6 @@ import {
 import {
     costLevelLabels,
     linkLabel,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
     termLabel,
     uncertaintyBadgeClasses,
     uncertaintyLevelLabels,
@@ -312,11 +311,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             )}
                         </TableCell>
                         <TableCell>
-                            <Badge
-                                className={linkStatusBadgeClasses[link.status]}
-                            >
-                                {linkStatusLabels[link.status]}
-                            </Badge>
+                            <LinkStatusBadges link={link} />
                         </TableCell>
                     </TableRow>
                 ))}

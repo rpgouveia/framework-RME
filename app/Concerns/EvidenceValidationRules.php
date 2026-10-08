@@ -2,6 +2,7 @@
 
 namespace App\Concerns;
 
+use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
@@ -22,6 +23,9 @@ trait EvidenceValidationRules
         return [
             'type' => ['required', Rule::enum(EvidenceType::class)],
             'description' => ['required', 'string', 'max:255'],
+            // Optional (RF07): the latest evidence that reports it is the
+            // link's observed cost (0018).
+            'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
         ];
     }
 }

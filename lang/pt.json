@@ -32,5 +32,21 @@
     "Choose a subdomain of the MIT AI risk domain taxonomy.": "Escolha um subdomínio da taxonomia de domínios de risco do MIT.",
     "Select at least one risk subdomain the event materializes.": "Selecione ao menos um subdomínio de risco que a ocorrência materializa.",
     "The code :input is not a subdomain of the MIT AI risk domain taxonomy.": "O código :input não é um subdomínio da taxonomia de domínios de risco do MIT.",
-    "The risk subdomain :input was selected more than once.": "O subdomínio de risco :input foi selecionado mais de uma vez."
+    "The risk subdomain :input was selected more than once.": "O subdomínio de risco :input foi selecionado mais de uma vez.",
+    "Declared": "Declarada",
+    "Verified": "Verificada",
+    "Manual": "Manual",
+    "Review Due": "Vencimento da revisão",
+    "Adverse Event": "Evento adverso",
+    "System Reclassification": "Reclassificação do sistema",
+    "A manual change needs an owner.": "Uma mudança manual precisa de um responsável.",
+    "Only a verified link can be reverted.": "Só um vínculo verificado pode ter a verificação revertida.",
+    "Say why the verification is being reverted.": "Informe o motivo da reversão da verificação.",
+    "A cancelled link cannot be verified.": "Um vínculo cancelado não pode ser verificado.",
+    "A link of a system in the unacceptable tier cannot be verified: the system never operates.": "Um vínculo de sistema na faixa inaceitável não pode ser verificado: o sistema nunca opera.",
+    "The link is already verified.": "O vínculo já está verificado.",
+    "Register evidence before verifying the link.": "Registre uma evidência antes de verificar o vínculo.",
+    "Register new evidence: the last reversal was on :date.": "Registre uma evidência nova: a última reversão foi em :date.",
+    "Link verified.": "Vínculo verificado.",
+    "Verification reverted.": "Verificação revertida."
 }

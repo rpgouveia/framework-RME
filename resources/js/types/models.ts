@@ -28,6 +28,16 @@ export type UncertaintyLevel = 'low' | 'medium' | 'high';
 /** Qualitative effort a mitigation costs to put in place. */
 export type CostLevel = 'low' | 'medium' | 'high';
 
+/** Whether evidence proves a link (0013): born declared, verified on evidence. */
+export type VerificationStatus = 'declared' | 'verified';
+
+/** What triggered a status history entry; only manual has an author (0018). */
+export type ChangeOrigin =
+    | 'manual'
+    | 'review_due'
+    | 'adverse_event'
+    | 'system_reclassification';
+
 export type LinkStatus =
     | 'planned'
     | 'in_progress'
@@ -188,11 +198,16 @@ export interface Owner extends Timestamps {
 export interface Link extends Timestamps {
     id: number;
     lifecycle_phase: LifecyclePhase;
+    /** Progress of the implementation. */
     status: LinkStatus;
+    /** Whether evidence proves it; changed only by verifying or reverting. */
+    verification_status: VerificationStatus;
     estimated_cost: CostLevel;
-    observed_cost: CostLevel | null;
     creation_date: string;
-    /** Null when the system's tier has no periodic review (unacceptable). */
+    /**
+     * Null while declared (the review starts at the first verification) and
+     * for a system in the unacceptable tier, which never operates.
+     */
     next_review_date: string | null;
     risk_id: number;
     mitigation_id: number;
@@ -204,20 +219,29 @@ export interface Link extends Timestamps {
     evidence_count?: number;
     status_histories?: StatusHistory[];
     status_histories_count?: number;
+    /** The latest evidence that reported a cost: the observed cost (0018). */
+    observed_cost_evidence?: Evidence | null;
+    last_verification?: StatusHistory | null;
+    last_reversal?: StatusHistory | null;
 }
 
+/** One entry of a link's trail; it changes progress or verification, never both. */
 export interface StatusHistory extends Timestamps {
     id: number;
-    /** Null on the first entry of a link's trail. */
+    /** Null on the first entry of a link's trail and on verification entries. */
     previous_status: LinkStatus | null;
-    new_status: LinkStatus;
+    new_status: LinkStatus | null;
+    previous_verification: VerificationStatus | null;
+    new_verification: VerificationStatus | null;
+    origin: ChangeOrigin;
     trigger_reason: string | null;
     change_date: string;
     link_id: number;
-    owner_id: number;
+    /** Null only for an automatic entry. */
+    owner_id: number | null;
     adverse_event_id: number | null;
     link?: Link;
-    owner?: Owner;
+    owner?: Owner | null;
     adverse_event?: AdverseEvent | null;
 }
 
@@ -239,6 +263,8 @@ export interface Evidence extends Timestamps {
     type: EvidenceType;
     description: string;
     registration_date: string;
+    /** Optional (RF07); the latest one is the link's observed cost. */
+    observed_cost: CostLevel | null;
     link_id: number;
     link?: Link;
 }

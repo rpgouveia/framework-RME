@@ -1,8 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
+import { FilterLink } from '@/components/filter-link';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -12,11 +13,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    costLevelLabels,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
-} from '@/lib/labels';
+import { costLevelLabels } from '@/lib/labels';
+import { linksWith } from '@/lib/link-filters';
+import type { VerificationFilter } from '@/lib/link-filters';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/links';
 import { show as showMitigation } from '@/routes/mitigations';
@@ -25,9 +24,38 @@ import type { Link as RiskLink, Paginated } from '@/types/models';
 
 type Props = {
     links: Paginated<RiskLink>;
+    filters: { verification: VerificationFilter | null };
 };
 
-export default function LinksIndex({ links }: Props) {
+const verificationFilters: {
+    value: VerificationFilter | null;
+    label: string;
+    empty: string;
+}[] = [
+    { value: null, label: 'Todos', empty: 'Nenhum vínculo foi criado ainda.' },
+    {
+        value: 'awaiting_first',
+        label: 'Aguardando primeira verificação',
+        empty: 'Nenhum vínculo aguarda a primeira verificação.',
+    },
+    {
+        value: 'awaiting_reassessment',
+        label: 'Aguardando reavaliação',
+        empty: 'Nenhum vínculo aguarda reavaliação.',
+    },
+    {
+        value: 'verified',
+        label: 'Verificados',
+        empty: 'Nenhum vínculo está verificado.',
+    },
+];
+
+export default function LinksIndex({ links, filters }: Props) {
+    const current =
+        verificationFilters.find(
+            (option) => option.value === filters.verification,
+        ) ?? verificationFilters[0];
+
     return (
         <>
             <Head title="Vínculos" />
@@ -42,8 +70,43 @@ export default function LinksIndex({ links }: Props) {
                     </Button>
                 </div>
 
+                <nav
+                    aria-label="Filtrar por verificação"
+                    className="flex flex-wrap gap-2"
+                >
+                    {verificationFilters.map((option) => (
+                        <FilterLink
+                            key={option.label}
+                            href={linksWith(option.value)}
+                            active={filters.verification === option.value}
+                        >
+                            {option.label}
+                        </FilterLink>
+                    ))}
+                </nav>
+                {filters.verification !== null && (
+                    <p className="text-muted-foreground -mt-2 text-sm">
+                        {filters.verification === 'verified'
+                            ? 'Vínculos verificados que não foram cancelados.'
+                            : 'Ficam de fora os vínculos cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
+                    </p>
+                )}
+
                 {links.data.length === 0 ? (
-                    <EmptyState />
+                    filters.verification ? (
+                        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+                            <p className="text-muted-foreground text-sm">
+                                {current.empty}
+                            </p>
+                            <Button variant="outline" asChild>
+                                <Link href={linksWith(null)}>
+                                    Ver todos os vínculos
+                                </Link>
+                            </Button>
+                        </div>
+                    ) : (
+                        <EmptyState />
+                    )
                 ) : (
                     <>
                         <LinksTable links={links.data} />
@@ -125,16 +188,17 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 )}
                             </TableCell>
                             <TableCell>
-                                <Badge
-                                    className={
-                                        linkStatusBadgeClasses[link.status]
-                                    }
-                                >
-                                    {linkStatusLabels[link.status]}
-                                </Badge>
+                                <LinkStatusBadges link={link} />
                             </TableCell>
                             <TableCell>
-                                <ReviewDate date={link.next_review_date} />
+                                <ReviewDate
+                                    date={link.next_review_date}
+                                    verification={link.verification_status}
+                                    unacceptable={
+                                        link.risk?.ai_system?.category ===
+                                        'unacceptable'
+                                    }
+                                />
                             </TableCell>
                             <TableCell>
                                 {costLevelLabels[link.estimated_cost]}
