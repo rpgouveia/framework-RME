@@ -28,6 +28,9 @@ export type UncertaintyLevel = 'low' | 'medium' | 'high';
 /** Qualitative effort a mitigation costs to put in place. */
 export type CostLevel = 'low' | 'medium' | 'high';
 
+/** Whether an adverse event caused harm or was caught first (0019). */
+export type AdverseEventNature = 'incident' | 'near_miss';
+
 /** Whether evidence proves a link (0013): born declared, verified on evidence. */
 export type VerificationStatus = 'declared' | 'verified';
 
@@ -248,8 +251,16 @@ export interface StatusHistory extends Timestamps {
 /** Something that went wrong on a system once it was in production. */
 export interface AdverseEvent extends Timestamps {
     id: number;
+    nature: AdverseEventNature;
     description: string;
     occurrence_date: string;
+    /** When monitoring noticed it; optional (0019, item 8). */
+    detected_at: string | null;
+    /** The link that intercepted a near miss; it is not reverted. */
+    intercepting_link_id: number | null;
+    intercepting_link?: Link | null;
+    /** The reversals the event triggered when it was recorded. */
+    reversals?: StatusHistory[];
     /** The MIT risk subdomains the event materializes; never empty. */
     risk_subdomains?: TaxonomyTerm[];
     ai_system_id: number;

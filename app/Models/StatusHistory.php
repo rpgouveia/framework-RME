@@ -102,9 +102,37 @@ class StatusHistory extends Model
     }
 
     /**
+     * Whether the entry renewed a verification that was still valid (0019,
+     * item 2): verified to verified.
+     */
+    public function isRenewal(): bool
+    {
+        return $this->previous_verification === VerificationStatus::Verified
+            && $this->new_verification === VerificationStatus::Verified;
+    }
+
+    /**
+     * The latest change of a link's verification (a verification, renewal or
+     * reversal), up to a given entry when there is one.
+     */
+    public static function lastVerificationChangeOf(Link $link, ?self $before = null): ?self
+    {
+        return self::query()
+            ->where('link_id', $link->id)
+            ->whereNotNull('new_verification')
+            ->when($before, fn (Builder $query) => $query
+                ->where('created_at', '<=', $before?->created_at)
+                ->where('id', '<', $before?->id))
+            ->latest()
+            ->latest('id')
+            ->first();
+    }
+
+    /**
      * The evidence a verification rested on: what counted when it was
-     * recorded (0013), stored up to that moment and, after a reversal, only
-     * what came after the reversal. Empty for any other entry.
+     * recorded, that is, stored up to that moment and after the previous
+     * change of verification (the reversal it answers, or the verification
+     * it renews). Empty for any other entry.
      *
      * @return Collection<int, Evidence>
      */
@@ -114,20 +142,12 @@ class StatusHistory extends Model
             return new Collection;
         }
 
-        $reversal = self::query()
-            ->where('link_id', $this->link_id)
-            ->where('previous_verification', VerificationStatus::Verified)
-            ->where('new_verification', VerificationStatus::Declared)
-            ->where('created_at', '<=', $this->created_at)
-            ->where('id', '<', $this->id)
-            ->latest()
-            ->latest('id')
-            ->first();
+        $previous = self::lastVerificationChangeOf($this->link, $this);
 
         return Evidence::query()
             ->where('link_id', $this->link_id)
             ->where('created_at', '<=', $this->created_at)
-            ->when($reversal, fn (Builder $query) => $query->where('created_at', '>', $reversal?->created_at))
+            ->when($previous, fn (Builder $query) => $query->where('created_at', '>', $previous?->created_at))
             ->orderBy('created_at')
             ->orderBy('id')
             ->get();

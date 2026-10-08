@@ -31,7 +31,8 @@ test('with nothing registered the dashboard shows the starting point', function 
             ->component('dashboard')
             ->where('totals.aiSystems', 0)
             ->where('unlinkedRisks.count', 0)
-            ->where('reviews.dueCount', 0)
+            ->where('reviews.upcomingCount', 0)
+            ->where('unmappedRisks', [])
             ->has('systems', 0)
     );
 });
@@ -100,12 +101,12 @@ test('the dashboard shows where the chain is incomplete', function () {
             ->where('linksWithoutEvidence.count', 1)
             ->where('linksWithoutEvidence.items.0.id', $upcoming->id)
             ->has('linksWithoutEvidence.items.0.risk.name')
-            // Due on or before today, like the daily reassessment check.
-            ->where('reviews.dueCount', 2)
-            ->where('reviews.due.0.id', $overdue->id)
-            ->where('reviews.due.1.id', $dueToday->id)
-            ->where('reviews.upcomingCount', 1)
-            ->where('reviews.upcoming.0.id', $upcoming->id)
+            // From today on: the overdue one is the daily trigger's to revert
+            // (0019), and the one due today is still valid.
+            ->missing('reviews.dueCount')
+            ->where('reviews.upcomingCount', 2)
+            ->where('reviews.upcoming.0.id', $dueToday->id)
+            ->where('reviews.upcoming.1.id', $upcoming->id)
             // Thirty days back is still in; the April event is out.
             ->where('recentEvents.count', 2)
             ->where('recentEvents.items.0.id', $recent->id)
@@ -117,7 +118,7 @@ test('the dashboard shows where the chain is incomplete', function () {
             ->where('systems.0.risks_count', 3)
             ->where('systems.0.unlinked_risks_count', 2)
             ->where('systems.0.links_count', 4)
-            ->where('systems.0.due_reviews_count', 2)
+            ->where('systems.0.awaiting_reassessment_count', 0)
             ->where('systems.0.recent_events_count', 2)
     );
 });
@@ -178,7 +179,7 @@ test('unacceptable systems stay out of the review indicators and are flagged', f
     $operable = AiSystem::factory()->highRisk()->create(['name' => 'A operável']);
     $prohibited = AiSystem::factory()->unacceptable()->create(['name' => 'B proibido']);
 
-    $due = Link::factory()->verified()->for(Risk::factory()->for($operable))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
+    $due = Link::factory()->verified()->for(Risk::factory()->for($operable))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-20']);
     // Created while the system was unacceptable: no date at all.
     Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned]);
     // Dated before the system was reclassified as unacceptable.
@@ -187,14 +188,11 @@ test('unacceptable systems stay out of the review indicators and are flagged', f
 
     $this->get(route('dashboard'))->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->where('reviews.dueCount', 1)
-            ->where('reviews.due.0.id', $due->id)
-            ->where('reviews.upcomingCount', 0)
+            ->where('reviews.upcomingCount', 1)
+            ->where('reviews.upcoming.0.id', $due->id)
             ->where('systems.0.id', $operable->id)
-            ->where('systems.0.due_reviews_count', 1)
             ->where('systems.1.id', $prohibited->id)
             ->where('systems.1.category', 'unacceptable')
-            ->where('systems.1.due_reviews_count', 0)
             // Still counted as links of the chain.
             ->where('systems.1.links_count', 3)
             ->where('unacceptableSystems', [['id' => $prohibited->id, 'name' => 'B proibido']])

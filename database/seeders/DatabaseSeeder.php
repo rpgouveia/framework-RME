@@ -33,13 +33,16 @@ class DatabaseSeeder extends Seeder
         $this->call([
             TaxonomySeeder::class,
             AiSystemSeeder::class,
-            AdverseEventSeeder::class,
             RiskSeeder::class,
+            // Past events, in subdomains of each system's own risks.
+            AdverseEventSeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,
             // Links with their trail, evidence and verification, written
             // through the app's actions.
             LinkSeeder::class,
+            // The reassessment triggers (0019), on the links as they stand.
+            ReassessmentSeeder::class,
         ]);
     }
 }

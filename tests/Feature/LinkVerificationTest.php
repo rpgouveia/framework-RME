@@ -124,12 +124,13 @@ test('a verification is refused with a readable reason', function (Closure $arra
     }, 'Um vínculo de sistema na faixa inaceitável não pode ser verificado: o sistema nunca opera.'],
 ]);
 
-test('a verified link cannot be verified again', function () {
+test('a verified link is renewed only on evidence stored after its verification', function () {
+    $this->travelTo('2026-03-01 09:00');
     $link = declaredLink();
     evidenceFor($link);
     app(RecordStatusChange::class)->verify($link, Owner::factory()->create());
 
-    expect(verificationRefusal($link))->toBe('O vínculo já está verificado.');
+    expect(verificationRefusal($link))->toBe('Registre uma evidência nova para renovar: a última verificação foi em 01/03/2026.');
 });
 
 test('the verifier must be an active owner', function () {
@@ -467,11 +468,10 @@ test('the link list filters by verification', function () {
     );
 
     $this->get(route('dashboard'))->assertInertia(
-        fn (AssertableInertia $page) => $page->where('verification', [
-            'awaitingFirst' => 1,
-            'awaitingReassessment' => 1,
-            'verified' => 1,
-        ])
+        fn (AssertableInertia $page) => $page
+            ->where('verification.awaitingFirst', 1)
+            ->where('verification.awaitingReassessment', 1)
+            ->where('verification.verified', 1)
     );
 });
 
@@ -553,11 +553,18 @@ test('the report exports the verification and the observed cost', function () {
     $aiSystem = $link->risk->aiSystem;
 
     $this->get(route('ai-systems.report.json', $aiSystem))
-        ->assertJsonPath('links.0.verification', [
-            'status' => 'verified',
-            'last_verified_on' => '2026-03-01',
-            'verified_by' => 'Auditor interno',
-        ])
+        ->assertJsonPath('links.0.verification.status', 'verified')
+        ->assertJsonPath('links.0.verification.last_verified_on', '2026-03-01')
+        ->assertJsonPath('links.0.verification.verified_by', 'Auditor interno')
+        ->assertJsonPath('links.0.verification.changes', [[
+            'date' => '2026-03-01',
+            'from' => 'declared',
+            'to' => 'verified',
+            'origin' => 'manual',
+            'recorded_by' => 'Auditor interno',
+            'reason' => null,
+            'adverse_event_id' => null,
+        ]])
         ->assertJsonPath('links.0.observed_cost', 'medium')
         ->assertJsonPath('links.0.evidence.0.observed_cost', 'medium');
 
@@ -592,7 +599,10 @@ test('the seeders tell every verification story through the actions', function (
     expect(Link::awaitingFirstVerification()->doesntHave('evidence')->exists())->toBeTrue()
         ->and(Link::awaitingFirstVerification()->has('evidence')->exists())->toBeTrue()
         ->and(Link::verified()->exists())->toBeTrue()
-        ->and(Link::dueForReview()->exists())->toBeTrue()
+        // Overdue links are reverted as the daily trigger does; one is due
+        // today, still valid.
+        ->and(Link::dueForReview()->exists())->toBeFalse()
+        ->and(Link::monitorable()->whereDate('next_review_date', today())->exists())->toBeTrue()
         ->and(Link::awaitingReassessment()->count())->toBeGreaterThanOrEqual(2)
         // No link of an unacceptable system is verified.
         ->and(Link::query()->where('verification_status', VerificationStatus::Verified)->whereHas('risk.aiSystem', $unacceptable)->exists())->toBeFalse()

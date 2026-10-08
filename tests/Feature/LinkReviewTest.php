@@ -1,7 +1,9 @@
 <?php
 
 use App\Enums\AiSystemCategory;
+use App\Enums\ChangeOrigin;
 use App\Enums\LinkStatus;
+use App\Enums\VerificationStatus;
 use App\Models\AiSystem;
 use App\Models\Link;
 use App\Models\Risk;
@@ -9,18 +11,28 @@ use App\Models\User;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Log;
 
-test('the scope returns the links whose review date has arrived', function () {
+/**
+ * A verified link of an operable system, due on the given day.
+ */
+function verifiedLinkDueOn(string|DateTimeInterface $date, AiSystemCategory $tier = AiSystemCategory::High): Link
+{
+    return Link::factory()->implemented()->verified()
+        ->for(Risk::factory()->for(AiSystem::factory()->state(['category' => $tier])))
+        ->create(['next_review_date' => $date]);
+}
+
+// The review date is the last valid day (0019, item 1).
+
+test('a link is due for review from the day after its review date', function () {
     $this->freezeTime();
 
-    // Pin the status: the factory may pick Cancelled, which the scope skips.
-    $overdue = Link::factory()->implemented()->verified()->create(['next_review_date' => today()->subDay()]);
-    $dueToday = Link::factory()->implemented()->verified()->create(['next_review_date' => today()]);
-    $upcoming = Link::factory()->implemented()->verified()->create(['next_review_date' => today()->addDay()]);
+    $overdue = verifiedLinkDueOn(today()->subDay());
+    $dueToday = verifiedLinkDueOn(today());
+    $upcoming = verifiedLinkDueOn(today()->addDay());
 
-    $due = Link::dueForReview()->pluck('id');
-
-    expect($due)->toContain($overdue->id, $dueToday->id)
-        ->not->toContain($upcoming->id);
+    expect(Link::dueForReview()->pluck('id')->all())->toBe([$overdue->id])
+        ->and(Link::monitorable()->pluck('id')->sort()->values()->all())
+        ->toBe([$overdue->id, $dueToday->id, $upcoming->id]);
 });
 
 test('a cancelled link is left out of the review queue', function () {
@@ -36,58 +48,15 @@ test('a cancelled link is left out of the review queue', function () {
 });
 
 test('a link with no review date is never due', function () {
-    // Its system is in the unacceptable tier: it never operates.
     $this->freezeTime();
 
-    $undated = Link::factory()->implemented()
+    $undated = Link::factory()->implemented()->verified()
         ->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))
         ->create();
-    $due = Link::factory()->implemented()->verified()->create(['next_review_date' => today()]);
+    $overdue = verifiedLinkDueOn(today()->subDay());
 
     expect($undated->next_review_date)->toBeNull()
-        ->and(Link::dueForReview()->pluck('id')->all())->toBe([$due->id]);
-
-    $this->artisan('links:flag-due-for-review')
-        ->assertSuccessful()
-        ->expectsOutputToContain((string) $due->id);
-});
-
-test('the scope, the command and the dashboard drop a link whose system becomes unacceptable, and take it back', function () {
-    $this->freezeTime();
-    $this->actingAs(User::factory()->create());
-
-    $aiSystem = AiSystem::factory()->highRisk()->create();
-    $link = Link::factory()->implemented()->verified()
-        ->for(Risk::factory()->for($aiSystem))
-        ->create(['next_review_date' => today()->subWeek()]);
-
-    $seen = function () use ($link): array {
-        $dashboard = $this->get(route('dashboard'))->viewData('page')['props'];
-
-        return [
-            'scope' => Link::dueForReview()->pluck('id')->contains($link->id),
-            'monitorable' => Link::monitorable()->pluck('id')->contains($link->id),
-            'dashboard' => collect($dashboard['reviews']['due'])->pluck('id')->contains($link->id),
-            'dashboard count' => $dashboard['reviews']['dueCount'],
-            'system count' => collect($dashboard['systems'])->firstWhere('id', $link->risk->ai_system_id)['due_reviews_count'],
-        ];
-    };
-
-    expect($seen())->toBe(['scope' => true, 'monitorable' => true, 'dashboard' => true, 'dashboard count' => 1, 'system count' => 1]);
-    $this->artisan('links:flag-due-for-review')->expectsOutputToContain(today()->subWeek()->toDateString());
-
-    // Reclassified as unacceptable: no review is owed, but the date stays.
-    $aiSystem->update(['category' => AiSystemCategory::Unacceptable]);
-
-    expect($seen())->toBe(['scope' => false, 'monitorable' => false, 'dashboard' => false, 'dashboard count' => 0, 'system count' => 0])
-        ->and($link->refresh()->next_review_date->toDateString())->toBe(today()->subWeek()->toDateString());
-    $this->artisan('links:flag-due-for-review')->expectsOutput('No link is waiting for a review.');
-
-    // Back to an operable tier: the old date is due again.
-    $aiSystem->update(['category' => AiSystemCategory::Limited]);
-
-    expect($seen())->toBe(['scope' => true, 'monitorable' => true, 'dashboard' => true, 'dashboard count' => 1, 'system count' => 1]);
-    $this->artisan('links:flag-due-for-review')->expectsOutputToContain(today()->subWeek()->toDateString());
+        ->and(Link::dueForReview()->pluck('id')->all())->toBe([$overdue->id]);
 });
 
 test('a monitorable link is verified, not cancelled, has a date and belongs to an operable system', function () {
@@ -106,36 +75,66 @@ test('a monitorable link is verified, not cancelled, has a date and belongs to a
     expect(Link::monitorable()->pluck('id')->all())->toBe([$monitorable->id]);
 });
 
-test('the command lists the links waiting for a review', function () {
-    $this->freezeTime();
+// The daily command reverts (0019, item 1).
 
-    $due = Link::factory()->dueForReview()->create(['status' => LinkStatus::Implemented]);
-    $upcoming = Link::factory()->create(['next_review_date' => today()->addMonth()]);
+test('the command reverts the links past their review date, not those due today', function () {
+    $this->travelTo('2026-05-10 07:00');
+
+    $overdue = verifiedLinkDueOn('2026-05-09');
+    $dueToday = verifiedLinkDueOn('2026-05-10');
 
     $this->artisan('links:flag-due-for-review')
         ->assertSuccessful()
-        ->expectsOutputToContain((string) $due->id);
+        ->expectsOutputToContain('2026-05-09');
 
-    expect($due->refresh()->status)->toBe(LinkStatus::Implemented)
-        ->and($upcoming->refresh()->next_review_date->toDateString())
-        ->toBe(today()->addMonth()->toDateString());
+    $entry = $overdue->lastReversal()->first();
 
-    $this->assertDatabaseCount('status_histories', 0);
-});
+    expect($overdue->refresh()->verification_status)->toBe(VerificationStatus::Declared)
+        ->and($overdue->next_review_date)->toBeNull()
+        ->and($entry->origin)->toBe(ChangeOrigin::ReviewDue)
+        ->and($entry->owner_id)->toBeNull()
+        ->and($entry->trigger_reason)->toBe('A revisão venceu em 09/05/2026.')
+        ->and($entry->change_date->toDateString())->toBe('2026-05-10')
+        ->and($dueToday->refresh()->verification_status)->toBe(VerificationStatus::Verified);
 
-test('the command says when nothing is waiting for a review', function () {
-    $this->freezeTime();
-
-    Link::factory()->create(['next_review_date' => today()->addMonth()]);
-
-    Log::spy();
-
+    // The next day, the link due yesterday is reverted too.
+    $this->travelTo('2026-05-11 07:00');
     $this->artisan('links:flag-due-for-review')->assertSuccessful();
 
-    Log::shouldNotHaveReceived('warning');
+    expect($dueToday->refresh()->verification_status)->toBe(VerificationStatus::Declared);
 });
 
-test('the command logs a warning with the count of overdue links', function () {
+test('running the command twice on the same day reverts nothing more', function () {
+    $this->travelTo('2026-05-10 07:00');
+    $overdue = verifiedLinkDueOn('2026-05-01');
+
+    $this->artisan('links:flag-due-for-review')->assertSuccessful();
+    $this->artisan('links:flag-due-for-review')
+        ->assertSuccessful()
+        ->expectsOutput('No link is past its review date.');
+
+    expect($overdue->statusHistories()->where('origin', ChangeOrigin::ReviewDue)->count())->toBe(1);
+});
+
+test('the command leaves declared, cancelled and unacceptable links alone', function () {
+    $this->travelTo('2026-05-10 07:00');
+
+    $declared = Link::factory()->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-05-01']);
+    $cancelled = Link::factory()->verified()->create(['status' => LinkStatus::Cancelled, 'next_review_date' => '2026-05-01']);
+    $prohibited = Link::factory()->verified()
+        ->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))
+        ->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-05-01']);
+
+    $this->artisan('links:flag-due-for-review')
+        ->assertSuccessful()
+        ->expectsOutput('No link is past its review date.');
+
+    expect($declared->statusHistories()->count())->toBe(0)
+        ->and($cancelled->refresh()->verification_status)->toBe(VerificationStatus::Verified)
+        ->and($prohibited->refresh()->verification_status)->toBe(VerificationStatus::Verified);
+});
+
+test('the command logs how many links it reverted', function () {
     $this->freezeTime();
 
     Link::factory(2)->dueForReview()->implemented()->create();
@@ -144,7 +143,35 @@ test('the command logs a warning with the count of overdue links', function () {
 
     $this->artisan('links:flag-due-for-review')->assertSuccessful();
 
-    Log::shouldHaveReceived('warning')->once();
+    Log::shouldHaveReceived('info')->withArgs(fn (string $message, array $context): bool => $context['count'] === 2)->once();
+});
+
+test('the scope and the dashboard leave out a link whose system becomes unacceptable, and take it back', function () {
+    $this->freezeTime();
+    $this->actingAs(User::factory()->create());
+
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    // A tier change outside UpdateAiSystem reverts nothing, so the link keeps
+    // its verification and date, as an older reclassification would have.
+    $link = Link::factory()->implemented()->verified()
+        ->for(Risk::factory()->for($aiSystem))
+        ->create(['next_review_date' => today()->addDays(3)]);
+
+    $upcoming = fn (): bool => collect($this->get(route('dashboard'))->viewData('page')['props']['reviews']['upcoming'])
+        ->pluck('id')->contains($link->id);
+
+    expect(Link::monitorable()->pluck('id')->all())->toBe([$link->id])
+        ->and($upcoming())->toBeTrue();
+
+    $aiSystem->update(['category' => AiSystemCategory::Unacceptable]);
+
+    expect(Link::monitorable()->exists())->toBeFalse()
+        ->and($upcoming())->toBeFalse();
+
+    $aiSystem->update(['category' => AiSystemCategory::Limited]);
+
+    expect(Link::monitorable()->pluck('id')->all())->toBe([$link->id])
+        ->and($upcoming())->toBeTrue();
 });
 
 test('the command is scheduled to run every day', function () {

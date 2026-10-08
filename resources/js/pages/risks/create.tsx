@@ -24,9 +24,10 @@ export default function RisksCreate({
 
     // The system's detail page links here with `?ai_system=<id>`; ignore an
     // id that is not among the options.
-    const requestedId = Number(
-        new URLSearchParams(url.split('?')[1]).get('ai_system'),
-    );
+    const query = new URLSearchParams(url.split('?')[1]);
+    const requestedId = Number(query.get('ai_system'));
+    // A risk not yet mapped links here with `&subdomain=<code>` (0019).
+    const defaultSubdomainCode = query.get('subdomain') ?? undefined;
     const defaultAiSystemId = aiSystems.some((s) => s.id === requestedId)
         ? requestedId
         : undefined;
@@ -68,6 +69,7 @@ export default function RisksCreate({
                                 submitLabel="Cadastrar"
                                 cancelHref={index()}
                                 defaultAiSystemId={defaultAiSystemId}
+                                defaultSubdomainCode={defaultSubdomainCode}
                             />
                         )}
                     </Form>

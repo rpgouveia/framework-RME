@@ -23,5 +23,6 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0016](0016-classe-do-sistema.md)                    | Classe do sistema no protocolo de monitoramento                      | Aceita                                                |
 | [0017](0017-periodicidade-de-revisao.md)             | Periodicidade de revisão por faixa                                   | Aceita; parcialmente revista pela 0018                |
 | [0018](0018-verificacao-do-vinculo.md)               | Verificação do vínculo: regras da etapa 4a                           | Aceita; implementada na etapa 4a                      |
+| [0019](0019-gatilhos-de-reavaliacao.md)              | Gatilhos de reavaliação e eventos adversos                           | Aceita; implementada na etapa 4b                      |
 
 Itens em aberto: [PENDENTES.md](PENDENTES.md).

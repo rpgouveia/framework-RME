@@ -3,10 +3,13 @@
 namespace App\Support;
 
 use App\Enums\AiSystemCategory;
+use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Risk;
 use App\Models\TaxonomyTerm;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -285,6 +288,73 @@ class MonitoringProtocol
 
             return array_values($expected);
         }, $profile);
+    }
+
+    /**
+     * The subdomains of an event in which its system has no risk registered:
+     * a risk not yet mapped (0019, item 4).
+     *
+     * @return list<string>
+     */
+    public function unmappedSubdomainCodes(AdverseEvent $adverseEvent): array
+    {
+        $mapped = Risk::query()->where('ai_system_id', $adverseEvent->ai_system_id)->pluck('risk_subdomain_id')->all();
+
+        return array_values($adverseEvent->riskSubdomains
+            ->reject(fn (TaxonomyTerm $subdomain): bool => in_array($subdomain->id, $mapped, true))
+            ->map(fn (TaxonomyTerm $subdomain): string => $subdomain->code)
+            ->all());
+    }
+
+    /**
+     * The risks not yet mapped, across systems (0019, item 4): each pair of
+     * a system and a subdomain of its adverse events in which it has no risk
+     * registered, with how many events fell there and the latest one. It is
+     * worked out on every call, not stored, so it goes away as soon as a risk
+     * of that subdomain is registered for the system. Latest first.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function unmappedRisks(): array
+    {
+        $rows = DB::table('adverse_event_risk_subdomains as tagged')
+            ->join('adverse_events as event', 'event.id', '=', 'tagged.adverse_event_id')
+            ->whereNotExists(fn (QueryBuilder $risk) => $risk->from('risks')
+                ->whereColumn('risks.ai_system_id', 'event.ai_system_id')
+                ->whereColumn('risks.risk_subdomain_id', 'tagged.risk_subdomain_id'))
+            ->get(['event.id', 'event.ai_system_id', 'event.occurrence_date', 'tagged.risk_subdomain_id']);
+
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $subdomains = app(AiRiskDomains::class)->subdomains()->load('parent')->keyBy('id');
+        $systems = AiSystem::query()->whereIn('id', $rows->pluck('ai_system_id')->unique())->pluck('name', 'id');
+
+        return $rows
+            ->groupBy(fn (object $row): string => $row->ai_system_id.'-'.$row->risk_subdomain_id)
+            ->map(function ($events): array {
+                $latest = $events->sortBy([['occurrence_date', 'desc'], ['id', 'desc']])->first();
+
+                return ['events' => $events, 'latest' => $latest];
+            })
+            ->sortBy([
+                fn (array $a, array $b): int => [(string) $b['latest']->occurrence_date, (int) $b['latest']->id] <=> [(string) $a['latest']->occurrence_date, (int) $a['latest']->id],
+            ])
+            ->map(function (array $group) use ($subdomains, $systems): array {
+                $latest = $group['latest'];
+                /** @var TaxonomyTerm $subdomain */
+                $subdomain = $subdomains[(int) $latest->risk_subdomain_id];
+
+                return [
+                    'ai_system' => ['id' => (int) $latest->ai_system_id, 'name' => (string) $systems[(int) $latest->ai_system_id]],
+                    'subdomain' => ['code' => $subdomain->code, 'name' => $subdomain->name, 'domain' => $subdomain->parent?->name],
+                    'events_count' => $group['events']->count(),
+                    'latest_event' => ['id' => (int) $latest->id, 'occurrence_date' => substr((string) $latest->occurrence_date, 0, 10)],
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

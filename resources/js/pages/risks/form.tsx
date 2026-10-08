@@ -37,6 +37,11 @@ type Props = {
     risk?: Risk;
     /** Preselects the system on create, e.g. from `?ai_system=<id>`. */
     defaultAiSystemId?: number;
+    /**
+     * Preselects the subdomain (and its domain) on create, e.g. from
+     * `?subdomain=2.1`, the shortcut of a risk not yet mapped (0019).
+     */
+    defaultSubdomainCode?: string;
 };
 
 /**
@@ -55,6 +60,7 @@ export function RiskForm({
     cancelHref,
     risk,
     defaultAiSystemId,
+    defaultSubdomainCode,
 }: Props) {
     const aiSystemId = risk?.ai_system_id ?? defaultAiSystemId;
     const linkCount = risk?.links_count ?? 0;
@@ -63,16 +69,18 @@ export function RiskForm({
     );
     // Only the subdomain is sent; the domain narrows the list and is derived
     // from it on the server.
-    const [domainCode, setDomainCode] = useState(
-        () =>
-            riskDomains.find((domain) =>
-                domain.children.some(
-                    (subdomain) => subdomain.id === risk?.risk_subdomain_id,
-                ),
-            )?.code ?? '',
-    );
+    const initial = riskDomains
+        .flatMap((domain) =>
+            domain.children.map((subdomain) => ({ domain, subdomain })),
+        )
+        .find(({ subdomain }) =>
+            risk === undefined
+                ? subdomain.code === defaultSubdomainCode
+                : subdomain.id === risk.risk_subdomain_id,
+        );
+    const [domainCode, setDomainCode] = useState(initial?.domain.code ?? '');
     const [subdomainId, setSubdomainId] = useState(
-        risk === undefined ? '' : String(risk.risk_subdomain_id),
+        initial ? String(initial.subdomain.id) : '',
     );
     const subdomains =
         riskDomains.find((domain) => domain.code === domainCode)?.children ??
@@ -152,8 +160,16 @@ export function RiskForm({
                     required
                     maxLength={255}
                     placeholder="Ex.: Viés de seleção"
+                    aria-describedby="name-help"
                     aria-invalid={errors.name ? true : undefined}
                 />
+                {/* 0001 and 0002: the name identifies the kind of risk and
+                    may repeat across systems; the description is this
+                    system's own. */}
+                <p id="name-help" className="text-muted-foreground text-sm">
+                    O tipo de risco, em poucas palavras. É o que aparece nas
+                    listas e pode se repetir em outros sistemas.
+                </p>
                 <InputError message={errors.name} />
             </div>
 
@@ -169,11 +185,18 @@ export function RiskForm({
                     className="max-h-80 min-h-32"
                     placeholder="Ex.: O modelo apresenta desempenho inferior para grupos sub-representados nos dados de treino, o que pode levar a decisões discriminatórias."
                     aria-invalid={errors.description ? true : undefined}
-                    aria-describedby="description-count"
+                    aria-describedby="description-help description-count"
                     onChange={(event) =>
                         setDescriptionLength(event.target.value.length)
                     }
                 />
+                <p
+                    id="description-help"
+                    className="text-muted-foreground text-sm"
+                >
+                    Como esse risco se manifesta neste sistema: o contexto, o
+                    mecanismo e quem pode ser afetado.
+                </p>
                 <div className="flex justify-between gap-4">
                     <InputError message={errors.description} />
                     <p
@@ -206,8 +229,9 @@ export function RiskForm({
                     </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-sm">
-                    Taxonomia de domínios do MIT AI Risk Repository (Slattery et
-                    al.).
+                    A classificação padronizada do risco, pela taxonomia do MIT
+                    AI Risk Repository (Slattery et al.). Liga o risco às
+                    mitigações recomendadas e aos eventos adversos.
                 </p>
             </div>
 

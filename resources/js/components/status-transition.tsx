@@ -17,6 +17,21 @@ type Entry = Pick<
  * verification, labelled as such.
  */
 export function StatusTransition({ entry }: { entry: Entry }) {
+    if (
+        entry.previous_verification === 'verified' &&
+        entry.new_verification === 'verified'
+    ) {
+        // Renewed before it fell due (0019, item 2).
+        return (
+            <span className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="text-muted-foreground">
+                    Renovação da verificação:
+                </span>
+                <VerificationBadge verification="verified" />
+            </span>
+        );
+    }
+
     if (entry.new_verification !== null) {
         return (
             <span className="flex flex-wrap items-center gap-2 text-sm">

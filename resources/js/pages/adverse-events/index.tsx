@@ -3,6 +3,7 @@ import { FilterLink } from '@/components/filter-link';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -13,30 +14,55 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
-import { termLabel } from '@/lib/labels';
+import {
+    adverseEventNatureBadgeClasses,
+    adverseEventNatureLabels,
+    labelFor,
+    termLabel,
+} from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
-import type { AdverseEvent, Paginated, TaxonomyCategory } from '@/types/models';
+import type {
+    AdverseEvent,
+    AdverseEventNature,
+    EnumOption,
+    Paginated,
+    TaxonomyCategory,
+} from '@/types/models';
+
+type Filters = {
+    /** The MIT risk domain the list is narrowed to, if any. */
+    domain: string | null;
+    /** Incident or near miss, if any. */
+    nature: AdverseEventNature | null;
+};
 
 type Props = {
     adverseEvents: Paginated<AdverseEvent>;
-    /** The MIT risk domain the list is narrowed to, if any. */
-    filters: { domain: string | null };
+    filters: Filters;
     riskDomains: TaxonomyCategory[];
+    natures: EnumOption[];
 };
 
-/** The list URL for a domain, or for every event. */
-function eventsIn(domain: string | null) {
-    return index({ query: domain ? { domain } : {} });
+/** The list URL for a set of filters, leaving out the empty ones. */
+function eventsWith(filters: Filters) {
+    return index({
+        query: {
+            ...(filters.domain ? { domain: filters.domain } : {}),
+            ...(filters.nature ? { nature: filters.nature } : {}),
+        },
+    });
 }
 
 export default function AdverseEventsIndex({
     adverseEvents,
     filters,
     riskDomains,
+    natures,
 }: Props) {
     const domain = riskDomains.find((option) => option.code === filters.domain);
+    const filtered = filters.domain !== null || filters.nature !== null;
 
     return (
         <>
@@ -53,20 +79,49 @@ export default function AdverseEventsIndex({
                 </div>
 
                 <nav
-                    aria-label="Filtrar por domínio de risco"
+                    aria-label="Filtrar por natureza"
                     className="flex flex-wrap gap-2"
                 >
                     <FilterLink
-                        href={eventsIn(null)}
-                        active={filters.domain === null}
+                        href={eventsWith({ ...filters, nature: null })}
+                        active={filters.nature === null}
                     >
-                        Todos
+                        Todas as naturezas
+                    </FilterLink>
+                    {natures.map((option) => (
+                        <FilterLink
+                            key={option.value}
+                            href={eventsWith({
+                                ...filters,
+                                nature: option.value as AdverseEventNature,
+                            })}
+                            active={filters.nature === option.value}
+                        >
+                            {labelFor(adverseEventNatureLabels, option.value)}
+                        </FilterLink>
+                    ))}
+                </nav>
+
+                <nav
+                    aria-label="Filtrar por domínio de risco"
+                    className="-mt-2 flex flex-wrap gap-2"
+                >
+                    <FilterLink
+                        href={eventsWith({ ...filters, domain: null })}
+                        active={filters.domain === null}
+                        subtle
+                    >
+                        Todos os domínios
                     </FilterLink>
                     {riskDomains.map((option) => (
                         <FilterLink
                             key={option.code}
-                            href={eventsIn(option.code)}
+                            href={eventsWith({
+                                ...filters,
+                                domain: option.code,
+                            })}
                             active={filters.domain === option.code}
+                            subtle
                         >
                             {termLabel(option)}
                         </FilterLink>
@@ -74,14 +129,20 @@ export default function AdverseEventsIndex({
                 </nav>
 
                 {adverseEvents.data.length === 0 ? (
-                    domain ? (
+                    filtered ? (
                         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
                             <p className="text-muted-foreground text-sm">
-                                Nenhum evento adverso materializa riscos do
-                                domínio {termLabel(domain)}.
+                                {domain
+                                    ? `Nenhum evento adverso neste filtro materializa riscos do domínio ${termLabel(domain)}.`
+                                    : 'Nenhum evento adverso neste filtro.'}
                             </p>
                             <Button variant="outline" asChild>
-                                <Link href={eventsIn(null)}>
+                                <Link
+                                    href={eventsWith({
+                                        domain: null,
+                                        nature: null,
+                                    })}
+                                >
                                     Ver todos os eventos
                                 </Link>
                             </Button>
@@ -117,6 +178,7 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
             <Table>
                 <TableHeader>
                     <TableRow>
+                        <TableHead>Natureza</TableHead>
                         <TableHead>Subdomínios de risco</TableHead>
                         <TableHead>Sistema</TableHead>
                         <TableHead>Ocorrência</TableHead>
@@ -133,6 +195,17 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
                             className="cursor-pointer"
                             onClick={rowLink(show(event.id))}
                         >
+                            <TableCell>
+                                <Badge
+                                    className={
+                                        adverseEventNatureBadgeClasses[
+                                            event.nature
+                                        ]
+                                    }
+                                >
+                                    {adverseEventNatureLabels[event.nature]}
+                                </Badge>
+                            </TableCell>
                             <TableCell>
                                 <RiskSubdomainBadges
                                     subdomains={event.risk_subdomains}

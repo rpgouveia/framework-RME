@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\AdverseEventNature;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Support\AiRiskDomains;
@@ -20,6 +21,7 @@ class AdverseEventFactory extends Factory
     public function definition(): array
     {
         return [
+            'nature' => fake()->randomElement(AdverseEventNature::cases()),
             'description' => fake()->paragraph(),
             'occurrence_date' => fake()->dateTimeBetween('-1 year'),
             'ai_system_id' => AiSystem::factory(),

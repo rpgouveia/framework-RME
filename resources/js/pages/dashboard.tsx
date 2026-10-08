@@ -25,9 +25,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatDate } from '@/lib/format';
+import { dateInputValue, formatDate } from '@/lib/format';
 import {
     categoryBadgeClasses,
+    changeOriginLabels,
     linkLabel,
     linkStatusBadgeClasses,
     linkStatusLabels,
@@ -50,10 +51,15 @@ import {
     show as showLink,
 } from '@/routes/links';
 import { create as createEvidence } from '@/routes/links/evidence';
-import { index as risksIndex, show as showRisk } from '@/routes/risks';
+import {
+    create as createRisk,
+    index as risksIndex,
+    show as showRisk,
+} from '@/routes/risks';
 import type {
     AdverseEvent,
     AiSystem,
+    ChangeOrigin,
     Link as RiskLink,
     LinkStatus,
     Risk,
@@ -68,8 +74,16 @@ type SystemSummary = Pick<
     risks_count: number;
     unlinked_risks_count: number;
     links_count: number;
-    due_reviews_count: number;
+    awaiting_reassessment_count: number;
     recent_events_count: number;
+};
+
+/** An event subdomain with no risk registered for the system (0019). */
+type UnmappedRisk = {
+    ai_system: { id: number; name: string };
+    subdomain: { code: string; name: string; domain: string | null };
+    events_count: number;
+    latest_event: { id: number; occurrence_date: string };
 };
 
 type Props = {
@@ -86,8 +100,6 @@ type Props = {
     recentEvents: Pending<AdverseEvent> & { days: number };
     reviews: {
         upcomingDays: number;
-        dueCount: number;
-        due: RiskLink[];
         upcomingCount: number;
         upcoming: RiskLink[];
     };
@@ -96,15 +108,20 @@ type Props = {
     verification: {
         awaitingFirst: number;
         awaitingReassessment: number;
+        /** Split by the origin of the last reversal (0019). */
+        awaitingReassessmentByOrigin: { origin: ChangeOrigin; count: number }[];
         verified: number;
     };
+    /** Risks not yet mapped: event subdomains with no risk (0019). */
+    unmappedRisks: UnmappedRisk[];
     /** Systems that may not operate, left out of the review indicators. */
     unacceptableSystems: Pick<AiSystem, 'id' | 'name'>[];
 };
 
 /** Tones for the review labels of the reassessment screen (Tela 5). */
 const reviewBadge = {
-    due: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
+    dueToday:
+        'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
     onTrack:
         'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
 };
@@ -154,6 +171,7 @@ function Overview({
     systems,
     unacceptableSystems,
     verification,
+    unmappedRisks,
 }: Props) {
     return (
         <>
@@ -172,7 +190,7 @@ function Overview({
                 <Total label="Responsáveis ativos" value={totals.owners} />
             </dl>
 
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="grid gap-4 sm:grid-cols-3">
                 <PendingCard
                     count={unlinkedRisks.count}
                     title="Riscos sem vínculo"
@@ -188,13 +206,6 @@ function Overview({
                     action="Ver vínculos"
                 />
                 <PendingCard
-                    count={reviews.dueCount}
-                    title="Revisões vencidas"
-                    sentence="Vínculos de sistemas em operação cuja data de revisão já chegou."
-                    href={linksIndex()}
-                    action="Ver vínculos"
-                />
-                <PendingCard
                     count={recentEvents.count}
                     title={`Eventos nos últimos ${recentEvents.days} dias`}
                     sentence="Problemas recentes nos sistemas em operação."
@@ -204,6 +215,8 @@ function Overview({
             </div>
 
             <VerificationSummary counts={verification} />
+
+            <UnmappedRisks risks={unmappedRisks} />
 
             <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
@@ -258,24 +271,21 @@ function Overview({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Revisões</CardTitle>
+                        <CardTitle>Próximas revisões</CardTitle>
                         <CardDescription>
-                            Vencidas e as dos próximos {reviews.upcomingDays}{' '}
-                            dias, das mais urgentes às menos.
+                            Vencem hoje ou nos próximos {reviews.upcomingDays}{' '}
+                            dias. A data é o último dia válido: no dia seguinte,
+                            o vínculo volta a declarado.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {reviews.due.length === 0 &&
-                        reviews.upcoming.length === 0 ? (
+                        {reviews.upcoming.length === 0 ? (
                             <Empty>
-                                Nenhuma revisão vencida nem prevista para os
-                                próximos {reviews.upcomingDays} dias.
+                                Nenhuma revisão prevista para os próximos{' '}
+                                {reviews.upcomingDays} dias.
                             </Empty>
                         ) : (
                             <ul className="divide-y">
-                                {reviews.due.map((link) => (
-                                    <ReviewItem key={link.id} link={link} due />
-                                ))}
                                 {reviews.upcoming.map((link) => (
                                     <ReviewItem key={link.id} link={link} />
                                 ))}
@@ -551,8 +561,9 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
             <CardHeader>
                 <CardTitle>Verificação dos vínculos</CardTitle>
                 <CardDescription>
-                    Vínculos cancelados e de sistemas na faixa inaceitável ficam
-                    de fora das pendências.
+                    Vínculos cancelados ficam de fora. A primeira verificação
+                    também deixa de fora os sistemas na faixa inaceitável, que
+                    não podem ser verificados.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -583,12 +594,128 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                         </li>
                     ))}
                 </ul>
+                <div className="mt-4 grid gap-2">
+                    <p className="text-muted-foreground text-sm">
+                        Aguardando reavaliação, pela origem da última reversão
+                    </p>
+                    <ul className="grid gap-2 sm:grid-cols-4">
+                        {counts.awaitingReassessmentByOrigin.map((row) => (
+                            <li key={row.origin}>
+                                <Link
+                                    href={linksWith(
+                                        'awaiting_reassessment',
+                                        row.origin,
+                                    )}
+                                    className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
+                                >
+                                    <span>
+                                        {changeOriginLabels[row.origin]}
+                                    </span>
+                                    <span
+                                        className={cn(
+                                            'font-semibold tabular-nums',
+                                            row.count > 0 &&
+                                                'text-amber-700 dark:text-amber-300',
+                                        )}
+                                    >
+                                        {row.count}
+                                    </span>
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </CardContent>
         </Card>
     );
 }
 
-function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
+/**
+ * Risks not yet mapped (0019, item 4): adverse events in subdomains where
+ * the system has no risk registered, each with a shortcut to register it.
+ * Worked out on every visit, so a case goes away once the risk exists.
+ */
+function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Riscos não mapeados</CardTitle>
+                <CardDescription>
+                    Eventos adversos em subdomínios em que o sistema não tem
+                    risco cadastrado: um risco que ainda não foi identificado.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                {risks.length === 0 ? (
+                    <Empty>
+                        Todos os eventos estão em subdomínios com risco
+                        cadastrado no sistema.
+                    </Empty>
+                ) : (
+                    <ul className="divide-y">
+                        {risks.map((risk) => (
+                            <li
+                                key={`${risk.ai_system.id}-${risk.subdomain.code}`}
+                                className="flex flex-wrap items-center justify-between gap-4 py-2"
+                            >
+                                <span className="grid gap-0.5">
+                                    <span className="font-medium">
+                                        {risk.subdomain.code}{' '}
+                                        {risk.subdomain.name}
+                                    </span>
+                                    <span className="text-muted-foreground text-xs">
+                                        <Link
+                                            href={showAiSystem(
+                                                risk.ai_system.id,
+                                            )}
+                                            className="hover:underline"
+                                        >
+                                            {risk.ai_system.name}
+                                        </Link>{' '}
+                                        ·{' '}
+                                        {risk.events_count === 1
+                                            ? '1 evento'
+                                            : `${risk.events_count} eventos`}
+                                        , o mais recente em{' '}
+                                        <Link
+                                            href={showAdverseEvent(
+                                                risk.latest_event.id,
+                                            )}
+                                            className="hover:underline"
+                                        >
+                                            {formatDate(
+                                                risk.latest_event
+                                                    .occurrence_date,
+                                            )}
+                                        </Link>
+                                    </span>
+                                </span>
+                                <Button size="sm" variant="outline" asChild>
+                                    <Link
+                                        href={createRisk({
+                                            query: {
+                                                ai_system: risk.ai_system.id,
+                                                subdomain: risk.subdomain.code,
+                                            },
+                                        })}
+                                    >
+                                        Cadastrar risco
+                                    </Link>
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
+function ReviewItem({ link }: { link: RiskLink }) {
+    const dueToday =
+        link.next_review_date !== null &&
+        dateInputValue(link.next_review_date) === dateInputValue();
+
     return (
         <li className="flex items-center justify-between gap-4 py-2">
             <span className="grid">
@@ -611,8 +738,12 @@ function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
                     />
                 </span>
             </span>
-            <Badge className={due ? reviewBadge.due : reviewBadge.onTrack}>
-                {due ? 'SINALIZADO PARA REVISÃO' : 'EM DIA'}
+            <Badge
+                className={
+                    dueToday ? reviewBadge.dueToday : reviewBadge.onTrack
+                }
+            >
+                {dueToday ? 'VENCE HOJE' : 'EM DIA'}
             </Badge>
         </li>
     );
@@ -662,7 +793,7 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                     <TableHead className="text-right">Sem vínculo</TableHead>
                     <TableHead className="text-right">Vínculos</TableHead>
                     <TableHead className="text-right">
-                        Revisões vencidas
+                        Aguardando reavaliação
                     </TableHead>
                     <TableHead className="text-right">
                         Eventos (30 dias)
@@ -699,17 +830,10 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                             pending
                         />
                         <NumberCell value={system.links_count} />
-                        {system.category === 'unacceptable' ? (
-                            // Never in operation, so it owes no review.
-                            <TableCell className="text-muted-foreground text-right text-xs">
-                                Não se aplica
-                            </TableCell>
-                        ) : (
-                            <NumberCell
-                                value={system.due_reviews_count}
-                                pending
-                            />
-                        )}
+                        <NumberCell
+                            value={system.awaiting_reassessment_count}
+                            pending
+                        />
                         <NumberCell
                             value={system.recent_events_count}
                             pending

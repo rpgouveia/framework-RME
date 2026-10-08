@@ -13,9 +13,16 @@ return new class extends Migration
     {
         Schema::create('adverse_events', function (Blueprint $table) {
             $table->id();
+            // Incident or near miss: both trigger the reassessment (0019).
+            $table->string('nature');
             $table->text('description');
             $table->date('occurrence_date');
+            // When monitoring noticed it; the gap measures detection (0019).
+            $table->date('detected_at')->nullable();
             $table->foreignId('ai_system_id')->constrained('ai_systems');
+            // A near miss may name the link whose mitigation intercepted it:
+            // that link is not reverted (0019, item 6). Created after links.
+            $table->foreignId('intercepting_link_id')->nullable()->constrained('links');
             $table->timestamps();
         });
 

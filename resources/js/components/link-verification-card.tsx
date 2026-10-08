@@ -1,4 +1,4 @@
-import { Form, usePage } from '@inertiajs/react';
+import { Form, Link as InertiaLink, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import LinkVerificationController from '@/actions/App/Http/Controllers/LinkVerificationController';
 import { DetailItem } from '@/components/detail-item';
@@ -31,7 +31,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/lib/format';
-import { changeOriginLabels } from '@/lib/labels';
+import { changeOriginLabels, subdomainCodes } from '@/lib/labels';
+import { show as showAdverseEvent } from '@/routes/adverse-events';
 import type { Link, Owner } from '@/types/models';
 
 type VerifierOption = Pick<Owner, 'id' | 'organizational_role' | 'area'>;
@@ -60,8 +61,7 @@ export function LinkVerificationCard({
     const reversal = declared ? link.last_reversal : null;
     // The evidence page links here with `?verify=1` once the link is ready.
     const [verifying, setVerifying] = useState(
-        declared &&
-            verification.problem === null &&
+        verification.problem === null &&
             new URLSearchParams(url.split('?')[1]).get('verify') === '1',
     );
     const [reverting, setReverting] = useState(false);
@@ -94,6 +94,22 @@ export function LinkVerificationCard({
                         </p>
                         {reversal.trigger_reason && (
                             <p>Motivo: {reversal.trigger_reason}</p>
+                        )}
+                        {reversal.adverse_event && (
+                            <p>
+                                Evento adverso:{' '}
+                                <InertiaLink
+                                    href={showAdverseEvent(
+                                        reversal.adverse_event.id,
+                                    )}
+                                    className="font-medium underline underline-offset-4"
+                                >
+                                    {subdomainCodes(reversal.adverse_event)} de{' '}
+                                    {formatDate(
+                                        reversal.adverse_event.occurrence_date,
+                                    )}
+                                </InertiaLink>
+                            </p>
                         )}
                     </div>
                 )}
@@ -142,18 +158,42 @@ export function LinkVerificationCard({
                         )}
                     </div>
                 ) : (
-                    <div>
-                        <Button
-                            variant="outline"
-                            onClick={() => setReverting(true)}
-                        >
-                            Reverter verificação
-                        </Button>
+                    <div className="grid gap-2">
+                        <div className="flex flex-wrap gap-2">
+                            {/* Renewed before it falls due, on evidence
+                                stored since the last verification (0019). */}
+                            <Button
+                                disabled={verification.problem !== null}
+                                onClick={() => setVerifying(true)}
+                                aria-describedby={
+                                    verification.problem
+                                        ? 'verification-problem'
+                                        : undefined
+                                }
+                            >
+                                Renovar verificação
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setReverting(true)}
+                            >
+                                Reverter verificação
+                            </Button>
+                        </div>
+                        {verification.problem && (
+                            <p
+                                id="verification-problem"
+                                className="text-muted-foreground text-sm"
+                            >
+                                {verification.problem}
+                            </p>
+                        )}
                     </div>
                 )}
             </CardContent>
 
             <VerifyDialog
+                renewal={!declared}
                 link={link}
                 owners={verification.owners}
                 open={verifying}
@@ -170,11 +210,14 @@ export function LinkVerificationCard({
 }
 
 function VerifyDialog({
+    renewal,
     link,
     owners,
     open,
     onOpenChange,
 }: {
+    /** The link is verified: this renews the verification. */
+    renewal: boolean;
     link: Link;
     owners: VerifierOption[];
     open: boolean;
@@ -183,10 +226,16 @@ function VerifyDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
-                <DialogTitle>Verificar este vínculo?</DialogTitle>
+                <DialogTitle>
+                    {renewal
+                        ? 'Renovar a verificação deste vínculo?'
+                        : 'Verificar este vínculo?'}
+                </DialogTitle>
                 <DialogDescription>
-                    A revisão periódica passa a contar a partir de hoje, com o
-                    intervalo da faixa do sistema. O registro fica no histórico.
+                    {renewal
+                        ? 'A nova evidência renova a verificação antes do vencimento: a revisão periódica volta a contar a partir de hoje, com o intervalo da faixa atual do sistema.'
+                        : 'A revisão periódica passa a contar a partir de hoje, com o intervalo da faixa do sistema.'}{' '}
+                    O registro fica no histórico.
                 </DialogDescription>
                 <Form
                     {...LinkVerificationController.store.form(link.id)}
@@ -210,7 +259,7 @@ function VerifyDialog({
                                     </Button>
                                 </DialogClose>
                                 <Button type="submit" disabled={processing}>
-                                    Verificar
+                                    {renewal ? 'Renovar' : 'Verificar'}
                                 </Button>
                             </DialogFooter>
                         </>

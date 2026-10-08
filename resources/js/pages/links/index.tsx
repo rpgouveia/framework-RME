@@ -13,19 +13,31 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { costLevelLabels } from '@/lib/labels';
+import { changeOriginLabels, costLevelLabels } from '@/lib/labels';
 import { linksWith } from '@/lib/link-filters';
 import type { VerificationFilter } from '@/lib/link-filters';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/links';
 import { show as showMitigation } from '@/routes/mitigations';
 import { show as showRisk } from '@/routes/risks';
-import type { Link as RiskLink, Paginated } from '@/types/models';
+import type { ChangeOrigin, Link as RiskLink, Paginated } from '@/types/models';
 
 type Props = {
     links: Paginated<RiskLink>;
-    filters: { verification: VerificationFilter | null };
+    filters: {
+        verification: VerificationFilter | null;
+        /** Within the reassessment list, the origin of the last reversal. */
+        origin: ChangeOrigin | null;
+    };
 };
+
+/** The origins of a reversal, in the order the dashboard shows them. */
+const reversalOrigins: ChangeOrigin[] = [
+    'review_due',
+    'adverse_event',
+    'system_reclassification',
+    'manual',
+];
 
 const verificationFilters: {
     value: VerificationFilter | null;
@@ -84,11 +96,40 @@ export default function LinksIndex({ links, filters }: Props) {
                         </FilterLink>
                     ))}
                 </nav>
+                {filters.verification === 'awaiting_reassessment' && (
+                    <nav
+                        aria-label="Filtrar pela origem da última reversão"
+                        className="-mt-2 flex flex-wrap gap-2"
+                    >
+                        <FilterLink
+                            href={linksWith('awaiting_reassessment')}
+                            active={filters.origin === null}
+                            subtle
+                        >
+                            Todas as origens
+                        </FilterLink>
+                        {reversalOrigins.map((origin) => (
+                            <FilterLink
+                                key={origin}
+                                href={linksWith(
+                                    'awaiting_reassessment',
+                                    origin,
+                                )}
+                                active={filters.origin === origin}
+                                subtle
+                            >
+                                {changeOriginLabels[origin]}
+                            </FilterLink>
+                        ))}
+                    </nav>
+                )}
                 {filters.verification !== null && (
                     <p className="text-muted-foreground -mt-2 text-sm">
                         {filters.verification === 'verified'
                             ? 'Vínculos verificados que não foram cancelados.'
-                            : 'Ficam de fora os vínculos cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
+                            : filters.verification === 'awaiting_reassessment'
+                              ? 'Vínculos revertidos para declarados, ainda não cancelados. Os de sistemas reclassificados para a faixa inaceitável aparecem aqui, mas não podem ser verificados de novo.'
+                              : 'Ficam de fora os vínculos cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
                     </p>
                 )}
 

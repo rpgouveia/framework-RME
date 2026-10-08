@@ -23,7 +23,11 @@ O intervalo de revisão era de 180 dias para qualquer sistema. As fontes do proj
 
 ## Implementação
 
-`database/data/protocols/c3-monitoring-protocol.json`; `MonitoringProtocol`; `CreateLink`; escopos `monitorable()` e `dueForReview()` do `Link`; `next_review_date` anulável.
+`database/data/protocols/c3-monitoring-protocol.json`; `MonitoringProtocol`; escopos `monitorable()` e `dueForReview()` do `Link`; `next_review_date` anulável.
+
+- **Ponto de partida:** a data de revisão é definida na verificação, por `RecordStatusChange::verify()`, como data da verificação + intervalo da faixa atual do sistema (`MonitoringProtocol::nextReviewDate()`). O `CreateLink` não calcula mais a data: o vínculo nasce com `next_review_date` nula. `RecordStatusChange::revert()` volta a data a nula.
+- **Vínculo monitorável:** o escopo `monitorable()` exige vínculo não cancelado, verificado, com data de revisão e de sistema fora da faixa inaceitável. É usado por `dueForReview()`, pelo comando `links:flag-due-for-review` e pelos indicadores de revisão do painel.
+- **Faixa inaceitável:** a verificação é recusada (`RecordStatusChange::verificationProblem()`), então os vínculos desses sistemas ficam sem data. A interface mostra "Não se aplica" (`ReviewDate`) e o alerta (`UnacceptableTierAlert`).
 
 ## Referências
 
