@@ -14,7 +14,7 @@ trait EnumOptions
     /**
      * Get the human readable label for the case.
      *
-     * Falls back to the case name; add a `lang/pt.json` entry to translate it.
+     * Falls back to the case name; add a `lang/pt_BR.json` entry to translate it.
      */
     public function label(): string
     {
