@@ -13,9 +13,9 @@ test('the scope returns the links whose review date has arrived', function () {
     $this->freezeTime();
 
     // Pin the status: the factory may pick Cancelled, which the scope skips.
-    $overdue = Link::factory()->implemented()->create(['next_review_date' => today()->subDay()]);
-    $dueToday = Link::factory()->implemented()->create(['next_review_date' => today()]);
-    $upcoming = Link::factory()->implemented()->create(['next_review_date' => today()->addDay()]);
+    $overdue = Link::factory()->implemented()->verified()->create(['next_review_date' => today()->subDay()]);
+    $dueToday = Link::factory()->implemented()->verified()->create(['next_review_date' => today()]);
+    $upcoming = Link::factory()->implemented()->verified()->create(['next_review_date' => today()->addDay()]);
 
     $due = Link::dueForReview()->pluck('id');
 
@@ -42,7 +42,7 @@ test('a link with no review date is never due', function () {
     $undated = Link::factory()->implemented()
         ->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))
         ->create();
-    $due = Link::factory()->implemented()->create(['next_review_date' => today()]);
+    $due = Link::factory()->implemented()->verified()->create(['next_review_date' => today()]);
 
     expect($undated->next_review_date)->toBeNull()
         ->and(Link::dueForReview()->pluck('id')->all())->toBe([$due->id]);
@@ -57,7 +57,7 @@ test('the scope, the command and the dashboard drop a link whose system becomes 
     $this->actingAs(User::factory()->create());
 
     $aiSystem = AiSystem::factory()->highRisk()->create();
-    $link = Link::factory()->implemented()
+    $link = Link::factory()->implemented()->verified()
         ->for(Risk::factory()->for($aiSystem))
         ->create(['next_review_date' => today()->subWeek()]);
 
@@ -90,13 +90,15 @@ test('the scope, the command and the dashboard drop a link whose system becomes 
     $this->artisan('links:flag-due-for-review')->expectsOutputToContain(today()->subWeek()->toDateString());
 });
 
-test('a monitorable link is not cancelled, has a date and belongs to an operable system', function () {
+test('a monitorable link is verified, not cancelled, has a date and belongs to an operable system', function () {
     $operable = Risk::factory()->for(AiSystem::factory()->state(['category' => AiSystemCategory::Minimal]))->create();
 
-    $monitorable = Link::factory()->for($operable)->create(['status' => LinkStatus::Planned, 'next_review_date' => today()->addYear()]);
-    Link::factory()->for($operable)->create(['status' => LinkStatus::Cancelled]);
-    Link::factory()->for($operable)->create(['status' => LinkStatus::Planned, 'next_review_date' => null]);
-    Link::factory()->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))->create([
+    $monitorable = Link::factory()->verified()->for($operable)->create(['status' => LinkStatus::Planned, 'next_review_date' => today()->addYear()]);
+    Link::factory()->verified()->for($operable)->create(['status' => LinkStatus::Cancelled]);
+    Link::factory()->verified()->for($operable)->create(['status' => LinkStatus::Planned, 'next_review_date' => null]);
+    // Declared: the review clock has not started (0018).
+    Link::factory()->for($operable)->create(['status' => LinkStatus::Planned, 'next_review_date' => today()->addYear()]);
+    Link::factory()->verified()->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))->create([
         'status' => LinkStatus::Planned,
         'next_review_date' => today()->addYear(),
     ]);

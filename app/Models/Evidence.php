@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use Carbon\CarbonImmutable;
 use Database\Factories\EvidenceFactory;
@@ -18,13 +19,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property EvidenceType $type
  * @property string $description
  * @property CarbonImmutable $registration_date
+ * @property CostLevel|null $observed_cost
  * @property int $link_id
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Link $link
  */
 #[Table('evidence')]
-#[Fillable(['type', 'description', 'registration_date', 'link_id'])]
+#[Fillable(['type', 'description', 'registration_date', 'observed_cost', 'link_id'])]
 class Evidence extends Model
 {
     /** @use HasFactory<EvidenceFactory> */
@@ -50,6 +52,7 @@ class Evidence extends Model
         return [
             'type' => EvidenceType::class,
             'registration_date' => 'date',
+            'observed_cost' => CostLevel::class,
         ];
     }
 }

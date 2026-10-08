@@ -1,11 +1,11 @@
 import { Form, Head, Link } from '@inertiajs/react';
-import { useState } from 'react';
 import LinkController from '@/actions/App/Http/Controllers/LinkController';
+import { ObservedCost } from '@/components/observed-cost';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { DetailItem } from '@/components/detail-item';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -22,8 +22,6 @@ import {
     labelFor,
     lifecyclePhaseLabels,
     linkLabel,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
 } from '@/lib/labels';
 import { edit, index, show } from '@/routes/links';
 import { index as statusHistoriesIndex } from '@/routes/links/status-histories';
@@ -36,19 +34,12 @@ type Props = {
     costLevels: EnumOption[];
 };
 
-/** Radix Select items cannot be empty, so "not informed" needs a stand-in. */
-const NOT_INFORMED = 'none';
-
 export default function LinksEdit({
     link,
     owners,
     lifecyclePhases,
     costLevels,
 }: Props) {
-    const [observedCost, setObservedCost] = useState<string>(
-        link.observed_cost ?? NOT_INFORMED,
-    );
-
     return (
         <>
             <Head title="Editar vínculo" />
@@ -56,8 +47,9 @@ export default function LinksEdit({
                 <Heading title="Editar vínculo" description={linkLabel(link)} />
 
                 {/* The pair is the link's identity, the status changes only
-                    through the history (RF09) and the review date is
-                    computed from the creation date (R-7): all read only. */}
+                    through the history (RF09), the verification and review
+                    date through the verification (0018), and the observed
+                    cost comes with the evidence: all read only. */}
                 <Card className="max-w-xl">
                     <CardHeader>
                         <CardTitle>Identificação</CardTitle>
@@ -72,13 +64,7 @@ export default function LinksEdit({
                             </DetailItem>
                             <DetailItem label="Status">
                                 <span className="flex flex-wrap items-center gap-2">
-                                    <Badge
-                                        className={
-                                            linkStatusBadgeClasses[link.status]
-                                        }
-                                    >
-                                        {linkStatusLabels[link.status]}
-                                    </Badge>
+                                    <LinkStatusBadges link={link} />
                                     <Link
                                         href={statusHistoriesIndex(link.id)}
                                         className="text-muted-foreground text-sm font-normal hover:underline"
@@ -90,8 +76,21 @@ export default function LinksEdit({
                             <DetailItem label="Data de criação">
                                 {formatDate(link.creation_date)}
                             </DetailItem>
+                            <DetailItem label="Custo observado">
+                                {/* Reported with the evidence (0018). */}
+                                <ObservedCost
+                                    evidence={link.observed_cost_evidence}
+                                />
+                            </DetailItem>
                             <DetailItem label="Próxima revisão">
-                                <ReviewDate date={link.next_review_date} />
+                                <ReviewDate
+                                    date={link.next_review_date}
+                                    verification={link.verification_status}
+                                    unacceptable={
+                                        link.risk?.ai_system?.category ===
+                                        'unacceptable'
+                                    }
+                                />
                             </DetailItem>
                         </dl>
                     </CardContent>
@@ -214,58 +213,6 @@ export default function LinksEdit({
                                     </Select>
                                     <InputError
                                         message={errors.estimated_cost}
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="observed_cost">
-                                        Custo observado
-                                    </Label>
-                                    <Select
-                                        value={observedCost}
-                                        onValueChange={setObservedCost}
-                                    >
-                                        <SelectTrigger
-                                            id="observed_cost"
-                                            className="w-full"
-                                            aria-invalid={
-                                                errors.observed_cost
-                                                    ? true
-                                                    : undefined
-                                            }
-                                        >
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value={NOT_INFORMED}>
-                                                Não informado
-                                            </SelectItem>
-                                            {costLevels.map((option) => (
-                                                <SelectItem
-                                                    key={option.value}
-                                                    value={option.value}
-                                                >
-                                                    {labelFor(
-                                                        costLevelLabels,
-                                                        option.value,
-                                                    )}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {/* Sent as an empty string, which Laravel
-                                        turns into null. */}
-                                    <input
-                                        type="hidden"
-                                        name="observed_cost"
-                                        value={
-                                            observedCost === NOT_INFORMED
-                                                ? ''
-                                                : observedCost
-                                        }
-                                    />
-                                    <InputError
-                                        message={errors.observed_cost}
                                     />
                                 </div>
                             </div>

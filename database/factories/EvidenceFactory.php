@@ -23,6 +23,7 @@ class EvidenceFactory extends Factory
             'type' => fake()->randomElement(EvidenceType::cases()),
             'description' => fake()->sentence(),
             'registration_date' => fake()->dateTimeBetween('-6 months'),
+            'observed_cost' => null,
             'link_id' => Link::factory(),
         ];
     }

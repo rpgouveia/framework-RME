@@ -1,5 +1,6 @@
 import type {
     AiSystemCategory,
+    ChangeOrigin,
     CostLevel,
     EvidenceType,
     LifecyclePhase,
@@ -7,6 +8,7 @@ import type {
     LinkStatus,
     SystemSourceType,
     UncertaintyLevel,
+    VerificationStatus,
 } from '@/types/models';
 
 /**
@@ -89,6 +91,29 @@ export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
     // themes (WCAG 2.1 AA asks 4.5:1 for text this size).
     cancelled:
         'border-border bg-transparent text-neutral-600 dark:text-neutral-300',
+};
+
+export const verificationStatusLabels: Record<VerificationStatus, string> = {
+    declared: 'Declarada',
+    verified: 'Verificada',
+};
+
+/**
+ * Verification badges, apart from the progress ones: declared is outlined,
+ * verified is green. Text contrast is at least 8.5:1 (WCAG 2.1 AA) in both
+ * themes.
+ */
+export const verificationBadgeClasses: Record<VerificationStatus, string> = {
+    declared: 'border-border bg-transparent text-foreground',
+    verified:
+        'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
+};
+
+export const changeOriginLabels: Record<ChangeOrigin, string> = {
+    manual: 'Manual',
+    review_due: 'Vencimento da revisão',
+    adverse_event: 'Evento adverso',
+    system_reclassification: 'Reclassificação do sistema',
 };
 
 /**

@@ -65,7 +65,7 @@ class OwnerController extends Controller
 
         return Inertia::render('owners/show', [
             'owner' => $owner
-                ->load(['links.risk', 'links.mitigation'])
+                ->load(['links.risk.aiSystem', 'links.mitigation'])
                 ->loadCount([
                     'links',
                     'statusHistories',

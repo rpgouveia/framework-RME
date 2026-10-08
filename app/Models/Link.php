@@ -6,6 +6,7 @@ use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
+use App\Enums\VerificationStatus;
 use Carbon\CarbonImmutable;
 use Database\Factories\LinkFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,18 +17,21 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * The link between a risk, the mitigation addressing it and its owner.
  *
  * This is the core entity of the framework: it carries the cost, schedule and
- * status of a mitigation applied to a specific risk.
+ * status of a mitigation applied to a specific risk. The status has two
+ * dimensions (0013): progress of the implementation, and verification
+ * (declared or verified), which only RecordStatusChange changes.
  *
  * @property int $id
  * @property LifecyclePhase $lifecycle_phase
  * @property LinkStatus $status
+ * @property VerificationStatus $verification_status
  * @property CostLevel $estimated_cost
- * @property CostLevel|null $observed_cost
  * @property CarbonImmutable $creation_date
  * @property CarbonImmutable|null $next_review_date
  * @property int $risk_id
@@ -42,12 +46,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $status_histories_count
  * @property-read Collection<int, Evidence> $evidence
  * @property-read int|null $evidence_count
+ * @property-read Evidence|null $observedCostEvidence
+ * @property-read StatusHistory|null $lastVerification
+ * @property-read StatusHistory|null $lastReversal
  */
 #[Fillable([
     'lifecycle_phase',
     'status',
+    'verification_status',
     'estimated_cost',
-    'observed_cost',
     'creation_date',
     'next_review_date',
     'risk_id',
@@ -110,10 +117,55 @@ class Link extends Model
     }
 
     /**
+     * The latest evidence that reported an observed cost: its cost is the
+     * link's observed cost (RF07, 0018). Evidence is append only, so this
+     * never drifts from what was recorded.
+     *
+     * @return HasOne<Evidence, $this>
+     */
+    public function observedCostEvidence(): HasOne
+    {
+        return $this->hasOne(Evidence::class)->ofMany(
+            ['created_at' => 'max', 'id' => 'max'],
+            fn (Builder $query) => $query->whereNotNull('observed_cost'),
+        );
+    }
+
+    /**
+     * The entry that last verified the link.
+     *
+     * @return HasOne<StatusHistory, $this>
+     */
+    public function lastVerification(): HasOne
+    {
+        return $this->hasOne(StatusHistory::class)->ofMany(
+            ['created_at' => 'max', 'id' => 'max'],
+            fn (Builder $query) => $query->where('new_verification', VerificationStatus::Verified),
+        );
+    }
+
+    /**
+     * The entry that last took the link from verified back to declared. Only
+     * evidence recorded after it can verify the link again (0013).
+     *
+     * @return HasOne<StatusHistory, $this>
+     */
+    public function lastReversal(): HasOne
+    {
+        return $this->hasOne(StatusHistory::class)->ofMany(
+            ['created_at' => 'max', 'id' => 'max'],
+            fn (Builder $query) => $query
+                ->where('previous_verification', VerificationStatus::Verified)
+                ->where('new_verification', VerificationStatus::Declared),
+        );
+    }
+
+    /**
      * Scope the query to the links under periodic review: the one rule the
-     * review scope, the daily command and the dashboard share. A link is
-     * monitorable when it is not cancelled (closed, it owes nothing), has a
-     * review date, and its system is not in the unacceptable tier (it never
+     * review scope, the daily command and the dashboard share (0017). A
+     * link is monitorable when it is not cancelled (closed, it owes nothing),
+     * verified (the review clock starts at verification, 0018), has a review
+     * date, and its system is not in the unacceptable tier (it never
      * operates). A system reclassified as unacceptable keeps its links'
      * dates: they count again if it returns to an operable tier.
      *
@@ -123,6 +175,7 @@ class Link extends Model
     protected function monitorable(Builder $query): void
     {
         $query->notCancelled()
+            ->where($query->qualifyColumn('verification_status'), VerificationStatus::Verified)
             ->whereNotNull($query->qualifyColumn('next_review_date'))
             ->whereHas('risk.aiSystem', fn (Builder $aiSystem) => $aiSystem->whereNot('category', AiSystemCategory::Unacceptable));
     }
@@ -138,6 +191,58 @@ class Link extends Model
     {
         $query->monitorable()
             ->where($query->qualifyColumn('next_review_date'), '<=', today());
+    }
+
+    /**
+     * Scope the query to the links that could be verified: still in the
+     * chain and of a system that may operate (0018).
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function verifiable(Builder $query): void
+    {
+        $query->notCancelled()
+            ->whereHas('risk.aiSystem', fn (Builder $aiSystem) => $aiSystem->whereNot('category', AiSystemCategory::Unacceptable));
+    }
+
+    /**
+     * Scope the query to the verifiable links never verified yet.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function awaitingFirstVerification(Builder $query): void
+    {
+        $query->verifiable()
+            ->where($query->qualifyColumn('verification_status'), VerificationStatus::Declared)
+            ->whereDoesntHave('statusHistories', fn (Builder $entries) => $entries->where('previous_verification', VerificationStatus::Verified));
+    }
+
+    /**
+     * Scope the query to the verifiable links that were verified and then
+     * reverted: flagged for reassessment (0018, item 1).
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function awaitingReassessment(Builder $query): void
+    {
+        $query->verifiable()
+            ->where($query->qualifyColumn('verification_status'), VerificationStatus::Declared)
+            ->whereHas('statusHistories', fn (Builder $entries) => $entries->where('previous_verification', VerificationStatus::Verified));
+    }
+
+    /**
+     * Scope the query to the verified links still in the chain.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function verified(Builder $query): void
+    {
+        $query->notCancelled()
+            ->where($query->qualifyColumn('verification_status'), VerificationStatus::Verified);
     }
 
     /**
@@ -162,8 +267,8 @@ class Link extends Model
         return [
             'lifecycle_phase' => LifecyclePhase::class,
             'status' => LinkStatus::class,
+            'verification_status' => VerificationStatus::class,
             'estimated_cost' => CostLevel::class,
-            'observed_cost' => CostLevel::class,
             'creation_date' => 'date',
             'next_review_date' => 'date',
         ];

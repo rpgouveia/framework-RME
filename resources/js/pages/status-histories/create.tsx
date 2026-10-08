@@ -1,9 +1,9 @@
 import { Form, Head, Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import StatusHistoryController from '@/actions/App/Http/Controllers/StatusHistoryController';
+import { LinkStatusBadges } from '@/components/link-status-badges';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,6 @@ import {
     subdomainCodes,
     labelFor,
     linkLabel,
-    linkStatusBadgeClasses,
     linkStatusLabels,
 } from '@/lib/labels';
 import { index, show } from '@/routes/links';
@@ -80,13 +79,7 @@ export default function StatusHistoriesCreate({
                                 <span className="text-sm font-medium">
                                     Status atual
                                 </span>
-                                <Badge
-                                    className={
-                                        linkStatusBadgeClasses[link.status]
-                                    }
-                                >
-                                    {linkStatusLabels[link.status]}
-                                </Badge>
+                                <LinkStatusBadges link={link} />
                             </div>
 
                             <div className="grid gap-2">

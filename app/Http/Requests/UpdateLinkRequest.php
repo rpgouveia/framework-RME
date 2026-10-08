@@ -15,8 +15,9 @@ use Illuminate\Validation\Rule;
  *
  * The risk and mitigation pair is the link's identity, and its evidence and
  * history were recorded for it. The status changes only through the status
- * history, so every change leaves a trail (RF09). The creation date anchors
- * the review date, which the system computes (R-7). Fields left out here are
+ * history, so every change leaves a trail (RF09), and the verification only
+ * through its own actions (0018), which also set the review date (R-7). The
+ * observed cost comes from the evidence (0005). Fields left out here are
  * dropped from validated() and so never reach the model.
  */
 class UpdateLinkRequest extends FormRequest
@@ -43,7 +44,6 @@ class UpdateLinkRequest extends FormRequest
             ],
             'lifecycle_phase' => ['required', Rule::enum(LifecyclePhase::class)],
             'estimated_cost' => ['required', Rule::enum(CostLevel::class)],
-            'observed_cost' => ['nullable', Rule::enum(CostLevel::class)],
         ];
     }
 

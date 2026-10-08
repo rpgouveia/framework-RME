@@ -37,9 +37,9 @@ class DatabaseSeeder extends Seeder
             RiskSeeder::class,
             MitigationSeeder::class,
             OwnerSeeder::class,
+            // Links with their trail, evidence and verification, written
+            // through the app's actions.
             LinkSeeder::class,
-            StatusHistorySeeder::class,
-            EvidenceSeeder::class,
         ]);
     }
 }

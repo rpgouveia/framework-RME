@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\RecordEvidence;
+use App\Actions\RecordStatusChange;
+use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
+use App\Enums\VerificationStatus;
 use App\Http\Requests\StoreEvidenceRequest;
 use App\Models\Evidence;
 use App\Models\Link;
@@ -24,9 +28,15 @@ class EvidenceController extends Controller
     {
         Gate::authorize('viewAny', Evidence::class);
 
+        $link->load(['risk.aiSystem', 'mitigation']);
+
         return Inertia::render('evidence/index', [
-            'link' => $link->load(['risk', 'mitigation']),
-            'evidence' => $link->evidence()->latest()->paginate(15)->withQueryString(),
+            'link' => $link,
+            'evidence' => $link->evidence()->latest()->latest('id')->paginate(15)->withQueryString(),
+            // A declared link whose evidence now allows it is offered a
+            // shortcut to its verification.
+            'canVerify' => $link->verification_status === VerificationStatus::Declared
+                && app(RecordStatusChange::class)->verificationProblem($link) === null,
         ]);
     }
 
@@ -40,20 +50,18 @@ class EvidenceController extends Controller
         return Inertia::render('evidence/create', [
             'link' => $link->load(['risk', 'mitigation']),
             'types' => EvidenceType::options(),
+            'costLevels' => CostLevel::options(),
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreEvidenceRequest $request, Link $link): RedirectResponse
+    public function store(StoreEvidenceRequest $request, Link $link, RecordEvidence $recordEvidence): RedirectResponse
     {
         Gate::authorize('create', Evidence::class);
 
-        $link->evidence()->create([
-            ...$request->validated(),
-            'registration_date' => today(),
-        ]);
+        $recordEvidence->handle($link, $request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Evidence registered.')]);
 

@@ -86,6 +86,8 @@ class StatusHistoryController extends Controller
 
         return Inertia::render('status-histories/show', [
             'statusHistory' => $statusHistory->load(['link.risk', 'link.mitigation', 'owner', 'adverseEvent.aiSystem', 'adverseEvent.riskSubdomains.parent']),
+            // A verification needs no reason: it rests on evidence (0018).
+            'supportingEvidence' => $statusHistory->supportingEvidence(),
         ]);
     }
 }

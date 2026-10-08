@@ -5,6 +5,7 @@ use App\Http\Controllers\AiSystemController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EvidenceController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\LinkVerificationController;
 use App\Http\Controllers\MitigationController;
 use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\RiskController;
@@ -33,6 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('owners/{owner}/reactivate', [OwnerController::class, 'reactivate'])->name('owners.reactivate');
     // Links are permanent: they are closed by cancelling them, not deleted.
     Route::resource('links', LinkController::class)->except('destroy');
+    // Verification (0018): verified on evidence, reverted by hand with a
+    // reason. Both are recorded in the status trail.
+    Route::post('links/{link}/verification', [LinkVerificationController::class, 'store'])->name('links.verification.store');
+    Route::delete('links/{link}/verification', [LinkVerificationController::class, 'destroy'])->name('links.verification.destroy');
 
     /*
      * Evidence and status history only exist in the context of a link, so they

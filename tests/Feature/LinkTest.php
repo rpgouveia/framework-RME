@@ -1,10 +1,10 @@
 <?php
 
 use App\Actions\CreateLink;
-use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
+use App\Enums\VerificationStatus;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
@@ -71,9 +71,10 @@ test('a link can be created', function () {
 
     expect($link->status)->toBe(LinkStatus::Planned)
         ->and($link->estimated_cost)->toBe(CostLevel::High)
-        ->and($link->observed_cost)->toBeNull()
-        // High risk: 90 days (R-7).
-        ->and($link->next_review_date->toDateString())->toBe('2026-04-10');
+        // Born declared: the review starts at the first verification (0018).
+        ->and($link->verification_status)->toBe(VerificationStatus::Declared)
+        ->and($link->next_review_date)->toBeNull()
+        ->and($link->observedCostEvidence)->toBeNull();
 });
 
 test('the review date posted on creation is ignored', function () {
@@ -84,7 +85,7 @@ test('the review date posted on creation is ignored', function () {
         'next_review_date' => '2030-12-31',
     ]));
 
-    expect(Link::sole()->next_review_date->toDateString())->toBe('2026-04-10');
+    expect(Link::sole()->next_review_date)->toBeNull();
 });
 
 test('the server sets the status and dates of a new link', function () {
@@ -94,15 +95,16 @@ test('the server sets the status and dates of a new link', function () {
         'risk_id' => Risk::factory()->for(AiSystem::factory()->highRisk())->create()->id,
         'status' => LinkStatus::Implemented->value,
         'creation_date' => '2020-05-01',
-        'observed_cost' => CostLevel::Low->value,
+        'verification_status' => VerificationStatus::Verified->value,
+        'next_review_date' => '2026-02-01',
     ]))->assertSessionHasNoErrors();
 
     $link = Link::sole();
 
     expect($link->status)->toBe(LinkStatus::Planned)
+        ->and($link->verification_status)->toBe(VerificationStatus::Declared)
         ->and($link->creation_date->toDateString())->toBe('2026-01-10')
-        ->and($link->next_review_date->toDateString())->toBe('2026-04-10')
-        ->and($link->observed_cost)->toBeNull();
+        ->and($link->next_review_date)->toBeNull();
 });
 
 test('the create form offers only pairs that can still be linked', function () {
@@ -178,43 +180,6 @@ test('a mitigation not recommended for the risk can still be linked (R-8)', func
     ]))->assertSessionHasNoErrors();
 
     expect(Link::sole()->mitigation_id)->toBe($mitigation->id);
-});
-
-// R-7: the first review follows the tier of the risk's system (C3 protocol).
-
-test('a new link is first reviewed one interval of its system tier later', function (AiSystemCategory $tier, ?string $expected) {
-    $this->travelTo('2026-01-10 09:00');
-
-    $this->post(route('links.store'), linkPayload([
-        'risk_id' => Risk::factory()->for(AiSystem::factory()->state(['category' => $tier]))->create()->id,
-    ]))->assertSessionHasNoErrors();
-
-    expect(Link::sole()->next_review_date?->toDateString())->toBe($expected);
-})->with([
-    'high: 90 days' => [AiSystemCategory::High, '2026-04-10'],
-    'limited: 180 days' => [AiSystemCategory::Limited, '2026-07-09'],
-    'minimal: 365 days' => [AiSystemCategory::Minimal, '2027-01-10'],
-    // Never in operation: the link is created, with no review.
-    'unacceptable: none' => [AiSystemCategory::Unacceptable, null],
-]);
-
-test('changing the tier of a system leaves the review dates already set', function () {
-    $this->travelTo('2026-01-10 09:00');
-    $aiSystem = AiSystem::factory()->highRisk()->create();
-    $risk = Risk::factory()->for($aiSystem)->create();
-
-    $this->post(route('links.store'), linkPayload(['risk_id' => $risk->id]))->assertSessionHasNoErrors();
-
-    foreach ([AiSystemCategory::Minimal, AiSystemCategory::Unacceptable, AiSystemCategory::Limited] as $tier) {
-        $this->put(route('ai-systems.update', $aiSystem), [
-            'name' => $aiSystem->name,
-            'source_type' => $aiSystem->source_type->value,
-            'category' => $tier->value,
-            'registration_date' => $aiSystem->registration_date->toDateString(),
-        ])->assertSessionHasNoErrors();
-
-        expect(Link::sole()->next_review_date->toDateString())->toBe('2026-04-10');
-    }
 });
 
 test('a link of an unacceptable system can still be created and is shown without a date', function () {
@@ -293,35 +258,44 @@ test('an estimated cost outside the scale is rejected', function () {
 });
 
 test('a link can be updated', function () {
-    $link = Link::factory()->create(['observed_cost' => null]);
+    $link = Link::factory()->create();
     $owner = Owner::factory()->create();
 
     $response = $this->put(route('links.update', $link), [
         'owner_id' => $owner->id,
         'lifecycle_phase' => LifecyclePhase::Monitoring->value,
         'estimated_cost' => CostLevel::Low->value,
-        'observed_cost' => CostLevel::Medium->value,
     ]);
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
 
     expect($link->refresh()->owner_id)->toBe($owner->id)
         ->and($link->lifecycle_phase)->toBe(LifecyclePhase::Monitoring)
-        ->and($link->estimated_cost)->toBe(CostLevel::Low)
-        ->and($link->observed_cost)->toBe(CostLevel::Medium);
+        ->and($link->estimated_cost)->toBe(CostLevel::Low);
 });
 
-test('the observed cost can be cleared', function () {
-    $link = Link::factory()->create(['observed_cost' => CostLevel::High]);
+test('editing a link leaves its observed cost and verification as they are', function () {
+    // The observed cost comes from the evidence (0005, 0018).
+    $link = Link::factory()->verified()->create();
+    $evidence = Evidence::factory()->for($link)->create(['observed_cost' => CostLevel::High]);
 
     $this->put(route('links.update', $link), [
         'owner_id' => $link->owner_id,
         'lifecycle_phase' => $link->lifecycle_phase->value,
         'estimated_cost' => $link->estimated_cost->value,
-        'observed_cost' => '',
+        'observed_cost' => CostLevel::Low->value,
+        'verification_status' => VerificationStatus::Declared->value,
     ])->assertSessionHasNoErrors();
 
-    expect($link->refresh()->observed_cost)->toBeNull();
+    expect($link->refresh()->observedCostEvidence->observed_cost)->toBe(CostLevel::High)
+        ->and($link->observedCostEvidence->id)->toBe($evidence->id)
+        ->and($link->verification_status)->toBe(VerificationStatus::Verified);
+
+    $this->get(route('links.edit', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('link.observed_cost_evidence.id', $evidence->id)
+            ->where('link.observed_cost_evidence.observed_cost', 'high')
+    );
 });
 
 test('updating a link leaves its identity, status and dates untouched', function () {
