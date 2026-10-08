@@ -44,12 +44,12 @@ erDiagram
 | `Reassessment`  | `reassessments`    | The conclusion of one reversal: outcome (maintain, adjust, replace, close), owner, justification, cause analysis and changes made.   |
 | `Taxonomy`      | `taxonomies`       | A versioned reference taxonomy (MIT AI risk domains, Saeri et al. mitigations), with its citation; `TaxonomyTerm` holds its entries. |
 
-A link has **two status dimensions** (decision 0013): its progress (`planned`,
-`in_progress`, `implemented`, `monitoring`, `suspended`, `cancelled`) and its
-verification (`declared` or `verified`). A link is only _verified_ on evidence
-recorded after its last verification change, and a verified link carries a
-review date. Links are never deleted: they end by cancellation, and a
-replacement points at the link it replaces.
+A link has **two status dimensions**: its progress (`planned`,`in_progress`, 
+`implemented`, `monitoring`, `suspended`, `cancelled`) and its verification 
+(`declared` or `verified`). A link is only _verified_ on evidence recorded 
+after its last verification change, and a verified link carries a review 
+date. Links are never deleted: they end by cancellation, and a replacement 
+points at the link it replaces.
 
 Every classification field is a PHP backed enum in [`app/Enums`](app/Enums),
 cast on the model and validated with `Rule::enum()`. The columns are plain
@@ -390,7 +390,7 @@ decisions 0017 and 0018.
 
 Five triggers take a verified link back to declared, awaiting reassessment.
 Each reversal is recorded in the status history with its origin and, when
-automatic, no author (decisions 0019 and 0021):
+automatic, no author:
 
 - **Review due** — `links:flag-due-for-review` reverts the links past their
   review date. The date is the last valid day: a link due today is shown as
@@ -411,8 +411,7 @@ dashboard as a risk not yet mapped, with a shortcut to register it.
 
 ### Reassessment
 
-Each reversal is concluded by one reassessment (decision 0020), with an owner
-and a justification:
+Each reversal is concluded by one reassessment, with an owner and a justification:
 
 | Outcome      | Effect                                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------------------------- |
