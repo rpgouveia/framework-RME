@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $risk_id
  * @property int $mitigation_id
  * @property int $owner_id
+ * @property int|null $replaces_link_id
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Risk $risk
@@ -50,6 +51,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read Evidence|null $observedCostEvidence
  * @property-read StatusHistory|null $lastVerification
  * @property-read StatusHistory|null $lastReversal
+ * @property-read Collection<int, Reassessment> $reassessments
+ * @property-read Link|null $replaces
+ * @property-read Link|null $replacedBy
  */
 #[Fillable([
     'lifecycle_phase',
@@ -61,6 +65,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'risk_id',
     'mitigation_id',
     'owner_id',
+    'replaces_link_id',
 ])]
 class Link extends Model
 {
@@ -130,6 +135,36 @@ class Link extends Model
             ['created_at' => 'max', 'id' => 'max'],
             fn (Builder $query) => $query->whereNotNull('observed_cost'),
         );
+    }
+
+    /**
+     * The reassessments of the link, oldest first (0020).
+     *
+     * @return HasMany<Reassessment, $this>
+     */
+    public function reassessments(): HasMany
+    {
+        return $this->hasMany(Reassessment::class)->orderBy('created_at')->orderBy('id');
+    }
+
+    /**
+     * The link this one replaced, after a reassessment chose to replace it.
+     *
+     * @return BelongsTo<Link, $this>
+     */
+    public function replaces(): BelongsTo
+    {
+        return $this->belongsTo(Link::class, 'replaces_link_id');
+    }
+
+    /**
+     * The link that replaced this one, if any.
+     *
+     * @return HasOne<Link, $this>
+     */
+    public function replacedBy(): HasOne
+    {
+        return $this->hasOne(Link::class, 'replaces_link_id');
     }
 
     /**
@@ -234,6 +269,27 @@ class Link extends Model
     }
 
     /**
+     * Order the query by when each link was last reverted, oldest first: the
+     * link waiting longest for its reassessment comes first (0020, item 9).
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function longestAwaitingFirst(Builder $query): void
+    {
+        $query->orderBy(
+            StatusHistory::query()
+                ->select('created_at')
+                ->whereColumn('status_histories.link_id', $query->qualifyColumn('id'))
+                ->where('previous_verification', VerificationStatus::Verified)
+                ->where('new_verification', VerificationStatus::Declared)
+                ->latest()
+                ->latest('id')
+                ->limit(1),
+        )->orderBy($query->qualifyColumn('id'));
+    }
+
+    /**
      * Scope the query to the links awaiting reassessment whose last reversal
      * came from the given origin.
      *
@@ -260,24 +316,29 @@ class Link extends Model
     }
 
     /**
-     * Scope the query to the verifiable links never verified yet.
+     * Scope the query to the links awaiting verification (0020, item 4):
+     * verifiable, declared, and either never reverted (awaiting the first
+     * verification) or reassessed since their last reversal, still without
+     * the proof. Deciding is done; what is missing is the evidence.
      *
      * @param  Builder<self>  $query
      */
     #[Scope]
-    protected function awaitingFirstVerification(Builder $query): void
+    protected function awaitingVerification(Builder $query): void
     {
         $query->verifiable()
             ->where($query->qualifyColumn('verification_status'), VerificationStatus::Declared)
-            ->whereDoesntHave('statusHistories', fn (Builder $entries) => $entries->where('previous_verification', VerificationStatus::Verified));
+            ->where(fn (Builder $pending) => $pending
+                ->whereDoesntHave('lastReversal')
+                ->orWhereHas('lastReversal', fn (Builder $reversal) => $reversal->whereHas('reassessment')));
     }
 
     /**
-     * Scope the query to the links still in the chain that were verified and
-     * then reverted: flagged for reassessment (0018, item 1). Unlike the first
-     * verification, this includes links of systems reclassified into the
-     * unacceptable tier (0019, item 9): they cannot be verified again, but
-     * still await the reassessment that decides what to do with them.
+     * Scope the query to the links awaiting reassessment (0020, item 4):
+     * still in the chain, declared, and whose last reversal has no concluded
+     * reassessment. Links of systems reclassified into the unacceptable tier
+     * are included: they await the decision to plan their discontinuation
+     * (0019, addendum).
      *
      * @param  Builder<self>  $query
      */
@@ -286,7 +347,7 @@ class Link extends Model
     {
         $query->notCancelled()
             ->where($query->qualifyColumn('verification_status'), VerificationStatus::Declared)
-            ->whereHas('statusHistories', fn (Builder $entries) => $entries->where('previous_verification', VerificationStatus::Verified));
+            ->whereHas('lastReversal', fn (Builder $reversal) => $reversal->whereDoesntHave('reassessment'));
     }
 
     /**

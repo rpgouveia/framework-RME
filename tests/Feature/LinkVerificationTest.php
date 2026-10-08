@@ -7,12 +7,14 @@ use App\Enums\ChangeOrigin;
 use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LinkStatus;
+use App\Enums\ReassessmentOutcome;
 use App\Enums\VerificationStatus;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
 use App\Models\Owner;
+use App\Models\Reassessment;
 use App\Models\Risk;
 use App\Models\StatusHistory;
 use App\Models\User;
@@ -458,7 +460,7 @@ test('the link list filters by verification', function () {
         $this->get(route('links.index', array_filter(['verification' => $filter])))->viewData('page')['props']['links']['data'],
     )->pluck('id')->sort()->values()->all();
 
-    expect($ids('awaiting_first'))->toBe([$neverVerified->id])
+    expect($ids('awaiting_verification'))->toBe([$neverVerified->id])
         ->and($ids('awaiting_reassessment'))->toBe([$reverted->id])
         ->and($ids('verified'))->toBe([$verified->id])
         ->and($ids(null))->toBe(collect([$neverVerified, $verified, $reverted, $cancelled, $prohibited])->pluck('id')->sort()->values()->all())
@@ -471,7 +473,7 @@ test('the link list filters by verification', function () {
 
     $this->get(route('dashboard'))->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->where('verification.awaitingFirst', 1)
+            ->where('verification.awaitingVerification', 1)
             ->where('verification.awaitingReassessment', 1)
             ->where('verification.verified', 1)
     );
@@ -485,12 +487,13 @@ test('the trail shows verification entries and automatic ones', function () {
 
     $this->get(route('links.status-histories.index', $link))->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->has('statusHistories.data', 3)
-            ->where('statusHistories.data', fn ($entries) => collect($entries)->contains(
-                fn (array $entry): bool => $entry['id'] === $automatic->id
-                    && $entry['origin'] === 'system_reclassification'
-                    && $entry['owner'] === null
-                    && $entry['new_verification'] === 'declared',
+            ->has('entries.data', 3)
+            ->where('entries.data', fn ($entries) => collect($entries)->contains(
+                fn (array $item): bool => $item['type'] === 'change'
+                    && $item['entry']['id'] === $automatic->id
+                    && $item['entry']['origin'] === 'system_reclassification'
+                    && $item['entry']['owner'] === null
+                    && $item['entry']['new_verification'] === 'declared',
             ))
     );
 
@@ -598,8 +601,8 @@ test('the seeders tell every verification story through the actions', function (
 
     $unacceptable = fn ($query) => $query->where('category', AiSystemCategory::Unacceptable);
 
-    expect(Link::awaitingFirstVerification()->doesntHave('evidence')->exists())->toBeTrue()
-        ->and(Link::awaitingFirstVerification()->has('evidence')->exists())->toBeTrue()
+    expect(Link::awaitingVerification()->doesntHave('evidence')->exists())->toBeTrue()
+        ->and(Link::awaitingVerification()->has('evidence')->exists())->toBeTrue()
         ->and(Link::verified()->exists())->toBeTrue()
         // Overdue links are reverted as the daily trigger does; one is due
         // today, still valid.
@@ -632,4 +635,25 @@ test('the seeders tell every verification story through the actions', function (
         ->and(AdverseEvent::query()->where('nature', 'incident')->exists())->toBeTrue()
         ->and(app(MonitoringProtocol::class)->unmappedRisks())->not->toBeEmpty()
         ->and(StatusHistory::query()->where('origin', 'system_reclassification')->exists())->toBeTrue();
+
+    // The reassessments of 0020: every outcome, an adjustment awaiting its
+    // verification, a replacement with its new link, an event only partly
+    // reassessed, one in an unacceptable system, and links still waiting
+    // for different lengths of time.
+    foreach (ReassessmentOutcome::cases() as $outcome) {
+        expect(Reassessment::query()->where('outcome', $outcome)->exists())->toBeTrue("No reassessment chose {$outcome->value}.");
+    }
+
+    $waitedSince = Link::awaitingReassessment()->with('lastReversal')->get()->map(fn (Link $link) => $link->lastReversal->change_date->toDateString());
+    $partlyReassessed = AdverseEvent::query()->with('reversals.reassessment')->get()->contains(
+        fn (AdverseEvent $event): bool => $event->reversals->count() > 1
+            && $event->reversals->filter(fn (StatusHistory $reversal) => $reversal->reassessment !== null)->count() > 0
+            && $event->reversals->contains(fn (StatusHistory $reversal) => $reversal->reassessment === null),
+    );
+
+    expect(Reassessment::query()->where('outcome', ReassessmentOutcome::Adjust)->whereNull('verification_id')->whereHas('link', fn ($link) => $link->awaitingVerification())->exists())->toBeTrue()
+        ->and(Link::query()->whereNotNull('replaces_link_id')->exists())->toBeTrue()
+        ->and($partlyReassessed)->toBeTrue()
+        ->and(Reassessment::query()->whereHas('link.risk.aiSystem', $unacceptable)->exists())->toBeTrue()
+        ->and($waitedSince->unique()->count())->toBeGreaterThan(1);
 });

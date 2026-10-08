@@ -8,6 +8,7 @@ use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LinkVerificationController;
 use App\Http\Controllers\MitigationController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\ReassessmentController;
 use App\Http\Controllers\RiskController;
 use App\Http\Controllers\StatusHistoryController;
 use App\Http\Controllers\TraceabilityReportController;
@@ -50,6 +51,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->only(['index', 'create', 'store', 'show']);
     // The status trail is append only: entries are never edited or deleted.
     Route::resource('links.status-histories', StatusHistoryController::class)
+        ->shallow()
+        ->only(['index', 'create', 'store', 'show']);
+    // Reassessments are append only (0020): each one concludes a reversal.
+    Route::resource('links.reassessments', ReassessmentController::class)
         ->shallow()
         ->only(['index', 'create', 'store', 'show']);
 

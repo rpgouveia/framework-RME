@@ -31,8 +31,9 @@ test('the index lists only the history of its link', function () {
     $response->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
             ->component('status-histories/index')
-            ->has('statusHistories.data', 2)
-            ->has('statusHistories.data.0.owner')
+            ->has('entries.data', 2)
+            ->where('entries.data.0.type', 'change')
+            ->has('entries.data.0.entry.owner')
     );
 });
 
@@ -139,7 +140,7 @@ test('the status screens tell the adverse event by its risk subdomains', functio
 
     $this->get(route('links.status-histories.index', $link))->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->where('statusHistories.data.0.adverse_event.risk_subdomains.0.code', '2.1')
+            ->where('entries.data.0.entry.adverse_event.risk_subdomains.0.code', '2.1')
     );
 
     $this->get(route('status-histories.show', $statusHistory))->assertInertia(

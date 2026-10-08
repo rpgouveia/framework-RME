@@ -2,12 +2,16 @@
 
 namespace App\Actions;
 
+use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
+use App\Models\Reassessment;
 use App\Models\StatusHistory;
+use App\Models\TaxonomyTerm;
 use App\Support\MonitoringProtocol;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Compile the traceability report of an AI system: the risk, mitigation,
@@ -60,6 +64,10 @@ class CompileTraceabilityReport
         'owner_area',
         'evidence_count',
         'evidence',
+        'replaces_link_id',
+        'replaced_by_link_id',
+        'reassessments',
+        'reverting_adverse_events',
     ];
 
     /**
@@ -79,7 +87,16 @@ class CompileTraceabilityReport
                 'verificationChanges.owner',
                 'observedCostEvidence',
                 'evidence' => fn ($query) => $query->orderBy('registration_date')->orderBy('id'),
+                'reassessments.owner',
+                'reassessments.reversal',
+                'replacedBy',
             ])
+            ->orderBy('id')
+            ->get();
+
+        $adverseEvents = $aiSystem->adverseEvents()
+            ->with(['riskSubdomains', 'reversals'])
+            ->orderBy('occurrence_date')
             ->orderBy('id')
             ->get();
 
@@ -95,7 +112,10 @@ class CompileTraceabilityReport
             'generated_at' => now()->toIso8601String(),
             // The C3 protocol in force when the report was exported.
             'protocol' => app(MonitoringProtocol::class)->version(),
-            'links' => $links->map(fn (Link $link): array => $this->link($link))->values()->all(),
+            'links' => $links->map(fn (Link $link): array => $this->link($link, $adverseEvents))->values()->all(),
+            // What happened on the system (0020, item 10): each event and
+            // the links it reverted.
+            'adverse_events' => $adverseEvents->map(fn (AdverseEvent $event): array => $this->adverseEvent($event))->values()->all(),
         ];
     }
 
@@ -155,6 +175,21 @@ class CompileTraceabilityReport
                 fn (array $evidence): string => "{$evidence['type']}: {$evidence['description']} ({$evidence['registration_date']})",
                 $link['evidence'],
             )),
+            $link['replaces_link_id'],
+            $link['replaced_by_link_id'],
+            implode(' | ', array_map(
+                fn (array $reassessment): string => "{$reassessment['date']}: {$reassessment['outcome']} by {$reassessment['owner']}"
+                    ." (reversal: {$reassessment['reversal_origin']}; cause: {$reassessment['cause_status']}"
+                    .($reassessment['cause_phase'] === null ? '' : ", {$reassessment['cause_phase']}")
+                    .($reassessment['cause'] === null ? '' : ", {$reassessment['cause']}")
+                    .") {$reassessment['justification']}",
+                $link['reassessments'],
+            )),
+            implode(' | ', array_map(
+                fn (array $event): string => "#{$event['id']} {$event['nature']} [".implode(', ', $event['risk_subdomains'])."] occurred {$event['occurrence_date']}"
+                    .($event['detected_at'] === null ? '' : ", detected {$event['detected_at']}"),
+                $link['reverting_adverse_events'],
+            )),
         ]), $report['links']);
     }
 
@@ -176,10 +211,13 @@ class CompileTraceabilityReport
     /**
      * Shape a single link and its chain.
      *
+     * @param  Collection<int, AdverseEvent>  $adverseEvents  The system's events.
      * @return array<string, mixed>
      */
-    protected function link(Link $link): array
+    protected function link(Link $link, Collection $adverseEvents): array
     {
+        $revertedBy = $link->verificationChanges->pluck('adverse_event_id')->filter()->all();
+
         return [
             'id' => $link->id,
             'status' => $link->status->value,
@@ -241,6 +279,47 @@ class CompileTraceabilityReport
                 'registration_date' => $evidence->registration_date->toDateString(),
                 'observed_cost' => $evidence->observed_cost?->value,
             ])->values()->all(),
+            // The link it replaced and the one that replaced it (0020).
+            'replaces_link_id' => $link->replaces_link_id,
+            'replaced_by_link_id' => $link->replacedBy?->id,
+            'reassessments' => $link->reassessments->map(fn (Reassessment $reassessment): array => [
+                'id' => $reassessment->id,
+                'date' => $reassessment->reassessment_date->toDateString(),
+                'outcome' => $reassessment->outcome->value,
+                'owner' => $reassessment->owner->organizational_role,
+                'justification' => $reassessment->justification,
+                'cause_status' => $reassessment->cause_status->value,
+                'cause' => $reassessment->cause,
+                'cause_phase' => $reassessment->cause_phase?->value,
+                'reversal_origin' => $reassessment->reversal->origin->value,
+                'reversal_date' => $reassessment->reversal->change_date->toDateString(),
+                'verification_id' => $reassessment->verification_id,
+            ])->values()->all(),
+            // The events that reverted this link, also listed in full in the
+            // system's adverse_events.
+            'reverting_adverse_events' => $adverseEvents
+                ->filter(fn (AdverseEvent $event): bool => in_array($event->id, $revertedBy, true))
+                ->map(fn (AdverseEvent $event): array => $this->adverseEvent($event))
+                ->values()
+                ->all(),
+        ];
+    }
+
+    /**
+     * Shape an adverse event of the system (0019, 0020).
+     *
+     * @return array{id: int, nature: string, risk_subdomains: list<string>, occurrence_date: string, detected_at: string|null, intercepting_link_id: int|null, reverted_link_ids: list<int>}
+     */
+    protected function adverseEvent(AdverseEvent $event): array
+    {
+        return [
+            'id' => $event->id,
+            'nature' => $event->nature->value,
+            'risk_subdomains' => array_values($event->riskSubdomains->map(fn (TaxonomyTerm $term): string => $term->code)->all()),
+            'occurrence_date' => $event->occurrence_date->toDateString(),
+            'detected_at' => $event->detected_at?->toDateString(),
+            'intercepting_link_id' => $event->intercepting_link_id,
+            'reverted_link_ids' => array_values($event->reversals->map(fn (StatusHistory $reversal): int => $reversal->link_id)->all()),
         ];
     }
 }

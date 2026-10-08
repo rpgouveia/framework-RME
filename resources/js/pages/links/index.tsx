@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { WaitingDays } from '@/components/waiting-days';
 import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { FilterLink } from '@/components/filter-link';
@@ -46,9 +47,9 @@ const verificationFilters: {
 }[] = [
     { value: null, label: 'Todos', empty: 'Nenhum vínculo foi criado ainda.' },
     {
-        value: 'awaiting_first',
-        label: 'Aguardando primeira verificação',
-        empty: 'Nenhum vínculo aguarda a primeira verificação.',
+        value: 'awaiting_verification',
+        label: 'Aguardando verificação',
+        empty: 'Nenhum vínculo aguarda verificação.',
     },
     {
         value: 'awaiting_reassessment',
@@ -128,8 +129,8 @@ export default function LinksIndex({ links, filters }: Props) {
                         {filters.verification === 'verified'
                             ? 'Vínculos verificados que não foram cancelados.'
                             : filters.verification === 'awaiting_reassessment'
-                              ? 'Vínculos revertidos para declarados, ainda não cancelados. Os de sistemas reclassificados para a faixa inaceitável aparecem aqui, mas não podem ser verificados de novo.'
-                              : 'Ficam de fora os vínculos cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
+                              ? 'Vínculos revertidos cuja última reversão ainda não foi reavaliada, dos que esperam há mais tempo. Os de sistemas na faixa inaceitável aparecem aqui para planejar a descontinuação.'
+                              : 'Vínculos declarados à espera da prova: os que aguardam a primeira verificação e os reavaliados ainda sem verificação. Ficam de fora os cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
                     </p>
                 )}
 
@@ -150,7 +151,12 @@ export default function LinksIndex({ links, filters }: Props) {
                     )
                 ) : (
                     <>
-                        <LinksTable links={links.data} />
+                        <LinksTable
+                            links={links.data}
+                            waiting={
+                                filters.verification === 'awaiting_reassessment'
+                            }
+                        />
                         {links.last_page > 1 && (
                             <PaginationLinks links={links.links} />
                         )}
@@ -174,7 +180,14 @@ function EmptyState() {
     );
 }
 
-function LinksTable({ links }: { links: RiskLink[] }) {
+function LinksTable({
+    links,
+    waiting,
+}: {
+    links: RiskLink[];
+    /** The reassessment list: how long each link has waited (0020). */
+    waiting: boolean;
+}) {
     return (
         <div className="rounded-xl border">
             <Table>
@@ -184,7 +197,11 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                         <TableHead>Mitigação</TableHead>
                         <TableHead>Responsável</TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead>Próxima revisão</TableHead>
+                        {waiting ? (
+                            <TableHead>Aguardando há</TableHead>
+                        ) : (
+                            <TableHead>Próxima revisão</TableHead>
+                        )}
                         <TableHead>Custo estimado</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -232,14 +249,20 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 <LinkStatusBadges link={link} />
                             </TableCell>
                             <TableCell>
-                                <ReviewDate
-                                    date={link.next_review_date}
-                                    verification={link.verification_status}
-                                    unacceptable={
-                                        link.risk?.ai_system?.category ===
-                                        'unacceptable'
-                                    }
-                                />
+                                {waiting && link.last_reversal ? (
+                                    <WaitingDays
+                                        since={link.last_reversal.change_date}
+                                    />
+                                ) : (
+                                    <ReviewDate
+                                        date={link.next_review_date}
+                                        verification={link.verification_status}
+                                        unacceptable={
+                                            link.risk?.ai_system?.category ===
+                                            'unacceptable'
+                                        }
+                                    />
+                                )}
                             </TableCell>
                             <TableCell>
                                 {costLevelLabels[link.estimated_cost]}

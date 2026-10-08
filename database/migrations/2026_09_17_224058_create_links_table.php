@@ -30,6 +30,9 @@ return new class extends Migration
             $table->foreignId('risk_id')->constrained('risks');
             $table->foreignId('mitigation_id')->constrained('mitigations');
             $table->foreignId('owner_id')->constrained('owners');
+            // The link this one replaces, after a reassessment chose to
+            // replace it (0020): same risk, another mitigation.
+            $table->foreignId('replaces_link_id')->nullable()->constrained('links');
             $table->timestamps();
 
             // R-6: a risk and a mitigation are linked at most once.

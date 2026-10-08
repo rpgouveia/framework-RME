@@ -4,10 +4,13 @@ namespace App\Concerns;
 
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
+use App\Enums\LinkStatus;
+use App\Enums\ReassessmentOutcome;
 use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
+use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Validation\Rule;
 
@@ -37,7 +40,43 @@ trait LinkValidationRules
                     ->where('risk_id', $this->input('risk_id')),
             ],
             'owner_id' => ['required', 'integer', Rule::exists(Owner::class, 'id')->whereNull('deactivated_at')],
+            // The link this one replaces (0020): of the same risk, cancelled
+            // by a reassessment that chose to replace it, and not replaced
+            // yet.
+            'replaces_link_id' => [
+                'nullable',
+                'integer',
+                Rule::exists(Link::class, 'id'),
+                function (string $attribute, mixed $value, Closure $fail): void {
+                    $problem = self::replacementProblem(Link::query()->find((int) $value), (int) $this->input('risk_id'));
+
+                    if ($problem !== null) {
+                        $fail($problem);
+                    }
+                },
+            ],
         ];
+    }
+
+    /**
+     * Why a link cannot be replaced by a new link of the risk; null when it
+     * can.
+     */
+    public static function replacementProblem(?Link $replaced, int $riskId): ?string
+    {
+        if ($replaced === null) {
+            return null;
+        }
+
+        $problem = match (true) {
+            $replaced->risk_id !== $riskId => __('The replaced link must be of the same risk.'),
+            $replaced->status !== LinkStatus::Cancelled
+                || $replaced->reassessments()->where('outcome', ReassessmentOutcome::Replace)->doesntExist() => __('Only a link cancelled by a reassessment that chose to replace it can be replaced.'),
+            $replaced->replacedBy()->exists() => __('This link was already replaced.'),
+            default => null,
+        };
+
+        return is_string($problem) ? $problem : null;
     }
 
     /**

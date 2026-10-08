@@ -1,12 +1,15 @@
 import type {
     AdverseEventNature,
     AiSystemCategory,
+    CauseStatus,
     ChangeOrigin,
     CostLevel,
     EvidenceType,
     LifecyclePhase,
     Link,
     LinkStatus,
+    ReassessmentChange,
+    ReassessmentOutcome,
     SystemSourceType,
     UncertaintyLevel,
     VerificationStatus,
@@ -111,6 +114,40 @@ export const adverseEventNatureBadgeClasses: Record<
         'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
     near_miss: 'border-border bg-transparent text-foreground',
 };
+
+export const reassessmentOutcomeLabels: Record<ReassessmentOutcome, string> = {
+    maintain: 'Manter',
+    adjust: 'Ajustar',
+    replace: 'Substituir',
+    close: 'Encerrar',
+};
+
+export const causeStatusLabels: Record<CauseStatus, string> = {
+    identified: 'Apurada',
+    not_identified: 'Não apurada',
+    not_applicable: 'Não se aplica',
+};
+
+/** The link fields an adjustment may change (0020). */
+export const reassessmentFieldLabels: Record<
+    ReassessmentChange['field'],
+    string
+> = {
+    owner_id: 'Responsável',
+    estimated_cost: 'Custo estimado',
+    lifecycle_phase: 'Fase do ciclo de vida',
+    status: 'Status de progresso',
+};
+
+/** Whole days from a date to today, to say how long something waited. */
+export function daysSince(date: string): number {
+    const [year, month, day] = date.slice(0, 10).split('-').map(Number);
+    const then = Date.UTC(year, month - 1, day);
+    const now = new Date();
+    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return Math.max(0, Math.round((today - then) / 86_400_000));
+}
 
 export const verificationStatusLabels: Record<VerificationStatus, string> = {
     declared: 'Declarada',

@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * An audit entry recording a change on a link.
@@ -38,6 +39,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Link $link
  * @property-read Owner|null $owner
  * @property-read AdverseEvent|null $adverseEvent
+ * @property-read Reassessment|null $reassessment
+ * @property-read Reassessment|null $concludedReassessment
  */
 #[Fillable([
     'previous_status',
@@ -91,6 +94,28 @@ class StatusHistory extends Model
     public function adverseEvent(): BelongsTo
     {
         return $this->belongsTo(AdverseEvent::class);
+    }
+
+    /**
+     * For a reversal: the reassessment that concluded it, if any (0020).
+     *
+     * @return HasOne<Reassessment, $this>
+     */
+    public function reassessment(): HasOne
+    {
+        return $this->hasOne(Reassessment::class, 'reversal_id');
+    }
+
+    /**
+     * For a verification: the reassessment it was recorded with, if it was
+     * recorded in the same act as one (0020). With the reassessment's own
+     * verification_id, it links the two both ways.
+     *
+     * @return HasOne<Reassessment, $this>
+     */
+    public function concludedReassessment(): HasOne
+    {
+        return $this->hasOne(Reassessment::class, 'verification_id');
     }
 
     /**

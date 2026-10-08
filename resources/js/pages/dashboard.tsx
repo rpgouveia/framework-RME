@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { TriangleAlertIcon } from 'lucide-react';
 import type { InertiaLinkProps } from '@inertiajs/react';
+import { WaitingDays } from '@/components/waiting-days';
 import Heading from '@/components/heading';
 import { AiSystemName } from '@/components/ai-system-name';
 import { ReviewDate } from '@/components/review-date';
@@ -106,11 +107,13 @@ type Props = {
     systems: SystemSummary[];
     /** The verification pending lists of Tela 3 (0018). */
     verification: {
-        awaitingFirst: number;
+        awaitingVerification: number;
         awaitingReassessment: number;
         /** Split by the origin of the last reversal (0019). */
         awaitingReassessmentByOrigin: { origin: ChangeOrigin; count: number }[];
         verified: number;
+        /** The links waiting longest for their reassessment (0020). */
+        longestAwaiting: RiskLink[];
     };
     /** Risks not yet mapped: event subdomains with no risk (0019). */
     unmappedRisks: UnmappedRisk[];
@@ -534,16 +537,17 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
         pending: boolean;
     }[] = [
         {
-            filter: 'awaiting_first',
-            label: 'Aguardando primeira verificação',
-            sentence: 'Declarados, ainda sem verificação.',
-            count: counts.awaitingFirst,
+            filter: 'awaiting_verification',
+            label: 'Aguardando verificação',
+            sentence:
+                'Declarados à espera da prova: nunca verificados ou reavaliados sem verificação.',
+            count: counts.awaitingVerification,
             pending: true,
         },
         {
             filter: 'awaiting_reassessment',
             label: 'Aguardando reavaliação',
-            sentence: 'Verificados antes e revertidos para declarados.',
+            sentence: 'Revertidos para declarados, à espera de uma decisão.',
             count: counts.awaitingReassessment,
             pending: true,
         },
@@ -625,6 +629,44 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                         ))}
                     </ul>
                 </div>
+                {counts.longestAwaiting.length > 0 && (
+                    <div className="mt-4 grid gap-2">
+                        <p className="text-muted-foreground text-sm">
+                            Esperando reavaliação há mais tempo
+                        </p>
+                        <ul className="divide-y">
+                            {counts.longestAwaiting.map((link) => (
+                                <li
+                                    key={link.id}
+                                    className="flex flex-wrap items-center justify-between gap-4 py-2"
+                                >
+                                    <Link
+                                        href={showLink(link.id)}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {linkLabel(link)}
+                                    </Link>
+                                    {link.last_reversal && (
+                                        <span className="text-muted-foreground flex items-center gap-2 text-sm">
+                                            {
+                                                changeOriginLabels[
+                                                    link.last_reversal.origin
+                                                ]
+                                            }{' '}
+                                            ·{' '}
+                                            <WaitingDays
+                                                since={
+                                                    link.last_reversal
+                                                        .change_date
+                                                }
+                                            />
+                                        </span>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

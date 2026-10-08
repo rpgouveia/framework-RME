@@ -26,7 +26,7 @@ use Inertia\Response;
 class LinkController extends Controller
 {
     /** The verification filters of the list: the pending lists of Tela 3. */
-    public const VERIFICATION_FILTERS = ['awaiting_first', 'awaiting_reassessment', 'verified'];
+    public const VERIFICATION_FILTERS = ['awaiting_verification', 'awaiting_reassessment', 'verified'];
 
     /**
      * Display a listing of the resource, optionally narrowed by verification:
@@ -52,11 +52,14 @@ class LinkController extends Controller
         return Inertia::render('links/index', [
             'filters' => ['verification' => $verification, 'origin' => $origin?->value],
             'links' => Link::query()
-                ->when($verification === 'awaiting_first', fn (Builder $query) => $query->awaitingFirstVerification())
+                ->when($verification === 'awaiting_verification', fn (Builder $query) => $query->awaitingVerification())
                 ->when($verification === 'awaiting_reassessment' && $origin === null, fn (Builder $query) => $query->awaitingReassessment())
                 ->when($origin !== null, fn (Builder $query) => $query->revertedBy($origin ?? ChangeOrigin::Manual))
                 ->when($verification === 'verified', fn (Builder $query) => $query->verified())
-                ->with(['risk.aiSystem', 'mitigation', 'owner'])
+                // How long each has waited shows in the reassessment list,
+                // which starts with the oldest (0020, item 9).
+                ->when($verification === 'awaiting_reassessment', fn (Builder $query) => $query->longestAwaitingFirst())
+                ->with(['risk.aiSystem', 'mitigation', 'owner', 'lastReversal'])
                 ->withCount(['evidence', 'statusHistories'])
                 // Links with no review date (unacceptable systems) last, the
                 // same on every database.
@@ -71,11 +74,22 @@ class LinkController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
         Gate::authorize('create', Link::class);
 
-        return Inertia::render('links/create', $this->formOptions());
+        // After a reassessment chose to replace a link (0020), the form comes
+        // with `?risk=` and `?replaces=`; a link that cannot be replaced is
+        // ignored.
+        $replaced = Link::query()->with(['risk', 'mitigation'])->find((int) $request->query('replaces'));
+        $replacing = $replaced !== null && StoreLinkRequest::replacementProblem($replaced, $replaced->risk_id) === null
+            ? $replaced->only(['id', 'risk_id']) + ['risk' => $replaced->risk->name, 'mitigation' => $replaced->mitigation->name]
+            : null;
+
+        return Inertia::render('links/create', [
+            ...$this->formOptions(),
+            'replacing' => $replacing,
+        ]);
     }
 
     /**
@@ -107,10 +121,17 @@ class LinkController extends Controller
             'lastVerification.owner',
             'lastReversal.owner',
             'lastReversal.adverseEvent.riskSubdomains',
+            'lastReversal.reassessment',
+            'reassessments.owner',
+            'reassessments.reversal',
+            'replaces.mitigation',
+            'replacedBy.mitigation',
         ])->loadCount(['evidence', 'statusHistories']);
 
         return Inertia::render('links/show', [
             'link' => $link,
+            // A reversal awaits its reassessment (0020).
+            'awaitingReassessment' => Link::query()->whereKey($link->id)->awaitingReassessment()->exists(),
             'verification' => [
                 // Why the link cannot be verified (or renewed) now, shown
                 // next to the disabled button; null when it can.

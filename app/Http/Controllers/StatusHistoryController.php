@@ -8,8 +8,11 @@ use App\Http\Requests\StoreStatusHistoryRequest;
 use App\Models\AdverseEvent;
 use App\Models\Link;
 use App\Models\Owner;
+use App\Models\Reassessment;
 use App\Models\StatusHistory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,17 +28,39 @@ class StatusHistoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Link $link): Response
+    public function index(Request $request, Link $link): Response
     {
         Gate::authorize('viewAny', StatusHistory::class);
 
+        /*
+         * The timeline: status and verification changes with the
+         * reassessments in between, as entries of their own (0020), newest
+         * first by the moment each was recorded.
+         */
+        $entries = $link->statusHistories()
+            ->with(['owner', 'adverseEvent.riskSubdomains'])
+            ->get()
+            ->map(fn (StatusHistory $entry): array => ['type' => 'change', 'at' => $entry->created_at, 'id' => $entry->id, 'entry' => $entry])
+            ->concat($link->reassessments()->with('owner')->get()->map(
+                fn (Reassessment $reassessment): array => ['type' => 'reassessment', 'at' => $reassessment->created_at, 'id' => $reassessment->id, 'entry' => $reassessment],
+            ))
+            ->sortBy([
+                fn (array $a, array $b): int => $b['at'] <=> $a['at'],
+                // In the same act, the reassessment above the changes it made.
+                fn (array $a, array $b): int => ($a['type'] === 'reassessment' ? 0 : 1) <=> ($b['type'] === 'reassessment' ? 0 : 1),
+                fn (array $a, array $b): int => $b['id'] <=> $a['id'],
+            ])
+            ->values()
+            ->map(fn (array $item): array => ['type' => $item['type'], 'entry' => $item['entry']]);
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+
         return Inertia::render('status-histories/index', [
             'link' => $link->load(['risk', 'mitigation']),
-            'statusHistories' => $link->statusHistories()
-                ->with(['owner', 'adverseEvent.riskSubdomains'])
-                ->latest('change_date')
-                ->paginate(15)
-                ->withQueryString(),
+            'entries' => (new LengthAwarePaginator($entries->forPage($page, 15)->values(), $entries->count(), 15, $page, [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]))->withQueryString(),
         ]);
     }
 

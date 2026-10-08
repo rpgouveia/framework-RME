@@ -75,6 +75,13 @@ type Props = {
     costLevels: EnumOption[];
     /** R-7: days to the first review for each tier; null means none. */
     reviewIntervals: Partial<Record<AiSystemCategory, number | null>>;
+    /** The link this one replaces, after a reassessment chose to (0020). */
+    replacing: {
+        id: number;
+        risk_id: number;
+        risk: string;
+        mitigation: string;
+    } | null;
 };
 
 export default function LinksCreate(props: Props) {
@@ -140,6 +147,7 @@ function LinkForm({
     lifecyclePhases,
     costLevels,
     reviewIntervals,
+    replacing,
 }: Props) {
     const { url } = usePage();
 
@@ -239,6 +247,26 @@ function LinkForm({
         <Form {...LinkController.store.form()} className="max-w-xl space-y-6">
             {({ processing, errors }) => (
                 <>
+                    {replacing &&
+                        String(replacing.risk_id) === riskId && (
+                            // The new link records which one it replaces.
+                            <div className="grid gap-1 rounded-lg border border-sky-300 bg-sky-50 p-4 text-sm text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-200">
+                                <p className="font-semibold">
+                                    Substituição do vínculo {replacing.risk} →{' '}
+                                    {replacing.mitigation}
+                                </p>
+                                <p>
+                                    Ele foi cancelado na reavaliação. Escolha
+                                    outra mitigação para o mesmo risco.
+                                </p>
+                                <input
+                                    type="hidden"
+                                    name="replaces_link_id"
+                                    value={replacing.id}
+                                />
+                                <InputError message={errors.replaces_link_id} />
+                            </div>
+                        )}
                     <div className="grid gap-2">
                         <Label htmlFor="risk_id">Risco</Label>
                         <Select
