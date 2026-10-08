@@ -5,6 +5,7 @@ import { DetailItem } from '@/components/detail-item';
 import { EntryAuthor } from '@/components/entry-author';
 import InputError from '@/components/input-error';
 import { VerificationBadge } from '@/components/link-status-badges';
+import { UNACCEPTABLE_ALERT_ID } from '@/components/unacceptable-tier-alert';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -33,6 +34,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { formatDate } from '@/lib/format';
 import { changeOriginLabels, subdomainCodes } from '@/lib/labels';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
+import { show as showAiSystem } from '@/routes/ai-systems';
 import type { Link, Owner } from '@/types/models';
 
 type VerifierOption = Pick<Owner, 'id' | 'organizational_role' | 'area'>;
@@ -59,6 +61,8 @@ export function LinkVerificationCard({
     const { url } = usePage();
     const declared = link.verification_status === 'declared';
     const reversal = declared ? link.last_reversal : null;
+    const aiSystem = link.risk?.ai_system;
+    const unacceptable = aiSystem?.category === 'unacceptable';
     // The evidence page links here with `?verify=1` once the link is ready.
     const [verifying, setVerifying] = useState(
         verification.problem === null &&
@@ -83,9 +87,26 @@ export function LinkVerificationCard({
             <CardContent className="grid gap-6">
                 {reversal && (
                     // Flagged for review: a verified link went back to
-                    // declared (0018, item 1).
+                    // declared (0018, item 1). A link of a system in the
+                    // unacceptable tier still counts as awaiting reassessment,
+                    // but cannot be verified again: what it calls for is to
+                    // plan the discontinuation (0019, addendum).
                     <div className="grid gap-1 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
-                        <p className="font-semibold">Aguardando reavaliação</p>
+                        {unacceptable && aiSystem ? (
+                            <p className="font-semibold">
+                                <InertiaLink
+                                    href={`${showAiSystem.url(aiSystem.id)}#${UNACCEPTABLE_ALERT_ID}`}
+                                    className="underline underline-offset-4"
+                                >
+                                    Sistema na faixa inaceitável
+                                </InertiaLink>
+                                : planejar a descontinuação
+                            </p>
+                        ) : (
+                            <p className="font-semibold">
+                                Aguardando reavaliação
+                            </p>
+                        )}
                         <p>
                             Verificação revertida em{' '}
                             {formatDate(reversal.change_date)} (origem:{' '}

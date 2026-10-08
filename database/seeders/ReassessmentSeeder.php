@@ -2,37 +2,51 @@
 
 namespace Database\Seeders;
 
+use App\Actions\CreateLink;
 use App\Actions\RecordAdverseEvent;
+use App\Actions\RecordEvidence;
+use App\Actions\RecordStatusChange;
 use App\Actions\UpdateAiSystem;
 use App\Enums\AdverseEventNature;
 use App\Enums\AiSystemCategory;
+use App\Enums\CostLevel;
+use App\Enums\EvidenceType;
+use App\Enums\LifecyclePhase;
 use App\Models\AiSystem;
 use App\Models\Link;
+use App\Models\Mitigation;
+use App\Models\Owner;
 use App\Models\Risk;
+use App\Models\TaxonomyTerm;
 use App\Support\AiRiskDomains;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 
 /**
  * The reassessment triggers of 0019, told after the links' stories, through
  * the actions: an incident and a near miss intercepted by a link, both
- * reverting the verified links of their subdomains; an event in a subdomain
+ * reverting the verified links of their subdomain; an event in a subdomain
  * where the system has no risk (a risk not yet mapped); and a system
  * reclassified into the unacceptable tier after its links were verified.
  * The review-due and manual reversals and the renewal are in the links'
  * stories (LinkSeeder).
  *
- * Every step is registered today, after the links' stories, so it acts on
- * the links as they stand; the events themselves happened a few days
- * before, and were registered late.
+ * Each trigger works on links of its own, created and verified here with the
+ * clock moved back: a new risk in a subdomain the system had none in, or a
+ * system of its own for the reclassification. So no trigger undoes the
+ * stories the LinkSeeder told. The events are registered today, a few days
+ * after they happened.
  */
 class ReassessmentSeeder extends Seeder
 {
-    /** @var list<int> Systems already used, so each trigger shows apart. */
-    protected array $used = [];
+    protected CarbonImmutable $today;
 
     public function __construct(
+        protected CreateLink $createLink,
+        protected RecordEvidence $recordEvidence,
+        protected RecordStatusChange $recordStatusChange,
         protected RecordAdverseEvent $recordAdverseEvent,
         protected UpdateAiSystem $updateAiSystem,
         protected AiRiskDomains $riskDomains,
@@ -40,69 +54,76 @@ class ReassessmentSeeder extends Seeder
 
     public function run(): void
     {
-        $today = CarbonImmutable::today();
+        $this->today = CarbonImmutable::today();
+        $owners = Owner::query()->active()->get();
+        $mitigations = Mitigation::all();
+
+        if ($owners->isEmpty() || $mitigations->count() < 2) {
+            return;
+        }
+
+        $operable = AiSystem::query()
+            ->whereNot('category', AiSystemCategory::Unacceptable)
+            ->orderBy('id')
+            ->get();
 
         try {
-            Date::setTestNow($today->setTime(12, 0));
-            $this->incident($today);
+            if ($operable->isNotEmpty()) {
+                $this->incident($operable->first(), $mitigations, $owners);
+                $this->interceptedNearMiss($operable->last(), $mitigations, $owners);
+                $this->unmappedRisk($operable->get(intdiv($operable->count(), 2)) ?? $operable->first());
+            }
 
-            Date::setTestNow($today->setTime(12, 10));
-            $this->interceptedNearMiss($today);
-
-            Date::setTestNow($today->setTime(12, 20));
-            $this->unmappedRisk($today);
-
-            Date::setTestNow($today->setTime(12, 30));
-            $this->reclassification();
+            $this->reclassification($mitigations, $owners);
         } finally {
             Date::setTestNow();
         }
     }
 
     /**
-     * An incident in the subdomain of a verified link: the link (and any other
-     * verified one of that subdomain in the system) goes back to declared.
+     * An incident in the subdomain of a verified link: the link goes back to
+     * declared.
+     *
+     * @param  Collection<int, Mitigation>  $mitigations
+     * @param  Collection<int, Owner>  $owners
      */
-    protected function incident(CarbonImmutable $today): void
+    protected function incident(AiSystem $aiSystem, Collection $mitigations, Collection $owners): void
     {
-        $link = $this->verifiedLink();
+        $subdomain = $this->newSubdomainFor($aiSystem);
+        [$link] = $this->verifiedLinks($aiSystem, $subdomain, $mitigations->random(1), $owners);
 
-        if ($link === null) {
-            return;
-        }
-
-        $occurred = $today->subDays(6);
-
+        $this->at(12, 0);
         $this->recordAdverseEvent->handle([
-            'ai_system_id' => $link->risk->ai_system_id,
+            'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::Incident,
             'description' => 'O sistema expôs a um grupo de usuários respostas que a mitigação deveria ter barrado.',
-            'occurrence_date' => $occurred,
-            'detected_at' => $occurred->addDays(3),
+            'occurrence_date' => $this->today->subDays(6),
+            'detected_at' => $this->today->subDays(3),
             'risk_subdomains' => [$link->risk->riskSubdomain->code],
         ]);
     }
 
     /**
-     * A near miss intercepted by a verified link: that link stays verified,
-     * the others of its subdomain in the system are reverted.
+     * A near miss intercepted by one of two verified links of a subdomain:
+     * the interceptor stays verified, the other is reverted.
+     *
+     * @param  Collection<int, Mitigation>  $mitigations
+     * @param  Collection<int, Owner>  $owners
      */
-    protected function interceptedNearMiss(CarbonImmutable $today): void
+    protected function interceptedNearMiss(AiSystem $aiSystem, Collection $mitigations, Collection $owners): void
     {
-        $link = $this->verifiedLink();
+        $subdomain = $this->newSubdomainFor($aiSystem);
+        [$interceptor] = $this->verifiedLinks($aiSystem, $subdomain, $mitigations->random(2), $owners);
 
-        if ($link === null) {
-            return;
-        }
-
+        $this->at(12, 10);
         $this->recordAdverseEvent->handle([
-            'ai_system_id' => $link->risk->ai_system_id,
+            'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::NearMiss,
             'description' => 'Uma tentativa de uso indevido foi barrada pela mitigação antes de chegar ao usuário.',
-            'occurrence_date' => $today->subDays(2),
-            'detected_at' => $today->subDays(2),
-            'risk_subdomains' => [$link->risk->riskSubdomain->code],
-            'intercepting_link_id' => $link->id,
+            'occurrence_date' => $this->today->subDays(2),
+            'detected_at' => $this->today->subDays(2),
+            'risk_subdomains' => [$subdomain->code],
+            'intercepting_link_id' => $interceptor->id,
         ]);
     }
 
@@ -110,64 +131,94 @@ class ReassessmentSeeder extends Seeder
      * An incident in a subdomain where the system has no risk: a risk not yet
      * mapped, shown on the dashboard until it is registered.
      */
-    protected function unmappedRisk(CarbonImmutable $today): void
+    protected function unmappedRisk(AiSystem $aiSystem): void
     {
-        $aiSystem = AiSystem::query()
-            ->whereNot('category', AiSystemCategory::Unacceptable)
-            ->whereNotIn('id', $this->used)
-            ->inRandomOrder()
-            ->first() ?? AiSystem::query()->first();
-
-        if ($aiSystem === null) {
-            return;
-        }
-
-        $mapped = Risk::query()->where('ai_system_id', $aiSystem->id)->pluck('risk_subdomain_id')->all();
-        $subdomain = $this->riskDomains->subdomains()->whereNotIn('id', $mapped)->random();
-
+        $this->at(12, 20);
         $this->recordAdverseEvent->handle([
             'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::Incident,
             'description' => 'Ocorrência sem risco correspondente no cadastro do sistema.',
-            'occurrence_date' => $today->subDays(4),
+            'occurrence_date' => $this->today->subDays(4),
             'detected_at' => null,
-            'risk_subdomains' => [$subdomain->code],
+            'risk_subdomains' => [$this->newSubdomainFor($aiSystem)->code],
         ]);
     }
 
     /**
-     * A system reclassified into the unacceptable tier after its links were
-     * verified: they all go back to declared.
+     * A system of its own, with verified links, reclassified into the
+     * unacceptable tier: they all go back to declared.
+     *
+     * @param  Collection<int, Mitigation>  $mitigations
+     * @param  Collection<int, Owner>  $owners
      */
-    protected function reclassification(): void
+    protected function reclassification(Collection $mitigations, Collection $owners): void
     {
-        $link = $this->verifiedLink();
+        $aiSystem = AiSystem::factory()->highRisk()->create([
+            'name' => 'Pontuação de comportamento de cidadãos',
+            'application_domain' => 'Concessão de benefícios sociais',
+        ]);
 
-        if ($link === null) {
-            return;
-        }
+        $this->verifiedLinks($aiSystem, $this->newSubdomainFor($aiSystem), $mitigations->random(2), $owners);
 
-        $this->updateAiSystem->handle($link->risk->aiSystem, ['category' => AiSystemCategory::Unacceptable]);
+        $this->at(12, 30);
+        $this->updateAiSystem->handle($aiSystem, ['category' => AiSystemCategory::Unacceptable]);
     }
 
     /**
-     * A verified link of an operable system not used yet by another trigger.
+     * A new risk of the system in the subdomain, linked to each mitigation and
+     * verified on evidence, weeks before today.
+     *
+     * @param  Collection<int, Mitigation>  $mitigations
+     * @param  Collection<int, Owner>  $owners
+     * @return list<Link>
      */
-    protected function verifiedLink(): ?Link
+    protected function verifiedLinks(AiSystem $aiSystem, TaxonomyTerm $subdomain, Collection $mitigations, Collection $owners): array
     {
-        $link = Link::query()
-            ->verified()
-            ->whereHas('risk.aiSystem', fn ($query) => $query
-                ->whereNot('category', AiSystemCategory::Unacceptable)
-                ->whereNotIn('id', $this->used))
-            ->with('risk.aiSystem', 'risk.riskSubdomain')
-            ->inRandomOrder()
-            ->first();
+        $risk = Risk::factory()->for($aiSystem)->create(['risk_subdomain_id' => $subdomain->id]);
+        $links = [];
 
-        if ($link !== null) {
-            $this->used[] = $link->risk->ai_system_id;
+        foreach ($mitigations->values() as $index => $mitigation) {
+            $owner = $owners->random();
+
+            $this->at(9, $index, daysAgo: 60);
+            $link = $this->createLink->handle([
+                'risk_id' => $risk->id,
+                'mitigation_id' => $mitigation->id,
+                'owner_id' => $owner->id,
+                'lifecycle_phase' => LifecyclePhase::Deployment,
+                'estimated_cost' => fake()->randomElement(CostLevel::cases()),
+            ]);
+
+            $this->at(9, $index, daysAgo: 50);
+            $this->recordEvidence->handle($link, [
+                'type' => EvidenceType::TestResult,
+                'description' => 'Teste da mitigação em produção, com resultado aprovado.',
+            ]);
+
+            $this->at(9, $index, daysAgo: 45);
+            $this->recordStatusChange->verify($link, $owner);
+
+            $links[] = $link->load('risk.riskSubdomain');
         }
 
-        return $link;
+        return $links;
+    }
+
+    /**
+     * A subdomain in which the system has no risk yet.
+     */
+    protected function newSubdomainFor(AiSystem $aiSystem): TaxonomyTerm
+    {
+        $taken = Risk::query()->where('ai_system_id', $aiSystem->id)->pluck('risk_subdomain_id')->all();
+
+        return $this->riskDomains->subdomains()->whereNotIn('id', $taken)->random();
+    }
+
+    /**
+     * Move the clock to a time of a day before today.
+     */
+    protected function at(int $hour, int $minute, int $daysAgo = 0): void
+    {
+        Date::setTestNow($this->today->subDays($daysAgo)->setTime($hour, $minute));
     }
 }
