@@ -1,12 +1,103 @@
 import type { SVGAttributes } from 'react';
+import { useId } from 'react';
 
+/**
+ * The application's mark: a shield over a traceability chain, closed by a
+ * verification check. Kept in sync with `public/favicon.svg`.
+ *
+ * The mark carries its own colors and tile, so it needs no `fill-current`
+ * from the caller — only a size.
+ */
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
+    const id = useId();
+    const shieldGradient = `${id}-shield`;
+    const checkGradient = `${id}-check`;
+
     return (
-        <svg {...props} viewBox="0 0 40 42" xmlns="http://www.w3.org/2000/svg">
+        <svg
+            viewBox="0 0 512 512"
+            xmlns="http://www.w3.org/2000/svg"
+            {...props}
+        >
+            <defs>
+                <linearGradient
+                    id={shieldGradient}
+                    x1="120"
+                    y1="100"
+                    x2="380"
+                    y2="400"
+                    gradientUnits="userSpaceOnUse"
+                >
+                    <stop offset="0" stopColor="#36B8FF" />
+                    <stop offset="1" stopColor="#245BFF" />
+                </linearGradient>
+                <linearGradient
+                    id={checkGradient}
+                    x1="300"
+                    y1="300"
+                    x2="420"
+                    y2="430"
+                    gradientUnits="userSpaceOnUse"
+                >
+                    <stop offset="0" stopColor="#58F0C0" />
+                    <stop offset="1" stopColor="#20C9A2" />
+                </linearGradient>
+            </defs>
+
+            <rect width="512" height="512" rx="112" fill="#0B1426" />
+
             <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M17.2 5.63325L8.6 0.855469L0 5.63325V32.1434L16.2 41.1434L32.4 32.1434V23.699L40 19.4767V9.85547L31.4 5.07769L22.8 9.85547V18.2999L17.2 21.411V5.63325ZM38 18.2999L32.4 21.411V15.2545L38 12.1434V18.2999ZM36.9409 10.4439L31.4 13.5221L25.8591 10.4439L31.4 7.36561L36.9409 10.4439ZM24.8 18.2999V12.1434L30.4 15.2545V21.411L24.8 18.2999ZM23.8 20.0323L29.3409 23.1105L16.2 30.411L10.6591 27.3328L23.8 20.0323ZM7.6 27.9212L15.2 32.1434V38.2999L2 30.9666V7.92116L7.6 11.0323V27.9212ZM8.6 9.29991L3.05913 6.22165L8.6 3.14339L14.1409 6.22165L8.6 9.29991ZM30.4 24.8101L17.2 32.1434V38.2999L30.4 30.9666V24.8101ZM9.6 11.0323L15.2 7.92117V22.5221L9.6 25.6333V11.0323Z"
+                d="M256 75 L385 126 L385 250 C385 326 333 385 256 422 C179 385 127 326 127 250 L127 126 Z"
+                fill="none"
+                stroke={`url(#${shieldGradient})`}
+                strokeWidth="19"
+                strokeLinejoin="round"
+            />
+
+            <g
+                fill="none"
+                stroke="#F7FAFF"
+                strokeWidth="13"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            >
+                <path d="M256 178 V317" />
+                <path d="M256 278 L211 238" />
+                <path d="M256 278 L301 238" />
+                <path d="M211 238 V215" />
+                <path d="M301 238 V215" />
+                <path d="M211 238 L177 226" />
+                <path d="M301 238 L335 226" />
+            </g>
+
+            <g fill="#F7FAFF">
+                <circle cx="256" cy="162" r="19" />
+                <circle cx="211" cy="199" r="17" />
+                <circle cx="301" cy="199" r="17" />
+                <circle cx="165" cy="221" r="17" />
+                <circle cx="347" cy="221" r="17" />
+            </g>
+
+            <circle cx="365" cy="355" r="76" fill="#0B1426" />
+            <circle
+                cx="365"
+                cy="355"
+                r="65"
+                fill="none"
+                stroke={`url(#${checkGradient})`}
+                strokeWidth="17"
+                strokeDasharray="340 75"
+                strokeDashoffset="20"
+                strokeLinecap="round"
+                transform="rotate(-45 365 355)"
+            />
+            <path
+                d="M330 355 L353 378 L401 326"
+                fill="none"
+                stroke={`url(#${checkGradient})`}
+                strokeWidth="18"
+                strokeLinecap="round"
+                strokeLinejoin="round"
             />
         </svg>
     );

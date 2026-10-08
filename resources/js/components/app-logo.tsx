@@ -7,8 +7,13 @@ export default function AppLogo() {
 
     return (
         <>
-            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-md">
-                <AppLogoIcon className="size-5 fill-current text-white dark:text-black" />
+            {/*
+             * Wrapped: the sidebar menu button clamps its direct `svg`
+             * children to `size-4`, and that selector outweighs a utility
+             * class on the icon itself.
+             */}
+            <div className="aspect-square size-10 shrink-0 group-data-[collapsible=icon]:size-8">
+                <AppLogoIcon className="size-full" />
             </div>
             <div className="ml-1 grid flex-1 text-left text-sm">
                 <span className="mb-0.5 truncate leading-tight font-semibold">
