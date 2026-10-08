@@ -18,7 +18,9 @@ return new class extends Migration
             $table->string('estimated_cost');
             $table->string('observed_cost')->nullable();
             $table->date('creation_date');
-            $table->date('next_review_date');
+            // Null when the system's tier has no periodic review: an
+            // unacceptable system never operates (C3 protocol).
+            $table->date('next_review_date')->nullable();
             $table->foreignId('risk_id')->constrained('risks');
             $table->foreignId('mitigation_id')->constrained('mitigations');
             $table->foreignId('owner_id')->constrained('owners');

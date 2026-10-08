@@ -1,0 +1,32 @@
+{
+    "meta": {
+        "key": "c3-monitoring-protocol",
+        "version": "1.0",
+        "date": "2026-10-08",
+        "description": "Protocolo de monitoramento (C3): a faixa de risco do EU AI Act do sistema define a periodicidade de revisão dos vínculos; o perfil de risco do sistema define os eventos adversos esperados."
+    },
+    "review": {
+        "intervals": {
+            "high": {
+                "days": 90,
+                "justification": "Trimestral: ciclo comum de relatórios de conformidade."
+            },
+            "limited": {
+                "days": 180,
+                "justification": "Semestral: valor anterior do protótipo."
+            },
+            "minimal": {
+                "days": 365,
+                "justification": "Anual: ciclo comum de revisões de gestão."
+            },
+            "unacceptable": {
+                "days": null,
+                "justification": "Sem revisão periódica: a faixa corresponde a práticas proibidas pelo EU AI Act, e o sistema nunca é considerado em operação. Os vínculos servem para planejar a descontinuação."
+            }
+        }
+    },
+    "dashboard": {
+        "recent_event_days": 30,
+        "upcoming_review_days": 14
+    }
+}

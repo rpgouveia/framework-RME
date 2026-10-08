@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
 import { DeleteDialog } from '@/components/delete-dialog';
+import { UnacceptableTierAlert } from '@/components/unacceptable-tier-alert';
 import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +93,10 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                         )}
                     </div>
                 </header>
+
+                {aiSystem.category === 'unacceptable' && (
+                    <UnacceptableTierAlert />
+                )}
 
                 <Card>
                     <CardHeader>

@@ -5,6 +5,7 @@ namespace App\Actions;
 use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
+use App\Support\MonitoringProtocol;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -19,6 +20,7 @@ class CompileTraceabilityReport
      * @var list<string>
      */
     public const CSV_HEADER = [
+        'protocol_version',
         'system_id',
         'system_name',
         'system_application_domain',
@@ -78,6 +80,8 @@ class CompileTraceabilityReport
                 'registration_date' => $aiSystem->registration_date->toDateString(),
             ],
             'generated_at' => now()->toIso8601String(),
+            // The C3 protocol in force when the report was exported.
+            'protocol' => app(MonitoringProtocol::class)->version(),
             'links' => $links->map(fn (Link $link): array => $this->link($link))->values()->all(),
         ];
     }
@@ -93,6 +97,7 @@ class CompileTraceabilityReport
     {
         // The system is repeated on every row, so each row stands on its own.
         return array_map(fn (array $link): array => array_map($this->csvCell(...), [
+            $report['protocol']['version'],
             $report['system']['id'],
             $report['system']['name'],
             $report['system']['application_domain'],
@@ -162,7 +167,8 @@ class CompileTraceabilityReport
             'estimated_cost' => $link->estimated_cost->value,
             'observed_cost' => $link->observed_cost?->value,
             'creation_date' => $link->creation_date->toDateString(),
-            'next_review_date' => $link->next_review_date->toDateString(),
+            // Null when the system's tier has no periodic review.
+            'next_review_date' => $link->next_review_date?->toDateString(),
             'risk' => [
                 'id' => $link->risk->id,
                 'name' => $link->risk->name,

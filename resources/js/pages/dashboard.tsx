@@ -1,8 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
+import { TriangleAlertIcon } from 'lucide-react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import Heading from '@/components/heading';
 import { AiSystemName } from '@/components/ai-system-name';
+import { ReviewDate } from '@/components/review-date';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
+import { unacceptableTone } from '@/components/unacceptable-tier-alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +26,7 @@ import {
 } from '@/components/ui/table';
 import { formatDate } from '@/lib/format';
 import {
+    categoryBadgeClasses,
     linkLabel,
     linkStatusBadgeClasses,
     linkStatusLabels,
@@ -53,7 +58,10 @@ import type {
 
 type Pending<T> = { count: number; items: T[] };
 
-type SystemSummary = Pick<AiSystem, 'id' | 'name' | 'application_domain'> & {
+type SystemSummary = Pick<
+    AiSystem,
+    'id' | 'name' | 'application_domain' | 'category'
+> & {
     risks_count: number;
     unlinked_risks_count: number;
     links_count: number;
@@ -81,6 +89,8 @@ type Props = {
         upcoming: RiskLink[];
     };
     systems: SystemSummary[];
+    /** Systems that may not operate, left out of the review indicators. */
+    unacceptableSystems: Pick<AiSystem, 'id' | 'name'>[];
 };
 
 /** Tones for the review labels of the reassessment screen (Tela 5). */
@@ -133,9 +143,14 @@ function Overview({
     recentEvents,
     reviews,
     systems,
+    unacceptableSystems,
 }: Props) {
     return (
         <>
+            {unacceptableSystems.length > 0 && (
+                <UnacceptableSystemsAlert systems={unacceptableSystems} />
+            )}
+
             <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
                 <Total label="Sistemas de IA" value={totals.aiSystems} />
                 <Total label="Riscos" value={totals.risks} />
@@ -165,7 +180,7 @@ function Overview({
                 <PendingCard
                     count={reviews.dueCount}
                     title="Revisões vencidas"
-                    sentence="Vínculos cuja data de revisão já chegou."
+                    sentence="Vínculos de sistemas em operação cuja data de revisão já chegou."
                     href={linksIndex()}
                     action="Ver vínculos"
                 />
@@ -438,6 +453,46 @@ function PendingCard({
     );
 }
 
+/**
+ * Systems in the unacceptable tier: prohibited practices that may not
+ * operate. They stay out of the review indicators, so the dashboard says so.
+ */
+function UnacceptableSystemsAlert({
+    systems,
+}: {
+    systems: Props['unacceptableSystems'];
+}) {
+    return (
+        <Alert className={unacceptableTone}>
+            <TriangleAlertIcon aria-hidden />
+            <AlertTitle>
+                {systems.length === 1
+                    ? '1 sistema na faixa inaceitável do EU AI Act'
+                    : `${systems.length} sistemas na faixa inaceitável do EU AI Act`}
+            </AlertTitle>
+            <AlertDescription className="text-red-900 dark:text-red-200">
+                <p>
+                    Práticas proibidas: esses sistemas não são considerados em
+                    operação e ficam fora dos indicadores de revisão. Seus
+                    vínculos servem para planejar a descontinuação.
+                </p>
+                <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                    {systems.map((system) => (
+                        <li key={system.id}>
+                            <Link
+                                href={showAiSystem(system.id)}
+                                className="font-medium underline underline-offset-4"
+                            >
+                                {system.name}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </AlertDescription>
+        </Alert>
+    );
+}
+
 function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
     return (
         <li className="flex items-center justify-between gap-4 py-2">
@@ -449,7 +504,7 @@ function ReviewItem({ link, due = false }: { link: RiskLink; due?: boolean }) {
                     {linkLabel(link)}
                 </Link>
                 <span className="text-muted-foreground text-xs">
-                    Revisão em {formatDate(link.next_review_date)}
+                    Revisão em <ReviewDate date={link.next_review_date} />
                 </span>
             </span>
             <Badge className={due ? reviewBadge.due : reviewBadge.onTrack}>
@@ -515,12 +570,23 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                     <TableRow key={system.id}>
                         <TableCell>
                             <AiSystemName domain={system.application_domain}>
-                                <Link
-                                    href={showAiSystem(system.id)}
-                                    className="font-medium hover:underline"
-                                >
-                                    {system.name}
-                                </Link>
+                                <span className="flex flex-wrap items-center gap-2">
+                                    <Link
+                                        href={showAiSystem(system.id)}
+                                        className="font-medium hover:underline"
+                                    >
+                                        {system.name}
+                                    </Link>
+                                    {system.category === 'unacceptable' && (
+                                        <Badge
+                                            className={
+                                                categoryBadgeClasses.unacceptable
+                                            }
+                                        >
+                                            Inaceitável
+                                        </Badge>
+                                    )}
+                                </span>
                             </AiSystemName>
                         </TableCell>
                         <NumberCell value={system.risks_count} />
@@ -529,7 +595,17 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                             pending
                         />
                         <NumberCell value={system.links_count} />
-                        <NumberCell value={system.due_reviews_count} pending />
+                        {system.category === 'unacceptable' ? (
+                            // Never in operation, so it owes no review.
+                            <TableCell className="text-muted-foreground text-right text-xs">
+                                Não se aplica
+                            </TableCell>
+                        ) : (
+                            <NumberCell
+                                value={system.due_reviews_count}
+                                pending
+                            />
+                        )}
                         <NumberCell
                             value={system.recent_events_count}
                             pending

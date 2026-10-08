@@ -1,5 +1,6 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import OwnerController from '@/actions/App/Http/Controllers/OwnerController';
+import { ReviewDate } from '@/components/review-date';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -202,7 +203,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             </Badge>
                         </TableCell>
                         <TableCell>
-                            {formatDate(link.next_review_date)}
+                            <ReviewDate date={link.next_review_date} />
                         </TableCell>
                     </TableRow>
                 ))}

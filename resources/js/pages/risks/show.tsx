@@ -1,5 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
+import { ReviewDate } from '@/components/review-date';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatDate } from '@/lib/format';
 import {
     costLevelLabels,
     lifecyclePhaseLabels,
@@ -202,7 +202,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                             {costLevelLabels[link.estimated_cost]}
                         </TableCell>
                         <TableCell>
-                            {formatDate(link.next_review_date)}
+                            <ReviewDate date={link.next_review_date} />
                         </TableCell>
                     </TableRow>
                 ))}

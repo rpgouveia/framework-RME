@@ -161,6 +161,17 @@ test('the screens show the application domain of the system', function () {
     );
 });
 
+test('the seeder includes one system in the unacceptable tier', function () {
+    $this->seed(AiSystemSeeder::class);
+
+    expect(AiSystem::where('category', AiSystemCategory::Unacceptable)->count())->toBe(1);
+});
+
+test('the factory picks an operable tier unless asked for unacceptable', function () {
+    expect(AiSystem::factory(20)->create()->every(fn (AiSystem $aiSystem): bool => $aiSystem->category->isOperable()))->toBeTrue()
+        ->and(AiSystem::factory()->unacceptable()->create()->category)->toBe(AiSystemCategory::Unacceptable);
+});
+
 test('the seeder gives each system a different application domain', function () {
     $this->seed(AiSystemSeeder::class);
 

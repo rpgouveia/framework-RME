@@ -192,7 +192,8 @@ export interface Link extends Timestamps {
     estimated_cost: CostLevel;
     observed_cost: CostLevel | null;
     creation_date: string;
-    next_review_date: string;
+    /** Null when the system's tier has no periodic review (unacceptable). */
+    next_review_date: string | null;
     risk_id: number;
     mitigation_id: number;
     owner_id: number;

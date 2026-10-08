@@ -1,6 +1,7 @@
 import { Form, Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import LinkController from '@/actions/App/Http/Controllers/LinkController';
+import { ReviewDate } from '@/components/review-date';
 import { DetailItem } from '@/components/detail-item';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -90,7 +91,7 @@ export default function LinksEdit({
                                 {formatDate(link.creation_date)}
                             </DetailItem>
                             <DetailItem label="Próxima revisão">
-                                {formatDate(link.next_review_date)}
+                                <ReviewDate date={link.next_review_date} />
                             </DetailItem>
                         </dl>
                     </CardContent>

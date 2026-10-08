@@ -39,9 +39,25 @@ class AiSystemFactory extends Factory
             'name' => fake()->unique()->words(3, true),
             'application_domain' => fake()->randomElement(self::APPLICATION_DOMAINS),
             'source_type' => fake()->randomElement(SystemSourceType::cases()),
-            'category' => fake()->randomElement(AiSystemCategory::cases()),
+            // An operable tier, so a link gets a review date; ask for
+            // unacceptable() explicitly.
+            'category' => fake()->randomElement(array_values(array_filter(
+                AiSystemCategory::cases(),
+                fn (AiSystemCategory $tier): bool => $tier->isOperable(),
+            ))),
             'registration_date' => fake()->dateTimeBetween('-2 years'),
         ];
+    }
+
+    /**
+     * Indicate that the system falls in the unacceptable tier: prohibited
+     * practices, never in operation.
+     */
+    public function unacceptable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'category' => AiSystemCategory::Unacceptable,
+        ]);
     }
 
     /**

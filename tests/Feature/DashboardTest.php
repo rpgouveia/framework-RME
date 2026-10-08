@@ -7,6 +7,7 @@ use App\Models\Evidence;
 use App\Models\Link;
 use App\Models\Risk;
 use App\Models\User;
+use App\Support\MonitoringProtocol;
 use Inertia\Testing\AssertableInertia;
 
 test('guests are redirected to the login page', function () {
@@ -137,5 +138,74 @@ test('the summary counts each system on its own', function () {
                 && $rows[$second->id]['unlinked_risks_count'] === 0
                 && $rows[$second->id]['links_count'] === 1;
         })
+    );
+});
+
+// The C3 protocol: windows from its file, unacceptable systems apart.
+
+test('the dashboard windows follow the protocol file', function () {
+    $this->actingAs(User::factory()->create());
+    $this->travelTo('2026-06-15 10:00');
+
+    $definition = json_decode((string) file_get_contents(MonitoringProtocol::path()), true);
+    $definition['dashboard'] = ['recent_event_days' => 7, 'upcoming_review_days' => 3];
+    $path = tempnam(sys_get_temp_dir(), 'protocol');
+    file_put_contents($path, json_encode($definition));
+    $this->app->instance(MonitoringProtocol::class, new MonitoringProtocol($path));
+
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $inside = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-08']);
+    AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-06-07']);
+    $risk = Risk::factory()->for($aiSystem)->create();
+    $soon = Link::factory()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-18']);
+    Link::factory()->for($risk)->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-19']);
+
+    $this->get(route('dashboard'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('recentEvents.days', 7)
+            ->where('recentEvents.count', 1)
+            ->where('recentEvents.items.0.id', $inside->id)
+            ->where('reviews.upcomingDays', 3)
+            ->where('reviews.upcomingCount', 1)
+            ->where('reviews.upcoming.0.id', $soon->id)
+    );
+});
+
+test('unacceptable systems stay out of the review indicators and are flagged', function () {
+    $this->actingAs(User::factory()->create());
+    $this->travelTo('2026-06-15 10:00');
+
+    $operable = AiSystem::factory()->highRisk()->create(['name' => 'A operável']);
+    $prohibited = AiSystem::factory()->unacceptable()->create(['name' => 'B proibido']);
+
+    $due = Link::factory()->for(Risk::factory()->for($operable))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
+    // Created while the system was unacceptable: no date at all.
+    Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned]);
+    // Dated before the system was reclassified as unacceptable.
+    Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-01']);
+    Link::factory()->for(Risk::factory()->for($prohibited))->create(['status' => LinkStatus::Planned, 'next_review_date' => '2026-06-20']);
+
+    $this->get(route('dashboard'))->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('reviews.dueCount', 1)
+            ->where('reviews.due.0.id', $due->id)
+            ->where('reviews.upcomingCount', 0)
+            ->where('systems.0.id', $operable->id)
+            ->where('systems.0.due_reviews_count', 1)
+            ->where('systems.1.id', $prohibited->id)
+            ->where('systems.1.category', 'unacceptable')
+            ->where('systems.1.due_reviews_count', 0)
+            // Still counted as links of the chain.
+            ->where('systems.1.links_count', 3)
+            ->where('unacceptableSystems', [['id' => $prohibited->id, 'name' => 'B proibido']])
+    );
+});
+
+test('with no unacceptable system the dashboard shows no alert', function () {
+    $this->actingAs(User::factory()->create());
+    AiSystem::factory()->highRisk()->create();
+
+    $this->get(route('dashboard'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('unacceptableSystems', [])
     );
 });

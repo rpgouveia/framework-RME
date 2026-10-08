@@ -164,3 +164,19 @@ test('a system without an application domain exports it empty', function () {
 
     expect(array_combine($rows[0], $rows[1])['system_application_domain'])->toBe('');
 });
+
+test('the report quotes the protocol in force and leaves a missing review date empty', function () {
+    $aiSystem = AiSystem::factory()->unacceptable()->create();
+    Link::factory()->for(Risk::factory()->for($aiSystem))->create();
+
+    $this->get(route('ai-systems.report.json', $aiSystem))
+        ->assertJsonPath('protocol', ['key' => 'c3-monitoring-protocol', 'version' => '1.0', 'date' => '2026-10-08'])
+        ->assertJsonPath('links.0.next_review_date', null);
+
+    $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
+    $row = array_combine($rows[0], $rows[1]);
+
+    expect($rows[0][0])->toBe('protocol_version')
+        ->and($row['protocol_version'])->toBe('1.0')
+        ->and($row['next_review_date'])->toBe('');
+});

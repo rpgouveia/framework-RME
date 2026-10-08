@@ -4,6 +4,7 @@ import LinkController from '@/actions/App/Http/Controllers/LinkController';
 import { DetailItem } from '@/components/detail-item';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
+import { UnacceptableTierAlert } from '@/components/unacceptable-tier-alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -20,6 +21,7 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { dateFromToday } from '@/lib/format';
 import { availableMitigations, recommendMitigations } from '@/lib/link-options';
 import {
+    categoryLabels,
     costLevelLabels,
     labelFor,
     lifecyclePhaseLabels,
@@ -33,6 +35,7 @@ import { create as createRisk } from '@/routes/risks';
 import { create, index } from '@/routes/links';
 import type {
     AiSystem,
+    AiSystemCategory,
     EnumOption,
     Mitigation,
     Owner,
@@ -44,7 +47,8 @@ import type {
 type Term = { code: string; name: string };
 
 type RiskOption = Pick<Risk, 'id' | 'name'> & {
-    ai_system: Pick<AiSystem, 'id' | 'name'>;
+    /** The tier sets the review interval and the unacceptable alert. */
+    ai_system: Pick<AiSystem, 'id' | 'name' | 'category'>;
     /** The MIT domain and subdomain of the risk. */
     domain: Term | null;
     subdomain: Term;
@@ -70,7 +74,8 @@ type Props = {
     saeriCategories: TaxonomyCategory[];
     lifecyclePhases: EnumOption[];
     costLevels: EnumOption[];
-    reviewIntervalDays: number;
+    /** R-7: days to the first review for each tier; null means none. */
+    reviewIntervals: Partial<Record<AiSystemCategory, number | null>>;
 };
 
 export default function LinksCreate(props: Props) {
@@ -135,7 +140,7 @@ function LinkForm({
     saeriCategories,
     lifecyclePhases,
     costLevels,
-    reviewIntervalDays,
+    reviewIntervals,
 }: Props) {
     const { url } = usePage();
 
@@ -277,6 +282,9 @@ function LinkForm({
                             </p>
                         )}
                         <InputError message={errors.risk_id} />
+                        {risk?.ai_system.category === 'unacceptable' && (
+                            <UnacceptableTierAlert short />
+                        )}
                     </div>
 
                     <div className="grid gap-3">
@@ -528,10 +536,10 @@ function LinkForm({
                         </div>
                     </div>
 
-                    <p className="text-muted-foreground text-sm">
-                        O vínculo nasce como Planejado. A próxima revisão será
-                        em {dateFromToday(reviewIntervalDays)}.
-                    </p>
+                    <ReviewNotice
+                        tier={risk?.ai_system.category}
+                        reviewIntervals={reviewIntervals}
+                    />
 
                     <div className="flex items-center gap-4">
                         {/* RF01: no link without a target risk. */}
@@ -543,6 +551,47 @@ function LinkForm({
                 </>
             )}
         </Form>
+    );
+}
+
+/**
+ * When the link will first be reviewed (R-7): one interval of the tier of
+ * the risk's system after today, or never, for a system that cannot operate.
+ */
+function ReviewNotice({
+    tier,
+    reviewIntervals,
+}: {
+    tier: AiSystemCategory | undefined;
+    reviewIntervals: Props['reviewIntervals'];
+}) {
+    if (tier === undefined) {
+        return (
+            <p className="text-muted-foreground text-sm">
+                O vínculo nasce como Planejado. A data da próxima revisão
+                depende da faixa do sistema do risco escolhido.
+            </p>
+        );
+    }
+
+    const days = reviewIntervals[tier] ?? null;
+
+    if (days === null) {
+        return (
+            <p className="text-muted-foreground text-sm">
+                O vínculo nasce como Planejado e não terá revisão periódica: o
+                sistema está na faixa inaceitável e não pode operar. O vínculo
+                serve para planejar a descontinuação.
+            </p>
+        );
+    }
+
+    return (
+        <p className="text-muted-foreground text-sm">
+            O vínculo nasce como Planejado. A próxima revisão será em{' '}
+            {dateFromToday(days)} ({days} dias: o sistema é de risco{' '}
+            {categoryLabels[tier].toLowerCase()}).
+        </p>
     );
 }
 

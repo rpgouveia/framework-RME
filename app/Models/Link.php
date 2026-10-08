@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
@@ -28,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CostLevel $estimated_cost
  * @property CostLevel|null $observed_cost
  * @property CarbonImmutable $creation_date
- * @property CarbonImmutable $next_review_date
+ * @property CarbonImmutable|null $next_review_date
  * @property int $risk_id
  * @property int $mitigation_id
  * @property int $owner_id
@@ -109,15 +110,34 @@ class Link extends Model
     }
 
     /**
-     * Scope the query to the links whose review date has arrived.
+     * Scope the query to the links under periodic review: the one rule the
+     * review scope, the daily command and the dashboard share. A link is
+     * monitorable when it is not cancelled (closed, it owes nothing), has a
+     * review date, and its system is not in the unacceptable tier (it never
+     * operates). A system reclassified as unacceptable keeps its links'
+     * dates: they count again if it returns to an operable tier.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function monitorable(Builder $query): void
+    {
+        $query->notCancelled()
+            ->whereNotNull($query->qualifyColumn('next_review_date'))
+            ->whereHas('risk.aiSystem', fn (Builder $aiSystem) => $aiSystem->whereNot('category', AiSystemCategory::Unacceptable));
+    }
+
+    /**
+     * Scope the query to the monitorable links whose review date has
+     * arrived.
      *
      * @param  Builder<self>  $query
      */
     #[Scope]
     protected function dueForReview(Builder $query): void
     {
-        $query->where($query->qualifyColumn('next_review_date'), '<=', today())
-            ->whereNot($query->qualifyColumn('status'), LinkStatus::Cancelled);
+        $query->monitorable()
+            ->where($query->qualifyColumn('next_review_date'), '<=', today());
     }
 
     /**
