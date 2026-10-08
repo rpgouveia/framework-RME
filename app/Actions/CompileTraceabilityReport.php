@@ -71,6 +71,64 @@ class CompileTraceabilityReport
     ];
 
     /**
+     * The header of the adverse events CSV, one row per event (0020), in the
+     * same order as adverseEventRows().
+     *
+     * @var list<string>
+     */
+    public const ADVERSE_EVENT_CSV_HEADER = [
+        'protocol_version',
+        'system_id',
+        'system_name',
+        'event_id',
+        'nature',
+        'risk_subdomains',
+        'occurrence_date',
+        'detected_at',
+        'intercepting_link_id',
+        'intercepting_link',
+        'reverted_link_ids',
+        'reverted_links',
+        'unmapped_risk_subdomains',
+    ];
+
+    /**
+     * Every adverse event of the system as a CSV row, oldest first, whether
+     * it reverted links or not. The unmapped subdomains are those of the
+     * event in which the system has no risk registered today (0019, item 4).
+     *
+     * @return array<int, list<string|int|null>>
+     */
+    public function adverseEventRows(AiSystem $aiSystem): array
+    {
+        $protocol = app(MonitoringProtocol::class);
+        $label = fn (Link $link): string => "{$link->risk->name} -> {$link->mitigation->name}";
+
+        return $aiSystem->adverseEvents()
+            ->with(['riskSubdomains', 'interceptingLink.risk', 'interceptingLink.mitigation', 'reversals.link.risk', 'reversals.link.mitigation'])
+            ->orderBy('occurrence_date')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (AdverseEvent $event): array => array_map($this->csvCell(...), [
+                $protocol->version()['version'],
+                $aiSystem->id,
+                $aiSystem->name,
+                $event->id,
+                $event->nature->value,
+                $event->riskSubdomains->map(fn (TaxonomyTerm $term): string => "{$term->code} {$term->name}")->implode(' | '),
+                $event->occurrence_date->toDateString(),
+                $event->detected_at?->toDateString(),
+                $event->intercepting_link_id,
+                $event->interceptingLink === null ? null : $label($event->interceptingLink),
+                $event->reversals->pluck('link_id')->implode(' | '),
+                $event->reversals->map(fn (StatusHistory $reversal): string => $label($reversal->link))->implode(' | '),
+                implode(' | ', $protocol->unmappedSubdomainCodes($event)),
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
      * Build the nested report for the given system.
      *
      * @return array<string, mixed>
