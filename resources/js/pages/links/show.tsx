@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { ReviewDate } from '@/components/review-date';
 import { DetailItem } from '@/components/detail-item';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -150,7 +151,7 @@ export default function LinksShow({ link }: Props) {
                                 {formatDate(link.creation_date)}
                             </DetailItem>
                             <DetailItem label="Próxima revisão">
-                                {formatDate(link.next_review_date)}
+                                <ReviewDate date={link.next_review_date} />
                             </DetailItem>
                         </dl>
                     </CardContent>

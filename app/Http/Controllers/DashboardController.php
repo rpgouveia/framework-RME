@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\AiSystemCategory;
 use App\Enums\LinkStatus;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
@@ -9,6 +10,7 @@ use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
+use App\Support\MonitoringProtocol;
 use Illuminate\Database\Eloquent\Builder;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,24 +27,23 @@ class DashboardController extends Controller
     /** How many items each short list shows. */
     protected const LIST_SIZE = 5;
 
-    /** The window, in days, for recent adverse events. */
-    protected const RECENT_EVENT_DAYS = 30;
-
-    /** The window, in days, for upcoming reviews. */
-    protected const UPCOMING_REVIEW_DAYS = 14;
-
-    public function __invoke(): Response
+    public function __invoke(MonitoringProtocol $protocol): Response
     {
+        // The windows come from the C3 protocol file.
+        $recentDays = $protocol->recentEventDays();
+        $upcomingDays = $protocol->upcomingReviewDays();
         $today = today();
-        $recentSince = $today->subDays(self::RECENT_EVENT_DAYS);
-        $upcomingUntil = $today->addDays(self::UPCOMING_REVIEW_DAYS);
+        $recentSince = $today->subDays($recentDays);
+        $upcomingUntil = $today->addDays($upcomingDays);
 
         $unlinkedRisks = Risk::query()->whereDoesntHave('links', fn (Builder $query) => $query->notCancelled());
         $linksWithoutEvidence = Link::query()->notCancelled()->doesntHave('evidence');
         $recentEvents = AdverseEvent::query()->where('occurrence_date', '>=', $recentSince);
+        // Only monitorable links count: the same rule as the review scope
+        // and the daily command.
         $dueReviews = Link::query()->dueForReview();
         $upcomingReviews = Link::query()
-            ->notCancelled()
+            ->monitorable()
             ->where('next_review_date', '>', $today)
             ->where('next_review_date', '<=', $upcomingUntil);
 
@@ -78,13 +79,13 @@ class DashboardController extends Controller
                     ->oldest('creation_date')->oldest('id')->limit(self::LIST_SIZE)->get(),
             ],
             'recentEvents' => [
-                'days' => self::RECENT_EVENT_DAYS,
+                'days' => $recentDays,
                 'count' => (clone $recentEvents)->count(),
                 'items' => $recentEvents->with(['aiSystem:id,name', 'riskSubdomains'])
                     ->latest('occurrence_date')->latest('id')->limit(self::LIST_SIZE)->get(),
             ],
             'reviews' => [
-                'upcomingDays' => self::UPCOMING_REVIEW_DAYS,
+                'upcomingDays' => $upcomingDays,
                 'dueCount' => (clone $dueReviews)->count(),
                 'due' => $dueReviews->with(['risk:id,name', 'mitigation:id,name'])
                     ->oldest('next_review_date')->oldest('id')->limit(self::LIST_SIZE)->get(),
@@ -106,6 +107,10 @@ class DashboardController extends Controller
                 ])
                 ->orderBy('name')
                 ->get(['id', 'name', 'application_domain', 'category']),
+            'unacceptableSystems' => AiSystem::query()
+                ->where('category', AiSystemCategory::Unacceptable)
+                ->orderBy('name')
+                ->get(['id', 'name']),
         ]);
     }
 }

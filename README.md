@@ -302,9 +302,12 @@ compose.yml            every service of the development stack
 ## Periodic reassessment
 
 A link's `next_review_date` is computed when the link is created: the creation
-date plus the review periodicity of `config/rme.php`, which defaults to 180 days
-and is overridden with `RME_REVIEW_INTERVAL_DAYS`. The date is only editable
-afterwards, so a review that happened can push the next one forward.
+date plus the review interval of the EU AI Act tier of the risk's system, as the
+versioned C3 protocol file `database/data/protocols/c3-monitoring-protocol.json`
+sets it (high 90 days, limited 180, minimal 365). A system in the unacceptable
+tier never operates, so its links get no review date. There is no interval of a
+system's own, and changing a system's tier does not move the dates already set.
+The same file holds the dashboard windows (recent events, upcoming reviews).
 
 `links:flag-due-for-review` lists the links whose review date has arrived and
 logs a warning with their count. It only reports: no status changes, no history

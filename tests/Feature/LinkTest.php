@@ -1,9 +1,11 @@
 <?php
 
 use App\Actions\CreateLink;
+use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
 use App\Enums\LifecyclePhase;
 use App\Enums\LinkStatus;
+use App\Models\AiSystem;
 use App\Models\Evidence;
 use App\Models\Link;
 use App\Models\Mitigation;
@@ -57,10 +59,11 @@ test('the index lists the links with their risk, mitigation and owner', function
 });
 
 test('a link can be created', function () {
-    config(['rme.review.interval_days' => 30]);
     $this->travelTo('2026-01-10 09:00');
 
-    $response = $this->post(route('links.store'), linkPayload());
+    $response = $this->post(route('links.store'), linkPayload([
+        'risk_id' => Risk::factory()->for(AiSystem::factory()->highRisk())->create()->id,
+    ]));
 
     $link = Link::sole();
 
@@ -69,23 +72,26 @@ test('a link can be created', function () {
     expect($link->status)->toBe(LinkStatus::Planned)
         ->and($link->estimated_cost)->toBe(CostLevel::High)
         ->and($link->observed_cost)->toBeNull()
-        ->and($link->next_review_date->toDateString())->toBe('2026-02-09');
+        // High risk: 90 days (R-7).
+        ->and($link->next_review_date->toDateString())->toBe('2026-04-10');
 });
 
 test('the review date posted on creation is ignored', function () {
-    config(['rme.review.interval_days' => 30]);
-    $this->travelTo('2026-01-10 09:00');
-
-    $this->post(route('links.store'), linkPayload(['next_review_date' => '2030-12-31']));
-
-    expect(Link::sole()->next_review_date->toDateString())->toBe('2026-02-09');
-});
-
-test('the server sets the status and dates of a new link', function () {
-    config(['rme.review.interval_days' => 30]);
     $this->travelTo('2026-01-10 09:00');
 
     $this->post(route('links.store'), linkPayload([
+        'risk_id' => Risk::factory()->for(AiSystem::factory()->highRisk())->create()->id,
+        'next_review_date' => '2030-12-31',
+    ]));
+
+    expect(Link::sole()->next_review_date->toDateString())->toBe('2026-04-10');
+});
+
+test('the server sets the status and dates of a new link', function () {
+    $this->travelTo('2026-01-10 09:00');
+
+    $this->post(route('links.store'), linkPayload([
+        'risk_id' => Risk::factory()->for(AiSystem::factory()->highRisk())->create()->id,
         'status' => LinkStatus::Implemented->value,
         'creation_date' => '2020-05-01',
         'observed_cost' => CostLevel::Low->value,
@@ -95,12 +101,11 @@ test('the server sets the status and dates of a new link', function () {
 
     expect($link->status)->toBe(LinkStatus::Planned)
         ->and($link->creation_date->toDateString())->toBe('2026-01-10')
-        ->and($link->next_review_date->toDateString())->toBe('2026-02-09')
+        ->and($link->next_review_date->toDateString())->toBe('2026-04-10')
         ->and($link->observed_cost)->toBeNull();
 });
 
 test('the create form offers only pairs that can still be linked', function () {
-    config(['rme.review.interval_days' => 30]);
     $existing = Link::factory()->create();
 
     $this->get(route('links.create'))->assertInertia(
@@ -115,7 +120,8 @@ test('the create form offers only pairs that can still be linked', function () {
             )
             ->has('saeriCategories', 4)
             ->has('saeriCategories.0.children', 7)
-            ->where('reviewIntervalDays', 30)
+            ->where('reviewIntervals', ['unacceptable' => null, 'high' => 90, 'limited' => 180, 'minimal' => 365])
+            ->has('risks.0.ai_system.category')
     );
 });
 
@@ -172,6 +178,68 @@ test('a mitigation not recommended for the risk can still be linked (R-8)', func
     ]))->assertSessionHasNoErrors();
 
     expect(Link::sole()->mitigation_id)->toBe($mitigation->id);
+});
+
+// R-7: the first review follows the tier of the risk's system (C3 protocol).
+
+test('a new link is first reviewed one interval of its system tier later', function (AiSystemCategory $tier, ?string $expected) {
+    $this->travelTo('2026-01-10 09:00');
+
+    $this->post(route('links.store'), linkPayload([
+        'risk_id' => Risk::factory()->for(AiSystem::factory()->state(['category' => $tier]))->create()->id,
+    ]))->assertSessionHasNoErrors();
+
+    expect(Link::sole()->next_review_date?->toDateString())->toBe($expected);
+})->with([
+    'high: 90 days' => [AiSystemCategory::High, '2026-04-10'],
+    'limited: 180 days' => [AiSystemCategory::Limited, '2026-07-09'],
+    'minimal: 365 days' => [AiSystemCategory::Minimal, '2027-01-10'],
+    // Never in operation: the link is created, with no review.
+    'unacceptable: none' => [AiSystemCategory::Unacceptable, null],
+]);
+
+test('changing the tier of a system leaves the review dates already set', function () {
+    $this->travelTo('2026-01-10 09:00');
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $risk = Risk::factory()->for($aiSystem)->create();
+
+    $this->post(route('links.store'), linkPayload(['risk_id' => $risk->id]))->assertSessionHasNoErrors();
+
+    foreach ([AiSystemCategory::Minimal, AiSystemCategory::Unacceptable, AiSystemCategory::Limited] as $tier) {
+        $this->put(route('ai-systems.update', $aiSystem), [
+            'name' => $aiSystem->name,
+            'source_type' => $aiSystem->source_type->value,
+            'category' => $tier->value,
+            'registration_date' => $aiSystem->registration_date->toDateString(),
+        ])->assertSessionHasNoErrors();
+
+        expect(Link::sole()->next_review_date->toDateString())->toBe('2026-04-10');
+    }
+});
+
+test('a link of an unacceptable system can still be created and is shown without a date', function () {
+    $risk = Risk::factory()->for(AiSystem::factory()->unacceptable())->create();
+
+    $this->post(route('links.store'), linkPayload(['risk_id' => $risk->id]))->assertSessionHasNoErrors();
+
+    $link = Link::sole();
+
+    $this->get(route('links.show', $link))->assertInertia(
+        fn (AssertableInertia $page) => $page->where('link.next_review_date', null)
+    );
+});
+
+test('the links list puts the links with no review date last', function () {
+    $dated = Link::factory()->for(Risk::factory()->for(AiSystem::factory()->highRisk()))->create(['next_review_date' => '2027-01-01']);
+    $undated = Link::factory()->for(Risk::factory()->for(AiSystem::factory()->unacceptable()))->create();
+    $earlier = Link::factory()->for(Risk::factory()->for(AiSystem::factory()->highRisk()))->create(['next_review_date' => '2026-01-01']);
+
+    $this->get(route('links.index'))->assertInertia(
+        fn (AssertableInertia $page) => $page->where(
+            'links.data',
+            fn ($links) => collect($links)->pluck('id')->all() === [$earlier->id, $dated->id, $undated->id],
+        )
+    );
 });
 
 test('an inactive owner is neither offered nor accepted for a new link', function () {

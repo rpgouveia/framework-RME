@@ -12,9 +12,9 @@ use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
 use App\Models\TaxonomyTerm;
+use App\Support\MonitoringProtocol;
 use App\Support\SaeriTaxonomy;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -32,7 +32,11 @@ class LinkController extends Controller
             'links' => Link::query()
                 ->with(['risk.aiSystem', 'mitigation', 'owner'])
                 ->withCount(['evidence', 'statusHistories'])
+                // Links with no review date (unacceptable systems) last, the
+                // same on every database.
+                ->orderByRaw('case when next_review_date is null then 1 else 0 end')
                 ->orderBy('next_review_date')
+                ->orderBy('id')
                 ->paginate(15)
                 ->withQueryString(),
         ]);
@@ -123,13 +127,15 @@ class LinkController extends Controller
             // never offers a pair that R-6 would refuse, and its MIT
             // subdomain, so the form can recommend what treats it.
             'risks' => Risk::query()
-                ->with(['aiSystem:id,name', 'links:id,risk_id,mitigation_id', 'riskSubdomain.parent'])
+                ->with(['aiSystem:id,name,category', 'links:id,risk_id,mitigation_id', 'riskSubdomain.parent'])
                 ->orderBy('name')
                 ->get(['id', 'name', 'ai_system_id', 'risk_subdomain_id'])
                 ->map(fn (Risk $risk): array => [
                     'id' => $risk->id,
                     'name' => $risk->name,
-                    'ai_system' => $risk->aiSystem->only(['id', 'name']),
+                    // The tier sets the review interval and the unacceptable
+                    // alert.
+                    'ai_system' => $risk->aiSystem->only(['id', 'name', 'category']),
                     'domain' => $risk->riskSubdomain->parent?->only(['code', 'name']),
                     'subdomain' => $risk->riskSubdomain->only(['code', 'name']),
                     'linked_mitigation_ids' => $risk->links->pluck('mitigation_id')->all(),
@@ -157,7 +163,8 @@ class LinkController extends Controller
             'saeriCategories' => app(SaeriTaxonomy::class)->tree(),
             'lifecyclePhases' => LifecyclePhase::options(),
             'costLevels' => CostLevel::options(),
-            'reviewIntervalDays' => Config::integer('rme.review.interval_days'),
+            // R-7: days to the first review for each tier, null when none.
+            'reviewIntervals' => app(MonitoringProtocol::class)->reviewIntervals(),
         ];
     }
 }

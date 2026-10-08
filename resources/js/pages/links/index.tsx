@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react';
+import { ReviewDate } from '@/components/review-date';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Badge } from '@/components/ui/badge';
@@ -11,7 +12,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { formatDate } from '@/lib/format';
 import {
     costLevelLabels,
     linkStatusBadgeClasses,
@@ -134,7 +134,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 </Badge>
                             </TableCell>
                             <TableCell>
-                                {formatDate(link.next_review_date)}
+                                <ReviewDate date={link.next_review_date} />
                             </TableCell>
                             <TableCell>
                                 {costLevelLabels[link.estimated_cost]}

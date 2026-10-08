@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\AiSystemCategory;
 use App\Models\AiSystem;
 use Database\Factories\AiSystemFactory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -20,5 +21,9 @@ class AiSystemSeeder extends Seeder
         AiSystem::factory(5)
             ->sequence(fn (Sequence $sequence): array => ['application_domain' => $domains[$sequence->index]])
             ->create();
+
+        // One system in the unacceptable tier, to show how the app treats a
+        // system that may not operate.
+        AiSystem::query()->latest('id')->firstOrFail()->update(['category' => AiSystemCategory::Unacceptable]);
     }
 }

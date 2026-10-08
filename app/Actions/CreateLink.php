@@ -4,7 +4,8 @@ namespace App\Actions;
 
 use App\Enums\LinkStatus;
 use App\Models\Link;
-use Illuminate\Support\Facades\Config;
+use App\Models\Risk;
+use App\Support\MonitoringProtocol;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -13,12 +14,16 @@ use Illuminate\Support\Facades\DB;
  * The link and the opening entry of its status trail are written together:
  * creating a link always records its first status (UC007, RF09), so neither
  * row may exist without the other. The next review date is computed here, not
- * taken from the user (R-7).
+ * taken from the user (R-7), from the review interval the monitoring
+ * protocol sets for the tier of the risk's system: none for a system in the
+ * unacceptable tier, which never operates. Changing a system's tier later
+ * leaves the dates already set as they are.
  */
 class CreateLink
 {
     public function __construct(
         protected RecordStatusChange $recordStatusChange,
+        protected MonitoringProtocol $protocol,
     ) {}
 
     /**
@@ -32,12 +37,13 @@ class CreateLink
     {
         return DB::transaction(function () use ($attributes): Link {
             $creationDate = today();
+            $aiSystem = Risk::query()->with('aiSystem')->findOrFail((int) $attributes['risk_id'])->aiSystem;
 
             $link = Link::create([
                 ...$attributes,
                 'status' => LinkStatus::Planned,
                 'creation_date' => $creationDate,
-                'next_review_date' => $creationDate->addDays(Config::integer('rme.review.interval_days')),
+                'next_review_date' => $this->protocol->nextReviewDate($aiSystem, $creationDate),
             ]);
 
             $this->recordStatusChange->open($link);

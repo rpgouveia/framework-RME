@@ -18,4 +18,14 @@ enum AiSystemCategory: string
     case High = 'high';
     case Limited = 'limited';
     case Minimal = 'minimal';
+
+    /**
+     * Whether a system in this tier may be in operation. The unacceptable
+     * tier covers practices the EU AI Act prohibits: such a system is never
+     * considered in operation, so its links have no periodic review.
+     */
+    public function isOperable(): bool
+    {
+        return $this !== self::Unacceptable;
+    }
 }

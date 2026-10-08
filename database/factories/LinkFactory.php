@@ -9,9 +9,9 @@ use App\Models\Link;
 use App\Models\Mitigation;
 use App\Models\Owner;
 use App\Models\Risk;
+use App\Support\MonitoringProtocol;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Config;
 
 /**
  * @extends Factory<Link>
@@ -33,11 +33,14 @@ class LinkFactory extends Factory
             'estimated_cost' => fake()->randomElement(CostLevel::cases()),
             'observed_cost' => null,
             'creation_date' => $creationDate,
-            'next_review_date' => CarbonImmutable::parse($creationDate)
-                ->addDays(Config::integer('rme.review.interval_days')),
             'risk_id' => Risk::factory(),
             'mitigation_id' => Mitigation::factory(),
             'owner_id' => Owner::factory(),
+            // R-7, as CreateLink computes it, once the risk is known.
+            'next_review_date' => fn (array $attributes): ?CarbonImmutable => app(MonitoringProtocol::class)->nextReviewDate(
+                Risk::query()->with('aiSystem')->findOrFail((int) $attributes['risk_id'])->aiSystem,
+                CarbonImmutable::parse($attributes['creation_date']),
+            ),
         ];
     }
 
