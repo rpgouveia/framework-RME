@@ -10,6 +10,7 @@ import type {
     LinkStatus,
     ReassessmentChange,
     ReassessmentOutcome,
+    SystemChangeType,
     SystemSourceType,
     UncertaintyLevel,
     VerificationStatus,
@@ -170,6 +171,13 @@ export const changeOriginLabels: Record<ChangeOrigin, string> = {
     review_due: 'Vencimento da revisão',
     adverse_event: 'Evento adverso',
     system_reclassification: 'Reclassificação do sistema',
+    model_version: 'Nova versão do modelo',
+    data_change: 'Alteração na base de dados',
+};
+
+export const systemChangeTypeLabels: Record<SystemChangeType, string> = {
+    model_version: 'Nova versão do modelo',
+    data_change: 'Alteração na base de dados',
 };
 
 /**

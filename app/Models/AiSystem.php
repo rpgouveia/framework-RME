@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * @property-read int|null $risks_count
  * @property-read Collection<int, AdverseEvent> $adverseEvents
  * @property-read int|null $adverse_events_count
+ * @property-read Collection<int, SystemChange> $systemChanges
  * @property-read Collection<int, Link> $links
  * @property-read int|null $links_count
  */
@@ -55,6 +56,16 @@ class AiSystem extends Model
     public function adverseEvents(): HasMany
     {
         return $this->hasMany(AdverseEvent::class);
+    }
+
+    /**
+     * The changes of this system that trigger reassessment (0021).
+     *
+     * @return HasMany<SystemChange, $this>
+     */
+    public function systemChanges(): HasMany
+    {
+        return $this->hasMany(SystemChange::class);
     }
 
     /**

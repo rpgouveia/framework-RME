@@ -6,6 +6,7 @@ use App\Enums\AiSystemCategory;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Risk;
+use App\Models\SystemChange;
 use App\Models\TaxonomyTerm;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Query\Builder as QueryBuilder;
@@ -291,38 +292,51 @@ class MonitoringProtocol
     }
 
     /**
-     * The subdomains of an event in which its system has no risk registered:
-     * a risk not yet mapped (0019, item 4).
+     * The subdomains of an event or a system change in which its system has
+     * no risk registered: a risk not yet mapped (0019, item 4; 0021, item 4).
      *
      * @return list<string>
      */
-    public function unmappedSubdomainCodes(AdverseEvent $adverseEvent): array
+    public function unmappedSubdomainCodes(AdverseEvent|SystemChange $source): array
     {
-        $mapped = Risk::query()->where('ai_system_id', $adverseEvent->ai_system_id)->pluck('risk_subdomain_id')->all();
+        $mapped = Risk::query()->where('ai_system_id', $source->ai_system_id)->pluck('risk_subdomain_id')->all();
 
-        return array_values($adverseEvent->riskSubdomains
+        return array_values($source->riskSubdomains
             ->reject(fn (TaxonomyTerm $subdomain): bool => in_array($subdomain->id, $mapped, true))
             ->map(fn (TaxonomyTerm $subdomain): string => $subdomain->code)
             ->all());
     }
 
     /**
-     * The risks not yet mapped, across systems (0019, item 4): each pair of
-     * a system and a subdomain of its adverse events in which it has no risk
-     * registered, with how many events fell there and the latest one. It is
-     * worked out on every call, not stored, so it goes away as soon as a risk
-     * of that subdomain is registered for the system. Latest first.
+     * The risks not yet mapped, across systems: each pair of a system and a
+     * subdomain, named by its adverse events (0019, item 4) or its system
+     * changes (0021, item 4), in which it has no risk registered. Each says
+     * where it came from, how many events and changes named it, and the
+     * latest of each. It is worked out on every call, not stored, so it goes
+     * away as soon as a risk of that subdomain is registered for the system.
+     * Latest first.
      *
      * @return array<int, array<string, mixed>>
      */
     public function unmappedRisks(): array
     {
-        $rows = DB::table('adverse_event_risk_subdomains as tagged')
+        $unmapped = fn (QueryBuilder $risk, string $owner, string $tagged) => $risk->from('risks')
+            ->whereColumn('risks.ai_system_id', "{$owner}.ai_system_id")
+            ->whereColumn('risks.risk_subdomain_id', "{$tagged}.risk_subdomain_id");
+
+        $events = DB::table('adverse_event_risk_subdomains as tagged')
             ->join('adverse_events as event', 'event.id', '=', 'tagged.adverse_event_id')
-            ->whereNotExists(fn (QueryBuilder $risk) => $risk->from('risks')
-                ->whereColumn('risks.ai_system_id', 'event.ai_system_id')
-                ->whereColumn('risks.risk_subdomain_id', 'tagged.risk_subdomain_id'))
-            ->get(['event.id', 'event.ai_system_id', 'event.occurrence_date', 'tagged.risk_subdomain_id']);
+            ->whereNotExists(fn (QueryBuilder $risk) => $unmapped($risk, 'event', 'tagged'))
+            ->get(['event.id', 'event.ai_system_id', 'event.occurrence_date as date', 'tagged.risk_subdomain_id'])
+            ->map(fn (object $row): object => (object) [...(array) $row, 'source' => 'adverse_event']);
+
+        $changes = DB::table('system_change_risk_subdomains as tagged')
+            ->join('system_changes as change', 'change.id', '=', 'tagged.system_change_id')
+            ->whereNotExists(fn (QueryBuilder $risk) => $unmapped($risk, 'change', 'tagged'))
+            ->get(['change.id', 'change.ai_system_id', 'change.change_date as date', 'tagged.risk_subdomain_id'])
+            ->map(fn (object $row): object => (object) [...(array) $row, 'source' => 'system_change']);
+
+        $rows = $events->concat($changes);
 
         if ($rows->isEmpty()) {
             return [];
@@ -330,27 +344,43 @@ class MonitoringProtocol
 
         $subdomains = app(AiRiskDomains::class)->subdomains()->load('parent')->keyBy('id');
         $systems = AiSystem::query()->whereIn('id', $rows->pluck('ai_system_id')->unique())->pluck('name', 'id');
+        $latest = fn ($group) => $group->sortBy([['date', 'desc'], ['id', 'desc']])->first();
 
         return $rows
             ->groupBy(fn (object $row): string => $row->ai_system_id.'-'.$row->risk_subdomain_id)
-            ->map(function ($events): array {
-                $latest = $events->sortBy([['occurrence_date', 'desc'], ['id', 'desc']])->first();
-
-                return ['events' => $events, 'latest' => $latest];
-            })
-            ->sortBy([
-                fn (array $a, array $b): int => [(string) $b['latest']->occurrence_date, (int) $b['latest']->id] <=> [(string) $a['latest']->occurrence_date, (int) $a['latest']->id],
-            ])
-            ->map(function (array $group) use ($subdomains, $systems): array {
-                $latest = $group['latest'];
-                /** @var TaxonomyTerm $subdomain */
-                $subdomain = $subdomains[(int) $latest->risk_subdomain_id];
+            ->map(function ($group) use ($latest): array {
+                $byEvent = $group->where('source', 'adverse_event');
+                $byChange = $group->where('source', 'system_change');
 
                 return [
-                    'ai_system' => ['id' => (int) $latest->ai_system_id, 'name' => (string) $systems[(int) $latest->ai_system_id]],
+                    'any' => $latest($group),
+                    'event' => $byEvent->isEmpty() ? null : $latest($byEvent),
+                    'change' => $byChange->isEmpty() ? null : $latest($byChange),
+                    'events_count' => $byEvent->count(),
+                    'changes_count' => $byChange->count(),
+                ];
+            })
+            ->sortBy([
+                fn (array $a, array $b): int => [substr((string) $b['any']->date, 0, 10), $b['any']->source, (int) $b['any']->id]
+                    <=> [substr((string) $a['any']->date, 0, 10), $a['any']->source, (int) $a['any']->id],
+            ])
+            ->map(function (array $group) use ($subdomains, $systems): array {
+                $any = $group['any'];
+                /** @var TaxonomyTerm $subdomain */
+                $subdomain = $subdomains[(int) $any->risk_subdomain_id];
+
+                return [
+                    'ai_system' => ['id' => (int) $any->ai_system_id, 'name' => (string) $systems[(int) $any->ai_system_id]],
                     'subdomain' => ['code' => $subdomain->code, 'name' => $subdomain->name, 'domain' => $subdomain->parent?->name],
-                    'events_count' => $group['events']->count(),
-                    'latest_event' => ['id' => (int) $latest->id, 'occurrence_date' => substr((string) $latest->occurrence_date, 0, 10)],
+                    // Where the case came from: events, changes, or both.
+                    'sources' => array_values(array_filter([
+                        $group['event'] === null ? null : 'adverse_event',
+                        $group['change'] === null ? null : 'system_change',
+                    ])),
+                    'events_count' => $group['events_count'],
+                    'latest_event' => $group['event'] === null ? null : ['id' => (int) $group['event']->id, 'occurrence_date' => substr((string) $group['event']->date, 0, 10)],
+                    'changes_count' => $group['changes_count'],
+                    'latest_change' => $group['change'] === null ? null : ['id' => (int) $group['change']->id, 'change_date' => substr((string) $group['change']->date, 0, 10)],
                 ];
             })
             ->values()

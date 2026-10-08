@@ -8,6 +8,7 @@ use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LinkStatus;
 use App\Enums\ReassessmentOutcome;
+use App\Enums\SystemChangeType;
 use App\Enums\VerificationStatus;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
@@ -17,6 +18,7 @@ use App\Models\Owner;
 use App\Models\Reassessment;
 use App\Models\Risk;
 use App\Models\StatusHistory;
+use App\Models\SystemChange;
 use App\Models\User;
 use App\Support\MonitoringProtocol;
 use Database\Seeders\DatabaseSeeder;
@@ -569,6 +571,7 @@ test('the report exports the verification and the observed cost', function () {
             'recorded_by' => 'Verificador independente',
             'reason' => null,
             'adverse_event_id' => null,
+            'system_change_id' => null,
         ]])
         ->assertJsonPath('links.0.observed_cost', 'medium')
         ->assertJsonPath('links.0.evidence.0.observed_cost', 'medium');
@@ -656,4 +659,13 @@ test('the seeders tell every verification story through the actions', function (
         ->and($partlyReassessed)->toBeTrue()
         ->and(Reassessment::query()->whereHas('link.risk.aiSystem', $unacceptable)->exists())->toBeTrue()
         ->and($waitedSince->unique()->count())->toBeGreaterThan(1);
+
+    // The system changes of 0021: one naming no subdomain, one naming some,
+    // one naming a subdomain with no risk, one in an unacceptable system.
+    $changes = SystemChange::query()->with('riskSubdomains', 'aiSystem')->withCount('reversals')->get();
+
+    expect($changes->contains(fn (SystemChange $change) => $change->type === SystemChangeType::ModelVersion && $change->riskSubdomains->isEmpty() && $change->reversals_count > 0))->toBeTrue()
+        ->and($changes->contains(fn (SystemChange $change) => $change->type === SystemChangeType::DataChange && $change->riskSubdomains->isNotEmpty() && $change->reversals_count > 0))->toBeTrue()
+        ->and($changes->contains(fn (SystemChange $change) => $change->aiSystem->category === AiSystemCategory::Unacceptable && $change->reversals_count === 0))->toBeTrue()
+        ->and(collect(app(MonitoringProtocol::class)->unmappedRisks())->contains(fn (array $risk) => in_array('system_change', $risk['sources'], true)))->toBeTrue();
 });

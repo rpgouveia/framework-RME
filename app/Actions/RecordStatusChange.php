@@ -9,6 +9,7 @@ use App\Models\AdverseEvent;
 use App\Models\Link;
 use App\Models\Owner;
 use App\Models\StatusHistory;
+use App\Models\SystemChange;
 use App\Support\MonitoringProtocol;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -129,7 +130,8 @@ class RecordStatusChange
      * Take a verified link back to declared: it awaits reassessment, and
      * only evidence recorded from now on can verify it again (0013, 0018).
      * A manual reversal needs an active owner and a reason; an automatic one
-     * (review due, adverse event, system reclassification) has no author.
+     * (review due, adverse event, system reclassification, system change) has
+     * no author.
      *
      * @throws ValidationException When the link is not verified, or a manual
      *                             reversal lacks its owner or reason.
@@ -140,8 +142,9 @@ class RecordStatusChange
         ?Owner $owner = null,
         ?string $reason = null,
         ?AdverseEvent $adverseEvent = null,
+        ?SystemChange $systemChange = null,
     ): StatusHistory {
-        return $this->locked($link, function (Link $locked) use ($origin, $owner, $reason, $adverseEvent): StatusHistory {
+        return $this->locked($link, function (Link $locked) use ($origin, $owner, $reason, $adverseEvent, $systemChange): StatusHistory {
             if ($locked->verification_status !== VerificationStatus::Verified) {
                 throw ValidationException::withMessages(['verification' => __('Only a verified link can be reverted.')]);
             }
@@ -165,6 +168,7 @@ class RecordStatusChange
                 'change_date' => today(),
                 'owner_id' => $owner?->id,
                 'adverse_event_id' => $adverseEvent?->id,
+                'system_change_id' => $systemChange?->id,
             ]);
 
             $locked->update([

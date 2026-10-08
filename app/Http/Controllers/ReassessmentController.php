@@ -61,6 +61,7 @@ class ReassessmentController extends Controller
             'owner',
             'lastReversal.owner',
             'lastReversal.adverseEvent.riskSubdomains',
+            'lastReversal.systemChange',
             'lastReversal.reassessment',
         ]);
 
@@ -148,6 +149,7 @@ class ReassessmentController extends Controller
             'link.replacedBy.mitigation',
             'reversal.owner',
             'reversal.adverseEvent.riskSubdomains',
+            'reversal.systemChange',
             'owner',
             'verification.owner',
         ]);

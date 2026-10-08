@@ -456,6 +456,8 @@ test('the dashboard splits the links awaiting reassessment by origin', function 
                 ['origin' => 'review_due', 'count' => 1],
                 ['origin' => 'adverse_event', 'count' => 1],
                 ['origin' => 'system_reclassification', 'count' => 1],
+                ['origin' => 'model_version', 'count' => 0],
+                ['origin' => 'data_change', 'count' => 0],
                 ['origin' => 'manual', 'count' => 1],
             ])
             ->missing('reviews.dueCount')

@@ -11,6 +11,7 @@ use App\Http\Controllers\OwnerController;
 use App\Http\Controllers\ReassessmentController;
 use App\Http\Controllers\RiskController;
 use App\Http\Controllers\StatusHistoryController;
+use App\Http\Controllers\SystemChangeController;
 use App\Http\Controllers\TraceabilityReportController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::resource('ai-systems', AiSystemController::class);
+    // Changes of a system are append only (0021): they explain the
+    // reversals they caused.
+    Route::resource('ai-systems.system-changes', SystemChangeController::class)
+        ->shallow()
+        ->only(['index', 'create', 'store', 'show']);
     Route::resource('risks', RiskController::class);
     // Adverse events are append only: they record what happened and, through
     // reassessment, explain status changes on the system's links. Changing
@@ -65,6 +71,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // The system's adverse events, one row per event (0020).
     Route::get('ai-systems/{ai_system}/adverse-events.csv', [TraceabilityReportController::class, 'adverseEventsCsv'])
         ->name('ai-systems.report.adverse-events');
+    // The system's changes, one row per change (0021).
+    Route::get('ai-systems/{ai_system}/system-changes.csv', [TraceabilityReportController::class, 'systemChangesCsv'])
+        ->name('ai-systems.report.system-changes');
 });
 
 require __DIR__.'/settings.php';

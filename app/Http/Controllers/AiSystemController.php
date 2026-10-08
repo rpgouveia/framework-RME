@@ -66,7 +66,11 @@ class AiSystemController extends Controller
         Gate::authorize('view', $aiSystem);
 
         return Inertia::render('ai-systems/show', [
-            'aiSystem' => $aiSystem->load(['risks' => fn ($query) => $query->with('riskSubdomain.parent')->withCount('links')]),
+            'aiSystem' => $aiSystem->load([
+                'risks' => fn ($query) => $query->with('riskSubdomain.parent')->withCount('links'),
+                // The changes that triggered reassessment (0021).
+                'systemChanges' => fn ($query) => $query->with('riskSubdomains')->withCount('reversals')->latest('change_date')->latest('id'),
+            ]),
         ]);
     }
 

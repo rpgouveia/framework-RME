@@ -37,6 +37,8 @@ return new class extends Migration
                 .' or (new_status is null and previous_status is null and new_verification is not null)'
                 .") check (origin <> 'manual' or owner_id is not null)");
             $table->foreignId('adverse_event_id')->nullable()->constrained('adverse_events');
+            // The change of the system that caused a reversal (0021).
+            $table->foreignId('system_change_id')->nullable()->constrained('system_changes');
             $table->timestamps();
         });
     }

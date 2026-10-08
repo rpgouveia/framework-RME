@@ -144,7 +144,8 @@ class RecordReassessment
 
     /**
      * Whether the reversal calls for a cause analysis: an adverse event or a
-     * manual reversal does; a review due or a reclassification does not.
+     * manual reversal does; a review due, a reclassification or a system
+     * change (0021, item 5) does not.
      */
     public function causeApplies(StatusHistory $reversal): bool
     {
@@ -152,8 +153,8 @@ class RecordReassessment
     }
 
     /**
-     * The cause analysis (0020, item 6): not applicable for a review due or a
-     * reclassification, whatever was sent; otherwise identified, with the
+     * The cause analysis (0020, item 6): not applicable for a review due, a
+     * reclassification or a system change, whatever was sent; otherwise identified, with the
      * cause and its phase, or explicitly not identified.
      *
      * @param  array<string, mixed>  $data

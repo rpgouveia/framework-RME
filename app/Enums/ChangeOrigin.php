@@ -16,6 +16,9 @@ enum ChangeOrigin: string
     case ReviewDue = 'review_due';
     case AdverseEvent = 'adverse_event';
     case SystemReclassification = 'system_reclassification';
+    // A change of the system (0021), one origin for each kind.
+    case ModelVersion = 'model_version';
+    case DataChange = 'data_change';
 
     public function isAutomatic(): bool
     {

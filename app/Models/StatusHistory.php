@@ -34,11 +34,13 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $link_id
  * @property int|null $owner_id
  * @property int|null $adverse_event_id
+ * @property int|null $system_change_id
  * @property CarbonImmutable|null $created_at
  * @property CarbonImmutable|null $updated_at
  * @property-read Link $link
  * @property-read Owner|null $owner
  * @property-read AdverseEvent|null $adverseEvent
+ * @property-read SystemChange|null $systemChange
  * @property-read Reassessment|null $reassessment
  * @property-read Reassessment|null $concludedReassessment
  */
@@ -53,6 +55,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'link_id',
     'owner_id',
     'adverse_event_id',
+    'system_change_id',
 ])]
 class StatusHistory extends Model
 {
@@ -94,6 +97,17 @@ class StatusHistory extends Model
     public function adverseEvent(): BelongsTo
     {
         return $this->belongsTo(AdverseEvent::class);
+    }
+
+    /**
+     * The change of the system that caused a reversal, when there was one
+     * (0021).
+     *
+     * @return BelongsTo<SystemChange, $this>
+     */
+    public function systemChange(): BelongsTo
+    {
+        return $this->belongsTo(SystemChange::class);
     }
 
     /**

@@ -8,6 +8,7 @@ use App\Models\Evidence;
 use App\Models\Link;
 use App\Models\Reassessment;
 use App\Models\StatusHistory;
+use App\Models\SystemChange;
 use App\Models\TaxonomyTerm;
 use App\Support\MonitoringProtocol;
 use Illuminate\Database\Eloquent\Builder;
@@ -93,6 +94,59 @@ class CompileTraceabilityReport
     ];
 
     /**
+     * The header of the system changes CSV, one row per change (0021), in
+     * the same order as systemChangeRows().
+     *
+     * @var list<string>
+     */
+    public const SYSTEM_CHANGE_CSV_HEADER = [
+        'protocol_version',
+        'system_id',
+        'system_name',
+        'change_id',
+        'type',
+        'description',
+        'change_date',
+        'risk_subdomains',
+        'reverted_link_ids',
+        'reverted_links',
+        'unmapped_subdomains_at_export',
+    ];
+
+    /**
+     * Every change of the system as a CSV row, oldest first, whether it
+     * reverted links or not. With no subdomain given, a change reverted every
+     * verified link (0021, item 2).
+     *
+     * @return array<int, list<string|int|null>>
+     */
+    public function systemChangeRows(AiSystem $aiSystem): array
+    {
+        $protocol = app(MonitoringProtocol::class);
+
+        return $aiSystem->systemChanges()
+            ->with(['riskSubdomains', 'reversals.link.risk', 'reversals.link.mitigation'])
+            ->orderBy('change_date')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (SystemChange $change): array => array_map($this->csvCell(...), [
+                $protocol->version()['version'],
+                $aiSystem->id,
+                $aiSystem->name,
+                $change->id,
+                $change->type->value,
+                $change->description,
+                $change->change_date->toDateString(),
+                $change->riskSubdomains->map(fn (TaxonomyTerm $term): string => "{$term->code} {$term->name}")->implode(' | '),
+                $change->reversals->pluck('link_id')->implode(' | '),
+                $change->reversals->map(fn (StatusHistory $reversal): string => "{$reversal->link->risk->name} -> {$reversal->link->mitigation->name}")->implode(' | '),
+                implode(' | ', $protocol->unmappedSubdomainCodes($change)),
+            ]))
+            ->values()
+            ->all();
+    }
+
+    /**
      * Every adverse event of the system as a CSV row, oldest first, whether
      * it reverted links or not. The unmapped subdomains are those of the
      * event in which the system has no risk registered on the day of the
@@ -160,6 +214,12 @@ class CompileTraceabilityReport
             ->orderBy('id')
             ->get();
 
+        $systemChanges = $aiSystem->systemChanges()
+            ->with(['riskSubdomains', 'reversals'])
+            ->orderBy('change_date')
+            ->orderBy('id')
+            ->get();
+
         return [
             'system' => [
                 'id' => $aiSystem->id,
@@ -176,6 +236,15 @@ class CompileTraceabilityReport
             // What happened on the system (0020, item 10): each event and
             // the links it reverted.
             'adverse_events' => $adverseEvents->map(fn (AdverseEvent $event): array => $this->adverseEvent($event))->values()->all(),
+            // The changes of the system and the links they reverted (0021).
+            'system_changes' => $systemChanges->map(fn (SystemChange $change): array => [
+                'id' => $change->id,
+                'type' => $change->type->value,
+                'description' => $change->description,
+                'change_date' => $change->change_date->toDateString(),
+                'risk_subdomains' => array_values($change->riskSubdomains->map(fn (TaxonomyTerm $term): string => $term->code)->all()),
+                'reverted_link_ids' => array_values($change->reversals->map(fn (StatusHistory $reversal): int => $reversal->link_id)->all()),
+            ])->values()->all(),
         ];
     }
 
@@ -297,6 +366,7 @@ class CompileTraceabilityReport
                     'recorded_by' => $change->owner?->organizational_role,
                     'reason' => $change->trigger_reason,
                     'adverse_event_id' => $change->adverse_event_id,
+                    'system_change_id' => $change->system_change_id,
                 ])->values()->all(),
             ],
             'lifecycle_phase' => $link->lifecycle_phase->value,

@@ -37,6 +37,8 @@ const reversalOrigins: ChangeOrigin[] = [
     'review_due',
     'adverse_event',
     'system_reclassification',
+    'model_version',
+    'data_change',
     'manual',
 ];
 
