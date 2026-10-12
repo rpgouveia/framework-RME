@@ -15,6 +15,5 @@ Ainda em amadurecimento: dano a quem, o que conta como operação e o posicionam
 ## Outros
 
 - Revisão das traduções das taxonomias de Saeri e do MIT.
-- Idioma da barra lateral (as telas estão em português).
 - Conteúdo real do catálogo (C2) e critério de curadoria.
 - Planejamento do painel de especialistas (OE6).
