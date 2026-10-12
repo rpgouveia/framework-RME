@@ -10,14 +10,14 @@ test('the react pages receive the lines of the active locale', function () {
 
     $this->get(route('dashboard'))->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->where('translations.Dashboard', 'Painel de controle')
+            ->where('translations.Dashboard', 'Painel')
             ->where('translations.Platform', 'Plataforma')
             ->where('translations.AI systems', 'Sistemas de IA')
             ->where('translations.Log out', 'Sair')
     );
 });
 
-test('the lines the auth pages look up come from the localization package', function () {
+test('the auth pages receive their lines in portuguese', function () {
     $this->get(route('login'))->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
             ->where('translations.Email address', 'Endereço de e-mail')

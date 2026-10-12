@@ -276,9 +276,11 @@ routes/web.php                          Route::resource('ai-systems', AiSystemCo
     <Link href={show(aiSystem.id)}>{aiSystem.name}</Link>;
     ```
 
-- **The interface is in pt-BR**, while code, routes and enum values are in
-  English. Backend messages are translated in `lang/pt.json` and
-  `lang/pt/validation.php`.
+- **The interface is in pt-BR** (locale `pt_BR`), while code, routes and enum
+  values are in English. Texts are keyed by their English string and
+  translated in `lang/pt_BR.json`, read by the backend (`__()`) and by the
+  frontend (`t()` from `useTranslations`); validation messages and field names
+  are in `lang/pt_BR/validation.php`. See [Translations](#translations).
 
 Run `php artisan route:list --except-vendor` for the full route map.
 
@@ -340,6 +342,39 @@ is fixed before a commit lands.
 Commit messages follow the conventional style already used in the history:
 `feat:`, `fix:`, `ci:`, `style:`, `chore:`.
 
+## Translations
+
+The default Laravel and Fortify translations come from
+[Laravel Lang](https://laravel-lang.com) (`laravel-lang/common`, a dev
+dependency); the project's own lines live in the same files. Every environment
+needs `APP_LOCALE=pt_BR` in `.env`. To update the defaults:
+
+```bash
+docker compose exec app php artisan lang:add pt_BR   # never lang:reset: it deletes the project's lines
+docker compose exec app composer lint                # the publisher aligns the arrows, Pint undoes it
+git diff lang/
+docker compose exec app php artisan test
+```
+
+`lang:add` overwrites every key Laravel Lang publishes. Where the project keeps
+its own wording instead, such as the domain's `Close` or the validation messages
+of the domain forms, the text is listed in
+[`tests/Fixtures/pinned-translations.php`](tests/Fixtures/pinned-translations.php):
+`PinnedTranslationsTest` fails until an overwritten text is restored, and also
+when a new departure from Laravel Lang is left out of the list (decision 0023).
+
+New translations follow the vocabulary of the interface:
+
+| Use               | For                                      | Not                    |
+| ----------------- | ---------------------------------------- | ---------------------- |
+| ativar, desativar | turning a feature on or off, such as 2FA | habilitar, desabilitar |
+| excluir           | removing                                 | deletar                |
+| digite            | asking for input                         | insira                 |
+| e-mail            | the address and the message              | email                  |
+| cadastrar         | creating records and accounts            | —                      |
+| entrar, sair      | starting and ending the session          | —                      |
+| painel            | the home screen                          | —                      |
+
 ## Project structure
 
 ```
@@ -363,7 +398,7 @@ database/
 
 docs/decisions/        the domain decision records, in Portuguese
 
-lang/                  pt-BR translations of backend messages
+lang/                  pt_BR translations: Laravel Lang defaults + the project's lines
 
 resources/js/
 ├── components/        shared React components
@@ -461,3 +496,9 @@ In production nothing runs the schedule by itself: the server needs a cron
 entry that calls `php artisan schedule:run` every minute (or a process manager
 keeping `schedule:work` alive). Without it, links past their review date are
 never reverted.
+
+## Credits
+
+The default Laravel and Fortify translations in `lang/pt_BR` come from
+[Laravel Lang](https://github.com/Laravel-Lang/lang), under the MIT license,
+Copyright (c) Laravel Lang Team.
