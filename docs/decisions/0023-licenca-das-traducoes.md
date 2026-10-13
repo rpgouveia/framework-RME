@@ -15,6 +15,7 @@ O projeto declara licença MIT no `composer.json`. O commit 6383a1d adicionou o 
 4. **Dependências futuras:** dependências e arquivos de terceiros devem ter licença compatível com a MIT do projeto (por exemplo, MIT, BSD, Apache-2.0 ou ISC). Licenças copyleft, como GPL e AGPL, exigem decisão do grupo registrada nesta pasta.
 
 - **Adendo (2026-10-12), alcance do item 3:** a preservação cobre também os textos fixados pelo projeto, isto é, as chaves em que o projeto mantém redação própria, diferente da do Laravel Lang (por exemplo, "Encerrar" para `Close` e as mensagens das regras de validação usadas pelos formulários do domínio). Esses textos ficam numa lista única, protegida por teste: uma atualização que altere algum deles falha nos testes até que seja restaurado.
+- **Adendo (2026-10-13), dados sob CC BY 4.0:** dados de terceiros sob Creative Commons Atribuição 4.0 são aceitos, por ser licença permissiva sem cláusula copyleft, desde que se dê o crédito e se indiquem as alterações. É o caso das taxonomias de Saeri et al. e do MIT AI Risk Repository (0011, 0012) e da base de mitigações usada no catálogo (0024): os nomes foram traduzidos e as descrições do catálogo foram traduzidas e adaptadas pelo grupo.
 
 ## Consequências
 

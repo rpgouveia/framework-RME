@@ -21,7 +21,7 @@ use Illuminate\Validation\Rule;
  * The file is checked as a whole against the Saeri taxonomy file before
  * anything is stored, and every problem is reported at once.
  *
- * @phpstan-type Catalogue array{meta: array{saeri_database_version: string, accessed_at: string, curation_criterion: string, fictional: bool}, entries: list<array<string, mixed>>}
+ * @phpstan-type Catalogue array{meta: array{saeri_database_version: string, accessed_at: string, curation_criterion: string, attribution?: string, fictional: bool}, entries: list<array<string, mixed>>}
  */
 class MitigationCatalog
 {
@@ -83,6 +83,33 @@ class MitigationCatalog
             throw new InvalidMitigationCatalog("O catálogo de mitigações em {$path} deve ser um JSON com \"meta\" e uma lista \"entries\".");
         }
 
+        $problems = $this->problems($data);
+
+        if ($problems !== []) {
+            throw new InvalidMitigationCatalog(
+                "Catálogo de mitigações inválido ({$path}):\n- ".implode("\n- ", $problems),
+            );
+        }
+
+        /** @var Catalogue $data */
+        return $data;
+    }
+
+    /**
+     * Every problem of a catalogue, reported at once.
+     *
+     * An entry is named by its position in the list, or, for entries read
+     * from somewhere else, by `$unit` and its number there, such as "linha 7"
+     * of the spreadsheet export; `$fieldNames` names the fields as that
+     * source does.
+     *
+     * @param  array{meta: array<mixed>, entries: list<mixed>}  $data
+     * @param  list<int>  $numbers
+     * @param  array<string, string>  $fieldNames
+     * @return list<string>
+     */
+    public function problems(array $data, string $unit = 'entrada', array $numbers = [], array $fieldNames = []): array
+    {
         $taxonomy = $this->taxonomyFile->read(SaeriTaxonomy::path());
         $riskDomains = $this->taxonomyFile->read(AiRiskDomains::path());
         $riskSubdomains = array_column(array_filter($riskDomains['terms'], fn (array $term): bool => $term['level'] === 2), 'code');
@@ -92,11 +119,13 @@ class MitigationCatalog
         $documentKeys = array_column($documents, 'key');
 
         $problems = $this->metaProblems($data['meta']);
+        $subdomainsName = $fieldNames['target_risk_subdomains'] ?? 'target_risk_subdomains';
         $names = [];
         $references = [];
 
         foreach ($data['entries'] as $index => $entry) {
-            $label = 'entrada '.($index + 1);
+            $number = $numbers[$index] ?? $index + 1;
+            $label = "{$unit} {$number}";
 
             if (! is_array($entry)) {
                 $problems[] = "{$label}: deve ser um objeto com os campos da mitigação.";
@@ -106,11 +135,11 @@ class MitigationCatalog
 
             if (is_string($entry['name'] ?? null)) {
                 $label .= ' ("'.$entry['name'].'")';
-                $names[mb_strtolower(trim($entry['name']))][] = $index + 1;
+                $names[mb_strtolower(trim($entry['name']))][] = $number;
             }
 
             if (is_string($entry['source_reference'] ?? null)) {
-                $references[trim($entry['source_reference'])][] = $index + 1;
+                $references[trim($entry['source_reference'])][] = $number;
             }
 
             $unknown = array_diff(array_keys($entry), self::FIELDS);
@@ -123,11 +152,11 @@ class MitigationCatalog
             $validator = Validator::make($entry, $this->entryRules($subcategories, $documentKeys, $riskSubdomains), [
                 'saeri_subcategory.in' => 'A subcategoria :input não existe na taxonomia de Saeri et al. (use um código de nível 2, como 1.2).',
                 'source_document.in' => 'O documento :input não está entre os documentos de origem da taxonomia.',
-                'target_risk_subdomains.required' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em target_risk_subdomains.',
-                'target_risk_subdomains.min' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em target_risk_subdomains.',
+                'target_risk_subdomains.required' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em :attribute.',
+                'target_risk_subdomains.min' => 'Toda mitigação do catálogo deve declarar ao menos um subdomínio de risco em :attribute.',
                 'target_risk_subdomains.*.in' => 'O subdomínio de risco :input não existe na taxonomia de domínios do MIT (use um código de nível 2, como 2.2).',
-                'target_risk_subdomains.*.distinct' => 'O subdomínio de risco :input se repete em target_risk_subdomains.',
-            ], array_combine(self::FIELDS, self::FIELDS));
+                'target_risk_subdomains.*.distinct' => "O subdomínio de risco :input se repete em {$subdomainsName}.",
+            ], [...array_combine(self::FIELDS, self::FIELDS), ...$fieldNames]);
 
             foreach ($validator->errors()->all() as $message) {
                 $problems[] = "{$label}: {$message}";
@@ -138,24 +167,19 @@ class MitigationCatalog
         // of the Saeri database.
         foreach ($names as $name => $positions) {
             if (count($positions) > 1) {
-                $problems[] = "o nome \"{$name}\" se repete nas entradas ".implode(', ', $positions).'.';
+                $problems[] = "o nome \"{$name}\" se repete nas {$unit}s ".implode(', ', $positions).'.';
             }
         }
+
+        $referenceName = $fieldNames['source_reference'] ?? 'source_reference';
 
         foreach ($references as $reference => $positions) {
             if (count($positions) > 1) {
-                $problems[] = "o source_reference \"{$reference}\" se repete nas entradas ".implode(', ', $positions).'.';
+                $problems[] = "o {$referenceName} \"{$reference}\" se repete nas {$unit}s ".implode(', ', $positions).'.';
             }
         }
 
-        if ($problems !== []) {
-            throw new InvalidMitigationCatalog(
-                "Catálogo de mitigações inválido ({$path}):\n- ".implode("\n- ", $problems),
-            );
-        }
-
-        /** @var Catalogue $data */
-        return $data;
+        return $problems;
     }
 
     /**

@@ -54,9 +54,12 @@ points at the link it replaces.
 Every classification field is a PHP backed enum in [`app/Enums`](app/Enums),
 cast on the model and validated with `Rule::enum()`. The columns are plain
 strings, so changing an enum needs no migration. The TypeScript mirror of every
-enum lives in [`resources/js/types/models.ts`](resources/js/types/models.ts),
-with its pt-BR labels in [`resources/js/lib/labels.ts`](resources/js/lib/labels.ts),
-and both must be updated alongside the PHP one.
+enum lives in [`resources/js/types/models.ts`](resources/js/types/models.ts) and
+must be updated alongside the PHP one. Its pt-BR labels live in
+`lang/pt_BR.json`, keyed by enum and case (`"Cost Level: High": "Alto"`), and
+reach the screens through `useEnumLabels()` (see [Translations](#translations));
+a new enum also joins the list shared by `HandleInertiaRequests` and the
+`EnumLabels` type in `resources/js/lib/enum-labels.ts`.
 
 Cost is one of those enums: `CostLevel` (low/medium/high) backs a mitigation's
 `suggested_cost`, a link's `estimated_cost` and the cost observed on evidence,
@@ -81,6 +84,16 @@ seeders and validated on load (`app/Support`):
 | `taxonomies/saeri-mitigation-taxonomy.json` | The preliminary mitigation taxonomy of Saeri et al., classifying the catalogue.                      |
 | `mitigation-catalog.json`                   | The mitigation catalogue. **Currently fictional** (`meta.fictional`), pending the group's curation.  |
 | `protocols/c3-monitoring-protocol.json`     | The C3 monitoring protocol: review interval per EU AI Act tier and the dashboard windows.            |
+| `catalog-source/`                           | Where the real catalogue comes from: the group's spreadsheet export (`catalog.csv`) and `meta.json`. |
+
+The catalogue file is generated from `catalog-source/`: the "Catálogo" sheet
+exported as CSV, kept as is with the raw double annotation, and the editable
+metadata. Only finished rows go in, and nothing is written while any row fails
+the catalogue's validation:
+
+```bash
+docker compose exec app php artisan mitigations:import-catalog
+```
 
 ### Using the app
 
@@ -529,3 +542,11 @@ never reverted.
 The default Laravel and Fortify translations in `lang/pt_BR` come from
 [Laravel Lang](https://github.com/Laravel-Lang/lang), under the MIT license,
 Copyright (c) Laravel Lang Team.
+
+The mitigation and risk taxonomies and the mitigation database come from the
+[MIT AI Risk Initiative](https://airisk.mit.edu), with data under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/): Saeri et al. (2025),
+_Mapping AI Risk Mitigations: Evidence Scan and Preliminary AI Risk Mitigation
+Taxonomy_, and Slattery et al. (2026), _A meta-review, database, and taxonomy of
+risks from artificial intelligence_. The names were translated, and the
+catalogue descriptions translated and adapted, by the group.
