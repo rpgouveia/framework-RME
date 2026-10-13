@@ -9,17 +9,25 @@ import { defineConfig, lazyPlugins } from 'vite-plus';
 
 const inDocker = Boolean(process.env.DOCKER);
 
+// Vitest sets it before loading this file. The unit tests need no Laravel
+// plugin, which refuses to start in CI as if it were the HMR server.
+const inVitest = Boolean(process.env.VITEST);
+
 export default defineConfig({
     plugins: lazyPlugins(() => [
-        laravel({
-            input: ['resources/css/app.css', 'resources/js/app.tsx'],
-            refresh: true,
-            fonts: [
-                bunny('Instrument Sans', {
-                    weights: [400, 500, 600],
-                }),
-            ],
-        }),
+        ...(inVitest
+            ? []
+            : [
+                  laravel({
+                      input: ['resources/css/app.css', 'resources/js/app.tsx'],
+                      refresh: true,
+                      fonts: [
+                          bunny('Instrument Sans', {
+                              weights: [400, 500, 600],
+                          }),
+                      ],
+                  }),
+              ]),
         inertia(),
         react(),
         babel({
@@ -30,6 +38,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ]),
+    test: {
+        // The Laravel plugin maps `@` everywhere else.
+        alias: { '@': new URL('./resources/js', import.meta.url).pathname },
+    },
     server: {
         host: inDocker ? '0.0.0.0' : undefined,
         hmr: inDocker ? { host: 'localhost' } : undefined,
