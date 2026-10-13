@@ -10,13 +10,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    causeStatusLabels,
-    changeOriginLabels,
-    linkLabel,
-    reassessmentOutcomeLabels,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { index } from '@/routes/links/reassessments';
@@ -29,18 +28,24 @@ type Props = {
 };
 
 export default function ReassessmentsIndex({ link, reassessments }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Reavaliações" />
+            <Head title={t('Reassessments')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <Heading
-                    title="Reavaliações"
-                    description={`${linkLabel(link)}. Cada reavaliação conclui uma reversão e não pode ser editada nem excluída.`}
+                    title={t('Reassessments')}
+                    description={t(
+                        ':link. Each reassessment concludes a reversal and can be neither edited nor deleted.',
+                        { link: linkLabel(link, t) },
+                    )}
                 />
 
                 {reassessments.data.length === 0 ? (
                     <p className="text-muted-foreground rounded-xl border border-dashed p-12 text-center text-sm">
-                        Este vínculo ainda não foi reavaliado.
+                        {t('This link has not been reassessed yet.')}
                     </p>
                 ) : (
                     <>
@@ -48,11 +53,13 @@ export default function ReassessmentsIndex({ link, reassessments }: Props) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Data</TableHead>
-                                        <TableHead>Desfecho</TableHead>
-                                        <TableHead>Reversão</TableHead>
-                                        <TableHead>Causa</TableHead>
-                                        <TableHead>Quem reavaliou</TableHead>
+                                        <TableHead>{t('Date')}</TableHead>
+                                        <TableHead>{t('Outcome')}</TableHead>
+                                        <TableHead>{t('Reversal')}</TableHead>
+                                        <TableHead>{t('Cause')}</TableHead>
+                                        <TableHead>
+                                            {t('Who reassessed')}
+                                        </TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -77,7 +84,8 @@ export default function ReassessmentsIndex({ link, reassessments }: Props) {
                                             <TableCell>
                                                 <Badge variant="outline">
                                                     {
-                                                        reassessmentOutcomeLabels[
+                                                        enumLabels
+                                                            .ReassessmentOutcome[
                                                             reassessment.outcome
                                                         ]
                                                     }
@@ -85,14 +93,14 @@ export default function ReassessmentsIndex({ link, reassessments }: Props) {
                                             </TableCell>
                                             <TableCell>
                                                 {reassessment.reversal &&
-                                                    changeOriginLabels[
+                                                    enumLabels.ChangeOrigin[
                                                         reassessment.reversal
                                                             .origin
                                                     ]}
                                             </TableCell>
                                             <TableCell>
                                                 {
-                                                    causeStatusLabels[
+                                                    enumLabels.CauseStatus[
                                                         reassessment
                                                             .cause_status
                                                     ]
@@ -119,10 +127,17 @@ export default function ReassessmentsIndex({ link, reassessments }: Props) {
     );
 }
 
-ReassessmentsIndex.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        { title: linkLabel(link), href: showLink(link.id) },
-        { title: 'Reavaliações', href: index(link.id) },
-    ],
-});
+ReassessmentsIndex.layout = ({
+    link,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            { title: linkLabel(link, t), href: showLink(link.id) },
+            { title: t('Reassessments'), href: index(link.id) },
+        ],
+    };
+};

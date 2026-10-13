@@ -9,12 +9,13 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    linkLabel,
-    reassessmentOutcomeLabels,
-    systemChangeTypeLabels,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithEnumLabels } from '@/lib/enum-labels';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import {
     index as aiSystemsIndex,
     show as showAiSystem,
@@ -36,12 +37,14 @@ export default function SystemChangesShow({
     systemChange,
     unmappedSubdomainCodes,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t, tc } = useTranslations();
     const subdomains = systemChange.risk_subdomains ?? [];
     const reversals = systemChange.reversals ?? [];
     const reassessed = reversals.filter(
         (reversal) => reversal.reassessment,
     ).length;
-    const title = systemChangeTypeLabels[systemChange.type];
+    const title = enumLabels.SystemChangeType[systemChange.type];
 
     return (
         <>
@@ -62,36 +65,36 @@ export default function SystemChangesShow({
                 </header>
 
                 <p className="text-muted-foreground -mt-2 text-sm">
-                    Mudanças do sistema não podem ser editadas nem excluídas:
-                    elas registram o que mudou e explicam as reversões que
-                    causaram.
+                    {t(
+                        'System changes can be neither edited nor deleted: they record what changed and explain the reversals they caused.',
+                    )}
                 </p>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes</CardTitle>
+                        <CardTitle>{t('Details')}</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6">
                         <dl className="grid gap-4 sm:grid-cols-2">
-                            <DetailItem label="Tipo">{title}</DetailItem>
-                            <DetailItem label="Data da mudança">
+                            <DetailItem label={t('Type')}>{title}</DetailItem>
+                            <DetailItem label={t('Change date')}>
                                 {formatDate(systemChange.change_date)}
                             </DetailItem>
                         </dl>
                         <dl>
-                            <DetailItem label="Descrição">
+                            <DetailItem label={t('Description')}>
                                 <p className="font-normal whitespace-pre-line">
                                     {systemChange.description}
                                 </p>
                             </DetailItem>
                         </dl>
                         <dl>
-                            <DetailItem label="Subdomínios de risco afetados">
+                            <DetailItem label={t('Risk subdomains affected')}>
                                 {subdomains.length === 0 ? (
                                     <p className="text-muted-foreground font-normal">
-                                        Nenhum informado: a mudança reverteu
-                                        todos os vínculos verificados do
-                                        sistema.
+                                        {t(
+                                            'None given: the change reverted every verified link of the system.',
+                                        )}
                                     </p>
                                 ) : (
                                     <ul className="grid gap-3">
@@ -109,8 +112,9 @@ export default function SystemChangesShow({
                                                     // A risk not yet mapped
                                                     // (0021, item 4).
                                                     <span className="flex flex-wrap items-center gap-2 text-sm font-normal text-amber-700 dark:text-amber-300">
-                                                        Sem risco cadastrado
-                                                        neste sistema.
+                                                        {t(
+                                                            'No risk registered in this system.',
+                                                        )}
                                                         <Link
                                                             href={createRisk({
                                                                 query: {
@@ -122,7 +126,7 @@ export default function SystemChangesShow({
                                                             })}
                                                             className="font-medium underline underline-offset-4"
                                                         >
-                                                            Cadastrar risco
+                                                            {t('Register risk')}
                                                         </Link>
                                                     </span>
                                                 )}
@@ -137,26 +141,30 @@ export default function SystemChangesShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Vínculos revertidos pela mudança</CardTitle>
+                        <CardTitle>
+                            {t('Links reverted by the change')}
+                        </CardTitle>
                         <CardDescription>
-                            Ao registrar a mudança, os vínculos verificados que
-                            ela alcança voltaram a declarados. Cada um é
-                            reavaliado separadamente.
+                            {t(
+                                'On recording the change, the verified links it reaches went back to declared. Each one is reassessed separately.',
+                            )}
                         </CardDescription>
                         {reversals.length > 0 && (
                             <p className="text-sm font-medium">
-                                {reassessed} de {reversals.length}{' '}
-                                {reversals.length === 1
-                                    ? 'reavaliado'
-                                    : 'reavaliados'}
+                                {tc(
+                                    ':reassessed of :count reassessed',
+                                    reversals.length,
+                                    { reassessed },
+                                )}
                             </p>
                         )}
                     </CardHeader>
                     <CardContent>
                         {reversals.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Nenhum vínculo verificado foi revertido por esta
-                                mudança.
+                                {t(
+                                    'No verified link was reverted by this change.',
+                                )}
                             </p>
                         ) : (
                             <ul className="divide-y">
@@ -172,7 +180,7 @@ export default function SystemChangesShow({
                                                 )}
                                                 className="font-medium hover:underline"
                                             >
-                                                {linkLabel(reversal.link)}
+                                                {linkLabel(reversal.link, t)}
                                             </Link>
                                         )}
                                         {reversal.reassessment ? (
@@ -184,22 +192,24 @@ export default function SystemChangesShow({
                                             >
                                                 <Badge variant="outline">
                                                     {
-                                                        reassessmentOutcomeLabels[
+                                                        enumLabels
+                                                            .ReassessmentOutcome[
                                                             reversal
                                                                 .reassessment
                                                                 .outcome
                                                         ]
                                                     }
                                                 </Badge>
-                                                em{' '}
-                                                {formatDate(
-                                                    reversal.reassessment
-                                                        .reassessment_date,
-                                                )}
+                                                {t('on :date', {
+                                                    date: formatDate(
+                                                        reversal.reassessment
+                                                            .reassessment_date,
+                                                    ),
+                                                })}
                                             </Link>
                                         ) : (
                                             <span className="text-sm text-amber-700 dark:text-amber-300">
-                                                Aguardando reavaliação
+                                                {t('Awaiting reassessment')}
                                             </span>
                                         )}
                                     </li>
@@ -213,24 +223,32 @@ export default function SystemChangesShow({
     );
 }
 
-SystemChangesShow.layout = ({ systemChange }: Props) => ({
-    breadcrumbs: [
-        { title: 'Sistemas de IA', href: aiSystemsIndex() },
-        ...(systemChange.ai_system
-            ? [
-                  {
-                      title: systemChange.ai_system.name,
-                      href: showAiSystem(systemChange.ai_system.id),
-                  },
-                  {
-                      title: 'Mudanças',
-                      href: changesIndex(systemChange.ai_system.id),
-                  },
-              ]
-            : []),
-        {
-            title: systemChangeTypeLabels[systemChange.type],
-            href: show(systemChange.id),
-        },
-    ],
-});
+SystemChangesShow.layout = ({
+    systemChange,
+    translations,
+    enumLabels,
+}: Props & WithTranslations & WithEnumLabels) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('AI systems'), href: aiSystemsIndex() },
+            ...(systemChange.ai_system
+                ? [
+                      {
+                          title: systemChange.ai_system.name,
+                          href: showAiSystem(systemChange.ai_system.id),
+                      },
+                      {
+                          title: t('Changes'),
+                          href: changesIndex(systemChange.ai_system.id),
+                      },
+                  ]
+                : []),
+            {
+                title: enumLabels.SystemChangeType[systemChange.type],
+                href: show(systemChange.id),
+            },
+        ],
+    };
+};

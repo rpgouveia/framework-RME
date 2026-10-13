@@ -23,12 +23,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    costLevelLabels,
-    evidenceTypeLabels,
-    labelFor,
-    linkLabel,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { labelFor } from '@/lib/enum-labels';
+import { linkLabel } from '@/lib/names';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/evidence';
 import type { EnumOption, Link as RiskLink } from '@/types/models';
@@ -46,6 +46,8 @@ const NOT_INFORMED = 'none';
 const FORM_ID = 'evidence-form';
 
 export default function EvidenceCreate({ link, types, costLevels }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const [confirming, setConfirming] = useState(false);
     const [observedCost, setObservedCost] = useState(NOT_INFORMED);
 
@@ -61,11 +63,14 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
 
     return (
         <>
-            <Head title="Registrar evidência" />
+            <Head title={t('Register evidence')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Registrar evidência"
-                    description={`${linkLabel(link)}. A data de registro é definida automaticamente.`}
+                    title={t('Register evidence')}
+                    description={t(
+                        ':link. The registration date is set automatically.',
+                        { link: linkLabel(link, t) },
+                    )}
                 />
                 <Form
                     {...EvidenceController.store.form(link.id)}
@@ -76,7 +81,7 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="type">Tipo</Label>
+                                <Label htmlFor="type">{t('Type')}</Label>
                                 <Select name="type" required>
                                     <SelectTrigger
                                         id="type"
@@ -85,7 +90,9 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                             errors.type ? true : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione o tipo" />
+                                        <SelectValue
+                                            placeholder={t('Select the type')}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {types.map((option) => (
@@ -94,7 +101,7 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                                 value={option.value}
                                             >
                                                 {labelFor(
-                                                    evidenceTypeLabels,
+                                                    enumLabels.EvidenceType,
                                                     option.value,
                                                 )}
                                             </SelectItem>
@@ -105,13 +112,17 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="description">Descrição</Label>
+                                <Label htmlFor="description">
+                                    {t('Description')}
+                                </Label>
                                 <Textarea
                                     id="description"
                                     name="description"
                                     required
                                     maxLength={255}
-                                    placeholder="Ex.: Relatório de auditoria de equidade do 1º trimestre, assinado pelo comitê."
+                                    placeholder={t(
+                                        'E.g.: Fairness audit report of the 1st quarter, signed by the committee.',
+                                    )}
                                     aria-invalid={
                                         errors.description ? true : undefined
                                     }
@@ -121,9 +132,9 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="observed_cost">
-                                    Custo observado{' '}
+                                    {t('Observed cost')}{' '}
                                     <span className="text-muted-foreground font-normal">
-                                        (opcional)
+                                        {t('(optional)')}
                                     </span>
                                 </Label>
                                 <Select
@@ -144,7 +155,7 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value={NOT_INFORMED}>
-                                            Não informado
+                                            {t('Not reported')}
                                         </SelectItem>
                                         {costLevels.map((option) => (
                                             <SelectItem
@@ -152,7 +163,7 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                                 value={option.value}
                                             >
                                                 {labelFor(
-                                                    costLevelLabels,
+                                                    enumLabels.CostLevel,
                                                     option.value,
                                                 )}
                                             </SelectItem>
@@ -174,9 +185,9 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                     id="observed_cost-help"
                                     className="text-muted-foreground text-sm"
                                 >
-                                    O custo real da aplicação até agora (RF07).
-                                    O informado na evidência mais recente passa
-                                    a ser o custo observado do vínculo.
+                                    {t(
+                                        "The actual cost of the application so far (RF07). The one reported in the latest evidence becomes the link's observed cost.",
+                                    )}
                                 </p>
                                 <InputError message={errors.observed_cost} />
                             </div>
@@ -184,13 +195,12 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                             <Alert>
                                 <LockIcon />
                                 <AlertTitle>
-                                    Evidências são permanentes
+                                    {t('Evidence is permanent')}
                                 </AlertTitle>
                                 <AlertDescription>
-                                    Depois de registrada, a evidência não pode
-                                    ser editada nem excluída, porque sustenta a
-                                    verificação do vínculo. Um engano se corrige
-                                    registrando outra evidência.
+                                    {t(
+                                        "Once registered, the evidence can be neither edited nor deleted, because it supports the link's verification. A mistake is corrected by registering other evidence.",
+                                    )}
                                 </AlertDescription>
                             </Alert>
 
@@ -200,10 +210,12 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                     disabled={processing}
                                     onClick={askToConfirm}
                                 >
-                                    Registrar
+                                    {t('Record')}
                                 </Button>
                                 <Button variant="ghost" asChild>
-                                    <Link href={index(link.id)}>Cancelar</Link>
+                                    <Link href={index(link.id)}>
+                                        {t('Cancel')}
+                                    </Link>
                                 </Button>
                             </div>
 
@@ -213,17 +225,17 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                             >
                                 <DialogContent>
                                     <DialogTitle>
-                                        Registrar esta evidência?
+                                        {t('Register this evidence?')}
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Confira o tipo e a descrição: depois de
-                                        registrada, a evidência não pode ser
-                                        editada nem excluída.
+                                        {t(
+                                            'Check the type and the description: once registered, the evidence can be neither edited nor deleted.',
+                                        )}
                                     </DialogDescription>
                                     <DialogFooter className="gap-2">
                                         <DialogClose asChild>
                                             <Button variant="secondary">
-                                                Voltar
+                                                {t('Back')}
                                             </Button>
                                         </DialogClose>
                                         <Button
@@ -231,7 +243,7 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                                             form={FORM_ID}
                                             disabled={processing}
                                         >
-                                            Registrar
+                                            {t('Record')}
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
@@ -244,11 +256,15 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
     );
 }
 
-EvidenceCreate.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        { title: linkLabel(link), href: showLink(link.id) },
-        { title: 'Evidências', href: index(link.id) },
-        { title: 'Registrar', href: create(link.id) },
-    ],
-});
+EvidenceCreate.layout = ({ link, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            { title: linkLabel(link, t), href: showLink(link.id) },
+            { title: t('Evidence'), href: index(link.id) },
+            { title: t('Record'), href: create(link.id) },
+        ],
+    };
+};

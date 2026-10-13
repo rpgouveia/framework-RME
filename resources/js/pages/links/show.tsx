@@ -14,14 +14,12 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    changeOriginLabels,
-    costLevelLabels,
-    lifecyclePhaseLabels,
-    linkLabel,
-    reassessmentOutcomeLabels,
-} from '@/lib/labels';
+import { interpolateNodes, translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { edit, index, show } from '@/routes/links';
 import {
@@ -50,13 +48,15 @@ export default function LinksShow({
     verification,
     awaitingReassessment,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const reassessments = link.reassessments ?? [];
     const evidenceCount = link.evidence_count ?? 0;
     const historyCount = link.status_histories_count ?? 0;
 
     return (
         <>
-            <Head title={linkLabel(link)} />
+            <Head title={linkLabel(link, t)} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                     <div className="grid gap-2">
@@ -69,7 +69,7 @@ export default function LinksShow({
                             </Link>
                             <span
                                 className="text-muted-foreground font-normal"
-                                aria-label="mitigado por"
+                                aria-label={t('mitigated by')}
                             >
                                 →
                             </span>
@@ -94,12 +94,12 @@ export default function LinksShow({
                     </div>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" asChild>
-                            <Link href={edit(link.id)}>Editar</Link>
+                            <Link href={edit(link.id)}>{t('Edit')}</Link>
                         </Button>
                         {awaitingReassessment && (
                             <Button asChild>
                                 <Link href={createReassessment(link.id)}>
-                                    Reavaliar
+                                    {t('Reassess')}
                                 </Link>
                             </Button>
                         )}
@@ -113,7 +113,7 @@ export default function LinksShow({
                                         query: { new_status: 'planned' },
                                     })}
                                 >
-                                    Reativar vínculo
+                                    {t('Reactivate link')}
                                 </Link>
                             </Button>
                         ) : (
@@ -127,7 +127,7 @@ export default function LinksShow({
                                         query: { new_status: 'cancelled' },
                                     })}
                                 >
-                                    Cancelar vínculo
+                                    {t('Cancel link')}
                                 </Link>
                             </Button>
                         )}
@@ -136,11 +136,11 @@ export default function LinksShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes</CardTitle>
+                        <CardTitle>{t('Details')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <DetailItem label="Responsável">
+                            <DetailItem label={t('Owner')}>
                                 {link.owner && (
                                     <span className="grid">
                                         <span>
@@ -152,21 +152,25 @@ export default function LinksShow({
                                     </span>
                                 )}
                             </DetailItem>
-                            <DetailItem label="Fase do ciclo de vida">
-                                {lifecyclePhaseLabels[link.lifecycle_phase]}
+                            <DetailItem label={t('Lifecycle phase')}>
+                                {
+                                    enumLabels.LifecyclePhase[
+                                        link.lifecycle_phase
+                                    ]
+                                }
                             </DetailItem>
-                            <DetailItem label="Custo estimado">
-                                {costLevelLabels[link.estimated_cost]}
+                            <DetailItem label={t('Estimated cost')}>
+                                {enumLabels.CostLevel[link.estimated_cost]}
                             </DetailItem>
-                            <DetailItem label="Custo observado">
+                            <DetailItem label={t('Observed cost')}>
                                 <ObservedCost
                                     evidence={link.observed_cost_evidence}
                                 />
                             </DetailItem>
-                            <DetailItem label="Data de criação">
+                            <DetailItem label={t('Creation date')}>
                                 {formatDate(link.creation_date)}
                             </DetailItem>
-                            <DetailItem label="Próxima revisão">
+                            <DetailItem label={t('Next review')}>
                                 <ReviewDate
                                     date={link.next_review_date}
                                     verification={link.verification_status}
@@ -192,11 +196,11 @@ export default function LinksShow({
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
-                        <CardTitle>Reavaliações</CardTitle>
+                        <CardTitle>{t('Reassessments')}</CardTitle>
                         {awaitingReassessment && (
                             <Button size="sm" asChild>
                                 <Link href={createReassessment(link.id)}>
-                                    Reavaliar
+                                    {t('Reassess')}
                                 </Link>
                             </Button>
                         )}
@@ -205,8 +209,12 @@ export default function LinksShow({
                         {reassessments.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
                                 {awaitingReassessment
-                                    ? 'A última reversão aguarda reavaliação.'
-                                    : 'Este vínculo ainda não foi reavaliado.'}
+                                    ? t(
+                                          'The last reversal awaits reassessment.',
+                                      )
+                                    : t(
+                                          'This link has not been reassessed yet.',
+                                      )}
                             </p>
                         ) : (
                             <ul className="divide-y">
@@ -221,19 +229,25 @@ export default function LinksShow({
                                             )}
                                             className="font-medium hover:underline"
                                         >
-                                            {
-                                                reassessmentOutcomeLabels[
-                                                    reassessment.outcome
-                                                ]
-                                            }{' '}
-                                            em{' '}
-                                            {formatDate(
-                                                reassessment.reassessment_date,
-                                            )}
+                                            {t(':outcome on :date', {
+                                                outcome:
+                                                    enumLabels
+                                                        .ReassessmentOutcome[
+                                                        reassessment.outcome
+                                                    ],
+                                                date: formatDate(
+                                                    reassessment.reassessment_date,
+                                                ),
+                                            })}
                                         </Link>
                                         <span className="text-muted-foreground text-sm">
                                             {reassessment.reversal &&
-                                                `Reversão por ${changeOriginLabels[reassessment.reversal.origin].toLowerCase()}`}{' '}
+                                                t('Reversal by :origin', {
+                                                    origin: enumLabels.ChangeOrigin[
+                                                        reassessment.reversal
+                                                            .origin
+                                                    ].toLowerCase(),
+                                                })}{' '}
                                             ·{' '}
                                             {
                                                 reassessment.owner
@@ -249,25 +263,29 @@ export default function LinksShow({
 
                 <div className="grid gap-6 md:grid-cols-2">
                     <CountCard
-                        title="Evidências"
+                        title={t('Evidence')}
                         count={evidenceCount}
-                        description="Documentos e registros que comprovam a aplicação da mitigação."
+                        description={t(
+                            'Documents and records that prove the mitigation is applied.',
+                        )}
                         href={evidenceIndex(link.id)}
-                        action="Ver evidências"
+                        action={t('See evidence')}
                         secondary={{
                             href: createEvidence(link.id),
-                            label: 'Registrar evidência',
+                            label: t('Register evidence'),
                         }}
                     />
                     <CountCard
-                        title="Histórico de status"
+                        title={t('Status history')}
                         count={historyCount}
-                        description="Cada mudança de status e de verificação do vínculo, com quem a registrou e quando."
+                        description={t(
+                            'Each change of status and of verification of the link, with who recorded it and when.',
+                        )}
                         href={statusHistoriesIndex(link.id)}
-                        action="Ver histórico"
+                        action={t('See history')}
                         secondary={{
                             href: createStatusChange(link.id),
-                            label: 'Registrar mudança',
+                            label: t('Record change'),
                         }}
                     />
                 </div>
@@ -278,34 +296,48 @@ export default function LinksShow({
 
 /** The link this one replaced, or the one that replaced it (0020). */
 function RelatedLinks({ link }: { link: RiskLink }) {
+    const { t } = useTranslations();
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Substituição</CardTitle>
+                <CardTitle>{t('Replacement')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-2 text-sm">
                 {link.replaces && (
                     <p>
-                        Este vínculo substitui{' '}
-                        <Link
-                            href={show(link.replaces.id)}
-                            className="font-medium underline underline-offset-4"
-                        >
-                            {link.replaces.mitigation?.name}
-                        </Link>
-                        , cancelado numa reavaliação.
+                        {interpolateNodes(
+                            t(
+                                'This link replaces :link, cancelled in a reassessment.',
+                            ),
+                            {
+                                link: (
+                                    <Link
+                                        href={show(link.replaces.id)}
+                                        className="font-medium underline underline-offset-4"
+                                    >
+                                        {link.replaces.mitigation?.name}
+                                    </Link>
+                                ),
+                            },
+                        )}
                     </p>
                 )}
                 {link.replaced_by && (
                     <p>
-                        Este vínculo foi substituído por{' '}
-                        <Link
-                            href={show(link.replaced_by.id)}
-                            className="font-medium underline underline-offset-4"
-                        >
-                            {link.replaced_by.mitigation?.name}
-                        </Link>
-                        .
+                        {interpolateNodes(
+                            t('This link was replaced by :link.'),
+                            {
+                                link: (
+                                    <Link
+                                        href={show(link.replaced_by.id)}
+                                        className="font-medium underline underline-offset-4"
+                                    >
+                                        {link.replaced_by.mitigation?.name}
+                                    </Link>
+                                ),
+                            },
+                        )}
                     </p>
                 )}
             </CardContent>
@@ -353,9 +385,13 @@ function CountCard({
     );
 }
 
-LinksShow.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: index() },
-        { title: linkLabel(link), href: show(link.id) },
-    ],
-});
+LinksShow.layout = ({ link, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: index() },
+            { title: linkLabel(link, t), href: show(link.id) },
+        ],
+    };
+};

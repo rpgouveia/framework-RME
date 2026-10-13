@@ -2,6 +2,9 @@ import { Form, Head, Link, usePage } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { create as createAiSystem } from '@/routes/ai-systems';
 import { index } from '@/routes/risks';
 import type { AiSystem, EnumOption, RiskDomain } from '@/types/models';
@@ -20,6 +23,7 @@ export default function RisksCreate({
     lifecyclePhases,
     uncertaintyLevels,
 }: Props) {
+    const { t } = useTranslations();
     const { url } = usePage();
 
     // The system's detail page links here with `?ai_system=<id>`; ignore an
@@ -34,22 +38,24 @@ export default function RisksCreate({
 
     return (
         <>
-            <Head title="Cadastrar risco" />
+            <Head title={t('Register risk')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Cadastrar risco"
-                    description="Registre um risco identificado em um sistema de IA."
+                    title={t('Register risk')}
+                    description={t(
+                        'Register a risk identified in an AI system.',
+                    )}
                 />
                 {aiSystems.length === 0 ? (
                     <div className="flex max-w-xl flex-col items-start gap-4 rounded-xl border border-dashed p-6">
                         <p className="text-muted-foreground text-sm">
-                            Todo risco pertence a um sistema de IA, e nenhum
-                            sistema foi cadastrado ainda. Cadastre um sistema
-                            antes de registrar seus riscos.
+                            {t(
+                                'Every risk belongs to an AI system, and no system has been registered yet. Register a system before registering its risks.',
+                            )}
                         </p>
                         <Button asChild>
                             <Link href={createAiSystem()}>
-                                Cadastrar sistema de IA
+                                {t('Register AI system')}
                             </Link>
                         </Button>
                     </div>
@@ -66,7 +72,7 @@ export default function RisksCreate({
                                 uncertaintyLevels={uncertaintyLevels}
                                 errors={errors}
                                 processing={processing}
-                                submitLabel="Cadastrar"
+                                submitLabel={t('Register')}
                                 cancelHref={index()}
                                 defaultAiSystemId={defaultAiSystemId}
                                 defaultSubdomainCode={defaultSubdomainCode}
@@ -79,6 +85,10 @@ export default function RisksCreate({
     );
 }
 
-RisksCreate.layout = {
-    breadcrumbs: [{ title: 'Riscos', href: index() }],
+RisksCreate.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Risks'), href: index() }],
+    };
 };

@@ -4,13 +4,12 @@ import { PaginationLinks } from '@/components/pagination-links';
 import { StatusTransition } from '@/components/status-transition';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    changeOriginLabels,
-    linkLabel,
-    reassessmentOutcomeLabels,
-    subdomainCodes,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel, subdomainCodes } from '@/lib/names';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { create, index } from '@/routes/links/status-histories';
 import { show as showReassessment } from '@/routes/reassessments';
@@ -33,17 +32,22 @@ type Props = {
 };
 
 export default function StatusHistoriesIndex({ link, entries }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Histórico de status" />
+            <Head title={t('Status history')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
                     <Heading
-                        title="Histórico de status"
-                        description={`${linkLabel(link)}. Cada mudança fica registrada e não pode ser editada nem excluída.`}
+                        title={t('Status history')}
+                        description={t(
+                            ':link. Each change is recorded and can be neither edited nor deleted.',
+                            { link: linkLabel(link, t) },
+                        )}
                     />
                     <Button asChild>
-                        <Link href={create(link.id)}>Registrar mudança</Link>
+                        <Link href={create(link.id)}>{t('Record change')}</Link>
                     </Button>
                 </div>
 
@@ -73,6 +77,9 @@ export default function StatusHistoriesIndex({ link, entries }: Props) {
 
 /** A reassessment, as an entry of its own in the timeline (0020). */
 function ReassessmentEntry({ reassessment }: { reassessment: Reassessment }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <li className="relative pb-8 last:pb-0">
             <span
@@ -89,17 +96,23 @@ function ReassessmentEntry({ reassessment }: { reassessment: Reassessment }) {
                     </Link>
                     <span className="flex items-center gap-2 text-sm">
                         <span className="text-muted-foreground">
-                            Reavaliação:
+                            {t('Reassessment:')}
                         </span>
                         <Badge variant="outline">
-                            {reassessmentOutcomeLabels[reassessment.outcome]}
+                            {
+                                enumLabels.ReassessmentOutcome[
+                                    reassessment.outcome
+                                ]
+                            }
                         </Badge>
                     </span>
                 </div>
                 {reassessment.owner && (
                     <p className="text-muted-foreground text-sm">
-                        Reavaliado por {reassessment.owner.organizational_role}{' '}
-                        ({reassessment.owner.area})
+                        {t('Reassessed by :role (:area)', {
+                            role: reassessment.owner.organizational_role,
+                            area: reassessment.owner.area,
+                        })}
                     </p>
                 )}
                 <p className="max-w-prose text-sm">
@@ -111,6 +124,9 @@ function ReassessmentEntry({ reassessment }: { reassessment: Reassessment }) {
 }
 
 function ChangeEntry({ history }: { history: StatusHistory }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <li className="relative pb-8 last:pb-0">
             <span
@@ -129,14 +145,17 @@ function ChangeEntry({ history }: { history: StatusHistory }) {
                 </div>
                 {history.origin !== 'manual' ? (
                     <p className="text-muted-foreground text-sm">
-                        Registrado pelo sistema (origem:{' '}
-                        {changeOriginLabels[history.origin]})
+                        {t('Recorded by the system (origin: :origin)', {
+                            origin: enumLabels.ChangeOrigin[history.origin],
+                        })}
                     </p>
                 ) : (
                     history.owner && (
                         <p className="text-muted-foreground text-sm">
-                            Registrado por {history.owner.organizational_role} (
-                            {history.owner.area})
+                            {t('Recorded by :role (:area)', {
+                                role: history.owner.organizational_role,
+                                area: history.owner.area,
+                            })}
                         </p>
                     )
                 )}
@@ -148,10 +167,14 @@ function ChangeEntry({ history }: { history: StatusHistory }) {
                 {history.adverse_event && (
                     <p className="text-sm">
                         <span className="text-muted-foreground">
-                            Evento adverso:{' '}
+                            {t('Adverse event:')}{' '}
                         </span>
-                        {subdomainCodes(history.adverse_event)} em{' '}
-                        {formatDate(history.adverse_event.occurrence_date)}
+                        {t(':subdomains on :date', {
+                            subdomains: subdomainCodes(history.adverse_event),
+                            date: formatDate(
+                                history.adverse_event.occurrence_date,
+                            ),
+                        })}
                     </p>
                 )}
             </div>
@@ -159,10 +182,17 @@ function ChangeEntry({ history }: { history: StatusHistory }) {
     );
 }
 
-StatusHistoriesIndex.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        { title: linkLabel(link), href: showLink(link.id) },
-        { title: 'Histórico', href: index(link.id) },
-    ],
-});
+StatusHistoriesIndex.layout = ({
+    link,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            { title: linkLabel(link, t), href: showLink(link.id) },
+            { title: t('History'), href: index(link.id) },
+        ],
+    };
+};

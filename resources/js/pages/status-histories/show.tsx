@@ -4,8 +4,12 @@ import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { StatusTransition } from '@/components/status-transition';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import { evidenceTypeLabels, linkLabel } from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import { index as linksIndex, show as showLink } from '@/routes/links';
 import { index as historyIndex } from '@/routes/links/status-histories';
 import { show as showEvidence } from '@/routes/evidence';
@@ -22,16 +26,17 @@ export default function StatusHistoriesShow({
     statusHistory,
     supportingEvidence,
 }: Props) {
+    const { t } = useTranslations();
     const event = statusHistory.adverse_event;
 
     // Each entry changes one dimension (0013).
     const title =
         statusHistory.previous_verification === 'verified' &&
         statusHistory.new_verification === 'verified'
-            ? 'Renovação da verificação'
+            ? t('Verification renewal')
             : statusHistory.new_verification !== null
-              ? 'Mudança de verificação'
-              : 'Mudança de status';
+              ? t('Verification change')
+              : t('Status change');
 
     return (
         <>
@@ -46,22 +51,22 @@ export default function StatusHistoriesShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes</CardTitle>
+                        <CardTitle>{t('Details')}</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6">
                         <dl className="grid gap-4 sm:grid-cols-3">
-                            <DetailItem label="Vínculo">
+                            <DetailItem label={t('Link')}>
                                 <Link
                                     href={showLink(statusHistory.link_id)}
                                     className="hover:underline"
                                 >
-                                    {linkLabel(statusHistory.link)}
+                                    {linkLabel(statusHistory.link, t)}
                                 </Link>
                             </DetailItem>
-                            <DetailItem label="Data da mudança">
+                            <DetailItem label={t('Change date')}>
                                 {formatDate(statusHistory.change_date)}
                             </DetailItem>
-                            <DetailItem label="Registrado por">
+                            <DetailItem label={t('Recorded by')}>
                                 <EntryAuthor entry={statusHistory} />
                             </DetailItem>
                         </dl>
@@ -69,20 +74,24 @@ export default function StatusHistoriesShow({
                             {statusHistory.new_verification === 'verified' ? (
                                 // A verification has no reason: it rests on
                                 // the evidence that counted then (0013).
-                                <DetailItem label="Evidências que embasaram a verificação">
+                                <DetailItem
+                                    label={t(
+                                        'Evidence the verification rested on',
+                                    )}
+                                >
                                     <SupportingEvidence
                                         evidence={supportingEvidence}
                                     />
                                 </DetailItem>
                             ) : (
-                                <DetailItem label="Motivo">
+                                <DetailItem label={t('Reason')}>
                                     {statusHistory.trigger_reason ? (
                                         <p className="max-w-prose font-normal whitespace-pre-line">
                                             {statusHistory.trigger_reason}
                                         </p>
                                     ) : (
                                         <span className="text-muted-foreground font-normal">
-                                            Não informado
+                                            {t('Not reported')}
                                         </span>
                                     )}
                                 </DetailItem>
@@ -94,11 +103,11 @@ export default function StatusHistoriesShow({
                 {event && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Evento adverso relacionado</CardTitle>
+                            <CardTitle>{t('Related adverse event')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-6">
                             <dl className="grid gap-4 sm:grid-cols-3">
-                                <DetailItem label="Subdomínios de risco">
+                                <DetailItem label={t('Risk subdomains')}>
                                     <ul className="grid gap-2">
                                         {event.risk_subdomains?.map(
                                             (subdomain) => (
@@ -111,15 +120,15 @@ export default function StatusHistoriesShow({
                                         )}
                                     </ul>
                                 </DetailItem>
-                                <DetailItem label="Ocorrência">
+                                <DetailItem label={t('Occurrence')}>
                                     {formatDate(event.occurrence_date)}
                                 </DetailItem>
-                                <DetailItem label="Sistema de IA">
+                                <DetailItem label={t('AI system')}>
                                     {event.ai_system?.name}
                                 </DetailItem>
                             </dl>
                             <dl>
-                                <DetailItem label="Descrição">
+                                <DetailItem label={t('Description')}>
                                     <p className="max-w-prose font-normal whitespace-pre-line">
                                         {event.description}
                                     </p>
@@ -134,10 +143,13 @@ export default function StatusHistoriesShow({
 }
 
 function SupportingEvidence({ evidence }: { evidence: Evidence[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     if (evidence.length === 0) {
         return (
             <span className="text-muted-foreground font-normal">
-                Nenhuma evidência encontrada
+                {t('No evidence found')}
             </span>
         );
     }
@@ -150,8 +162,10 @@ function SupportingEvidence({ evidence }: { evidence: Evidence[] }) {
                         href={showEvidence(item.id)}
                         className="font-medium hover:underline"
                     >
-                        {evidenceTypeLabels[item.type]} de{' '}
-                        {formatDate(item.registration_date)}
+                        {t(':type of :date', {
+                            type: enumLabels.EvidenceType[item.type],
+                            date: formatDate(item.registration_date),
+                        })}
                     </Link>
                     <span className="text-muted-foreground text-sm">
                         {item.description}
@@ -162,17 +176,24 @@ function SupportingEvidence({ evidence }: { evidence: Evidence[] }) {
     );
 }
 
-StatusHistoriesShow.layout = ({ statusHistory }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        {
-            title: linkLabel(statusHistory.link),
-            href: showLink(statusHistory.link_id),
-        },
-        { title: 'Histórico', href: historyIndex(statusHistory.link_id) },
-        {
-            title: formatDate(statusHistory.change_date),
-            href: show(statusHistory.id),
-        },
-    ],
-});
+StatusHistoriesShow.layout = ({
+    statusHistory,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            {
+                title: linkLabel(statusHistory.link, t),
+                href: showLink(statusHistory.link_id),
+            },
+            { title: t('History'), href: historyIndex(statusHistory.link_id) },
+            {
+                title: formatDate(statusHistory.change_date),
+                href: show(statusHistory.id),
+            },
+        ],
+    };
+};

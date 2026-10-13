@@ -18,16 +18,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { availableMitigations, recommendMitigations } from '@/lib/link-options';
-import {
-    categoryLabels,
-    costLevelLabels,
-    labelFor,
-    lifecyclePhaseLabels,
-    termLabel,
-    uncertaintyBadgeClasses,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { labelFor } from '@/lib/enum-labels';
+import { uncertaintyBadgeClasses } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 import { index as mitigationsIndex } from '@/routes/mitigations';
 import { create as createOwner } from '@/routes/owners';
 import { create as createRisk } from '@/routes/risks';
@@ -85,43 +83,49 @@ type Props = {
 };
 
 export default function LinksCreate(props: Props) {
+    const { t } = useTranslations();
     const { risks, mitigations, owners } = props;
 
     const missing = [
         risks.length === 0 && {
-            label: 'um risco',
+            label: t('a risk'),
             href: createRisk(),
-            action: 'Cadastrar risco',
+            action: t('Register risk'),
         },
         // The catalogue is loaded from its data file (R-8), not registered
         // here, so the way out is to see it.
         mitigations.length === 0 && {
-            label: 'uma mitigação no catálogo',
+            label: t('a mitigation in the catalogue'),
             href: mitigationsIndex(),
-            action: 'Ver o catálogo de mitigações',
+            action: t('See the mitigation catalogue'),
         },
         owners.length === 0 && {
-            label: 'um responsável',
+            label: t('an owner'),
             href: createOwner(),
-            action: 'Cadastrar responsável',
+            action: t('Register owner'),
         },
     ].filter((item) => item !== false);
 
     return (
         <>
-            <Head title="Criar vínculo" />
+            <Head title={t('Create link')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Criar vínculo"
-                    description="Associe uma mitigação do catálogo a um risco já cadastrado."
+                    title={t('Create link')}
+                    description={t(
+                        'Associate a mitigation from the catalogue with a risk already registered.',
+                    )}
                 />
                 {missing.length > 0 ? (
                     // A form that cannot be completed helps no one: point to
                     // what has to exist first.
                     <div className="flex max-w-xl flex-col items-start gap-4 rounded-xl border border-dashed p-6">
                         <p className="text-muted-foreground text-sm">
-                            Para criar um vínculo é preciso ter{' '}
-                            {missing.map((item) => item.label).join(', ')}.
+                            {t('To create a link you need :items.', {
+                                items: missing
+                                    .map((item) => item.label)
+                                    .join(', '),
+                            })}
                         </p>
                         <div className="flex flex-wrap gap-2">
                             {missing.map((item) => (
@@ -149,6 +153,8 @@ function LinkForm({
     reviewIntervals,
     replacing,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const { url } = usePage();
 
     // The risk page links here with `?risk=<id>`; ignore an unknown id.
@@ -173,9 +179,9 @@ function LinkForm({
     });
     const available = [...recommended, ...others];
     const mitigationGroups = [
-        { label: 'Recomendadas para este risco', options: recommended },
+        { label: t('Recommended for this risk'), options: recommended },
         {
-            label: risk ? 'Outras do catálogo' : 'Catálogo',
+            label: risk ? t('Others from the catalogue') : t('Catalogue'),
             options: others,
         },
     ].filter((group) => group.options.length > 0);
@@ -252,12 +258,18 @@ function LinkForm({
                             // The new link records which one it replaces.
                             <div className="grid gap-1 rounded-lg border border-sky-300 bg-sky-50 p-4 text-sm text-sky-900 dark:border-sky-900 dark:bg-sky-950/30 dark:text-sky-200">
                                 <p className="font-semibold">
-                                    Substituição do vínculo {replacing.risk} →{' '}
-                                    {replacing.mitigation}
+                                    {t(
+                                        'Replacement of the link :risk → :mitigation',
+                                        {
+                                            risk: replacing.risk,
+                                            mitigation: replacing.mitigation,
+                                        },
+                                    )}
                                 </p>
                                 <p>
-                                    Ele foi cancelado na reavaliação. Escolha
-                                    outra mitigação para o mesmo risco.
+                                    {t(
+                                        'It was cancelled in the reassessment. Choose another mitigation for the same risk.',
+                                    )}
                                 </p>
                                 <input
                                     type="hidden"
@@ -268,7 +280,7 @@ function LinkForm({
                             </div>
                         )}
                     <div className="grid gap-2">
-                        <Label htmlFor="risk_id">Risco</Label>
+                        <Label htmlFor="risk_id">{t('Risk')}</Label>
                         <Select
                             name="risk_id"
                             value={riskId}
@@ -280,7 +292,9 @@ function LinkForm({
                                 className="w-full"
                                 aria-invalid={errors.risk_id ? true : undefined}
                             >
-                                <SelectValue placeholder="Selecione o risco" />
+                                <SelectValue
+                                    placeholder={t('Select the risk')}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {groups.map((group) => (
@@ -302,10 +316,19 @@ function LinkForm({
                         </Select>
                         {risk && (
                             <p className="text-muted-foreground text-sm">
-                                Subdomínio de risco (MIT):{' '}
-                                {termLabel(risk.subdomain)}
-                                {risk.domain &&
-                                    `, em ${termLabel(risk.domain)}`}
+                                {risk.domain
+                                    ? t(
+                                          'Risk subdomain (MIT): :subdomain, in :domain',
+                                          {
+                                              subdomain: termLabel(
+                                                  risk.subdomain,
+                                              ),
+                                              domain: termLabel(risk.domain),
+                                          },
+                                      )
+                                    : t('Risk subdomain (MIT): :subdomain', {
+                                          subdomain: termLabel(risk.subdomain),
+                                      })}
                             </p>
                         )}
                         <InputError message={errors.risk_id} />
@@ -315,17 +338,21 @@ function LinkForm({
                     </div>
 
                     <div className="grid gap-3">
-                        <Label htmlFor="mitigation_id">Mitigação</Label>
+                        <Label htmlFor="mitigation_id">{t('Mitigation')}</Label>
                         <ToggleGroup
                             type="single"
                             variant="outline"
                             size="sm"
                             value={category ?? 'all'}
                             onValueChange={chooseCategory}
-                            aria-label="Filtrar por categoria da taxonomia de Saeri et al."
+                            aria-label={t(
+                                'Filter by category of the taxonomy of Saeri et al.',
+                            )}
                             className="flex-wrap"
                         >
-                            <ToggleGroupItem value="all">Todas</ToggleGroupItem>
+                            <ToggleGroupItem value="all">
+                                {t('All')}
+                            </ToggleGroupItem>
                             {saeriCategories.map((option) => (
                                 <ToggleGroupItem
                                     key={option.code}
@@ -343,14 +370,15 @@ function LinkForm({
                             >
                                 <SelectTrigger
                                     className="w-full"
-                                    aria-label="Filtrar por subcategoria"
+                                    aria-label={t('Filter by subcategory')}
                                 >
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">
-                                        Todas as subcategorias de{' '}
-                                        {categoryOption.name}
+                                        {t('All subcategories of :category', {
+                                            category: categoryOption.name,
+                                        })}
                                     </SelectItem>
                                     {categoryOption.children.map((option) => (
                                         <SelectItem
@@ -376,7 +404,11 @@ function LinkForm({
                                     errors.mitigation_id ? true : undefined
                                 }
                             >
-                                <SelectValue placeholder="Selecione uma mitigação do catálogo" />
+                                <SelectValue
+                                    placeholder={t(
+                                        'Select a mitigation from the catalogue',
+                                    )}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {mitigationGroups.map((group) => (
@@ -398,16 +430,21 @@ function LinkForm({
                             available.length > 0 &&
                             recommended.length === 0 && (
                                 <p className="text-muted-foreground text-sm">
-                                    Nenhuma mitigação deste filtro trata o
-                                    subdomínio {risk.subdomain.code}; todas
-                                    continuam disponíveis.
+                                    {t(
+                                        'No mitigation of this filter treats the subdomain :code; all remain available.',
+                                        { code: risk.subdomain.code },
+                                    )}
                                 </p>
                             )}
                         {available.length === 0 && (
                             <p className="text-muted-foreground text-sm">
                                 {linked.length > 0 && category === null
-                                    ? 'Este risco já está vinculado a todas as mitigações do catálogo.'
-                                    : 'Nenhuma mitigação disponível neste filtro.'}
+                                    ? t(
+                                          'This risk is already linked to every mitigation of the catalogue.',
+                                      )
+                                    : t(
+                                          'No mitigation available in this filter.',
+                                      )}
                             </p>
                         )}
                         <InputError message={errors.mitigation_id} />
@@ -416,10 +453,14 @@ function LinkForm({
                             // RNF03: a qualitative estimate comes with its
                             // source and its uncertainty.
                             <dl className="bg-muted/40 grid gap-4 rounded-lg border p-4 sm:grid-cols-2">
-                                <DetailItem label="Subcategoria (Saeri et al.)">
+                                <DetailItem
+                                    label={t('Subcategory (Saeri et al.)')}
+                                >
                                     {termLabel(mitigation.subcategory)}
                                 </DetailItem>
-                                <DetailItem label="Subdomínios de risco tratados (MIT)">
+                                <DetailItem
+                                    label={t('Risk subdomains treated (MIT)')}
+                                >
                                     <ul className="grid gap-1">
                                         {mitigation.target_risk_subdomains.map(
                                             (term) => (
@@ -438,10 +479,14 @@ function LinkForm({
                                         )}
                                     </ul>
                                 </DetailItem>
-                                <DetailItem label="Custo sugerido">
-                                    {costLevelLabels[mitigation.suggested_cost]}
+                                <DetailItem label={t('Suggested cost')}>
+                                    {
+                                        enumLabels.CostLevel[
+                                            mitigation.suggested_cost
+                                        ]
+                                    }
                                 </DetailItem>
-                                <DetailItem label="Incerteza">
+                                <DetailItem label={t('Uncertainty')}>
                                     <Badge
                                         className={
                                             uncertaintyBadgeClasses[
@@ -450,13 +495,13 @@ function LinkForm({
                                         }
                                     >
                                         {
-                                            uncertaintyLevelLabels[
+                                            enumLabels.UncertaintyLevel[
                                                 mitigation.uncertainty_level
                                             ]
                                         }
                                     </Badge>
                                 </DetailItem>
-                                <DetailItem label="Fonte da estimativa">
+                                <DetailItem label={t('Source of the estimate')}>
                                     <span className="font-normal">
                                         {mitigation.estimate_source}
                                     </span>
@@ -466,7 +511,7 @@ function LinkForm({
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="owner_id">Responsável</Label>
+                        <Label htmlFor="owner_id">{t('Owner')}</Label>
                         <Select name="owner_id" required>
                             <SelectTrigger
                                 id="owner_id"
@@ -475,7 +520,11 @@ function LinkForm({
                                     errors.owner_id ? true : undefined
                                 }
                             >
-                                <SelectValue placeholder="Selecione o papel responsável" />
+                                <SelectValue
+                                    placeholder={t(
+                                        'Select the accountable role',
+                                    )}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {owners.map((owner) => (
@@ -495,7 +544,7 @@ function LinkForm({
                     <div className="grid gap-4 sm:grid-cols-2">
                         <div className="grid gap-2">
                             <Label htmlFor="lifecycle_phase">
-                                Fase do ciclo de vida
+                                {t('Lifecycle phase')}
                             </Label>
                             <Select name="lifecycle_phase" required>
                                 <SelectTrigger
@@ -507,7 +556,9 @@ function LinkForm({
                                             : undefined
                                     }
                                 >
-                                    <SelectValue placeholder="Selecione a fase" />
+                                    <SelectValue
+                                        placeholder={t('Select the phase')}
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {lifecyclePhases.map((option) => (
@@ -516,7 +567,7 @@ function LinkForm({
                                             value={option.value}
                                         >
                                             {labelFor(
-                                                lifecyclePhaseLabels,
+                                                enumLabels.LifecyclePhase,
                                                 option.value,
                                             )}
                                         </SelectItem>
@@ -528,7 +579,7 @@ function LinkForm({
 
                         <div className="grid gap-2">
                             <Label htmlFor="estimated_cost">
-                                Custo estimado
+                                {t('Estimated cost')}
                             </Label>
                             <Select
                                 name="estimated_cost"
@@ -543,7 +594,9 @@ function LinkForm({
                                         errors.estimated_cost ? true : undefined
                                     }
                                 >
-                                    <SelectValue placeholder="Selecione o custo" />
+                                    <SelectValue
+                                        placeholder={t('Select the cost')}
+                                    />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {costLevels.map((option) => (
@@ -552,7 +605,7 @@ function LinkForm({
                                             value={option.value}
                                         >
                                             {labelFor(
-                                                costLevelLabels,
+                                                enumLabels.CostLevel,
                                                 option.value,
                                             )}
                                         </SelectItem>
@@ -570,9 +623,11 @@ function LinkForm({
 
                     <div className="flex items-center gap-4">
                         {/* RF01: no link without a target risk. */}
-                        <Button disabled={!riskId || processing}>Salvar</Button>
+                        <Button disabled={!riskId || processing}>
+                            {t('Save')}
+                        </Button>
                         <Button variant="ghost" asChild>
-                            <Link href={index()}>Cancelar</Link>
+                            <Link href={index()}>{t('Cancel')}</Link>
                         </Button>
                     </div>
                 </>
@@ -593,12 +648,15 @@ function ReviewNotice({
     tier: AiSystemCategory | undefined;
     reviewIntervals: Props['reviewIntervals'];
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     if (tier === undefined) {
         return (
             <p className="text-muted-foreground text-sm">
-                O vínculo nasce Planejado e Declarado. A revisão periódica
-                começa na primeira verificação, com o intervalo da faixa do
-                sistema do risco escolhido.
+                {t(
+                    "The link starts Planned and Declared. The periodic review starts at the first verification, with the interval of the tier of the chosen risk's system.",
+                )}
             </p>
         );
     }
@@ -608,27 +666,30 @@ function ReviewNotice({
     if (days === null) {
         return (
             <p className="text-muted-foreground text-sm">
-                O vínculo nasce Planejado e Declarado e não terá revisão
-                periódica: o sistema está na faixa inaceitável e não pode
-                operar, então o vínculo não pode ser verificado. Ele serve para
-                planejar a descontinuação.
+                {t(
+                    'The link starts Planned and Declared and will have no periodic review: the system is in the unacceptable tier and cannot operate, so the link cannot be verified. It serves to plan the discontinuation.',
+                )}
             </p>
         );
     }
 
     return (
         <p className="text-muted-foreground text-sm">
-            O vínculo nasce Planejado e Declarado. A revisão periódica começa na
-            primeira verificação: a próxima revisão será {days} dias depois
-            dela, porque o sistema é de risco{' '}
-            {categoryLabels[tier].toLowerCase()}.
+            {t(
+                'The link starts Planned and Declared. The periodic review starts at the first verification: the next review will be :days days after it, because the system is of :tier risk.',
+                { days, tier: enumLabels.AiSystemCategory[tier].toLowerCase() },
+            )}
         </p>
     );
 }
 
-LinksCreate.layout = {
-    breadcrumbs: [
-        { title: 'Vínculos', href: index() },
-        { title: 'Criar vínculo', href: create() },
-    ],
+LinksCreate.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: index() },
+            { title: t('Create link'), href: create() },
+        ],
+    };
 };

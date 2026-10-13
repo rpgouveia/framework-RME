@@ -15,12 +15,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    costLevelLabels,
-    termLabel,
-    uncertaintyBadgeClasses,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { uncertaintyBadgeClasses } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { index, show } from '@/routes/mitigations';
 import type { Mitigation, Paginated, TaxonomyCategory } from '@/types/models';
@@ -57,6 +57,8 @@ export default function MitigationsIndex({
     categories,
     catalog,
 }: Props) {
+    const { t, tc } = useTranslations();
+
     // The server filters; every link and the search keep the other filters.
     function search(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -73,11 +75,13 @@ export default function MitigationsIndex({
 
     return (
         <>
-            <Head title="Catálogo de mitigações" />
+            <Head title={t('Mitigation catalogue')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <Heading
-                    title="Catálogo de mitigações"
-                    description="O catálogo curado (C2), organizado pela taxonomia de Saeri et al. (2025): 4 categorias e 23 subcategorias. Toda mitigação aplicada a um risco vem daqui."
+                    title={t('Mitigation catalogue')}
+                    description={t(
+                        'The curated catalogue (C2), organized by the taxonomy of Saeri et al. (2025): 4 categories and 23 subcategories. Every mitigation applied to a risk comes from here.',
+                    )}
                 />
 
                 {catalog.fictional && <FictionalCatalogAlert />}
@@ -85,7 +89,7 @@ export default function MitigationsIndex({
                 <div className="grid gap-3">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <nav
-                            aria-label="Filtrar por categoria"
+                            aria-label={t('Filter by category')}
                             className="flex flex-wrap gap-2"
                         >
                             <FilterLink
@@ -96,7 +100,7 @@ export default function MitigationsIndex({
                                 })}
                                 active={filters.category === null}
                             >
-                                Todas
+                                {t('All')}
                             </FilterLink>
                             {categories.map((option) => (
                                 <FilterLink
@@ -121,12 +125,14 @@ export default function MitigationsIndex({
                             <Input
                                 name="q"
                                 defaultValue={filters.q}
-                                placeholder="Buscar pelo nome"
-                                aria-label="Buscar pelo nome em português ou pelo nome original"
+                                placeholder={t('Search by name')}
+                                aria-label={t(
+                                    'Search by the name in Portuguese or by the original name',
+                                )}
                                 className="w-56"
                             />
                             <Button type="submit" variant="outline">
-                                Buscar
+                                {t('Search')}
                             </Button>
                         </form>
                     </div>
@@ -134,7 +140,7 @@ export default function MitigationsIndex({
                     {/* The second level only makes sense inside a category. */}
                     {category && (
                         <nav
-                            aria-label="Filtrar por subcategoria"
+                            aria-label={t('Filter by subcategory')}
                             className="flex flex-wrap gap-2"
                         >
                             <FilterLink
@@ -145,7 +151,9 @@ export default function MitigationsIndex({
                                 active={filters.subcategory === null}
                                 subtle
                             >
-                                Todas de {category.name}
+                                {t('All of :category', {
+                                    category: category.name,
+                                })}
                             </FilterLink>
                             {category.children.map((option) => (
                                 <FilterLink
@@ -177,16 +185,15 @@ export default function MitigationsIndex({
 
                 {filtered && mitigations.data.length > 0 && (
                     <p className="text-muted-foreground text-sm">
-                        {mitigations.total}{' '}
-                        {mitigations.total === 1
-                            ? 'mitigação encontrada'
-                            : 'mitigações encontradas'}
-                        .{' '}
+                        {tc(
+                            ':count mitigation found.|:count mitigations found.',
+                            mitigations.total,
+                        )}{' '}
                         <Link
                             href={index()}
                             className="text-foreground hover:underline"
                         >
-                            Limpar filtros
+                            {t('Clear filters')}
                         </Link>
                     </p>
                 )}
@@ -202,6 +209,7 @@ function EmptyState({
     filters: Filters;
     categories: TaxonomyCategory[];
 }) {
+    const { t } = useTranslations();
     const category = categories.find(
         (option) => option.code === filters.category,
     );
@@ -209,18 +217,24 @@ function EmptyState({
         (option) => option.code === filters.subcategory,
     );
     const scope = subcategory
-        ? `na subcategoria ${termLabel(subcategory)}`
+        ? t('in the subcategory :term', { term: termLabel(subcategory) })
         : category
-          ? `na categoria ${termLabel(category)}`
+          ? t('in the category :term', { term: termLabel(category) })
           : null;
 
-    let message =
-        'O catálogo está vazio. Ele é carregado a partir do arquivo de dados do projeto, pelo seeder.';
+    let message = t(
+        "The catalogue is empty. It is loaded from the project's data file, by the seeder.",
+    );
 
     if (filters.q !== '') {
-        message = `Nenhuma mitigação com "${filters.q}" no nome${scope ? ` ${scope}` : ''}.`;
+        message = scope
+            ? t('No mitigation with ":q" in the name :scope.', {
+                  q: filters.q,
+                  scope,
+              })
+            : t('No mitigation with ":q" in the name.', { q: filters.q });
     } else if (scope) {
-        message = `Nenhuma mitigação ${scope}.`;
+        message = t('No mitigation :scope.', { scope });
     }
 
     return (
@@ -231,7 +245,7 @@ function EmptyState({
                     href={index()}
                     className="text-sm font-medium hover:underline"
                 >
-                    Ver o catálogo inteiro
+                    {t('See the whole catalogue')}
                 </Link>
             )}
         </div>
@@ -239,16 +253,21 @@ function EmptyState({
 }
 
 function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Subcategoria</TableHead>
-                        <TableHead>Custo sugerido</TableHead>
-                        <TableHead>Incerteza</TableHead>
-                        <TableHead className="text-right">Vínculos</TableHead>
+                        <TableHead>{t('Name')}</TableHead>
+                        <TableHead>{t('Subcategory')}</TableHead>
+                        <TableHead>{t('Suggested cost')}</TableHead>
+                        <TableHead>{t('Uncertainty')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('Links')}
+                        </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -287,7 +306,11 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                                 )}
                             </TableCell>
                             <TableCell>
-                                {costLevelLabels[mitigation.suggested_cost]}
+                                {
+                                    enumLabels.CostLevel[
+                                        mitigation.suggested_cost
+                                    ]
+                                }
                             </TableCell>
                             <TableCell>
                                 <Badge
@@ -298,7 +321,7 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                                     }
                                 >
                                     {
-                                        uncertaintyLevelLabels[
+                                        enumLabels.UncertaintyLevel[
                                             mitigation.uncertainty_level
                                         ]
                                     }
@@ -315,6 +338,10 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
     );
 }
 
-MitigationsIndex.layout = {
-    breadcrumbs: [{ title: 'Catálogo de mitigações', href: index() }],
+MitigationsIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Mitigation catalogue'), href: index() }],
+    };
 };

@@ -1,5 +1,5 @@
 import { Badge } from '@/components/ui/badge';
-import { termLabel } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 
 /**
  * The MIT risk subdomains of an adverse event as compact badges: code and

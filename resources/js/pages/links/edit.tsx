@@ -16,13 +16,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    costLevelLabels,
-    labelFor,
-    lifecyclePhaseLabels,
-    linkLabel,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { labelFor } from '@/lib/enum-labels';
+import { linkLabel } from '@/lib/names';
 import { edit, index, show } from '@/routes/links';
 import { index as statusHistoriesIndex } from '@/routes/links/status-histories';
 import type { EnumOption, Link as RiskLink, Owner } from '@/types/models';
@@ -40,11 +40,17 @@ export default function LinksEdit({
     lifecyclePhases,
     costLevels,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Editar vínculo" />
+            <Head title={t('Edit link')} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading title="Editar vínculo" description={linkLabel(link)} />
+                <Heading
+                    title={t('Edit link')}
+                    description={linkLabel(link, t)}
+                />
 
                 {/* The pair is the link's identity, the status changes only
                     through the history (RF09), the verification and review
@@ -52,37 +58,37 @@ export default function LinksEdit({
                     cost comes with the evidence: all read only. */}
                 <Card className="max-w-xl">
                     <CardHeader>
-                        <CardTitle>Identificação</CardTitle>
+                        <CardTitle>{t('Identification')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <dl className="grid gap-4 sm:grid-cols-2">
-                            <DetailItem label="Risco">
+                            <DetailItem label={t('Risk')}>
                                 {link.risk?.name}
                             </DetailItem>
-                            <DetailItem label="Mitigação">
+                            <DetailItem label={t('Mitigation')}>
                                 {link.mitigation?.name}
                             </DetailItem>
-                            <DetailItem label="Status">
+                            <DetailItem label={t('Status')}>
                                 <span className="flex flex-wrap items-center gap-2">
                                     <LinkStatusBadges link={link} />
                                     <Link
                                         href={statusHistoriesIndex(link.id)}
                                         className="text-muted-foreground text-sm font-normal hover:underline"
                                     >
-                                        Alterar pelo histórico
+                                        {t('Change through the history')}
                                     </Link>
                                 </span>
                             </DetailItem>
-                            <DetailItem label="Data de criação">
+                            <DetailItem label={t('Creation date')}>
                                 {formatDate(link.creation_date)}
                             </DetailItem>
-                            <DetailItem label="Custo observado">
+                            <DetailItem label={t('Observed cost')}>
                                 {/* Reported with the evidence (0018). */}
                                 <ObservedCost
                                     evidence={link.observed_cost_evidence}
                                 />
                             </DetailItem>
-                            <DetailItem label="Próxima revisão">
+                            <DetailItem label={t('Next review')}>
                                 <ReviewDate
                                     date={link.next_review_date}
                                     verification={link.verification_status}
@@ -104,7 +110,7 @@ export default function LinksEdit({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="owner_id">Responsável</Label>
+                                <Label htmlFor="owner_id">{t('Owner')}</Label>
                                 <Select
                                     name="owner_id"
                                     defaultValue={String(link.owner_id)}
@@ -117,7 +123,9 @@ export default function LinksEdit({
                                             errors.owner_id ? true : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione o responsável" />
+                                        <SelectValue
+                                            placeholder={t('Select the owner')}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {owners.map((owner) => (
@@ -131,7 +139,8 @@ export default function LinksEdit({
                                                     be inactive here: kept, not
                                                     offered to other links. */}
                                                 {owner.deactivated_at !==
-                                                    null && ' (inativo)'}
+                                                    null &&
+                                                    ` (${t('inactive')})`}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -141,7 +150,7 @@ export default function LinksEdit({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="lifecycle_phase">
-                                    Fase do ciclo de vida
+                                    {t('Lifecycle phase')}
                                 </Label>
                                 <Select
                                     name="lifecycle_phase"
@@ -157,7 +166,9 @@ export default function LinksEdit({
                                                 : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione a fase" />
+                                        <SelectValue
+                                            placeholder={t('Select the phase')}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {lifecyclePhases.map((option) => (
@@ -166,7 +177,7 @@ export default function LinksEdit({
                                                 value={option.value}
                                             >
                                                 {labelFor(
-                                                    lifecyclePhaseLabels,
+                                                    enumLabels.LifecyclePhase,
                                                     option.value,
                                                 )}
                                             </SelectItem>
@@ -179,7 +190,7 @@ export default function LinksEdit({
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="estimated_cost">
-                                        Custo estimado
+                                        {t('Estimated cost')}
                                     </Label>
                                     <Select
                                         name="estimated_cost"
@@ -195,7 +206,11 @@ export default function LinksEdit({
                                                     : undefined
                                             }
                                         >
-                                            <SelectValue placeholder="Selecione o custo" />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'Select the cost',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {costLevels.map((option) => (
@@ -204,7 +219,7 @@ export default function LinksEdit({
                                                     value={option.value}
                                                 >
                                                     {labelFor(
-                                                        costLevelLabels,
+                                                        enumLabels.CostLevel,
                                                         option.value,
                                                     )}
                                                 </SelectItem>
@@ -218,9 +233,13 @@ export default function LinksEdit({
                             </div>
 
                             <div className="flex items-center gap-4">
-                                <Button disabled={processing}>Salvar</Button>
+                                <Button disabled={processing}>
+                                    {t('Save')}
+                                </Button>
                                 <Button variant="ghost" asChild>
-                                    <Link href={show(link.id)}>Cancelar</Link>
+                                    <Link href={show(link.id)}>
+                                        {t('Cancel')}
+                                    </Link>
                                 </Button>
                             </div>
                         </>
@@ -231,10 +250,14 @@ export default function LinksEdit({
     );
 }
 
-LinksEdit.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: index() },
-        { title: linkLabel(link), href: show(link.id) },
-        { title: 'Editar', href: edit(link.id) },
-    ],
-});
+LinksEdit.layout = ({ link, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: index() },
+            { title: linkLabel(link, t), href: show(link.id) },
+            { title: t('Edit'), href: edit(link.id) },
+        ],
+    };
+};

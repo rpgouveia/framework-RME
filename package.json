@@ -9,7 +9,8 @@
         "check": "vp check",
         "check:fix": "vp check --fix",
         "types:check": "tsc --noEmit",
-        "test": "npm run check && npm run types:check",
+        "test:unit": "vp test run",
+        "test": "npm run check && npm run types:check && npm run test:unit",
         "prepare": "husky"
     },
     "dependencies": {

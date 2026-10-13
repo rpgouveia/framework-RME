@@ -26,6 +26,18 @@ test('the auth pages receive their lines in portuguese', function () {
     );
 });
 
+test('the react pages receive the label of every enum case, as the backend resolves it', function () {
+    $this->actingAs(User::factory()->create());
+
+    $this->get(route('dashboard'))->assertOk()->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->where('enumLabels.UncertaintyLevel.high', 'Alta')
+            ->where('enumLabels.CostLevel.high', 'Alto')
+            ->where('enumLabels', fn (Collection $labels): bool => $labels->keys()->sort()->values()->all() === collect(domainEnums())->keys()->sort()->values()->all()
+                && collect(domainEnums())->every(fn (array $enum, string $name): bool => $labels[$name] === array_column($enum[0]::options(), 'label', 'value')))
+    );
+});
+
 test('a locale with no json file falls back to the keys', function () {
     $this->app->setLocale('en');
     $this->actingAs(User::factory()->create());

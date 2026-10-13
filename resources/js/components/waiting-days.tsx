@@ -1,4 +1,5 @@
-import { daysSince } from '@/lib/labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { daysSince } from '@/lib/format';
 
 /**
  * How long a link has waited for its reassessment, since its reversal. There
@@ -6,11 +7,12 @@ import { daysSince } from '@/lib/labels';
  * the longest.
  */
 export function WaitingDays({ since }: { since: string }) {
+    const { tc } = useTranslations();
     const days = daysSince(since);
 
     return (
         <span className="tabular-nums">
-            {days === 0 ? 'hoje' : days === 1 ? '1 dia' : `${days} dias`}
+            {tc('{0} today|{1} 1 day|[2,*] :count days', days)}
         </span>
     );
 }

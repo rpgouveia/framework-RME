@@ -1,4 +1,5 @@
-import { changeOriginLabels } from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import type { StatusHistory } from '@/types/models';
 
 /**
@@ -11,12 +12,17 @@ export function EntryAuthor({
 }: {
     entry: Pick<StatusHistory, 'origin' | 'owner'>;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     if (entry.origin !== 'manual') {
         return (
             <span className="grid">
-                <span>Registrado pelo sistema</span>
+                <span>{t('Recorded by the system')}</span>
                 <span className="text-muted-foreground text-xs font-normal">
-                    Origem: {changeOriginLabels[entry.origin]}
+                    {t('Origin: :origin', {
+                        origin: enumLabels.ChangeOrigin[entry.origin],
+                    })}
                 </span>
             </span>
         );

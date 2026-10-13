@@ -28,8 +28,12 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { dateInputValue } from '@/lib/format';
-import { labelFor, systemChangeTypeLabels } from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { labelFor } from '@/lib/enum-labels';
 import type { ExpectedSubdomain } from '@/lib/risk-profile';
 import { systemChangeReassessment } from '@/lib/system-change-reassessment';
 import type { VerifiedLink } from '@/lib/system-change-reassessment';
@@ -61,6 +65,8 @@ export default function SystemChangesCreate({
     expected,
     verifiedLinks,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const [type, setType] = useState('');
     const [selected, setSelected] = useState<string[]>([]);
     const [confirming, setConfirming] = useState(false);
@@ -90,11 +96,14 @@ export default function SystemChangesCreate({
 
     return (
         <>
-            <Head title="Registrar mudança do sistema" />
+            <Head title={t('Record system change')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Registrar mudança do sistema"
-                    description={`${aiSystem.name}. Uma nova versão do modelo ou uma alteração na base de dados leva os vínculos verificados à reavaliação.`}
+                    title={t('Record system change')}
+                    description={t(
+                        ':system. A new model version or a change to the database takes the verified links to reassessment.',
+                        { system: aiSystem.name },
+                    )}
                 />
                 <Form
                     {...SystemChangeController.store.form(aiSystem.id)}
@@ -105,7 +114,7 @@ export default function SystemChangesCreate({
                     {({ processing, errors }) => (
                         <>
                             <div className="grid gap-2">
-                                <Label htmlFor="type">Tipo de mudança</Label>
+                                <Label htmlFor="type">{t('Change type')}</Label>
                                 <Select
                                     name="type"
                                     value={type}
@@ -119,7 +128,9 @@ export default function SystemChangesCreate({
                                             errors.type ? true : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione o tipo" />
+                                        <SelectValue
+                                            placeholder={t('Select the type')}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {types.map((option) => (
@@ -128,7 +139,7 @@ export default function SystemChangesCreate({
                                                 value={option.value}
                                             >
                                                 {labelFor(
-                                                    systemChangeTypeLabels,
+                                                    enumLabels.SystemChangeType,
                                                     option.value,
                                                 )}
                                             </SelectItem>
@@ -139,14 +150,18 @@ export default function SystemChangesCreate({
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="description">Descrição</Label>
+                                <Label htmlFor="description">
+                                    {t('Description')}
+                                </Label>
                                 <Textarea
                                     id="description"
                                     name="description"
                                     required
                                     maxLength={2000}
                                     className="min-h-28"
-                                    placeholder="Ex.: Troca do modelo de classificação pela versão 2.0 do fornecedor."
+                                    placeholder={t(
+                                        "E.g.: Replacement of the classification model by the supplier's version 2.0.",
+                                    )}
                                     aria-invalid={
                                         errors.description ? true : undefined
                                     }
@@ -156,7 +171,7 @@ export default function SystemChangesCreate({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="change_date">
-                                    Data da mudança
+                                    {t('Change date')}
                                 </Label>
                                 <Input
                                     id="change_date"
@@ -170,14 +185,18 @@ export default function SystemChangesCreate({
                                     }
                                 />
                                 <p className="text-muted-foreground text-sm">
-                                    Não pode ser uma data futura.
+                                    {t('It cannot be a future date.')}
                                 </p>
                                 <InputError message={errors.change_date} />
                             </div>
 
                             <RiskSubdomainPicker
-                                legend="Subdomínios de risco afetados (opcional)"
-                                help="Informe os riscos que a mudança pode alcançar: só os vínculos deles serão revertidos. Sem nenhum, todos os vínculos verificados do sistema são revertidos."
+                                legend={t(
+                                    'Risk subdomains affected (optional)',
+                                )}
+                                help={t(
+                                    'Give the risks the change may reach: only their links will be reverted. With none, every verified link of the system is reverted.',
+                                )}
                                 domains={riskDomains}
                                 expected={expected}
                                 selected={selected}
@@ -188,12 +207,13 @@ export default function SystemChangesCreate({
 
                             <Alert>
                                 <TriangleAlertIcon aria-hidden />
-                                <AlertTitle>O registro é permanente</AlertTitle>
+                                <AlertTitle>
+                                    {t('The record is permanent')}
+                                </AlertTitle>
                                 <AlertDescription>
-                                    Mudanças do sistema não podem ser editadas
-                                    nem excluídas. O registro devolve a
-                                    declarados os vínculos verificados que a
-                                    mudança alcança, aguardando reavaliação.
+                                    {t(
+                                        'System changes can be neither edited nor deleted. The record takes back to declared the verified links the change reaches, awaiting reassessment.',
+                                    )}
                                 </AlertDescription>
                             </Alert>
 
@@ -203,11 +223,11 @@ export default function SystemChangesCreate({
                                     disabled={processing}
                                     onClick={askToConfirm}
                                 >
-                                    Registrar mudança
+                                    {t('Record change')}
                                 </Button>
                                 <Button variant="ghost" asChild>
                                     <Link href={showAiSystem(aiSystem.id)}>
-                                        Cancelar
+                                        {t('Cancel')}
                                     </Link>
                                 </Button>
                             </div>
@@ -218,11 +238,12 @@ export default function SystemChangesCreate({
                             >
                                 <DialogContent>
                                     <DialogTitle>
-                                        Registrar esta mudança do sistema?
+                                        {t('Record this system change?')}
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Depois de registrada, a mudança não pode
-                                        ser editada nem excluída.
+                                        {t(
+                                            'Once recorded, the change can be neither edited nor deleted.',
+                                        )}
                                     </DialogDescription>
                                     <ReversalPreview
                                         reverted={reverted}
@@ -232,7 +253,7 @@ export default function SystemChangesCreate({
                                     <DialogFooter className="gap-2">
                                         <DialogClose asChild>
                                             <Button variant="secondary">
-                                                Voltar
+                                                {t('Back')}
                                             </Button>
                                         </DialogClose>
                                         <Button
@@ -240,7 +261,7 @@ export default function SystemChangesCreate({
                                             form={FORM_ID}
                                             disabled={processing}
                                         >
-                                            Registrar
+                                            {t('Record')}
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
@@ -266,11 +287,14 @@ function ReversalPreview({
     unacceptable: boolean;
     withSubdomains: boolean;
 }) {
+    const { t, tc } = useTranslations();
+
     if (unacceptable) {
         return (
             <p className="text-sm">
-                O sistema está na faixa inaceitável: a mudança fica registrada,
-                sem reverter vínculos.
+                {t(
+                    'The system is in the unacceptable tier: the change is recorded, without reverting links.',
+                )}
             </p>
         );
     }
@@ -279,23 +303,22 @@ function ReversalPreview({
         <div className="grid gap-2">
             {!withSubdomains && (
                 <p className="text-sm">
-                    Nenhum subdomínio foi informado: todos os vínculos
-                    verificados do sistema serão revertidos. Informar os
-                    subdomínios afetados limita a reversão aos riscos realmente
-                    envolvidos.
+                    {t(
+                        'No subdomain was given: every verified link of the system will be reverted. Giving the affected subdomains limits the reversal to the risks really involved.',
+                    )}
                 </p>
             )}
             {reverted.length === 0 ? (
                 <p className="text-sm">
-                    Nenhum vínculo verificado será revertido.
+                    {t('No verified link will be reverted.')}
                 </p>
             ) : (
                 <div className="grid gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
                     <p className="font-semibold">
-                        {reverted.length === 1
-                            ? '1 vínculo verificado voltará a declarado'
-                            : `${reverted.length} vínculos verificados voltarão a declarados`}
-                        , aguardando reavaliação:
+                        {tc(
+                            ':count verified link will go back to declared, awaiting reassessment:|:count verified links will go back to declared, awaiting reassessment:',
+                            reverted.length,
+                        )}
                     </p>
                     <ul className="list-disc pl-5">
                         {reverted.map((link) => (
@@ -311,10 +334,17 @@ function ReversalPreview({
     );
 }
 
-SystemChangesCreate.layout = ({ aiSystem }: Props) => ({
-    breadcrumbs: [
-        { title: 'Sistemas de IA', href: aiSystemsIndex() },
-        { title: aiSystem.name, href: showAiSystem(aiSystem.id) },
-        { title: 'Registrar mudança', href: create(aiSystem.id) },
-    ],
-});
+SystemChangesCreate.layout = ({
+    aiSystem,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('AI systems'), href: aiSystemsIndex() },
+            { title: aiSystem.name, href: showAiSystem(aiSystem.id) },
+            { title: t('Record change'), href: create(aiSystem.id) },
+        ],
+    };
+};

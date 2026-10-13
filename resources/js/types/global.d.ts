@@ -1,4 +1,5 @@
 import type { Auth } from '@/types/auth';
+import type { EnumLabels } from '@/lib/enum-labels';
 import type { Translations } from '@/lib/i18n';
 
 declare module 'react' {
@@ -14,6 +15,7 @@ declare module '@inertiajs/core' {
             auth: Auth;
             sidebarOpen: boolean;
             translations: Translations;
+            enumLabels: EnumLabels;
             [key: string]: unknown;
         };
     }

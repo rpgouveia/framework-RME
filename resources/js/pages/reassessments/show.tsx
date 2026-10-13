@@ -11,19 +11,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    causeStatusLabels,
-    changeOriginLabels,
-    costLevelLabels,
-    lifecyclePhaseLabels,
-    linkLabel,
-    linkStatusLabels,
-    reassessmentFieldLabels,
-    reassessmentOutcomeLabels,
-    subdomainCodes,
-    systemChangeTypeLabels,
-} from '@/lib/labels';
+import { interpolateNodes, translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel, subdomainCodes } from '@/lib/names';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showSystemChange } from '@/routes/system-changes';
 import { index as linksIndex, show as showLink } from '@/routes/links';
@@ -52,7 +45,16 @@ export default function ReassessmentsShow({
     reassessment,
     changedOwners,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const link = reassessment.link;
+    /** The link fields an adjustment may change (0020). */
+    const fieldLabels: Record<ReassessmentChange['field'], string> = {
+        owner_id: t('Owner'),
+        estimated_cost: t('Estimated cost'),
+        lifecycle_phase: t('Lifecycle phase'),
+        status: t('Progress status'),
+    };
     const reversal = reassessment.reversal;
     const changes = reassessment.changes ?? [];
 
@@ -66,25 +68,29 @@ export default function ReassessmentsShow({
             case 'owner_id':
                 return changedOwners[value]?.organizational_role ?? value;
             case 'estimated_cost':
-                return costLevelLabels[value as CostLevel];
+                return enumLabels.CostLevel[value as CostLevel];
             case 'lifecycle_phase':
-                return lifecyclePhaseLabels[value as LifecyclePhase];
+                return enumLabels.LifecyclePhase[value as LifecyclePhase];
             case 'status':
-                return linkStatusLabels[value as LinkStatus];
+                return enumLabels.LinkStatus[value as LinkStatus];
         }
     }
 
     return (
         <>
-            <Head title="Reavaliação" />
+            <Head title={t('Reassessment')} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <header className="grid gap-2">
                     <div className="flex flex-wrap items-center gap-3">
                         <h1 className="text-xl font-semibold tracking-tight">
-                            Reavaliação
+                            {t('Reassessment')}
                         </h1>
                         <Badge variant="outline">
-                            {reassessmentOutcomeLabels[reassessment.outcome]}
+                            {
+                                enumLabels.ReassessmentOutcome[
+                                    reassessment.outcome
+                                ]
+                            }
                         </Badge>
                     </div>
                     {link && (
@@ -92,33 +98,34 @@ export default function ReassessmentsShow({
                             href={showLink(link.id)}
                             className="text-muted-foreground text-sm hover:underline"
                         >
-                            {linkLabel(link)}
+                            {linkLabel(link, t)}
                         </Link>
                     )}
                 </header>
 
                 <p className="text-muted-foreground -mt-2 text-sm">
-                    Reavaliações não podem ser editadas nem excluídas: elas
-                    registram o que foi concluído, por quem e por quê.
+                    {t(
+                        'Reassessments can be neither edited nor deleted: they record what was concluded, by whom and why.',
+                    )}
                 </p>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Decisão</CardTitle>
+                        <CardTitle>{t('Decision')}</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6">
                         <dl className="grid gap-4 sm:grid-cols-3">
-                            <DetailItem label="Desfecho">
+                            <DetailItem label={t('Outcome')}>
                                 {
-                                    reassessmentOutcomeLabels[
+                                    enumLabels.ReassessmentOutcome[
                                         reassessment.outcome
                                     ]
                                 }
                             </DetailItem>
-                            <DetailItem label="Data">
+                            <DetailItem label={t('Date')}>
                                 {formatDate(reassessment.reassessment_date)}
                             </DetailItem>
-                            <DetailItem label="Quem reavaliou">
+                            <DetailItem label={t('Who reassessed')}>
                                 {reassessment.owner && (
                                     <span className="grid">
                                         <span>
@@ -135,7 +142,7 @@ export default function ReassessmentsShow({
                             </DetailItem>
                         </dl>
                         <dl>
-                            <DetailItem label="Justificativa">
+                            <DetailItem label={t('Justification')}>
                                 <p className="font-normal whitespace-pre-line">
                                     {reassessment.justification}
                                 </p>
@@ -146,22 +153,26 @@ export default function ReassessmentsShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Análise de causa</CardTitle>
+                        <CardTitle>{t('Cause analysis')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <dl className="grid gap-4 sm:grid-cols-3">
-                            <DetailItem label="Situação">
-                                {causeStatusLabels[reassessment.cause_status]}
+                            <DetailItem label={t('Situation')}>
+                                {
+                                    enumLabels.CauseStatus[
+                                        reassessment.cause_status
+                                    ]
+                                }
                             </DetailItem>
                             {reassessment.cause_status === 'identified' && (
                                 <>
-                                    <DetailItem label="Fase de origem">
+                                    <DetailItem label={t('Phase of origin')}>
                                         {reassessment.cause_phase &&
-                                            lifecyclePhaseLabels[
+                                            enumLabels.LifecyclePhase[
                                                 reassessment.cause_phase
                                             ]}
                                     </DetailItem>
-                                    <DetailItem label="Causa apurada">
+                                    <DetailItem label={t('Cause found')}>
                                         <p className="font-normal whitespace-pre-line">
                                             {reassessment.cause}
                                         </p>
@@ -170,9 +181,9 @@ export default function ReassessmentsShow({
                             )}
                             {reassessment.cause_status === 'not_applicable' && (
                                 <p className="text-muted-foreground text-sm sm:col-span-2">
-                                    Uma reversão por vencimento ou por
-                                    reclassificação do sistema não tem causa a
-                                    apurar.
+                                    {t(
+                                        "A reversal by review due or by the system's reclassification has no cause to find.",
+                                    )}
                                 </p>
                             )}
                         </dl>
@@ -182,14 +193,14 @@ export default function ReassessmentsShow({
                 {reversal && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Reversão reavaliada</CardTitle>
+                            <CardTitle>{t('Reassessed reversal')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-4">
                             <dl className="grid gap-4 sm:grid-cols-3">
-                                <DetailItem label="Origem">
-                                    {changeOriginLabels[reversal.origin]}
+                                <DetailItem label={t('Origin')}>
+                                    {enumLabels.ChangeOrigin[reversal.origin]}
                                 </DetailItem>
-                                <DetailItem label="Data">
+                                <DetailItem label={t('Date')}>
                                     <Link
                                         href={showStatusHistory(reversal.id)}
                                         className="hover:underline"
@@ -197,13 +208,13 @@ export default function ReassessmentsShow({
                                         {formatDate(reversal.change_date)}
                                     </Link>
                                 </DetailItem>
-                                <DetailItem label="Registrada por">
+                                <DetailItem label={t('Reversal recorded by')}>
                                     <EntryAuthor entry={reversal} />
                                 </DetailItem>
                             </dl>
                             {reversal.trigger_reason && (
                                 <dl>
-                                    <DetailItem label="Motivo">
+                                    <DetailItem label={t('Reason')}>
                                         <p className="font-normal">
                                             {reversal.trigger_reason}
                                         </p>
@@ -212,44 +223,45 @@ export default function ReassessmentsShow({
                             )}
                             {reversal.system_change && (
                                 <dl>
-                                    <DetailItem label="Mudança do sistema">
+                                    <DetailItem label={t('System change')}>
                                         <Link
                                             href={showSystemChange(
                                                 reversal.system_change.id,
                                             )}
                                             className="hover:underline"
                                         >
-                                            {
-                                                systemChangeTypeLabels[
+                                            {t(':type of :date', {
+                                                type: enumLabels
+                                                    .SystemChangeType[
                                                     reversal.system_change.type
-                                                ]
-                                            }{' '}
-                                            de{' '}
-                                            {formatDate(
-                                                reversal.system_change
-                                                    .change_date,
-                                            )}
+                                                ],
+                                                date: formatDate(
+                                                    reversal.system_change
+                                                        .change_date,
+                                                ),
+                                            })}
                                         </Link>
                                     </DetailItem>
                                 </dl>
                             )}
                             {reversal.adverse_event && (
                                 <dl>
-                                    <DetailItem label="Evento adverso">
+                                    <DetailItem label={t('Adverse event')}>
                                         <Link
                                             href={showAdverseEvent(
                                                 reversal.adverse_event.id,
                                             )}
                                             className="hover:underline"
                                         >
-                                            {subdomainCodes(
-                                                reversal.adverse_event,
-                                            )}{' '}
-                                            de{' '}
-                                            {formatDate(
-                                                reversal.adverse_event
-                                                    .occurrence_date,
-                                            )}
+                                            {t(':subdomains of :date', {
+                                                subdomains: subdomainCodes(
+                                                    reversal.adverse_event,
+                                                ),
+                                                date: formatDate(
+                                                    reversal.adverse_event
+                                                        .occurrence_date,
+                                                ),
+                                            })}
                                         </Link>
                                     </DetailItem>
                                 </dl>
@@ -261,31 +273,27 @@ export default function ReassessmentsShow({
                 {reassessment.outcome === 'adjust' && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Mudanças aplicadas</CardTitle>
+                            <CardTitle>{t('Changes applied')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             {changes.length === 0 ? (
                                 <p className="text-muted-foreground text-sm">
-                                    Nenhum campo do vínculo foi alterado.
+                                    {t('No field of the link was changed.')}
                                 </p>
                             ) : (
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
-                                            <TableHead>Campo</TableHead>
-                                            <TableHead>Antes</TableHead>
-                                            <TableHead>Depois</TableHead>
+                                            <TableHead>{t('Field')}</TableHead>
+                                            <TableHead>{t('Before')}</TableHead>
+                                            <TableHead>{t('After')}</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {changes.map((change) => (
                                             <TableRow key={change.field}>
                                                 <TableCell>
-                                                    {
-                                                        reassessmentFieldLabels[
-                                                            change.field
-                                                        ]
-                                                    }
+                                                    {fieldLabels[change.field]}
                                                 </TableCell>
                                                 <TableCell>
                                                     {valueLabel(
@@ -310,47 +318,71 @@ export default function ReassessmentsShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Verificação e substituição</CardTitle>
+                        <CardTitle>
+                            {t('Verification and replacement')}
+                        </CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-4 text-sm">
                         {reassessment.verification ? (
                             <p>
-                                O vínculo foi verificado no mesmo ato,{' '}
-                                <Link
-                                    href={showStatusHistory(
-                                        reassessment.verification.id,
-                                    )}
-                                    className="font-medium underline underline-offset-4"
-                                >
-                                    em{' '}
-                                    {formatDate(
-                                        reassessment.verification.change_date,
-                                    )}
-                                </Link>
-                                .
+                                {interpolateNodes(
+                                    t(
+                                        'The link was verified in the same act, :verification.',
+                                    ),
+                                    {
+                                        verification: (
+                                            <Link
+                                                href={showStatusHistory(
+                                                    reassessment.verification
+                                                        .id,
+                                                )}
+                                                className="font-medium underline underline-offset-4"
+                                            >
+                                                {t('on :date', {
+                                                    date: formatDate(
+                                                        reassessment
+                                                            .verification
+                                                            .change_date,
+                                                    ),
+                                                })}
+                                            </Link>
+                                        ),
+                                    },
+                                )}
                             </p>
                         ) : (
                             <p className="text-muted-foreground">
                                 {reassessment.outcome === 'adjust'
-                                    ? 'Sem verificação no mesmo ato: o vínculo passou a aguardar verificação.'
-                                    : 'Sem verificação no mesmo ato.'}
+                                    ? t(
+                                          'No verification in the same act: the link went on to await verification.',
+                                      )
+                                    : t('No verification in the same act.')}
                             </p>
                         )}
                         {reassessment.outcome === 'replace' &&
                             (link?.replaced_by ? (
                                 <p>
-                                    Substituído por{' '}
-                                    <Link
-                                        href={showLink(link.replaced_by.id)}
-                                        className="font-medium underline underline-offset-4"
-                                    >
-                                        {link.replaced_by.mitigation?.name}
-                                    </Link>
-                                    .
+                                    {interpolateNodes(t('Replaced by :link.'), {
+                                        link: (
+                                            <Link
+                                                href={showLink(
+                                                    link.replaced_by.id,
+                                                )}
+                                                className="font-medium underline underline-offset-4"
+                                            >
+                                                {
+                                                    link.replaced_by.mitigation
+                                                        ?.name
+                                                }
+                                            </Link>
+                                        ),
+                                    })}
                                 </p>
                             ) : (
                                 <p className="text-muted-foreground">
-                                    O vínculo substituto ainda não foi criado.
+                                    {t(
+                                        'The replacing link has not been created yet.',
+                                    )}
                                 </p>
                             ))}
                     </CardContent>
@@ -360,21 +392,28 @@ export default function ReassessmentsShow({
     );
 }
 
-ReassessmentsShow.layout = ({ reassessment }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        ...(reassessment.link
-            ? [
-                  {
-                      title: linkLabel(reassessment.link),
-                      href: showLink(reassessment.link.id),
-                  },
-                  {
-                      title: 'Reavaliações',
-                      href: reassessmentsIndex(reassessment.link.id),
-                  },
-              ]
-            : []),
-        { title: 'Reavaliação', href: show(reassessment.id) },
-    ],
-});
+ReassessmentsShow.layout = ({
+    reassessment,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            ...(reassessment.link
+                ? [
+                      {
+                          title: linkLabel(reassessment.link, t),
+                          href: showLink(reassessment.link.id),
+                      },
+                      {
+                          title: t('Reassessments'),
+                          href: reassessmentsIndex(reassessment.link.id),
+                      },
+                  ]
+                : []),
+            { title: t('Reassessment'), href: show(reassessment.id) },
+        ],
+    };
+};

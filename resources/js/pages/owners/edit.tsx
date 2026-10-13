@@ -4,6 +4,9 @@ import { DetailItem } from '@/components/detail-item';
 import Heading from '@/components/heading';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { edit, index, show } from '@/routes/owners';
 import type { Owner } from '@/types/models';
 import { OwnerForm } from './form';
@@ -13,6 +16,7 @@ type Props = {
 };
 
 export default function OwnersEdit({ owner }: Props) {
+    const { t } = useTranslations();
     const links = owner.links_count ?? 0;
     const entries = owner.status_histories_count ?? 0;
     // The status trail keeps the owner's id, so a used owner's role and
@@ -21,42 +25,41 @@ export default function OwnersEdit({ owner }: Props) {
 
     return (
         <>
-            <Head title="Editar responsável" />
+            <Head title={t('Edit owner')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Editar responsável"
+                    title={t('Edit owner')}
                     description={`${owner.organizational_role} · ${owner.area}`}
                 />
                 {locked ? (
                     <Card className="max-w-xl">
                         <CardHeader>
-                            <CardTitle>Cargo e área travados</CardTitle>
+                            <CardTitle>{t('Role and area locked')}</CardTitle>
                         </CardHeader>
                         <CardContent className="grid gap-6">
                             <dl className="grid gap-4 sm:grid-cols-2">
-                                <DetailItem label="Cargo">
+                                <DetailItem label={t('Position')}>
                                     {owner.organizational_role}
                                 </DetailItem>
-                                <DetailItem label="Área">
+                                <DetailItem label={t('Area')}>
                                     {owner.area}
                                 </DetailItem>
-                                <DetailItem label="Vínculos">
+                                <DetailItem label={t('Links')}>
                                     {links}
                                 </DetailItem>
-                                <DetailItem label="Registros no histórico">
+                                <DetailItem label={t('History entries')}>
                                     {entries}
                                 </DetailItem>
                             </dl>
                             <p className="text-muted-foreground text-sm">
-                                O cargo e a área não podem ser alterados depois
-                                que o responsável foi usado na cadeia de
-                                rastreabilidade. Cadastre um novo responsável e
-                                reatribua os vínculos ativos.
+                                {t(
+                                    'The role and the area cannot be changed once the owner was used in the traceability chain. Register a new owner and reassign the active links.',
+                                )}
                             </p>
                             <div>
                                 <Button variant="outline" asChild>
                                     <Link href={show(owner.id)}>
-                                        Voltar ao responsável
+                                        {t('Back to the owner')}
                                     </Link>
                                 </Button>
                             </div>
@@ -72,7 +75,7 @@ export default function OwnersEdit({ owner }: Props) {
                             <OwnerForm
                                 errors={errors}
                                 processing={processing}
-                                submitLabel="Salvar"
+                                submitLabel={t('Save')}
                                 cancelHref={show(owner.id)}
                                 owner={owner}
                             />
@@ -84,10 +87,14 @@ export default function OwnersEdit({ owner }: Props) {
     );
 }
 
-OwnersEdit.layout = ({ owner }: Props) => ({
-    breadcrumbs: [
-        { title: 'Responsáveis', href: index() },
-        { title: owner.organizational_role, href: show(owner.id) },
-        { title: 'Editar', href: edit(owner.id) },
-    ],
-});
+OwnersEdit.layout = ({ owner, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Owners'), href: index() },
+            { title: owner.organizational_role, href: show(owner.id) },
+            { title: t('Edit'), href: edit(owner.id) },
+        ],
+    };
+};

@@ -7,6 +7,7 @@ import {
     PaginationItem,
     PaginationLink,
 } from '@/components/ui/pagination';
+import { useTranslations } from '@/hooks/use-translations';
 import type { Paginated } from '@/types/models';
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 
 /** Page navigation for a Laravel paginator. Render it only when there is more than one page. */
 export function PaginationLinks({ links }: Props) {
+    const { t } = useTranslations();
     const lastIndex = links.length - 1;
 
     return (
@@ -37,11 +39,13 @@ export function PaginationLinks({ links }: Props) {
                     const content = isPrevious ? (
                         <>
                             <ChevronLeftIcon />
-                            <span className="hidden sm:block">Anterior</span>
+                            <span className="hidden sm:block">
+                                {t('Previous')}
+                            </span>
                         </>
                     ) : isNext ? (
                         <>
-                            <span className="hidden sm:block">Próxima</span>
+                            <span className="hidden sm:block">{t('Next')}</span>
                             <ChevronRightIcon />
                         </>
                     ) : (
@@ -56,9 +60,9 @@ export function PaginationLinks({ links }: Props) {
                                 size={isPrevious || isNext ? 'default' : 'icon'}
                                 aria-label={
                                     isPrevious
-                                        ? 'Ir para a página anterior'
+                                        ? t('Go to the previous page')
                                         : isNext
-                                          ? 'Ir para a próxima página'
+                                          ? t('Go to the next page')
                                           : undefined
                                 }
                                 className={

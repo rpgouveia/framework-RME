@@ -7,24 +7,29 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import { subdomainCodes, systemChangeTypeLabels } from '@/lib/labels';
+import { subdomainCodes } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show } from '@/routes/system-changes';
 import type { SystemChange } from '@/types/models';
 
 /** The changes of a system, also used on the system page. */
 export function SystemChangesTable({ changes }: { changes: SystemChange[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Subdomínios afetados</TableHead>
+                        <TableHead>{t('Date')}</TableHead>
+                        <TableHead>{t('Type')}</TableHead>
+                        <TableHead>{t('Affected subdomains')}</TableHead>
                         <TableHead className="text-right">
-                            Vínculos revertidos
+                            {t('Reverted links')}
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -44,12 +49,12 @@ export function SystemChangesTable({ changes }: { changes: SystemChange[] }) {
                                 </Link>
                             </TableCell>
                             <TableCell>
-                                {systemChangeTypeLabels[change.type]}
+                                {enumLabels.SystemChangeType[change.type]}
                             </TableCell>
                             <TableCell>
                                 {subdomainCodes(change) || (
                                     <span className="text-muted-foreground">
-                                        Todos (nenhum informado)
+                                        {t('All (none given)')}
                                     </span>
                                 )}
                             </TableCell>

@@ -12,8 +12,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { dateInputValue } from '@/lib/format';
-import { categoryLabels, labelFor, sourceTypeLabels } from '@/lib/labels';
+import { labelFor } from '@/lib/enum-labels';
 import type { AiSystem, EnumOption } from '@/types/models';
 
 type Props = {
@@ -46,6 +48,8 @@ export function AiSystemForm({
     aiSystem,
     verifiedLinksCount = 0,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t, tc } = useTranslations();
     const [category, setCategory] = useState(aiSystem?.category ?? '');
     const reverting =
         category === 'unacceptable' &&
@@ -55,14 +59,14 @@ export function AiSystemForm({
     return (
         <>
             <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
+                <Label htmlFor="name">{t('Name')}</Label>
                 <Input
                     id="name"
                     name="name"
                     defaultValue={aiSystem?.name}
                     required
                     maxLength={255}
-                    placeholder="Ex.: Modelo de score de crédito"
+                    placeholder={t('E.g.: Credit scoring model')}
                     aria-invalid={errors.name ? true : undefined}
                 />
                 <InputError message={errors.name} />
@@ -70,9 +74,9 @@ export function AiSystemForm({
 
             <div className="grid gap-2">
                 <Label htmlFor="application_domain">
-                    Domínio de aplicação{' '}
+                    {t('Application domain')}{' '}
                     <span className="text-muted-foreground font-normal">
-                        (opcional)
+                        {t('(optional)')}
                     </span>
                 </Label>
                 <Input
@@ -80,7 +84,7 @@ export function AiSystemForm({
                     name="application_domain"
                     defaultValue={aiSystem?.application_domain ?? ''}
                     maxLength={255}
-                    placeholder="Ex.: Atendimento ao cliente"
+                    placeholder={t('E.g.: Customer service')}
                     aria-describedby="application_domain-help"
                     aria-invalid={errors.application_domain ? true : undefined}
                 />
@@ -88,14 +92,15 @@ export function AiSystemForm({
                     id="application_domain-help"
                     className="text-muted-foreground text-sm"
                 >
-                    Onde o sistema é usado, para contextualizá-lo. Não altera
-                    nenhuma classificação.
+                    {t(
+                        'Where the system is used, to set it in context. It changes no classification.',
+                    )}
                 </p>
                 <InputError message={errors.application_domain} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="source_type">Origem</Label>
+                <Label htmlFor="source_type">{t('Origin')}</Label>
                 <Select
                     name="source_type"
                     defaultValue={aiSystem?.source_type}
@@ -106,12 +111,15 @@ export function AiSystemForm({
                         className="w-full"
                         aria-invalid={errors.source_type ? true : undefined}
                     >
-                        <SelectValue placeholder="Selecione a origem" />
+                        <SelectValue placeholder={t('Select the origin')} />
                     </SelectTrigger>
                     <SelectContent>
                         {sourceTypes.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
-                                {labelFor(sourceTypeLabels, option.value)}
+                                {labelFor(
+                                    enumLabels.SystemSourceType,
+                                    option.value,
+                                )}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -120,7 +128,7 @@ export function AiSystemForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="category">Categoria</Label>
+                <Label htmlFor="category">{t('Category')}</Label>
                 <Select
                     name="category"
                     value={category}
@@ -132,12 +140,19 @@ export function AiSystemForm({
                         className="w-full"
                         aria-invalid={errors.category ? true : undefined}
                     >
-                        <SelectValue placeholder="Selecione a categoria de risco (EU AI Act)" />
+                        <SelectValue
+                            placeholder={t(
+                                'Select the risk category (EU AI Act)',
+                            )}
+                        />
                     </SelectTrigger>
                     <SelectContent>
                         {categories.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
-                                {labelFor(categoryLabels, option.value)}
+                                {labelFor(
+                                    enumLabels.AiSystemCategory,
+                                    option.value,
+                                )}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -149,19 +164,19 @@ export function AiSystemForm({
                         role="alert"
                         className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
                     >
-                        A faixa inaceitável corresponde a práticas proibidas: ao
-                        salvar,{' '}
-                        {verifiedLinksCount === 1
-                            ? '1 vínculo verificado deste sistema voltará a declarado'
-                            : `${verifiedLinksCount} vínculos verificados deste sistema voltarão a declarados`}
-                        , e o sistema deixa de ser considerado em operação.
+                        {tc(
+                            'The unacceptable tier stands for prohibited practices: on saving, :count verified link of this system will go back to declared, and the system is no longer considered in operation.|The unacceptable tier stands for prohibited practices: on saving, :count verified links of this system will go back to declared, and the system is no longer considered in operation.',
+                            verifiedLinksCount,
+                        )}
                     </p>
                 )}
                 <InputError message={errors.category} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="registration_date">Data de cadastro</Label>
+                <Label htmlFor="registration_date">
+                    {t('Registration date')}
+                </Label>
                 <Input
                     id="registration_date"
                     name="registration_date"
@@ -177,7 +192,7 @@ export function AiSystemForm({
             <div className="flex items-center gap-4">
                 <Button disabled={processing}>{submitLabel}</Button>
                 <Button variant="ghost" asChild>
-                    <Link href={cancelHref}>Cancelar</Link>
+                    <Link href={cancelHref}>{t('Cancel')}</Link>
                 </Button>
             </div>
         </>

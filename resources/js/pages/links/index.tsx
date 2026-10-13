@@ -14,7 +14,10 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { changeOriginLabels, costLevelLabels } from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { linksWith } from '@/lib/link-filters';
 import type { VerificationFilter } from '@/lib/link-filters';
 import { rowLink } from '@/lib/row-link';
@@ -42,30 +45,35 @@ const reversalOrigins: ChangeOrigin[] = [
     'manual',
 ];
 
-const verificationFilters: {
-    value: VerificationFilter | null;
-    label: string;
-    empty: string;
-}[] = [
-    { value: null, label: 'Todos', empty: 'Nenhum vínculo foi criado ainda.' },
-    {
-        value: 'awaiting_verification',
-        label: 'Aguardando verificação',
-        empty: 'Nenhum vínculo aguarda verificação.',
-    },
-    {
-        value: 'awaiting_reassessment',
-        label: 'Aguardando reavaliação',
-        empty: 'Nenhum vínculo aguarda reavaliação.',
-    },
-    {
-        value: 'verified',
-        label: 'Verificados',
-        empty: 'Nenhum vínculo está verificado.',
-    },
-];
-
 export default function LinksIndex({ links, filters }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+    const verificationFilters: {
+        value: VerificationFilter | null;
+        label: string;
+        empty: string;
+    }[] = [
+        {
+            value: null,
+            label: t('All links'),
+            empty: t('No link has been created yet.'),
+        },
+        {
+            value: 'awaiting_verification',
+            label: t('Awaiting verification'),
+            empty: t('No link awaits verification.'),
+        },
+        {
+            value: 'awaiting_reassessment',
+            label: t('Awaiting reassessment'),
+            empty: t('No link awaits reassessment.'),
+        },
+        {
+            value: 'verified',
+            label: t('Verified links'),
+            empty: t('No link is verified.'),
+        },
+    ];
     const current =
         verificationFilters.find(
             (option) => option.value === filters.verification,
@@ -73,20 +81,22 @@ export default function LinksIndex({ links, filters }: Props) {
 
     return (
         <>
-            <Head title="Vínculos" />
+            <Head title={t('Links')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
                     <Heading
-                        title="Vínculos"
-                        description="Mitigações aplicadas a cada risco, ordenadas pela próxima revisão."
+                        title={t('Links')}
+                        description={t(
+                            'Mitigations applied to each risk, ordered by the next review.',
+                        )}
                     />
                     <Button asChild>
-                        <Link href={create()}>Criar vínculo</Link>
+                        <Link href={create()}>{t('Create link')}</Link>
                     </Button>
                 </div>
 
                 <nav
-                    aria-label="Filtrar por verificação"
+                    aria-label={t('Filter by verification')}
                     className="flex flex-wrap gap-2"
                 >
                     {verificationFilters.map((option) => (
@@ -101,7 +111,9 @@ export default function LinksIndex({ links, filters }: Props) {
                 </nav>
                 {filters.verification === 'awaiting_reassessment' && (
                     <nav
-                        aria-label="Filtrar pela origem da última reversão"
+                        aria-label={t(
+                            'Filter by the origin of the last reversal',
+                        )}
                         className="-mt-2 flex flex-wrap gap-2"
                     >
                         <FilterLink
@@ -109,7 +121,7 @@ export default function LinksIndex({ links, filters }: Props) {
                             active={filters.origin === null}
                             subtle
                         >
-                            Todas as origens
+                            {t('All origins')}
                         </FilterLink>
                         {reversalOrigins.map((origin) => (
                             <FilterLink
@@ -121,7 +133,7 @@ export default function LinksIndex({ links, filters }: Props) {
                                 active={filters.origin === origin}
                                 subtle
                             >
-                                {changeOriginLabels[origin]}
+                                {enumLabels.ChangeOrigin[origin]}
                             </FilterLink>
                         ))}
                     </nav>
@@ -129,10 +141,14 @@ export default function LinksIndex({ links, filters }: Props) {
                 {filters.verification !== null && (
                     <p className="text-muted-foreground -mt-2 text-sm">
                         {filters.verification === 'verified'
-                            ? 'Vínculos verificados que não foram cancelados.'
+                            ? t('Verified links that were not cancelled.')
                             : filters.verification === 'awaiting_reassessment'
-                              ? 'Vínculos revertidos cuja última reversão ainda não foi reavaliada, dos que esperam há mais tempo. Os de sistemas na faixa inaceitável aparecem aqui para planejar a descontinuação.'
-                              : 'Vínculos declarados à espera da prova: os que aguardam a primeira verificação e os reavaliados ainda sem verificação. Ficam de fora os cancelados e os de sistemas na faixa inaceitável, que não podem ser verificados.'}
+                              ? t(
+                                    'Reverted links whose last reversal has not been reassessed yet, longest waiting first. Those of systems in the unacceptable tier show here to plan the discontinuation.',
+                                )
+                              : t(
+                                    'Declared links waiting for the proof: those awaiting their first verification and the reassessed ones not yet verified. Left out are the cancelled ones and those of systems in the unacceptable tier, which cannot be verified.',
+                                )}
                     </p>
                 )}
 
@@ -144,7 +160,7 @@ export default function LinksIndex({ links, filters }: Props) {
                             </p>
                             <Button variant="outline" asChild>
                                 <Link href={linksWith(null)}>
-                                    Ver todos os vínculos
+                                    {t('See all links')}
                                 </Link>
                             </Button>
                         </div>
@@ -170,13 +186,15 @@ export default function LinksIndex({ links, filters }: Props) {
 }
 
 function EmptyState() {
+    const { t } = useTranslations();
+
     return (
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">
-                Nenhum vínculo foi criado ainda.
+                {t('No link has been created yet.')}
             </p>
             <Button asChild>
-                <Link href={create()}>Criar vínculo</Link>
+                <Link href={create()}>{t('Create link')}</Link>
             </Button>
         </div>
     );
@@ -190,21 +208,24 @@ function LinksTable({
     /** The reassessment list: how long each link has waited (0020). */
     waiting: boolean;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Risco</TableHead>
-                        <TableHead>Mitigação</TableHead>
-                        <TableHead>Responsável</TableHead>
-                        <TableHead>Status</TableHead>
+                        <TableHead>{t('Risk')}</TableHead>
+                        <TableHead>{t('Mitigation')}</TableHead>
+                        <TableHead>{t('Owner')}</TableHead>
+                        <TableHead>{t('Status')}</TableHead>
                         {waiting ? (
-                            <TableHead>Aguardando há</TableHead>
+                            <TableHead>{t('Waiting for')}</TableHead>
                         ) : (
-                            <TableHead>Próxima revisão</TableHead>
+                            <TableHead>{t('Next review')}</TableHead>
                         )}
-                        <TableHead>Custo estimado</TableHead>
+                        <TableHead>{t('Estimated cost')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -267,7 +288,7 @@ function LinksTable({
                                 )}
                             </TableCell>
                             <TableCell>
-                                {costLevelLabels[link.estimated_cost]}
+                                {enumLabels.CostLevel[link.estimated_cost]}
                             </TableCell>
                         </TableRow>
                     ))}
@@ -277,6 +298,10 @@ function LinksTable({
     );
 }
 
-LinksIndex.layout = {
-    breadcrumbs: [{ title: 'Vínculos', href: index() }],
+LinksIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Links'), href: index() }],
+    };
 };

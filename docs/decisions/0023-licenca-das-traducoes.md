@@ -1,7 +1,7 @@
 # 0023. Licença das traduções e de dependências de terceiros
 
 - **Situação:** Aceita; implementada
-- **Registrada em:** 2026-10-09
+- **Registrada em:** 2026-10-12
 
 ## Contexto
 

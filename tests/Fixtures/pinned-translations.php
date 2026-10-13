@@ -12,15 +12,20 @@ return [
 
     // lang/pt_BR.json
     'json' => [
-        // The domain.
-        'Close' => 'Encerrar',
+        // The domain screens (0022), where the screen kept its own wording.
+        'Changes' => 'Mudanças',
+        'Next' => 'Próxima',
+        'Record' => 'Registrar',
+        'Search' => 'Buscar',
 
         // The screens of the starter kit.
         'Dashboard' => 'Painel',
         'Email password reset link' => 'Enviar link de redefinição de senha',
+        'Enter your email and password below to log in' => 'Digite seu e-mail e senha abaixo para entrar',
         'Forgot your password?' => 'Esqueceu sua senha?',
         'Log in to your account' => 'Entre na sua conta',
         'Or, return to' => 'Ou volte para',
+        'Please confirm access to your account by entering one of your emergency recovery codes.' => 'Confirme o acesso à sua conta digitando um dos seus códigos de recuperação de emergência.',
         'Register' => 'Cadastrar',
         'Repository' => 'Repositório',
         'Sign up' => 'Cadastrar-se',
@@ -38,10 +43,11 @@ return [
         'Regenerate codes' => 'Gerar novos códigos',
         'Resend verification email' => 'Reenviar o e-mail de verificação',
         'Two-factor authentication enabled' => 'Autenticação de dois fatores ativada',
+        'To finish enabling two-factor authentication, scan the QR code or enter the setup key in your authenticator app' => 'Para concluir a ativação da autenticação de dois fatores, escaneie o código QR ou digite a chave de configuração no seu aplicativo autenticador',
         'Two-factor authentication is now enabled. Scan the QR code or enter the setup key in your authenticator app.' => 'A autenticação de dois fatores está ativada. Escaneie o código QR ou digite a chave de configuração no seu aplicativo autenticador.',
         'Warning' => 'Atenção',
-        'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.' => 'Ao ativar a autenticação de dois fatores, será solicitado um PIN seguro durante o login. Esse PIN pode ser obtido em um aplicativo compatível com TOTP no seu telefone.',
-        'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.' => 'Durante o login será solicitado um PIN seguro e aleatório, que você pode obter no aplicativo compatível com TOTP do seu telefone.',
+        'When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.' => 'Ao ativar a autenticação de dois fatores, será solicitado um PIN seguro ao entrar. Esse PIN pode ser obtido em um aplicativo compatível com TOTP no seu telefone.',
+        'You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.' => 'Ao entrar, será solicitado um PIN seguro e aleatório, que você pode obter no aplicativo compatível com TOTP do seu telefone.',
     ],
 
     // lang/pt_BR/validation.php: the rules the domain forms use

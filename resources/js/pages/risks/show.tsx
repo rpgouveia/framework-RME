@@ -15,13 +15,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    costLevelLabels,
-    lifecyclePhaseLabels,
-    termLabel,
-    uncertaintyBadgeClasses,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { uncertaintyBadgeClasses } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { create as createLink, show as showLink } from '@/routes/links';
@@ -33,6 +32,8 @@ type Props = {
 };
 
 export default function RisksShow({ risk }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const links = risk.links ?? [];
 
     return (
@@ -45,13 +46,16 @@ export default function RisksShow({ risk }: Props) {
                     </h1>
                     <div className="flex items-center gap-2">
                         <Button variant="outline" asChild>
-                            <Link href={edit(risk.id)}>Editar</Link>
+                            <Link href={edit(risk.id)}>{t('Edit')}</Link>
                         </Button>
                         {links.length === 0 && (
                             <DeleteDialog
                                 form={RiskController.destroy.form(risk.id)}
-                                title="Excluir este risco?"
-                                description={`O risco "${risk.name}" será removido. Esta ação não pode ser desfeita.`}
+                                title={t('Delete this risk?')}
+                                description={t(
+                                    'The risk ":name" will be removed. This action cannot be undone.',
+                                    { name: risk.name },
+                                )}
                             />
                         )}
                     </div>
@@ -59,11 +63,11 @@ export default function RisksShow({ risk }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes</CardTitle>
+                        <CardTitle>{t('Details')}</CardTitle>
                     </CardHeader>
                     <CardContent className="grid gap-6">
                         <dl>
-                            <DetailItem label="Descrição">
+                            <DetailItem label={t('Description')}>
                                 <p className="font-normal whitespace-pre-line">
                                     {risk.description}
                                 </p>
@@ -71,11 +75,11 @@ export default function RisksShow({ risk }: Props) {
                         </dl>
                         {risk.risk_subdomain && (
                             <dl className="grid gap-4 sm:grid-cols-2">
-                                <DetailItem label="Domínio de risco">
+                                <DetailItem label={t('Risk domain')}>
                                     {risk.risk_subdomain.parent &&
                                         termLabel(risk.risk_subdomain.parent)}
                                 </DetailItem>
-                                <DetailItem label="Subdomínio de risco">
+                                <DetailItem label={t('Risk subdomain')}>
                                     {termLabel(risk.risk_subdomain)}
                                     {risk.risk_subdomain.description && (
                                         // The definition in the source, verbatim.
@@ -90,7 +94,7 @@ export default function RisksShow({ risk }: Props) {
                             </dl>
                         )}
                         <dl className="grid gap-4 sm:grid-cols-3">
-                            <DetailItem label="Sistema de IA">
+                            <DetailItem label={t('AI system')}>
                                 {risk.ai_system && (
                                     <Link
                                         href={showAiSystem(risk.ai_system.id)}
@@ -100,10 +104,14 @@ export default function RisksShow({ risk }: Props) {
                                     </Link>
                                 )}
                             </DetailItem>
-                            <DetailItem label="Fase do ciclo de vida">
-                                {lifecyclePhaseLabels[risk.lifecycle_phase]}
+                            <DetailItem label={t('Lifecycle phase')}>
+                                {
+                                    enumLabels.LifecyclePhase[
+                                        risk.lifecycle_phase
+                                    ]
+                                }
                             </DetailItem>
-                            <DetailItem label="Incerteza">
+                            <DetailItem label={t('Uncertainty')}>
                                 <Badge
                                     className={
                                         uncertaintyBadgeClasses[
@@ -112,7 +120,7 @@ export default function RisksShow({ risk }: Props) {
                                     }
                                 >
                                     {
-                                        uncertaintyLevelLabels[
+                                        enumLabels.UncertaintyLevel[
                                             risk.uncertainty_level
                                         ]
                                     }
@@ -124,22 +132,21 @@ export default function RisksShow({ risk }: Props) {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
-                        <CardTitle>Vínculos</CardTitle>
+                        <CardTitle>{t('Links')}</CardTitle>
                         <Button size="sm" asChild>
                             <Link
                                 href={createLink({ query: { risk: risk.id } })}
                             >
-                                Criar vínculo
+                                {t('Create link')}
                             </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
                         {links.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Este risco foi identificado, mas ainda não tem
-                                nenhuma mitigação associada. Crie um vínculo
-                                para definir como ele será tratado e quem
-                                responde por isso.
+                                {t(
+                                    'This risk was identified but has no mitigation yet. Create a link to set how it will be treated and who answers for it.',
+                                )}
                             </p>
                         ) : (
                             <LinksTable
@@ -164,15 +171,18 @@ function LinksTable({
     /** Whether the risk's system is in the unacceptable tier. */
     unacceptable: boolean;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Mitigação</TableHead>
-                    <TableHead>Responsável</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Custo estimado</TableHead>
-                    <TableHead>Próxima revisão</TableHead>
+                    <TableHead>{t('Mitigation')}</TableHead>
+                    <TableHead>{t('Owner')}</TableHead>
+                    <TableHead>{t('Status')}</TableHead>
+                    <TableHead>{t('Estimated cost')}</TableHead>
+                    <TableHead>{t('Next review')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -206,7 +216,7 @@ function LinksTable({
                             <LinkStatusBadges link={link} />
                         </TableCell>
                         <TableCell>
-                            {costLevelLabels[link.estimated_cost]}
+                            {enumLabels.CostLevel[link.estimated_cost]}
                         </TableCell>
                         <TableCell>
                             <ReviewDate
@@ -222,9 +232,13 @@ function LinksTable({
     );
 }
 
-RisksShow.layout = ({ risk }: Props) => ({
-    breadcrumbs: [
-        { title: 'Riscos', href: index() },
-        { title: risk.name, href: show(risk.id) },
-    ],
-});
+RisksShow.layout = ({ risk, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Risks'), href: index() },
+            { title: risk.name, href: show(risk.id) },
+        ],
+    };
+};

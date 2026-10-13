@@ -1,10 +1,6 @@
 import { Badge } from '@/components/ui/badge';
-import {
-    linkStatusBadgeClasses,
-    linkStatusLabels,
-    verificationBadgeClasses,
-    verificationStatusLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { linkStatusBadgeClasses, verificationBadgeClasses } from '@/lib/labels';
 import type { Link, VerificationStatus } from '@/types/models';
 
 /** A link's verification (0013): declared or verified on evidence. */
@@ -13,9 +9,10 @@ export function VerificationBadge({
 }: {
     verification: VerificationStatus;
 }) {
+    const enumLabels = useEnumLabels();
     return (
         <Badge className={verificationBadgeClasses[verification]}>
-            {verificationStatusLabels[verification]}
+            {enumLabels.VerificationStatus[verification]}
         </Badge>
     );
 }
@@ -29,10 +26,11 @@ export function LinkStatusBadges({
 }: {
     link: Pick<Link, 'status' | 'verification_status'>;
 }) {
+    const enumLabels = useEnumLabels();
     return (
         <span className="flex flex-wrap items-center gap-1.5">
             <Badge className={linkStatusBadgeClasses[link.status]}>
-                {linkStatusLabels[link.status]}
+                {enumLabels.LinkStatus[link.status]}
             </Badge>
             <VerificationBadge verification={link.verification_status} />
         </span>

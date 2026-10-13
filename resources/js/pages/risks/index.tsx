@@ -14,11 +14,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    lifecyclePhaseLabels,
-    uncertaintyBadgeClasses,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { uncertaintyBadgeClasses } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { create, edit, index, show } from '@/routes/risks';
@@ -29,14 +29,16 @@ type Props = {
 };
 
 export default function RisksIndex({ risks }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Riscos" />
+            <Head title={t('Risks')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
-                    <Heading title="Riscos" />
+                    <Heading title={t('Risks')} />
                     <Button asChild>
-                        <Link href={create()}>Cadastrar risco</Link>
+                        <Link href={create()}>{t('Register risk')}</Link>
                     </Button>
                 </div>
 
@@ -56,32 +58,39 @@ export default function RisksIndex({ risks }: Props) {
 }
 
 function EmptyState() {
+    const { t } = useTranslations();
+
     return (
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">
-                Nenhum risco foi cadastrado ainda.
+                {t('No risk has been registered yet.')}
             </p>
             <Button asChild>
-                <Link href={create()}>Cadastrar risco</Link>
+                <Link href={create()}>{t('Register risk')}</Link>
             </Button>
         </div>
     );
 }
 
 function RisksTable({ risks }: { risks: Risk[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Sistema</TableHead>
-                        <TableHead>Subdomínio de risco</TableHead>
-                        <TableHead>Fase do ciclo de vida</TableHead>
-                        <TableHead>Incerteza</TableHead>
-                        <TableHead className="text-right">Vínculos</TableHead>
+                        <TableHead>{t('Name')}</TableHead>
+                        <TableHead>{t('System')}</TableHead>
+                        <TableHead>{t('Risk subdomain')}</TableHead>
+                        <TableHead>{t('Lifecycle phase')}</TableHead>
+                        <TableHead>{t('Uncertainty')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('Links')}
+                        </TableHead>
                         <TableHead>
-                            <span className="sr-only">Ações</span>
+                            <span className="sr-only">{t('Actions')}</span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -124,7 +133,11 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                 />
                             </TableCell>
                             <TableCell>
-                                {lifecyclePhaseLabels[risk.lifecycle_phase]}
+                                {
+                                    enumLabels.LifecyclePhase[
+                                        risk.lifecycle_phase
+                                    ]
+                                }
                             </TableCell>
                             <TableCell>
                                 <Badge
@@ -135,7 +148,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                     }
                                 >
                                     {
-                                        uncertaintyLevelLabels[
+                                        enumLabels.UncertaintyLevel[
                                             risk.uncertainty_level
                                         ]
                                     }
@@ -150,7 +163,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                         href={edit(risk.id)}
                                         className="text-muted-foreground hover:text-foreground text-sm hover:underline"
                                     >
-                                        Editar
+                                        {t('Edit')}
                                     </Link>
                                     {risk.links_count === 0 && (
                                         <DeleteRisk risk={risk} />
@@ -166,23 +179,32 @@ function RisksTable({ risks }: { risks: Risk[] }) {
 }
 
 function DeleteRisk({ risk }: { risk: Risk }) {
+    const { t } = useTranslations();
+
     return (
         <DeleteDialog
             form={RiskController.destroy.form(risk.id)}
-            title="Excluir este risco?"
-            description={`O risco "${risk.name}" será removido. Esta ação não pode ser desfeita.`}
+            title={t('Delete this risk?')}
+            description={t(
+                'The risk ":name" will be removed. This action cannot be undone.',
+                { name: risk.name },
+            )}
             trigger={
                 <button
                     type="button"
                     className="text-destructive text-sm hover:underline"
                 >
-                    Excluir
+                    {t('Delete')}
                 </button>
             }
         />
     );
 }
 
-RisksIndex.layout = {
-    breadcrumbs: [{ title: 'Riscos', href: index() }],
+RisksIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Risks'), href: index() }],
+    };
 };

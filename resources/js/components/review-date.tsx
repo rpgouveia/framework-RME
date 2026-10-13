@@ -3,6 +3,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { useTranslations } from '@/hooks/use-translations';
 import { dateInputValue, formatDate } from '@/lib/format';
 import type { VerificationStatus } from '@/types/models';
 
@@ -23,10 +24,12 @@ export function ReviewDate({
     /** Whether the link's system is in the unacceptable tier. */
     unacceptable?: boolean;
 }) {
+    const { t } = useTranslations();
+
     if (date !== null && dateInputValue(date) === dateInputValue()) {
         return (
             <span className="font-semibold text-amber-700 dark:text-amber-300">
-                Vence hoje
+                {t('Due today')}
             </span>
         );
     }
@@ -38,12 +41,16 @@ export function ReviewDate({
     const [label, reason] =
         unacceptable || verification === 'verified'
             ? [
-                  'Não se aplica',
-                  'O sistema está na faixa inaceitável do EU AI Act e não pode operar, então o vínculo não tem revisão periódica.',
+                  t('Not applicable'),
+                  t(
+                      'The system is in the unacceptable tier of the EU AI Act and cannot operate, so the link has no periodic review.',
+                  ),
               ]
             : [
-                  'Aguardando verificação',
-                  'A revisão periódica começa na primeira verificação do vínculo, com o intervalo da faixa do sistema.',
+                  t('Awaiting verification'),
+                  t(
+                      "The periodic review starts at the link's first verification, with the interval of the system's tier.",
+                  ),
               ];
 
     return (
