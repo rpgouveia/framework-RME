@@ -28,5 +28,6 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0021](0021-mudancas-do-sistema.md)                  | Mudanças do sistema como gatilho de reavaliação                      | Aceita; implementada na etapa 4d                      |
 | [0022](0022-padrao-de-idioma.md)                     | Padrão de idioma da interface                                        | Aceita; implementada                                  |
 | [0023](0023-licenca-das-traducoes.md)                | Licença das traduções e de dependências de terceiros                 | Aceita; implementada                                  |
+| [0024](0024-catalogo-real.md)                        | Catálogo real de mitigações (C2)                                     | Aceita; em execução (preenchimento pelo grupo)        |
 
 Itens em aberto: [PENDENTES.md](PENDENTES.md).
