@@ -333,6 +333,7 @@ composer lint          # Pint, fixes formatting
 composer types:check   # PHPStan level 7 over app/, database/, routes/
 npm run check:fix      # lint + format the frontend
 npm run types:check    # tsc --noEmit
+npm run test:unit      # Vitest: the frontend's pure functions, such as lib/i18n
 composer ci:check      # everything CI runs
 ```
 
@@ -343,6 +344,30 @@ Commit messages follow the conventional style already used in the history:
 `feat:`, `fix:`, `ci:`, `style:`, `chore:`.
 
 ## Translations
+
+Every visible text is keyed by its English string, with the Portuguese in
+`lang/pt_BR.json` (decision 0022). In React, `useTranslations()` gives:
+
+```tsx
+const { t, tc } = useTranslations();
+
+t('Reason: :reason', { reason }); // :name placeholders
+tc(':count link|:count links', count); // Laravel's choice syntax
+interpolateNodes(t('Replaced by :link.'), { link: <Link>…</Link> }); // an element in a sentence
+```
+
+A page's `layout` callback runs outside the component: it takes
+`translations` from the page props and uses `translator(translations)`.
+`FrontendTranslationKeysTest` fails when a key looked up through `t()` or `tc()`
+is missing from `lang/pt_BR.json`, which would otherwise show the English key,
+and the lint rule `react/jsx-no-literals` refuses text written straight into
+JSX (attributes such as `placeholder` and `aria-label` still need review).
+
+Enum labels come from the same file, keyed by enum and case, such as
+`"Uncertainty Level: High": "Alta"`. The backend resolves them (`label()`) and
+shares them with every page: `useEnumLabels()` gives
+`enumLabels.UncertaintyLevel.high`, and a layout callback reads `enumLabels`
+from the page props. `EnumLabelTest` fails when a case has no translation.
 
 The default Laravel and Fortify translations come from
 [Laravel Lang](https://laravel-lang.com) (`laravel-lang/common`, a dev
@@ -365,15 +390,17 @@ when a new departure from Laravel Lang is left out of the list (decision 0023).
 
 New translations follow the vocabulary of the interface:
 
-| Use               | For                                      | Not                    |
-| ----------------- | ---------------------------------------- | ---------------------- |
-| ativar, desativar | turning a feature on or off, such as 2FA | habilitar, desabilitar |
-| excluir           | removing                                 | deletar                |
-| digite            | asking for input                         | insira                 |
-| e-mail            | the address and the message              | email                  |
-| cadastrar         | creating records and accounts            | —                      |
-| entrar, sair      | starting and ending the session          | —                      |
-| painel            | the home screen                          | —                      |
+| Use               | For                                                                                          | Not                    |
+| ----------------- | -------------------------------------------------------------------------------------------- | ---------------------- |
+| ativar, desativar | turning a feature on or off, such as 2FA                                                     | habilitar, desabilitar |
+| excluir           | removing                                                                                     | deletar                |
+| digite            | asking for input                                                                             | insira                 |
+| e-mail            | the address and the message                                                                  | email                  |
+| cadastrar         | the domain entities that are edited and listed: systems, risks, owners                       | —                      |
+| registrar         | what is append only: evidence, adverse events, system changes, reassessments, status history | cadastrar              |
+| criar conta       | the user's own account                                                                       | cadastrar              |
+| entrar, sair      | starting and ending the session                                                              | fazer login, login     |
+| painel            | the home screen                                                                              | —                      |
 
 ## Project structure
 

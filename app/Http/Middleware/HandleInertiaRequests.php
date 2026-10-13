@@ -2,12 +2,44 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\AdverseEventNature;
+use App\Enums\AiSystemCategory;
+use App\Enums\CauseStatus;
+use App\Enums\ChangeOrigin;
+use App\Enums\CostLevel;
+use App\Enums\EvidenceType;
+use App\Enums\LifecyclePhase;
+use App\Enums\LinkStatus;
+use App\Enums\ReassessmentOutcome;
+use App\Enums\SystemChangeType;
+use App\Enums\SystemSourceType;
+use App\Enums\UncertaintyLevel;
+use App\Enums\VerificationStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    /**
+     * The domain enums whose labels the frontend shows.
+     */
+    private const ENUMS = [
+        AdverseEventNature::class,
+        AiSystemCategory::class,
+        CauseStatus::class,
+        ChangeOrigin::class,
+        CostLevel::class,
+        EvidenceType::class,
+        LifecyclePhase::class,
+        LinkStatus::class,
+        ReassessmentOutcome::class,
+        SystemChangeType::class,
+        SystemSourceType::class,
+        UncertaintyLevel::class,
+        VerificationStatus::class,
+    ];
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -58,7 +90,26 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::shareOnce($request),
             'translations' => fn (): array => $this->translations(),
+            'enumLabels' => fn (): array => $this->enumLabels(),
         ];
+    }
+
+    /**
+     * The label of each case of the domain enums, keyed by the enum's name
+     * and the case's value: the frontend shows the text the backend resolves
+     * from the language file, never a copy of its own (0022, item 4).
+     *
+     * @return array<string, array<string, string>>
+     */
+    private function enumLabels(): array
+    {
+        $labels = [];
+
+        foreach (self::ENUMS as $enum) {
+            $labels[class_basename($enum)] = array_column($enum::options(), 'label', 'value');
+        }
+
+        return $labels;
     }
 
     /**

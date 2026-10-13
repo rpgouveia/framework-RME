@@ -1,5 +1,6 @@
 import { TriangleAlertIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useTranslations } from '@/hooks/use-translations';
 import { cn } from '@/lib/utils';
 
 /**
@@ -26,22 +27,26 @@ export function UnacceptableTierAlert({
     className?: string;
     id?: string;
 }) {
+    const { t } = useTranslations();
+
     return (
         <Alert id={id} className={cn(unacceptableTone, className)}>
             <TriangleAlertIcon aria-hidden />
-            <AlertTitle>Sistema na faixa inaceitável do EU AI Act</AlertTitle>
+            <AlertTitle>
+                {t('System in the unacceptable tier of the EU AI Act')}
+            </AlertTitle>
             <AlertDescription className="text-red-900 dark:text-red-200">
                 {short ? (
                     <p>
-                        O sistema não pode operar: este vínculo não terá revisão
-                        periódica e serve para planejar a descontinuação.
+                        {t(
+                            'The system cannot operate: this link will have no periodic review and serves to plan the discontinuation.',
+                        )}
                     </p>
                 ) : (
                     <p>
-                        A faixa corresponde a práticas proibidas pelo EU AI Act.
-                        O sistema não é considerado em operação, e seus vínculos
-                        não têm revisão periódica: servem para planejar a
-                        descontinuação.
+                        {t(
+                            'The tier stands for practices the EU AI Act prohibits. The system is not considered in operation, and its links have no periodic review: they serve to plan the discontinuation.',
+                        )}
                     </p>
                 )}
             </AlertDescription>

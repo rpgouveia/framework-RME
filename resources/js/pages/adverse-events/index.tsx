@@ -13,13 +13,14 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    adverseEventNatureBadgeClasses,
-    adverseEventNatureLabels,
-    labelFor,
-    termLabel,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { labelFor } from '@/lib/enum-labels';
+import { adverseEventNatureBadgeClasses } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
@@ -61,32 +62,38 @@ export default function AdverseEventsIndex({
     riskDomains,
     natures,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const domain = riskDomains.find((option) => option.code === filters.domain);
     const filtered = filters.domain !== null || filters.nature !== null;
 
     return (
         <>
-            <Head title="Eventos adversos" />
+            <Head title={t('Adverse events')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
                     <Heading
-                        title="Eventos adversos"
-                        description="O que deu errado nos sistemas em operação, do mais recente ao mais antigo."
+                        title={t('Adverse events')}
+                        description={t(
+                            'What went wrong in the systems in operation, from the most recent to the oldest.',
+                        )}
                     />
                     <Button asChild>
-                        <Link href={create()}>Registrar evento adverso</Link>
+                        <Link href={create()}>
+                            {t('Register adverse event')}
+                        </Link>
                     </Button>
                 </div>
 
                 <nav
-                    aria-label="Filtrar por natureza"
+                    aria-label={t('Filter by nature')}
                     className="flex flex-wrap gap-2"
                 >
                     <FilterLink
                         href={eventsWith({ ...filters, nature: null })}
                         active={filters.nature === null}
                     >
-                        Todas as naturezas
+                        {t('All natures')}
                     </FilterLink>
                     {natures.map((option) => (
                         <FilterLink
@@ -97,13 +104,16 @@ export default function AdverseEventsIndex({
                             })}
                             active={filters.nature === option.value}
                         >
-                            {labelFor(adverseEventNatureLabels, option.value)}
+                            {labelFor(
+                                enumLabels.AdverseEventNature,
+                                option.value,
+                            )}
                         </FilterLink>
                     ))}
                 </nav>
 
                 <nav
-                    aria-label="Filtrar por domínio de risco"
+                    aria-label={t('Filter by risk domain')}
                     className="-mt-2 flex flex-wrap gap-2"
                 >
                     <FilterLink
@@ -111,7 +121,7 @@ export default function AdverseEventsIndex({
                         active={filters.domain === null}
                         subtle
                     >
-                        Todos os domínios
+                        {t('All domains')}
                     </FilterLink>
                     {riskDomains.map((option) => (
                         <FilterLink
@@ -133,8 +143,11 @@ export default function AdverseEventsIndex({
                         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
                             <p className="text-muted-foreground text-sm">
                                 {domain
-                                    ? `Nenhum evento adverso neste filtro materializa riscos do domínio ${termLabel(domain)}.`
-                                    : 'Nenhum evento adverso neste filtro.'}
+                                    ? t(
+                                          'No adverse event in this filter materializes risks of the domain :domain.',
+                                          { domain: termLabel(domain) },
+                                      )
+                                    : t('No adverse event in this filter.')}
                             </p>
                             <Button variant="outline" asChild>
                                 <Link
@@ -143,18 +156,18 @@ export default function AdverseEventsIndex({
                                         nature: null,
                                     })}
                                 >
-                                    Ver todos os eventos
+                                    {t('See all events')}
                                 </Link>
                             </Button>
                         </div>
                     ) : (
                         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
                             <p className="text-muted-foreground text-sm">
-                                Nenhum evento adverso foi registrado.
+                                {t('No adverse event has been recorded.')}
                             </p>
                             <Button asChild>
                                 <Link href={create()}>
-                                    Registrar evento adverso
+                                    {t('Register adverse event')}
                                 </Link>
                             </Button>
                         </div>
@@ -173,18 +186,21 @@ export default function AdverseEventsIndex({
 }
 
 function EventsTable({ events }: { events: AdverseEvent[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Natureza</TableHead>
-                        <TableHead>Subdomínios de risco</TableHead>
-                        <TableHead>Sistema</TableHead>
-                        <TableHead>Ocorrência</TableHead>
-                        <TableHead>Descrição</TableHead>
+                        <TableHead>{t('Nature')}</TableHead>
+                        <TableHead>{t('Risk subdomains')}</TableHead>
+                        <TableHead>{t('System')}</TableHead>
+                        <TableHead>{t('Occurrence')}</TableHead>
+                        <TableHead>{t('Description')}</TableHead>
                         <TableHead className="text-right">
-                            Mudanças disparadas
+                            {t('Changes triggered')}
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -203,7 +219,11 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
                                         ]
                                     }
                                 >
-                                    {adverseEventNatureLabels[event.nature]}
+                                    {
+                                        enumLabels.AdverseEventNature[
+                                            event.nature
+                                        ]
+                                    }
                                 </Badge>
                             </TableCell>
                             <TableCell>
@@ -243,6 +263,10 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
     );
 }
 
-AdverseEventsIndex.layout = {
-    breadcrumbs: [{ title: 'Eventos adversos', href: index() }],
+AdverseEventsIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Adverse events'), href: index() }],
+    };
 };

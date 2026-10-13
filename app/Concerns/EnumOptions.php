@@ -12,23 +12,23 @@ use Illuminate\Support\Str;
 trait EnumOptions
 {
     /**
-     * Get the human readable label for the case.
-     *
-     * Falls back to the case name; add a `lang/pt_BR.json` entry to translate it.
+     * Get the key of the case's label in `lang/pt_BR.json`: the enum and the
+     * case, such as "Uncertainty Level: High", because a case name like High
+     * reads differently in each enum (0022).
+     */
+    public function labelKey(): string
+    {
+        return Str::headline(class_basename(self::class)).': '.Str::headline($this->name);
+    }
+
+    /**
+     * Get the human readable label for the case, falling back to its key.
      */
     public function label(): string
     {
-        $label = Str::headline($this->name);
+        $label = __($this->labelKey());
 
-        /*
-         * A bare word can collide with a translation group. On a case
-         * insensitive filesystem `__('Validation')` resolves to the whole
-         * `validation.php` file, so fall back to the label when the
-         * translator hands back anything other than a string.
-         */
-        $translated = __($label);
-
-        return is_string($translated) ? $translated : $label;
+        return is_string($label) ? $label : $this->labelKey();
     }
 
     /**

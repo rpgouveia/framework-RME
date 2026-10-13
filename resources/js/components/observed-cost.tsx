@@ -1,6 +1,7 @@
 import { Link } from '@inertiajs/react';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import { costLevelLabels } from '@/lib/labels';
 import { show as showEvidence } from '@/routes/evidence';
 import type { Evidence } from '@/types/models';
 
@@ -9,23 +10,27 @@ import type { Evidence } from '@/types/models';
  * reported a cost (RF07, 0018), with a link to that evidence.
  */
 export function ObservedCost({ evidence }: { evidence?: Evidence | null }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     if (!evidence?.observed_cost) {
         return (
             <span className="text-muted-foreground font-normal">
-                Não informado
+                {t('Not reported')}
             </span>
         );
     }
 
     return (
         <span className="grid">
-            <span>{costLevelLabels[evidence.observed_cost]}</span>
+            <span>{enumLabels.CostLevel[evidence.observed_cost]}</span>
             <Link
                 href={showEvidence(evidence.id)}
                 className="text-muted-foreground text-xs font-normal hover:underline"
             >
-                Informado na evidência de{' '}
-                {formatDate(evidence.registration_date)}
+                {t('Reported in the evidence of :date', {
+                    date: formatDate(evidence.registration_date),
+                })}
             </Link>
         </span>
     );

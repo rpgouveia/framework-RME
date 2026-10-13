@@ -2,7 +2,8 @@ import type { ReactNode } from 'react';
 import InputError from '@/components/input-error';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { termLabel } from '@/lib/labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { termLabel } from '@/lib/names';
 import { splitByRiskProfile } from '@/lib/risk-profile';
 import type { ExpectedSubdomain } from '@/lib/risk-profile';
 import type { RiskDomainOption } from '@/types/models';
@@ -45,6 +46,7 @@ export function RiskSubdomainPicker({
     disabled: boolean;
     error?: string;
 }) {
+    const { t, tc } = useTranslations();
     const profile = splitByRiskProfile(domains, expected);
     const checkbox = (
         subdomain: RiskDomainOption['children'][number],
@@ -70,19 +72,21 @@ export function RiskSubdomainPicker({
                 id="risk_subdomains-help"
                 className="text-muted-foreground text-sm"
             >
-                {help} Taxonomia de domínios do MIT AI Risk Repository.
+                {t(':help Domain taxonomy of the MIT AI Risk Repository.', {
+                    help,
+                })}
             </p>
 
             {disabled ? (
                 <p className="text-muted-foreground rounded-lg border border-dashed p-4 text-sm">
-                    Escolha o sistema primeiro.
+                    {t('Choose the system first.')}
                 </p>
             ) : (
                 <>
                     {selected.length > 0 && (
                         <p className="text-sm">
                             <span className="text-muted-foreground">
-                                Selecionados:{' '}
+                                {t('Selected:')}{' '}
                             </span>
                             {selected.join(', ')}
                         </p>
@@ -91,26 +95,30 @@ export function RiskSubdomainPicker({
                         {profile.expected.length > 0 ? (
                             <section className="grid gap-3">
                                 <h3 className="text-sm font-semibold">
-                                    Esperados para este sistema
+                                    {t('Expected for this system')}
                                 </h3>
                                 {profile.expected.map((subdomain) =>
                                     checkbox(
                                         subdomain,
                                         <span className="text-muted-foreground text-xs">
-                                            {termLabel(subdomain.domain)} ·{' '}
-                                            {subdomain.risks_count}{' '}
-                                            {subdomain.risks_count === 1
-                                                ? 'risco cadastrado'
-                                                : 'riscos cadastrados'}
+                                            {tc(
+                                                ':domain · :count registered risk|:domain · :count registered risks',
+                                                subdomain.risks_count,
+                                                {
+                                                    domain: termLabel(
+                                                        subdomain.domain,
+                                                    ),
+                                                },
+                                            )}
                                         </span>,
                                     ),
                                 )}
                             </section>
                         ) : (
                             <p className="text-muted-foreground text-sm">
-                                Este sistema ainda não tem riscos cadastrados:
-                                todos os subdomínios aparecem abaixo, por
-                                domínio.
+                                {t(
+                                    'This system has no registered risks yet: every subdomain appears below, by domain.',
+                                )}
                             </p>
                         )}
 
@@ -118,12 +126,12 @@ export function RiskSubdomainPicker({
                             {profile.expected.length > 0 && (
                                 <div className="grid gap-1">
                                     <h3 className="text-sm font-semibold">
-                                        Outros subdomínios
+                                        {t('Other subdomains')}
                                     </h3>
                                     <p className="text-muted-foreground text-xs">
-                                        Um evento fora dos riscos cadastrados
-                                        pode indicar um risco ainda não
-                                        identificado.
+                                        {t(
+                                            'An event outside the registered risks may point to a risk not yet identified.',
+                                        )}
                                     </p>
                                 </div>
                             )}

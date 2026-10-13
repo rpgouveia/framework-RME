@@ -1,6 +1,9 @@
 import { Form, Head } from '@inertiajs/react';
 import AiSystemController from '@/actions/App/Http/Controllers/AiSystemController';
 import Heading from '@/components/heading';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { index } from '@/routes/ai-systems';
 import type { AiSystem, EnumOption } from '@/types/models';
 import { AiSystemForm } from './form';
@@ -19,12 +22,14 @@ export default function AiSystemsEdit({
     categories,
     verifiedLinksCount,
 }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Editar sistema de IA" />
+            <Head title={t('Edit AI system')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Editar sistema de IA"
+                    title={t('Edit AI system')}
                     description={aiSystem.name}
                 />
                 <Form
@@ -38,7 +43,7 @@ export default function AiSystemsEdit({
                             categories={categories}
                             errors={errors}
                             processing={processing}
-                            submitLabel="Salvar"
+                            submitLabel={t('Save')}
                             cancelHref={index()}
                             aiSystem={aiSystem}
                             verifiedLinksCount={verifiedLinksCount}
@@ -50,6 +55,10 @@ export default function AiSystemsEdit({
     );
 }
 
-AiSystemsEdit.layout = {
-    breadcrumbs: [{ title: 'Sistemas de IA', href: index() }],
+AiSystemsEdit.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('AI systems'), href: index() }],
+    };
 };

@@ -62,6 +62,28 @@ export default defineConfig({
             denyWarnings: true,
             typeAware: true,
         },
+        // Setting the plugins replaces the default set, so it is repeated.
+        plugins: ['typescript', 'unicorn', 'oxc', 'react'],
+        rules: {
+            // Every visible text goes through t() (0022). Props are left out,
+            // since most of them are classes and ids; symbols and the name of
+            // the MIT repository are not translated.
+            'react/jsx-no-literals': [
+                'error',
+                {
+                    noStrings: true,
+                    ignoreProps: true,
+                    allowedStrings: [
+                        '→',
+                        '·',
+                        '—',
+                        '/',
+                        ' ',
+                        'MIT AI Risk Repository',
+                    ],
+                },
+            ],
+        },
     },
     fmt: {
         printWidth: 80,

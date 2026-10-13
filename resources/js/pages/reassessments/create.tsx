@@ -26,18 +26,13 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    changeOriginLabels,
-    costLevelLabels,
-    labelFor,
-    lifecyclePhaseLabels,
-    linkLabel,
-    linkStatusLabels,
-    reassessmentOutcomeLabels,
-    subdomainCodes,
-    systemChangeTypeLabels,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { TranslateFn, WithTranslations } from '@/lib/i18n';
+import { labelFor } from '@/lib/enum-labels';
+import { linkLabel, subdomainCodes } from '@/lib/names';
 import { cn } from '@/lib/utils';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showSystemChange } from '@/routes/system-changes';
@@ -74,27 +69,36 @@ type Props = {
     causeStatuses: EnumOption[];
 };
 
-/** What each outcome does (0020, item 3). */
-const outcomeEffects: Record<ReassessmentOutcome, string> = {
-    maintain:
-        'A mitigação continua adequada. O vínculo é verificado agora, com a evidência registrada depois da reversão.',
-    adjust: 'Muda responsável, custo estimado, fase ou status de progresso. Verificar agora é opcional; sem verificação, o vínculo passa a aguardar verificação.',
-    replace:
-        'Cancela este vínculo e leva à criação de outro, com outra mitigação para o mesmo risco.',
-    close: 'Cancela este vínculo, sem substituto.',
-};
-
 /**
- * What an outcome does for this link: for a system in the unacceptable tier,
- * adjusting is how the discontinuation is planned (0020, item 8).
+ * What an outcome does for this link (0020, item 3): for a system in the
+ * unacceptable tier, adjusting is how the discontinuation is planned (0020,
+ * item 8).
  */
 function outcomeEffect(
     outcome: ReassessmentOutcome,
     unacceptable: boolean,
+    t: TranslateFn,
 ): string {
-    return outcome === 'adjust' && unacceptable
-        ? 'Registre o plano de descontinuação, levando o vínculo à fase Descomissionamento.'
-        : outcomeEffects[outcome];
+    if (outcome === 'adjust' && unacceptable) {
+        return t(
+            'Record the discontinuation plan, taking the link to the Decommissioning phase.',
+        );
+    }
+
+    const effects: Record<ReassessmentOutcome, string> = {
+        maintain: t(
+            'The mitigation is still adequate. The link is verified now, with the evidence registered after the reversal.',
+        ),
+        adjust: t(
+            'Changes the owner, estimated cost, phase or progress status. Verifying now is optional; without verification, the link goes on to await verification.',
+        ),
+        replace: t(
+            'Cancels this link and leads to the creation of another, with another mitigation for the same risk.',
+        ),
+        close: t('Cancels this link, with no replacement.'),
+    };
+
+    return effects[outcome];
 }
 
 /** Radix Select items cannot be empty, so "no change" needs a stand-in. */
@@ -104,6 +108,7 @@ const UNCHANGED = 'unchanged';
 const FORM_ID = 'reassessment-form';
 
 export default function ReassessmentsCreate(props: Props) {
+    const enumLabels = useEnumLabels();
     const {
         link,
         reversal,
@@ -113,6 +118,7 @@ export default function ReassessmentsCreate(props: Props) {
         owners,
         causeStatuses,
     } = props;
+    const { t } = useTranslations();
     const [outcome, setOutcome] = useState<ReassessmentOutcome | null>(null);
     const [causeStatus, setCauseStatus] = useState('');
     const [verify, setVerify] = useState(false);
@@ -140,11 +146,11 @@ export default function ReassessmentsCreate(props: Props) {
 
     return (
         <>
-            <Head title="Reavaliar vínculo" />
+            <Head title={t('Reassess link')} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <Heading
-                    title="Reavaliar vínculo"
-                    description={linkLabel(link)}
+                    title={t('Reassess link')}
+                    description={linkLabel(link, t)}
                 />
 
                 {unacceptable && <UnacceptableTierAlert short />}
@@ -163,7 +169,7 @@ export default function ReassessmentsCreate(props: Props) {
 
                             <fieldset className="grid gap-3">
                                 <legend className="mb-2 text-sm font-medium">
-                                    Desfecho
+                                    {t('Outcome')}
                                 </legend>
                                 {outcomes.map((option) => (
                                     <label
@@ -192,7 +198,8 @@ export default function ReassessmentsCreate(props: Props) {
                                         <span className="grid gap-0.5">
                                             <span className="font-medium">
                                                 {
-                                                    reassessmentOutcomeLabels[
+                                                    enumLabels
+                                                        .ReassessmentOutcome[
                                                         option.value
                                                     ]
                                                 }
@@ -201,12 +208,18 @@ export default function ReassessmentsCreate(props: Props) {
                                                 {outcomeEffect(
                                                     option.value,
                                                     unacceptable,
+                                                    t,
                                                 )}
                                             </span>
                                             {option.problem && (
                                                 <span className="text-sm text-amber-700 dark:text-amber-300">
-                                                    Indisponível:{' '}
-                                                    {option.problem}
+                                                    {t(
+                                                        'Unavailable: :problem',
+                                                        {
+                                                            problem:
+                                                                option.problem,
+                                                        },
+                                                    )}
                                                 </span>
                                             )}
                                         </span>
@@ -215,14 +228,18 @@ export default function ReassessmentsCreate(props: Props) {
                                 <InputError
                                     message={
                                         missingOutcome
-                                            ? 'Escolha o desfecho da reavaliação.'
+                                            ? t(
+                                                  'Choose the outcome of the reassessment.',
+                                              )
                                             : errors.outcome
                                     }
                                 />
                             </fieldset>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="owner_id">Quem reavalia</Label>
+                                <Label htmlFor="owner_id">
+                                    {t('Who reassesses')}
+                                </Label>
                                 <Select
                                     name="owner_id"
                                     defaultValue={
@@ -242,7 +259,11 @@ export default function ReassessmentsCreate(props: Props) {
                                             errors.owner_id ? true : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione o papel responsável" />
+                                        <SelectValue
+                                            placeholder={t(
+                                                'Select the accountable role',
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {owners.map((owner) => (
@@ -261,7 +282,7 @@ export default function ReassessmentsCreate(props: Props) {
 
                             <div className="grid gap-2">
                                 <Label htmlFor="justification">
-                                    Justificativa
+                                    {t('Justification')}
                                 </Label>
                                 <Textarea
                                     id="justification"
@@ -269,7 +290,9 @@ export default function ReassessmentsCreate(props: Props) {
                                     required
                                     maxLength={2000}
                                     className="min-h-28"
-                                    placeholder="Ex.: A mitigação estava ativa; o evento veio de um caso fora do escopo dela."
+                                    placeholder={t(
+                                        'E.g.: The mitigation was active; the event came from a case outside its scope.',
+                                    )}
                                     aria-invalid={
                                         errors.justification ? true : undefined
                                     }
@@ -305,11 +328,11 @@ export default function ReassessmentsCreate(props: Props) {
                                     disabled={processing}
                                     onClick={askToConfirm}
                                 >
-                                    Registrar reavaliação
+                                    {t('Record reassessment')}
                                 </Button>
                                 <Button variant="ghost" asChild>
                                     <Link href={showLink(link.id)}>
-                                        Cancelar
+                                        {t('Cancel')}
                                     </Link>
                                 </Button>
                             </div>
@@ -320,25 +343,32 @@ export default function ReassessmentsCreate(props: Props) {
                             >
                                 <DialogContent>
                                     <DialogTitle>
-                                        Registrar esta reavaliação?
+                                        {t('Record this reassessment?')}
                                     </DialogTitle>
                                     <DialogDescription>
-                                        Desfecho:{' '}
-                                        {outcome &&
-                                            reassessmentOutcomeLabels[outcome]}
-                                        .{' '}
-                                        {outcome &&
-                                            outcomeEffect(
-                                                outcome,
-                                                unacceptable,
-                                            )}{' '}
-                                        A reavaliação é permanente: não pode ser
-                                        editada nem excluída.
+                                        {t(
+                                            'Outcome: :outcome. :effect The reassessment is permanent: it can be neither edited nor deleted.',
+                                            {
+                                                outcome: outcome
+                                                    ? enumLabels
+                                                          .ReassessmentOutcome[
+                                                          outcome
+                                                      ]
+                                                    : '',
+                                                effect: outcome
+                                                    ? outcomeEffect(
+                                                          outcome,
+                                                          unacceptable,
+                                                          t,
+                                                      )
+                                                    : '',
+                                            },
+                                        )}
                                     </DialogDescription>
                                     <DialogFooter className="gap-2">
                                         <DialogClose asChild>
                                             <Button variant="secondary">
-                                                Voltar
+                                                {t('Back')}
                                             </Button>
                                         </DialogClose>
                                         <Button
@@ -346,7 +376,7 @@ export default function ReassessmentsCreate(props: Props) {
                                             form={FORM_ID}
                                             disabled={processing}
                                         >
-                                            Registrar
+                                            {t('Record')}
                                         </Button>
                                     </DialogFooter>
                                 </DialogContent>
@@ -367,26 +397,29 @@ function ReversalContext({
     link: RiskLink;
     reversal: StatusHistory;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <Card className="max-w-3xl">
             <CardHeader>
-                <CardTitle>Reversão a reavaliar</CardTitle>
+                <CardTitle>{t('Reversal to reassess')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
                 <dl className="grid gap-4 sm:grid-cols-3">
-                    <DetailItem label="Origem">
-                        {changeOriginLabels[reversal.origin]}
+                    <DetailItem label={t('Origin')}>
+                        {enumLabels.ChangeOrigin[reversal.origin]}
                     </DetailItem>
-                    <DetailItem label="Data">
+                    <DetailItem label={t('Date')}>
                         {formatDate(reversal.change_date)}
                     </DetailItem>
-                    <DetailItem label="Status do vínculo">
+                    <DetailItem label={t('Link status')}>
                         <LinkStatusBadges link={link} />
                     </DetailItem>
                 </dl>
                 {reversal.trigger_reason && (
                     <dl>
-                        <DetailItem label="Motivo">
+                        <DetailItem label={t('Reason')}>
                             <p className="font-normal">
                                 {reversal.trigger_reason}
                             </p>
@@ -395,37 +428,42 @@ function ReversalContext({
                 )}
                 {reversal.system_change && (
                     <dl>
-                        <DetailItem label="Mudança do sistema">
+                        <DetailItem label={t('System change')}>
                             <Link
                                 href={showSystemChange(
                                     reversal.system_change.id,
                                 )}
                                 className="hover:underline"
                             >
-                                {
-                                    systemChangeTypeLabels[
+                                {t(':type of :date', {
+                                    type: enumLabels.SystemChangeType[
                                         reversal.system_change.type
-                                    ]
-                                }{' '}
-                                de{' '}
-                                {formatDate(reversal.system_change.change_date)}
+                                    ],
+                                    date: formatDate(
+                                        reversal.system_change.change_date,
+                                    ),
+                                })}
                             </Link>
                         </DetailItem>
                     </dl>
                 )}
                 {reversal.adverse_event && (
                     <dl>
-                        <DetailItem label="Evento adverso">
+                        <DetailItem label={t('Adverse event')}>
                             <Link
                                 href={showAdverseEvent(
                                     reversal.adverse_event.id,
                                 )}
                                 className="hover:underline"
                             >
-                                {subdomainCodes(reversal.adverse_event)} de{' '}
-                                {formatDate(
-                                    reversal.adverse_event.occurrence_date,
-                                )}
+                                {t(':subdomains of :date', {
+                                    subdomains: subdomainCodes(
+                                        reversal.adverse_event,
+                                    ),
+                                    date: formatDate(
+                                        reversal.adverse_event.occurrence_date,
+                                    ),
+                                })}
                             </Link>
                         </DetailItem>
                     </dl>
@@ -453,10 +491,13 @@ function CauseFields({
     lifecyclePhases: EnumOption[];
     errors: Partial<Record<string, string>>;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <fieldset className="grid gap-3 rounded-lg border p-4">
             <legend className="px-1 text-sm font-medium">
-                Análise de causa
+                {t('Cause analysis')}
             </legend>
             <div className="flex flex-wrap gap-4">
                 {causeStatuses.map((option) => (
@@ -473,8 +514,8 @@ function CauseFields({
                             required
                         />
                         {option.value === 'identified'
-                            ? 'Causa apurada'
-                            : 'Causa não apurada'}
+                            ? t('Cause found')
+                            : t('Cause not found')}
                     </label>
                 ))}
             </div>
@@ -483,20 +524,22 @@ function CauseFields({
             {causeStatus === 'identified' && (
                 <>
                     <div className="grid gap-2">
-                        <Label htmlFor="cause">Causa apurada</Label>
+                        <Label htmlFor="cause">{t('Cause found')}</Label>
                         <Textarea
                             id="cause"
                             name="cause"
                             required
                             maxLength={2000}
-                            placeholder="Ex.: Entrada fora do domínio previsto, que o filtro não cobria."
+                            placeholder={t(
+                                'E.g.: Input outside the expected domain, which the filter did not cover.',
+                            )}
                             aria-invalid={errors.cause ? true : undefined}
                         />
                         <InputError message={errors.cause} />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="cause_phase">
-                            Fase do ciclo de vida em que a causa se originou
+                            {t('Lifecycle phase in which the cause originated')}
                         </Label>
                         <Select name="cause_phase" required>
                             <SelectTrigger
@@ -506,7 +549,9 @@ function CauseFields({
                                     errors.cause_phase ? true : undefined
                                 }
                             >
-                                <SelectValue placeholder="Selecione a fase" />
+                                <SelectValue
+                                    placeholder={t('Select the phase')}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {lifecyclePhases.map((option) => (
@@ -515,7 +560,7 @@ function CauseFields({
                                         value={option.value}
                                     >
                                         {labelFor(
-                                            lifecyclePhaseLabels,
+                                            enumLabels.LifecyclePhase,
                                             option.value,
                                         )}
                                     </SelectItem>
@@ -549,19 +594,23 @@ function AdjustFields({
     verify: boolean;
     onVerify: (value: boolean) => void;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <fieldset className="grid gap-4 rounded-lg border p-4">
             <legend className="px-1 text-sm font-medium">
-                Ajustes no vínculo
+                {t('Adjustments to the link')}
             </legend>
             <p className="text-muted-foreground text-sm">
-                Deixe "Sem mudança" no que não muda. O antes e o depois de cada
-                mudança ficam registrados na reavaliação.
+                {t(
+                    'Leave "No change" on what does not change. The before and after of each change are recorded in the reassessment.',
+                )}
             </p>
             <div className="grid gap-4 sm:grid-cols-2">
                 <ChangeSelect
                     name="changes[owner_id]"
-                    label="Responsável"
+                    label={t('Owner')}
                     current={`${link.owner?.organizational_role ?? ''}`}
                     options={owners
                         .filter((owner) => owner.id !== link.owner_id)
@@ -573,39 +622,42 @@ function AdjustFields({
                 />
                 <ChangeSelect
                     name="changes[estimated_cost]"
-                    label="Custo estimado"
-                    current={costLevelLabels[link.estimated_cost]}
+                    label={t('Estimated cost')}
+                    current={enumLabels.CostLevel[link.estimated_cost]}
                     options={costLevels
                         .filter(
                             (option) => option.value !== link.estimated_cost,
                         )
                         .map((option) => ({
                             value: option.value,
-                            label: labelFor(costLevelLabels, option.value),
+                            label: labelFor(enumLabels.CostLevel, option.value),
                         }))}
                     error={errors['changes.estimated_cost']}
                 />
                 <ChangeSelect
                     name="changes[lifecycle_phase]"
-                    label="Fase do ciclo de vida"
-                    current={lifecyclePhaseLabels[link.lifecycle_phase]}
+                    label={t('Lifecycle phase')}
+                    current={enumLabels.LifecyclePhase[link.lifecycle_phase]}
                     options={lifecyclePhases
                         .filter(
                             (option) => option.value !== link.lifecycle_phase,
                         )
                         .map((option) => ({
                             value: option.value,
-                            label: labelFor(lifecyclePhaseLabels, option.value),
+                            label: labelFor(
+                                enumLabels.LifecyclePhase,
+                                option.value,
+                            ),
                         }))}
                     error={errors['changes.lifecycle_phase']}
                 />
                 <ChangeSelect
                     name="changes[status]"
-                    label="Status de progresso"
-                    current={linkStatusLabels[link.status]}
+                    label={t('Progress status')}
+                    current={enumLabels.LinkStatus[link.status]}
                     options={statuses.map((option) => ({
                         value: option.value,
-                        label: labelFor(linkStatusLabels, option.value),
+                        label: labelFor(enumLabels.LinkStatus, option.value),
                     }))}
                     error={errors['changes.status']}
                 />
@@ -622,10 +674,14 @@ function AdjustFields({
                     className="mt-0.5"
                 />
                 <div className="grid gap-0.5">
-                    <Label htmlFor="verify">Verificar no mesmo ato</Label>
+                    <Label htmlFor="verify">
+                        {t('Verify in the same act')}
+                    </Label>
                     <p className="text-muted-foreground text-sm">
                         {verificationProblem ??
-                            'Use quando a mudança já está aplicada e a evidência registrada depois da reversão a comprova. Sem verificar, o vínculo passa a aguardar verificação.'}
+                            t(
+                                'Use it when the change is already applied and the evidence registered after the reversal proves it. Without verifying, the link goes on to await verification.',
+                            )}
                     </p>
                 </div>
             </div>
@@ -647,6 +703,7 @@ function ChangeSelect({
     options: { value: string; label: string }[];
     error?: string;
 }) {
+    const { t } = useTranslations();
     const [value, setValue] = useState(UNCHANGED);
     const id = name.replace(/\W+/g, '_');
 
@@ -663,7 +720,7 @@ function ChangeSelect({
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value={UNCHANGED}>
-                        Sem mudança ({current})
+                        {t('No change (:current)', { current })}
                     </SelectItem>
                     {options.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
@@ -683,10 +740,17 @@ function ChangeSelect({
     );
 }
 
-ReassessmentsCreate.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        { title: linkLabel(link), href: showLink(link.id) },
-        { title: 'Reavaliar', href: create(link.id) },
-    ],
-});
+ReassessmentsCreate.layout = ({
+    link,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            { title: linkLabel(link, t), href: showLink(link.id) },
+            { title: t('Reassess'), href: create(link.id) },
+        ],
+    };
+};

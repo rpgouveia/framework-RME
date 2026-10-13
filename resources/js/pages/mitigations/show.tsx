@@ -19,13 +19,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    costLevelLabels,
-    linkLabel,
-    termLabel,
-    uncertaintyBadgeClasses,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { interpolateNodes, translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { uncertaintyBadgeClasses } from '@/lib/labels';
+import { linkLabel, termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show as showLink } from '@/routes/links';
 import { index, show } from '@/routes/mitigations';
@@ -54,6 +53,8 @@ export default function MitigationsShow({
     riskTaxonomy,
     catalog,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const links = mitigation.links ?? [];
     const subcategory = mitigation.saeri_subcategory;
     const category = subcategory?.parent;
@@ -72,8 +73,9 @@ export default function MitigationsShow({
                         )}
                     </h1>
                     <p className="text-muted-foreground text-sm">
-                        Entrada do catálogo curado (C2). Mitigações não são
-                        cadastradas nem editadas pela aplicação.
+                        {t(
+                            'An entry of the curated catalogue (C2). Mitigations are neither registered nor edited by the application.',
+                        )}
                     </p>
                 </header>
 
@@ -81,7 +83,7 @@ export default function MitigationsShow({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Descrição</CardTitle>
+                        <CardTitle>{t('Description')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="whitespace-pre-line">
@@ -95,24 +97,33 @@ export default function MitigationsShow({
                         framework adds, so each claim has its author. */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Taxonomia de Saeri et al.</CardTitle>
+                            <CardTitle>
+                                {t('Taxonomy of Saeri et al.')}
+                            </CardTitle>
                             <CardDescription>
-                                Classificação e rastreio até a fonte.{' '}
-                                <a
-                                    href={taxonomy.url}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="hover:underline"
-                                >
-                                    {taxonomy.version}
-                                </a>
-                                .
+                                {interpolateNodes(
+                                    t(
+                                        'Classification and tracing back to the source. :version.',
+                                    ),
+                                    {
+                                        version: (
+                                            <a
+                                                href={taxonomy.url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="hover:underline"
+                                            >
+                                                {taxonomy.version}
+                                            </a>
+                                        ),
+                                    },
+                                )}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <dl className="grid gap-4">
                                 {category && (
-                                    <DetailItem label="Categoria">
+                                    <DetailItem label={t('Category')}>
                                         {termLabel(category)}
                                         <span
                                             className="text-muted-foreground block text-sm font-normal"
@@ -123,7 +134,7 @@ export default function MitigationsShow({
                                     </DetailItem>
                                 )}
                                 {subcategory && (
-                                    <DetailItem label="Subcategoria">
+                                    <DetailItem label={t('Subcategory')}>
                                         {termLabel(subcategory)}
                                         <span
                                             className="text-muted-foreground block text-sm font-normal"
@@ -141,12 +152,12 @@ export default function MitigationsShow({
                                         )}
                                     </DetailItem>
                                 )}
-                                <DetailItem label="Nome original">
+                                <DetailItem label={t('Original name')}>
                                     <span lang="en">
                                         {mitigation.source_name}
                                     </span>
                                 </DetailItem>
-                                <DetailItem label="Documento de origem">
+                                <DetailItem label={t('Source document')}>
                                     {sourceDocument ? (
                                         <span className="font-normal">
                                             {sourceDocument.title} (
@@ -157,7 +168,9 @@ export default function MitigationsShow({
                                         mitigation.source_document
                                     )}
                                 </DetailItem>
-                                <DetailItem label="Identificador na base">
+                                <DetailItem
+                                    label={t('Identifier in the database')}
+                                >
                                     <code className="text-sm">
                                         {mitigation.source_reference}
                                     </code>
@@ -169,20 +182,21 @@ export default function MitigationsShow({
                     <Card>
                         <CardHeader>
                             <CardTitle>
-                                Contribuição do framework (C2)
+                                {t('Contribution of the framework (C2)')}
                             </CardTitle>
                             {/* RNF03: every qualitative estimate comes with
                                 its source and its uncertainty. */}
                             <CardDescription>
-                                Saeri et al. não avaliam risco tratado, custo
-                                nem eficácia: estes campos são do grupo, com a
-                                fonte que os fundamenta. O custo real de cada
-                                aplicação fica no vínculo.
+                                {t(
+                                    "Saeri et al. assess neither the risk treated, nor cost, nor effectiveness: these fields are the group's, with the source that grounds them. The actual cost of each application is on the link.",
+                                )}
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <dl className="grid gap-4">
-                                <DetailItem label="Subdomínios de risco tratados">
+                                <DetailItem
+                                    label={t('Risk subdomains treated')}
+                                >
                                     <ul className="grid gap-2">
                                         {mitigation.target_risk_subdomains?.map(
                                             (term) => (
@@ -195,37 +209,48 @@ export default function MitigationsShow({
                                         )}
                                     </ul>
                                     <p className="text-muted-foreground mt-2 text-xs font-normal">
-                                        Taxonomia de domínios do{' '}
-                                        <a
-                                            href={riskTaxonomy.url}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="underline underline-offset-4"
-                                        >
-                                            MIT AI Risk Repository
-                                        </a>{' '}
-                                        ({riskTaxonomy.version}).
+                                        {interpolateNodes(
+                                            t(
+                                                'Domain taxonomy of the :repository (:version).',
+                                                {
+                                                    version:
+                                                        riskTaxonomy.version,
+                                                },
+                                            ),
+                                            {
+                                                repository: (
+                                                    <a
+                                                        href={riskTaxonomy.url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="underline underline-offset-4"
+                                                    >
+                                                        MIT AI Risk Repository
+                                                    </a>
+                                                ),
+                                            },
+                                        )}
                                     </p>
                                 </DetailItem>
-                                <DetailItem label="Risco-alvo sugerido">
+                                <DetailItem label={t('Suggested target risk')}>
                                     <p className="font-normal whitespace-pre-line">
                                         {mitigation.suggested_target_risk}
                                     </p>
                                 </DetailItem>
-                                <DetailItem label="Evidência esperada">
+                                <DetailItem label={t('Expected evidence')}>
                                     <p className="font-normal whitespace-pre-line">
                                         {mitigation.expected_evidence}
                                     </p>
                                 </DetailItem>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    <DetailItem label="Custo sugerido">
+                                    <DetailItem label={t('Suggested cost')}>
                                         {
-                                            costLevelLabels[
+                                            enumLabels.CostLevel[
                                                 mitigation.suggested_cost
                                             ]
                                         }
                                     </DetailItem>
-                                    <DetailItem label="Incerteza">
+                                    <DetailItem label={t('Uncertainty')}>
                                         <Badge
                                             className={
                                                 uncertaintyBadgeClasses[
@@ -234,14 +259,14 @@ export default function MitigationsShow({
                                             }
                                         >
                                             {
-                                                uncertaintyLevelLabels[
+                                                enumLabels.UncertaintyLevel[
                                                     mitigation.uncertainty_level
                                                 ]
                                             }
                                         </Badge>
                                     </DetailItem>
                                 </div>
-                                <DetailItem label="Fonte da estimativa">
+                                <DetailItem label={t('Source of the estimate')}>
                                     <span className="font-normal">
                                         {mitigation.estimate_source}
                                     </span>
@@ -254,14 +279,15 @@ export default function MitigationsShow({
                 <Card>
                     <CardHeader>
                         <CardTitle>
-                            Vínculos que aplicam esta mitigação
+                            {t('Links that apply this mitigation')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         {links.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Esta mitigação ainda não foi aplicada a nenhum
-                                risco.
+                                {t(
+                                    'This mitigation has not been applied to any risk yet.',
+                                )}
                             </p>
                         ) : (
                             <LinksTable links={links} />
@@ -274,13 +300,15 @@ export default function MitigationsShow({
 }
 
 function LinksTable({ links }: { links: RiskLink[] }) {
+    const { t } = useTranslations();
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Vínculo</TableHead>
-                    <TableHead>Responsável</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead>{t('Link')}</TableHead>
+                    <TableHead>{t('Owner')}</TableHead>
+                    <TableHead>{t('Status')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -295,7 +323,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 href={showLink(link.id)}
                                 className="font-medium hover:underline"
                             >
-                                {linkLabel(link)}
+                                {linkLabel(link, t)}
                             </Link>
                         </TableCell>
                         <TableCell>
@@ -320,9 +348,16 @@ function LinksTable({ links }: { links: RiskLink[] }) {
     );
 }
 
-MitigationsShow.layout = ({ mitigation }: Props) => ({
-    breadcrumbs: [
-        { title: 'Catálogo de mitigações', href: index() },
-        { title: mitigation.name, href: show(mitigation.id) },
-    ],
-});
+MitigationsShow.layout = ({
+    mitigation,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Mitigation catalogue'), href: index() },
+            { title: mitigation.name, href: show(mitigation.id) },
+        ],
+    };
+};

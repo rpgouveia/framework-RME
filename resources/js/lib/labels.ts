@@ -1,39 +1,10 @@
 import type {
     AdverseEventNature,
     AiSystemCategory,
-    CauseStatus,
-    ChangeOrigin,
-    CostLevel,
-    EvidenceType,
-    LifecyclePhase,
-    Link,
     LinkStatus,
-    ReassessmentChange,
-    ReassessmentOutcome,
-    SystemChangeType,
-    SystemSourceType,
     UncertaintyLevel,
     VerificationStatus,
 } from '@/types/models';
-
-/**
- * Brazilian Portuguese labels for the enum values the backend sends raw,
- * e.g. `third_party`. Typed by the enum unions, so a new case that is missing
- * here fails the type check.
- */
-export const sourceTypeLabels: Record<SystemSourceType, string> = {
-    internal: 'Interno',
-    third_party: 'Terceiros',
-    open_source: 'Código aberto',
-    hybrid: 'Híbrido',
-};
-
-export const categoryLabels: Record<AiSystemCategory, string> = {
-    unacceptable: 'Inaceitável',
-    high: 'Alto',
-    limited: 'Limitado',
-    minimal: 'Mínimo',
-};
 
 /**
  * Badge classes for the EU AI Act risk tiers, coloured by severity. shadcn has
@@ -47,37 +18,11 @@ export const categoryBadgeClasses: Record<AiSystemCategory, string> = {
     minimal: 'border-transparent bg-secondary text-secondary-foreground',
 };
 
-export const lifecyclePhaseLabels: Record<LifecyclePhase, string> = {
-    inception: 'Concepção',
-    design: 'Projeto',
-    data_collection: 'Coleta de dados',
-    development: 'Desenvolvimento',
-    validation: 'Validação',
-    deployment: 'Implantação',
-    monitoring: 'Monitoramento',
-    decommissioning: 'Descomissionamento',
-};
-
-export const uncertaintyLevelLabels: Record<UncertaintyLevel, string> = {
-    low: 'Baixa',
-    medium: 'Média',
-    high: 'Alta',
-};
-
 /** Badge classes for the uncertainty scale, from calm to alarming. */
 export const uncertaintyBadgeClasses: Record<UncertaintyLevel, string> = {
     low: 'border-transparent bg-secondary text-secondary-foreground',
     medium: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
     high: 'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
-};
-
-export const linkStatusLabels: Record<LinkStatus, string> = {
-    planned: 'Planejado',
-    in_progress: 'Em andamento',
-    implemented: 'Implementado',
-    monitoring: 'Em monitoramento',
-    suspended: 'Suspenso',
-    cancelled: 'Cancelado',
 };
 
 /** Badge classes for a link's status, from not started to settled. */
@@ -98,11 +43,6 @@ export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
         'border-border bg-transparent text-neutral-600 dark:text-neutral-300',
 };
 
-export const adverseEventNatureLabels: Record<AdverseEventNature, string> = {
-    incident: 'Incidente',
-    near_miss: 'Quase-incidente',
-};
-
 /**
  * Nature badges: an incident in red, a near miss outlined. Text contrast is
  * at least 8:1 (WCAG 2.1 AA) in both themes.
@@ -116,45 +56,6 @@ export const adverseEventNatureBadgeClasses: Record<
     near_miss: 'border-border bg-transparent text-foreground',
 };
 
-export const reassessmentOutcomeLabels: Record<ReassessmentOutcome, string> = {
-    maintain: 'Manter',
-    adjust: 'Ajustar',
-    replace: 'Substituir',
-    close: 'Encerrar',
-};
-
-export const causeStatusLabels: Record<CauseStatus, string> = {
-    identified: 'Apurada',
-    not_identified: 'Não apurada',
-    not_applicable: 'Não se aplica',
-};
-
-/** The link fields an adjustment may change (0020). */
-export const reassessmentFieldLabels: Record<
-    ReassessmentChange['field'],
-    string
-> = {
-    owner_id: 'Responsável',
-    estimated_cost: 'Custo estimado',
-    lifecycle_phase: 'Fase do ciclo de vida',
-    status: 'Status de progresso',
-};
-
-/** Whole days from a date to today, to say how long something waited. */
-export function daysSince(date: string): number {
-    const [year, month, day] = date.slice(0, 10).split('-').map(Number);
-    const then = Date.UTC(year, month - 1, day);
-    const now = new Date();
-    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-
-    return Math.max(0, Math.round((today - then) / 86_400_000));
-}
-
-export const verificationStatusLabels: Record<VerificationStatus, string> = {
-    declared: 'Declarada',
-    verified: 'Verificada',
-};
-
 /**
  * Verification badges, apart from the progress ones: declared is outlined,
  * verified is green. Text contrast is at least 8.5:1 (WCAG 2.1 AA) in both
@@ -165,66 +66,3 @@ export const verificationBadgeClasses: Record<VerificationStatus, string> = {
     verified:
         'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
 };
-
-export const changeOriginLabels: Record<ChangeOrigin, string> = {
-    manual: 'Manual',
-    review_due: 'Vencimento da revisão',
-    adverse_event: 'Evento adverso',
-    system_reclassification: 'Reclassificação do sistema',
-    model_version: 'Nova versão do modelo',
-    data_change: 'Alteração na base de dados',
-};
-
-export const systemChangeTypeLabels: Record<SystemChangeType, string> = {
-    model_version: 'Nova versão do modelo',
-    data_change: 'Alteração na base de dados',
-};
-
-/**
- * Names a link by its risk and mitigation pair, which is its identity.
- * Falls back to the ids when the relations are not loaded.
- */
-export function linkLabel(link: Link): string {
-    const risk = link.risk?.name ?? `Risco #${link.risk_id}`;
-    const mitigation =
-        link.mitigation?.name ?? `Mitigação #${link.mitigation_id}`;
-
-    return `${risk} → ${mitigation}`;
-}
-
-export const costLevelLabels: Record<CostLevel, string> = {
-    low: 'Baixo',
-    medium: 'Médio',
-    high: 'Alto',
-};
-
-export const evidenceTypeLabels: Record<EvidenceType, string> = {
-    document: 'Documento',
-    report: 'Relatório',
-    audit_log: 'Log de auditoria',
-    test_result: 'Resultado de teste',
-    certification: 'Certificação',
-    meeting_minutes: 'Ata de reunião',
-};
-
-/** A taxonomy term as its code and name, such as "1.2 Gestão de riscos". */
-export function termLabel(term: { code: string; name: string }): string {
-    return `${term.code} ${term.name}`;
-}
-
-/** The codes of an adverse event's risk subdomains, such as "2.1, 2.2". */
-export function subdomainCodes(event: {
-    risk_subdomains?: { code: string }[];
-}): string {
-    return (event.risk_subdomains ?? [])
-        .map((subdomain) => subdomain.code)
-        .join(', ');
-}
-
-/** Looks up an enum value's label, falling back to the raw value. */
-export function labelFor(
-    labels: Record<string, string>,
-    value: string,
-): string {
-    return labels[value] ?? value;
-}

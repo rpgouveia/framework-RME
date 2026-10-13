@@ -12,8 +12,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import { costLevelLabels, evidenceTypeLabels, linkLabel } from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show } from '@/routes/evidence';
 import { index as linksIndex, show as showLink } from '@/routes/links';
@@ -28,14 +32,21 @@ type Props = {
 };
 
 export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Evidências" />
+            <Head title={t('Evidence')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
-                    <Heading title="Evidências" description={linkLabel(link)} />
+                    <Heading
+                        title={t('Evidence')}
+                        description={linkLabel(link, t)}
+                    />
                     <Button asChild>
-                        <Link href={create(link.id)}>Registrar evidência</Link>
+                        <Link href={create(link.id)}>
+                            {t('Register evidence')}
+                        </Link>
                     </Button>
                 </div>
 
@@ -45,12 +56,13 @@ export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
                     <Alert>
                         <ShieldCheckIcon aria-hidden />
                         <AlertTitle>
-                            Este vínculo pode ser verificado
+                            {t('This link can be verified')}
                         </AlertTitle>
                         <AlertDescription>
                             <p>
-                                O vínculo está declarado e já tem a evidência
-                                que a verificação exige.
+                                {t(
+                                    'The link is declared and already has the evidence the verification requires.',
+                                )}
                             </p>
                             <Button size="sm" asChild>
                                 <Link
@@ -58,7 +70,7 @@ export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
                                         query: { verify: 1 },
                                     })}
                                 >
-                                    Verificar vínculo
+                                    {t('Verify link')}
                                 </Link>
                             </Button>
                         </AlertDescription>
@@ -68,13 +80,13 @@ export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
                 {evidence.data.length === 0 ? (
                     <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
                         <p className="text-muted-foreground max-w-md text-sm">
-                            Nenhuma evidência foi registrada para este vínculo.
-                            Sem evidência, não há como comprovar que a mitigação
-                            foi aplicada.
+                            {t(
+                                'No evidence has been registered for this link. Without evidence, there is no way to prove the mitigation was applied.',
+                            )}
                         </p>
                         <Button asChild>
                             <Link href={create(link.id)}>
-                                Registrar evidência
+                                {t('Register evidence')}
                             </Link>
                         </Button>
                     </div>
@@ -92,15 +104,18 @@ export default function EvidenceIndex({ link, evidence, canVerify }: Props) {
 }
 
 function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Custo observado</TableHead>
-                        <TableHead>Registrada em</TableHead>
+                        <TableHead>{t('Type')}</TableHead>
+                        <TableHead>{t('Description')}</TableHead>
+                        <TableHead>{t('Observed cost')}</TableHead>
+                        <TableHead>{t('Registered on')}</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -115,7 +130,7 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                                     href={show(item.id)}
                                     className="hover:underline"
                                 >
-                                    {evidenceTypeLabels[item.type]}
+                                    {enumLabels.EvidenceType[item.type]}
                                 </Link>
                             </TableCell>
                             <TableCell>
@@ -125,7 +140,7 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
                             </TableCell>
                             <TableCell>
                                 {item.observed_cost ? (
-                                    costLevelLabels[item.observed_cost]
+                                    enumLabels.CostLevel[item.observed_cost]
                                 ) : (
                                     <span className="text-muted-foreground">
                                         —
@@ -143,10 +158,14 @@ function EvidenceTable({ evidence }: { evidence: Evidence[] }) {
     );
 }
 
-EvidenceIndex.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: linksIndex() },
-        { title: linkLabel(link), href: showLink(link.id) },
-        { title: 'Evidências', href: index(link.id) },
-    ],
-});
+EvidenceIndex.layout = ({ link, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: linksIndex() },
+            { title: linkLabel(link, t), href: showLink(link.id) },
+            { title: t('Evidence'), href: index(link.id) },
+        ],
+    };
+};

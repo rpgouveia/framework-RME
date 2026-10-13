@@ -1,4 +1,4 @@
-import { termLabel } from '@/lib/labels';
+import { termLabel } from '@/lib/names';
 import type { TaxonomyTerm } from '@/types/models';
 
 /**

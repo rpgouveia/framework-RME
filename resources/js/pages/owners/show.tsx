@@ -23,8 +23,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import { linkLabel } from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { linkLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show as showLink } from '@/routes/links';
 import { edit, index, show } from '@/routes/owners';
@@ -35,6 +38,7 @@ type Props = {
 };
 
 export default function OwnersShow({ owner }: Props) {
+    const { t } = useTranslations();
     const links = owner.links ?? [];
     const used =
         (owner.links_count ?? 0) > 0 || (owner.status_histories_count ?? 0) > 0;
@@ -49,14 +53,16 @@ export default function OwnersShow({ owner }: Props) {
                         <h1 className="flex flex-wrap items-center gap-3 text-xl font-semibold tracking-tight">
                             {owner.organizational_role}
                             {!active && (
-                                <Badge variant="outline">Inativo</Badge>
+                                <Badge variant="outline">{t('Inactive')}</Badge>
                             )}
                         </h1>
                         <p className="text-muted-foreground text-sm">
-                            {owner.area}
-                            {!active &&
-                                owner.deactivated_at !== null &&
-                                ` · desativado em ${formatDate(owner.deactivated_at)}`}
+                            {owner.deactivated_at === null
+                                ? owner.area
+                                : t(':area · deactivated on :date', {
+                                      area: owner.area,
+                                      date: formatDate(owner.deactivated_at),
+                                  })}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -65,14 +71,22 @@ export default function OwnersShow({ owner }: Props) {
                         {!used && (
                             <>
                                 <Button variant="outline" asChild>
-                                    <Link href={edit(owner.id)}>Editar</Link>
+                                    <Link href={edit(owner.id)}>
+                                        {t('Edit')}
+                                    </Link>
                                 </Button>
                                 <DeleteDialog
                                     form={OwnerController.destroy.form(
                                         owner.id,
                                     )}
-                                    title="Excluir este responsável?"
-                                    description={`O responsável "${owner.organizational_role} · ${owner.area}" será removido. Esta ação não pode ser desfeita.`}
+                                    title={t('Delete this owner?')}
+                                    description={t(
+                                        'The owner ":role · :area" will be removed. This action cannot be undone.',
+                                        {
+                                            role: owner.organizational_role,
+                                            area: owner.area,
+                                        },
+                                    )}
                                 />
                             </>
                         )}
@@ -83,7 +97,7 @@ export default function OwnersShow({ owner }: Props) {
                             >
                                 {({ processing }) => (
                                     <Button type="submit" disabled={processing}>
-                                        Reativar
+                                        {t('Reactivate')}
                                     </Button>
                                 )}
                             </Form>
@@ -93,14 +107,18 @@ export default function OwnersShow({ owner }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Vínculos pelos quais responde</CardTitle>
+                        <CardTitle>{t('Links it answers for')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         {links.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Este responsável ainda não responde por nenhum
-                                vínculo. Ele pode ser escolhido ao criar um
-                                vínculo{active ? '' : ', depois de reativado'}.
+                                {active
+                                    ? t(
+                                          'This owner does not answer for any link yet. It can be chosen when creating a link.',
+                                      )
+                                    : t(
+                                          'This owner does not answer for any link yet. It can be chosen when creating a link, once reactivated.',
+                                      )}
                             </p>
                         ) : (
                             <LinksTable links={links} />
@@ -113,49 +131,50 @@ export default function OwnersShow({ owner }: Props) {
 }
 
 function DeactivateOwner({ owner }: { owner: Owner }) {
+    const { t, tc } = useTranslations();
     const activeLinks = owner.active_links_count ?? 0;
 
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">Desativar</Button>
+                <Button variant="outline">{t('Deactivate')}</Button>
             </DialogTrigger>
             <DialogContent>
-                <DialogTitle>Desativar este responsável?</DialogTitle>
+                <DialogTitle>{t('Deactivate this owner?')}</DialogTitle>
                 {activeLinks > 0 ? (
                     <>
                         {/* The server refuses it too; say why up front. */}
                         <DialogDescription>
-                            Este responsável ainda responde por {activeLinks}{' '}
-                            {activeLinks === 1
-                                ? 'vínculo ativo. Reatribua-o'
-                                : 'vínculos ativos. Reatribua-os'}{' '}
-                            antes de desativar.
+                            {tc(
+                                'This owner still answers for :count active link. Reassign it before deactivating.|This owner still answers for :count active links. Reassign them before deactivating.',
+                                activeLinks,
+                            )}
                         </DialogDescription>
                         <DialogFooter>
                             <DialogClose asChild>
-                                <Button variant="secondary">Entendi</Button>
+                                <Button variant="secondary">
+                                    {t('Got it')}
+                                </Button>
                             </DialogClose>
                         </DialogFooter>
                     </>
                 ) : (
                     <>
                         <DialogDescription>
-                            Ele deixa de ser oferecido na criação de vínculos e
-                            no registro de mudanças de status. O histórico
-                            continua mostrando o que ele registrou, e ele pode
-                            ser reativado depois.
+                            {t(
+                                'It is no longer offered when creating links or recording status changes. The history keeps showing what it recorded, and it can be reactivated later.',
+                            )}
                         </DialogDescription>
                         <Form {...OwnerController.deactivate.form(owner.id)}>
                             {({ processing }) => (
                                 <DialogFooter className="gap-2">
                                     <DialogClose asChild>
                                         <Button variant="secondary">
-                                            Cancelar
+                                            {t('Cancel')}
                                         </Button>
                                     </DialogClose>
                                     <Button type="submit" disabled={processing}>
-                                        Desativar
+                                        {t('Deactivate')}
                                     </Button>
                                 </DialogFooter>
                             )}
@@ -168,13 +187,15 @@ function DeactivateOwner({ owner }: { owner: Owner }) {
 }
 
 function LinksTable({ links }: { links: RiskLink[] }) {
+    const { t } = useTranslations();
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Vínculo</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Próxima revisão</TableHead>
+                    <TableHead>{t('Link')}</TableHead>
+                    <TableHead>{t('Status')}</TableHead>
+                    <TableHead>{t('Next review')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,7 +210,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                                 href={showLink(link.id)}
                                 className="font-medium hover:underline"
                             >
-                                {linkLabel(link)}
+                                {linkLabel(link, t)}
                             </Link>
                         </TableCell>
                         <TableCell>
@@ -212,9 +233,13 @@ function LinksTable({ links }: { links: RiskLink[] }) {
     );
 }
 
-OwnersShow.layout = ({ owner }: Props) => ({
-    breadcrumbs: [
-        { title: 'Responsáveis', href: index() },
-        { title: owner.organizational_role, href: show(owner.id) },
-    ],
-});
+OwnersShow.layout = ({ owner, translations }: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Owners'), href: index() },
+            { title: owner.organizational_role, href: show(owner.id) },
+        ],
+    };
+};

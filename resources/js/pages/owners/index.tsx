@@ -13,6 +13,9 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/owners';
 import type { Owner, Paginated } from '@/types/models';
@@ -22,28 +25,33 @@ type Props = {
 };
 
 export default function OwnersIndex({ owners }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Responsáveis" />
+            <Head title={t('Owners')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
                     <Heading
-                        title="Responsáveis"
-                        description="Papéis organizacionais que respondem pelos vínculos."
+                        title={t('Owners')}
+                        description={t(
+                            'Organizational roles accountable for the links.',
+                        )}
                     />
                     <Button asChild>
-                        <Link href={create()}>Cadastrar responsável</Link>
+                        <Link href={create()}>{t('Register owner')}</Link>
                     </Button>
                 </div>
 
                 {owners.data.length === 0 ? (
                     <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
                         <p className="text-muted-foreground text-sm">
-                            Nenhum responsável foi cadastrado ainda. Todo
-                            vínculo precisa de um papel que responda por ele.
+                            {t(
+                                'No owner has been registered yet. Every link needs a role accountable for it.',
+                            )}
                         </p>
                         <Button asChild>
-                            <Link href={create()}>Cadastrar responsável</Link>
+                            <Link href={create()}>{t('Register owner')}</Link>
                         </Button>
                     </div>
                 ) : (
@@ -60,16 +68,20 @@ export default function OwnersIndex({ owners }: Props) {
 }
 
 function OwnersTable({ owners }: { owners: Owner[] }) {
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Cargo</TableHead>
-                        <TableHead>Área</TableHead>
-                        <TableHead className="text-right">Vínculos</TableHead>
+                        <TableHead>{t('Position')}</TableHead>
+                        <TableHead>{t('Area')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('Links')}
+                        </TableHead>
                         <TableHead>
-                            <span className="sr-only">Ações</span>
+                            <span className="sr-only">{t('Actions')}</span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -89,7 +101,9 @@ function OwnersTable({ owners }: { owners: Owner[] }) {
                                         {owner.organizational_role}
                                     </Link>
                                     {owner.deactivated_at !== null && (
-                                        <Badge variant="outline">Inativo</Badge>
+                                        <Badge variant="outline">
+                                            {t('Inactive')}
+                                        </Badge>
                                     )}
                                 </span>
                             </TableCell>
@@ -106,14 +120,20 @@ function OwnersTable({ owners }: { owners: Owner[] }) {
                                             form={OwnerController.destroy.form(
                                                 owner.id,
                                             )}
-                                            title="Excluir este responsável?"
-                                            description={`O responsável "${owner.organizational_role} · ${owner.area}" será removido. Esta ação não pode ser desfeita.`}
+                                            title={t('Delete this owner?')}
+                                            description={t(
+                                                'The owner ":role · :area" will be removed. This action cannot be undone.',
+                                                {
+                                                    role: owner.organizational_role,
+                                                    area: owner.area,
+                                                },
+                                            )}
                                             trigger={
                                                 <button
                                                     type="button"
                                                     className="text-destructive text-sm hover:underline"
                                                 >
-                                                    Excluir
+                                                    {t('Delete')}
                                                 </button>
                                             }
                                         />
@@ -127,6 +147,10 @@ function OwnersTable({ owners }: { owners: Owner[] }) {
     );
 }
 
-OwnersIndex.layout = {
-    breadcrumbs: [{ title: 'Responsáveis', href: index() }],
+OwnersIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Owners'), href: index() }],
+    };
 };

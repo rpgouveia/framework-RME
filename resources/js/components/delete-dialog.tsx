@@ -10,6 +10,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { useTranslations } from '@/hooks/use-translations';
 import type { RouteFormDefinition } from '@/wayfinder';
 
 type Props = {
@@ -23,10 +24,14 @@ type Props = {
 
 /** Confirmation dialog that submits a delete request when confirmed. */
 export function DeleteDialog({ form, title, description, trigger }: Props) {
+    const { t } = useTranslations();
+
     return (
         <Dialog>
             <DialogTrigger asChild>
-                {trigger ?? <Button variant="destructive">Excluir</Button>}
+                {trigger ?? (
+                    <Button variant="destructive">{t('Delete')}</Button>
+                )}
             </DialogTrigger>
             <DialogContent>
                 <DialogTitle>{title}</DialogTitle>
@@ -35,14 +40,16 @@ export function DeleteDialog({ form, title, description, trigger }: Props) {
                     {({ processing }) => (
                         <DialogFooter className="gap-2">
                             <DialogClose asChild>
-                                <Button variant="secondary">Cancelar</Button>
+                                <Button variant="secondary">
+                                    {t('Cancel')}
+                                </Button>
                             </DialogClose>
                             <Button
                                 type="submit"
                                 variant="destructive"
                                 disabled={processing}
                             >
-                                Excluir
+                                {t('Delete')}
                             </Button>
                         </DialogFooter>
                     )}

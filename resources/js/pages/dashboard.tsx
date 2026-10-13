@@ -26,14 +26,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { dateInputValue, formatDate } from '@/lib/format';
-import {
-    categoryBadgeClasses,
-    changeOriginLabels,
-    linkLabel,
-    linkStatusBadgeClasses,
-    linkStatusLabels,
-} from '@/lib/labels';
+import { interpolateNodes, translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { categoryBadgeClasses, linkStatusBadgeClasses } from '@/lib/labels';
+import { linkLabel } from '@/lib/names';
 import { linksWith } from '@/lib/link-filters';
 import type { VerificationFilter } from '@/lib/link-filters';
 import { cn } from '@/lib/utils';
@@ -135,15 +134,18 @@ const reviewBadge = {
 };
 
 export default function Dashboard(props: Props) {
+    const { t } = useTranslations();
     const { totals } = props;
 
     return (
         <>
-            <Head title="Painel" />
+            <Head title={t('Dashboard')} />
             <div className="flex h-full flex-1 flex-col gap-6 p-4">
                 <Heading
-                    title="Painel"
-                    description="Onde a cadeia de rastreabilidade ainda está incompleta."
+                    title={t('Dashboard')}
+                    description={t(
+                        'Where the traceability chain is still incomplete.',
+                    )}
                 />
                 {totals.aiSystems === 0 ? <Welcome /> : <Overview {...props} />}
             </div>
@@ -153,17 +155,20 @@ export default function Dashboard(props: Props) {
 
 /** With nothing registered, zeroed cards say nothing: point to step one. */
 function Welcome() {
+    const { t } = useTranslations();
+
     return (
         <div className="flex max-w-2xl flex-col items-start gap-4 rounded-xl border border-dashed p-8">
-            <h2 className="text-lg font-semibold">Comece pelo sistema de IA</h2>
+            <h2 className="text-lg font-semibold">
+                {t('Start with the AI system')}
+            </h2>
             <p className="text-muted-foreground text-sm">
-                O ciclo do framework parte de um sistema de IA cadastrado: a ele
-                se ligam os riscos, as mitigações aplicadas, as evidências e os
-                eventos adversos. Cadastre o primeiro sistema para o painel
-                começar a mostrar o que falta em cada etapa.
+                {t(
+                    "The framework's cycle starts from a registered AI system: the risks, the mitigations applied, the evidence and the adverse events tie to it. Register the first system for the dashboard to start showing what is missing at each step.",
+                )}
             </p>
             <Button asChild>
-                <Link href={createAiSystem()}>Cadastrar sistema de IA</Link>
+                <Link href={createAiSystem()}>{t('Register AI system')}</Link>
             </Button>
         </div>
     );
@@ -181,6 +186,8 @@ function Overview({
     verification,
     unmappedRisks,
 }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
             {unacceptableSystems.length > 0 && (
@@ -188,37 +195,41 @@ function Overview({
             )}
 
             <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                <Total label="Sistemas de IA" value={totals.aiSystems} />
-                <Total label="Riscos" value={totals.risks} />
-                <Total label="Vínculos" value={totals.links} />
+                <Total label={t('AI systems')} value={totals.aiSystems} />
+                <Total label={t('Risks')} value={totals.risks} />
+                <Total label={t('Links')} value={totals.links} />
                 <Total
-                    label="Mitigações no catálogo"
+                    label={t('Mitigations in the catalogue')}
                     value={totals.mitigations}
                 />
-                <Total label="Responsáveis ativos" value={totals.owners} />
+                <Total label={t('Active owners')} value={totals.owners} />
             </dl>
 
             <div className="grid gap-4 sm:grid-cols-3">
                 <PendingCard
                     count={unlinkedRisks.count}
-                    title="Riscos sem vínculo"
-                    sentence="Riscos identificados sem nenhuma mitigação aplicada."
+                    title={t('Risks without a link')}
+                    sentence={t('Identified risks with no mitigation applied.')}
                     href={risksIndex()}
-                    action="Ver riscos"
+                    action={t('See risks')}
                 />
                 <PendingCard
                     count={linksWithoutEvidence.count}
-                    title="Vínculos sem evidência"
-                    sentence="Mitigações aplicadas sem nada que comprove a execução."
+                    title={t('Links without evidence')}
+                    sentence={t(
+                        'Mitigations applied with nothing proving their execution.',
+                    )}
                     href={linksIndex()}
-                    action="Ver vínculos"
+                    action={t('See links')}
                 />
                 <PendingCard
                     count={recentEvents.count}
-                    title={`Eventos nos últimos ${recentEvents.days} dias`}
-                    sentence="Problemas recentes nos sistemas em operação."
+                    title={t('Events in the last :days days', {
+                        days: recentEvents.days,
+                    })}
+                    sentence={t('Recent problems in the systems in operation.')}
                     href={adverseEventsIndex()}
-                    action="Ver eventos"
+                    action={t('See events')}
                 />
             </div>
 
@@ -229,15 +240,15 @@ function Overview({
             <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Riscos sem vínculo</CardTitle>
+                        <CardTitle>{t('Risks without a link')}</CardTitle>
                         <CardDescription>
-                            Os mais antigos primeiro.
+                            {t('The oldest first.')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {unlinkedRisks.items.length === 0 ? (
                             <Empty>
-                                Todos os riscos têm ao menos um vínculo.
+                                {t('Every risk has at least one link.')}
                             </Empty>
                         ) : (
                             <ul className="divide-y">
@@ -267,7 +278,7 @@ function Overview({
                                                     query: { risk: risk.id },
                                                 })}
                                             >
-                                                Criar vínculo
+                                                {t('Create link')}
                                             </Link>
                                         </Button>
                                     </li>
@@ -279,18 +290,20 @@ function Overview({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Próximas revisões</CardTitle>
+                        <CardTitle>{t('Upcoming reviews')}</CardTitle>
                         <CardDescription>
-                            Vencem hoje ou nos próximos {reviews.upcomingDays}{' '}
-                            dias. A data é o último dia válido: no dia seguinte,
-                            o vínculo volta a declarado.
+                            {t(
+                                'Due today or in the next :days days. The date is the last valid day: on the next day, the link goes back to declared.',
+                                { days: reviews.upcomingDays },
+                            )}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {reviews.upcoming.length === 0 ? (
                             <Empty>
-                                Nenhuma revisão prevista para os próximos{' '}
-                                {reviews.upcomingDays} dias.
+                                {t('No review due in the next :days days.', {
+                                    days: reviews.upcomingDays,
+                                })}
                             </Empty>
                         ) : (
                             <ul className="divide-y">
@@ -304,15 +317,17 @@ function Overview({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Vínculos sem evidência</CardTitle>
+                        <CardTitle>{t('Links without evidence')}</CardTitle>
                         <CardDescription>
-                            Os mais antigos primeiro.
+                            {t('The oldest first.')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {linksWithoutEvidence.items.length === 0 ? (
                             <Empty>
-                                Todos os vínculos têm ao menos uma evidência.
+                                {t(
+                                    'Every link has at least one piece of evidence.',
+                                )}
                             </Empty>
                         ) : (
                             <ul className="divide-y">
@@ -326,11 +341,14 @@ function Overview({
                                                 href={showLink(link.id)}
                                                 className="font-medium hover:underline"
                                             >
-                                                {linkLabel(link)}
+                                                {linkLabel(link, t)}
                                             </Link>
                                             <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
-                                                Criado em{' '}
-                                                {formatDate(link.creation_date)}
+                                                {t('Created on :date', {
+                                                    date: formatDate(
+                                                        link.creation_date,
+                                                    ),
+                                                })}
                                                 <VerificationBadge
                                                     verification={
                                                         link.verification_status
@@ -346,7 +364,7 @@ function Overview({
                                             <Link
                                                 href={createEvidence(link.id)}
                                             >
-                                                Registrar evidência
+                                                {t('Register evidence')}
                                             </Link>
                                         </Button>
                                     </li>
@@ -358,17 +376,20 @@ function Overview({
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Eventos recentes</CardTitle>
+                        <CardTitle>{t('Recent events')}</CardTitle>
                         <CardDescription>
-                            Últimos {recentEvents.days} dias, do mais recente ao
-                            mais antigo.
+                            {t(
+                                'Last :days days, from the most recent to the oldest.',
+                                { days: recentEvents.days },
+                            )}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {recentEvents.items.length === 0 ? (
                             <Empty>
-                                Nenhum evento adverso nos últimos{' '}
-                                {recentEvents.days} dias.
+                                {t('No adverse event in the last :days days.', {
+                                    days: recentEvents.days,
+                                })}
                             </Empty>
                         ) : (
                             <ul className="divide-y">
@@ -405,10 +426,11 @@ function Overview({
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Vínculos por status</CardTitle>
+                    <CardTitle>{t('Links by status')}</CardTitle>
                     <CardDescription>
-                        Progresso das mitigações aplicadas; cancelados ficam de
-                        fora.
+                        {t(
+                            'Progress of the mitigations applied; cancelled ones are left out.',
+                        )}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -418,7 +440,7 @@ function Overview({
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Por sistema de IA</CardTitle>
+                    <CardTitle>{t('By AI system')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <SystemsTable systems={systems} />
@@ -497,19 +519,22 @@ function UnacceptableSystemsAlert({
 }: {
     systems: Props['unacceptableSystems'];
 }) {
+    const { t, tc } = useTranslations();
+
     return (
         <Alert className={unacceptableTone}>
             <TriangleAlertIcon aria-hidden />
             <AlertTitle>
-                {systems.length === 1
-                    ? '1 sistema na faixa inaceitável do EU AI Act'
-                    : `${systems.length} sistemas na faixa inaceitável do EU AI Act`}
+                {tc(
+                    ':count system in the unacceptable tier of the EU AI Act|:count systems in the unacceptable tier of the EU AI Act',
+                    systems.length,
+                )}
             </AlertTitle>
             <AlertDescription className="text-red-900 dark:text-red-200">
                 <p>
-                    Práticas proibidas: esses sistemas não são considerados em
-                    operação e ficam fora dos indicadores de revisão. Seus
-                    vínculos servem para planejar a descontinuação.
+                    {t(
+                        'Prohibited practices: these systems are not considered in operation and are left out of the review indicators. Their links serve to plan the discontinuation.',
+                    )}
                 </p>
                 <ul className="flex flex-wrap gap-x-4 gap-y-1">
                     {systems.map((system) => (
@@ -534,6 +559,8 @@ function UnacceptableSystemsAlert({
  * and verified.
  */
 function VerificationSummary({ counts }: { counts: Props['verification'] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const rows: {
         filter: VerificationFilter;
         label: string;
@@ -543,23 +570,24 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
     }[] = [
         {
             filter: 'awaiting_verification',
-            label: 'Aguardando verificação',
-            sentence:
-                'Declarados à espera da prova: nunca verificados ou reavaliados sem verificação.',
+            label: t('Awaiting verification'),
+            sentence: t(
+                'Declared, waiting for the proof: never verified, or reassessed without verification.',
+            ),
             count: counts.awaitingVerification,
             pending: true,
         },
         {
             filter: 'awaiting_reassessment',
-            label: 'Aguardando reavaliação',
-            sentence: 'Revertidos para declarados, à espera de uma decisão.',
+            label: t('Awaiting reassessment'),
+            sentence: t('Reverted to declared, waiting for a decision.'),
             count: counts.awaitingReassessment,
             pending: true,
         },
         {
             filter: 'verified',
-            label: 'Verificados',
-            sentence: 'Comprovados por evidência e em revisão periódica.',
+            label: t('Verified links'),
+            sentence: t('Proven by evidence and under periodic review.'),
             count: counts.verified,
             pending: false,
         },
@@ -568,11 +596,11 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Verificação dos vínculos</CardTitle>
+                <CardTitle>{t('Verification of the links')}</CardTitle>
                 <CardDescription>
-                    Vínculos cancelados ficam de fora. A primeira verificação
-                    também deixa de fora os sistemas na faixa inaceitável, que
-                    não podem ser verificados.
+                    {t(
+                        'Cancelled links are left out. The first verification also leaves out the systems in the unacceptable tier, which cannot be verified.',
+                    )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -605,7 +633,9 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                 </ul>
                 <div className="mt-4 grid gap-2">
                     <p className="text-muted-foreground text-sm">
-                        Aguardando reavaliação, pela origem da última reversão
+                        {t(
+                            'Awaiting reassessment, by the origin of the last reversal',
+                        )}
                     </p>
                     <ul className="grid gap-2 sm:grid-cols-4">
                         {counts.awaitingReassessmentByOrigin.map((row) => (
@@ -618,7 +648,7 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                                     className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
                                 >
                                     <span>
-                                        {changeOriginLabels[row.origin]}
+                                        {enumLabels.ChangeOrigin[row.origin]}
                                     </span>
                                     <span
                                         className={cn(
@@ -637,7 +667,7 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                 {counts.longestAwaiting.length > 0 && (
                     <div className="mt-4 grid gap-2">
                         <p className="text-muted-foreground text-sm">
-                            Esperando reavaliação há mais tempo
+                            {t('Waiting longest for reassessment')}
                         </p>
                         <ul className="divide-y">
                             {counts.longestAwaiting.map((link) => (
@@ -649,12 +679,12 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                                         href={showLink(link.id)}
                                         className="font-medium hover:underline"
                                     >
-                                        {linkLabel(link)}
+                                        {linkLabel(link, t)}
                                     </Link>
                                     {link.last_reversal && (
                                         <span className="text-muted-foreground flex items-center gap-2 text-sm">
                                             {
-                                                changeOriginLabels[
+                                                enumLabels.ChangeOrigin[
                                                     link.last_reversal.origin
                                                 ]
                                             }{' '}
@@ -683,21 +713,24 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
  * Worked out on every visit, so a case goes away once the risk exists.
  */
 function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
+    const { t, tc } = useTranslations();
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Riscos não mapeados</CardTitle>
+                <CardTitle>{t('Risks not mapped')}</CardTitle>
                 <CardDescription>
-                    Subdomínios citados por eventos adversos ou por mudanças do
-                    sistema em que o sistema não tem risco cadastrado: um risco
-                    que ainda não foi identificado.
+                    {t(
+                        'Subdomains cited by adverse events or by system changes where the system has no registered risk: a risk not yet identified.',
+                    )}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 {risks.length === 0 ? (
                     <Empty>
-                        Todos os eventos estão em subdomínios com risco
-                        cadastrado no sistema.
+                        {t(
+                            'Every event is in a subdomain with a risk registered in the system.',
+                        )}
                     </Empty>
                 ) : (
                     <ul className="divide-y">
@@ -723,43 +756,61 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
                                         {risk.latest_event && (
                                             <>
                                                 {' '}
-                                                · Evento adverso:{' '}
-                                                {risk.events_count === 1
-                                                    ? '1 evento'
-                                                    : `${risk.events_count} eventos`}
-                                                , o mais recente em{' '}
-                                                <Link
-                                                    href={showAdverseEvent(
-                                                        risk.latest_event.id,
-                                                    )}
-                                                    className="hover:underline"
-                                                >
-                                                    {formatDate(
-                                                        risk.latest_event
-                                                            .occurrence_date,
-                                                    )}
-                                                </Link>
+                                                ·{' '}
+                                                {interpolateNodes(
+                                                    tc(
+                                                        'Adverse event: :count event, the most recent on :date|Adverse event: :count events, the most recent on :date',
+                                                        risk.events_count,
+                                                    ),
+                                                    {
+                                                        date: (
+                                                            <Link
+                                                                href={showAdverseEvent(
+                                                                    risk
+                                                                        .latest_event
+                                                                        .id,
+                                                                )}
+                                                                className="hover:underline"
+                                                            >
+                                                                {formatDate(
+                                                                    risk
+                                                                        .latest_event
+                                                                        .occurrence_date,
+                                                                )}
+                                                            </Link>
+                                                        ),
+                                                    },
+                                                )}
                                             </>
                                         )}
                                         {risk.latest_change && (
                                             <>
                                                 {' '}
-                                                · Mudança do sistema:{' '}
-                                                {risk.changes_count === 1
-                                                    ? '1 mudança'
-                                                    : `${risk.changes_count} mudanças`}
-                                                , a mais recente em{' '}
-                                                <Link
-                                                    href={showSystemChange(
-                                                        risk.latest_change.id,
-                                                    )}
-                                                    className="hover:underline"
-                                                >
-                                                    {formatDate(
-                                                        risk.latest_change
-                                                            .change_date,
-                                                    )}
-                                                </Link>
+                                                ·{' '}
+                                                {interpolateNodes(
+                                                    tc(
+                                                        'System change: :count change, the most recent on :date|System change: :count changes, the most recent on :date',
+                                                        risk.changes_count,
+                                                    ),
+                                                    {
+                                                        date: (
+                                                            <Link
+                                                                href={showSystemChange(
+                                                                    risk
+                                                                        .latest_change
+                                                                        .id,
+                                                                )}
+                                                                className="hover:underline"
+                                                            >
+                                                                {formatDate(
+                                                                    risk
+                                                                        .latest_change
+                                                                        .change_date,
+                                                                )}
+                                                            </Link>
+                                                        ),
+                                                    },
+                                                )}
                                             </>
                                         )}
                                     </span>
@@ -773,7 +824,7 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
                                             },
                                         })}
                                     >
-                                        Cadastrar risco
+                                        {t('Register risk')}
                                     </Link>
                                 </Button>
                             </li>
@@ -786,6 +837,7 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
 }
 
 function ReviewItem({ link }: { link: RiskLink }) {
+    const { t } = useTranslations();
     const dueToday =
         link.next_review_date !== null &&
         dateInputValue(link.next_review_date) === dateInputValue();
@@ -797,15 +849,18 @@ function ReviewItem({ link }: { link: RiskLink }) {
                     href={showLink(link.id)}
                     className="font-medium hover:underline"
                 >
-                    {linkLabel(link)}
+                    {linkLabel(link, t)}
                 </Link>
                 <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
                     <span>
-                        Revisão em{' '}
-                        <ReviewDate
-                            date={link.next_review_date}
-                            verification={link.verification_status}
-                        />
+                        {interpolateNodes(t('Review on :date'), {
+                            date: (
+                                <ReviewDate
+                                    date={link.next_review_date}
+                                    verification={link.verification_status}
+                                />
+                            ),
+                        })}
                     </span>
                     <VerificationBadge
                         verification={link.verification_status}
@@ -817,7 +872,7 @@ function ReviewItem({ link }: { link: RiskLink }) {
                     dueToday ? reviewBadge.dueToday : reviewBadge.onTrack
                 }
             >
-                {dueToday ? 'VENCE HOJE' : 'EM DIA'}
+                {dueToday ? t('DUE TODAY') : t('ON TRACK')}
             </Badge>
         </li>
     );
@@ -825,6 +880,7 @@ function ReviewItem({ link }: { link: RiskLink }) {
 
 /** Plain Tailwind bars: enough to compare a handful of statuses. */
 function StatusBars({ rows }: { rows: Props['linksByStatus'] }) {
+    const enumLabels = useEnumLabels();
     const max = Math.max(1, ...rows.map((row) => row.count));
 
     return (
@@ -840,7 +896,7 @@ function StatusBars({ rows }: { rows: Props['linksByStatus'] }) {
                             linkStatusBadgeClasses[row.status],
                         )}
                     >
-                        {linkStatusLabels[row.status]}
+                        {enumLabels.LinkStatus[row.status]}
                     </Badge>
                     <div className="bg-muted h-2 overflow-hidden rounded-full">
                         <div
@@ -858,19 +914,24 @@ function StatusBars({ rows }: { rows: Props['linksByStatus'] }) {
 }
 
 function SystemsTable({ systems }: { systems: SystemSummary[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Sistema</TableHead>
-                    <TableHead className="text-right">Riscos</TableHead>
-                    <TableHead className="text-right">Sem vínculo</TableHead>
-                    <TableHead className="text-right">Vínculos</TableHead>
+                    <TableHead>{t('System')}</TableHead>
+                    <TableHead className="text-right">{t('Risks')}</TableHead>
                     <TableHead className="text-right">
-                        Aguardando reavaliação
+                        {t('Without a link')}
+                    </TableHead>
+                    <TableHead className="text-right">{t('Links')}</TableHead>
+                    <TableHead className="text-right">
+                        {t('Awaiting reassessment')}
                     </TableHead>
                     <TableHead className="text-right">
-                        Eventos (30 dias)
+                        {t('Events (30 days)')}
                     </TableHead>
                 </TableRow>
             </TableHeader>
@@ -892,7 +953,10 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                                                 categoryBadgeClasses.unacceptable
                                             }
                                         >
-                                            Inaceitável
+                                            {
+                                                enumLabels.AiSystemCategory
+                                                    .unacceptable
+                                            }
                                         </Badge>
                                     )}
                                 </span>
@@ -945,6 +1009,10 @@ function Empty({ children }: { children: React.ReactNode }) {
     return <p className="text-muted-foreground text-sm">{children}</p>;
 }
 
-Dashboard.layout = {
-    breadcrumbs: [{ title: 'Painel', href: dashboard() }],
+Dashboard.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('Dashboard'), href: dashboard() }],
+    };
 };

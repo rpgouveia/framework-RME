@@ -15,13 +15,13 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { dateInputValue, formatDate } from '@/lib/format';
-import {
-    subdomainCodes,
-    labelFor,
-    linkLabel,
-    linkStatusLabels,
-} from '@/lib/labels';
+import { labelFor } from '@/lib/enum-labels';
+import { linkLabel, subdomainCodes } from '@/lib/names';
 import { index, show } from '@/routes/links';
 import { create, index as historyIndex } from '@/routes/links/status-histories';
 import type {
@@ -47,6 +47,8 @@ export default function StatusHistoriesCreate({
     statuses,
     adverseEvents,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const { url } = usePage();
 
     // The server sends only the moves the link's status allows, so the link
@@ -63,11 +65,11 @@ export default function StatusHistoriesCreate({
 
     return (
         <>
-            <Head title="Registrar mudança de status" />
+            <Head title={t('Record status change')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Registrar mudança de status"
-                    description={linkLabel(link)}
+                    title={t('Record status change')}
+                    description={linkLabel(link, t)}
                 />
                 <Form
                     {...StatusHistoryController.store.form(link.id)}
@@ -77,13 +79,15 @@ export default function StatusHistoriesCreate({
                         <>
                             <div className="grid gap-2">
                                 <span className="text-sm font-medium">
-                                    Status atual
+                                    {t('Current status')}
                                 </span>
                                 <LinkStatusBadges link={link} />
                             </div>
 
                             <div className="grid gap-2">
-                                <Label htmlFor="new_status">Novo status</Label>
+                                <Label htmlFor="new_status">
+                                    {t('New status')}
+                                </Label>
                                 <Select
                                     name="new_status"
                                     defaultValue={newStatus || undefined}
@@ -97,7 +101,11 @@ export default function StatusHistoriesCreate({
                                             errors.new_status ? true : undefined
                                         }
                                     >
-                                        <SelectValue placeholder="Selecione o novo status" />
+                                        <SelectValue
+                                            placeholder={t(
+                                                'Select the new status',
+                                            )}
+                                        />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {statuses.map((option) => (
@@ -106,7 +114,7 @@ export default function StatusHistoriesCreate({
                                                 value={option.value}
                                             >
                                                 {labelFor(
-                                                    linkStatusLabels,
+                                                    enumLabels.LinkStatus,
                                                     option.value,
                                                 )}
                                             </SelectItem>
@@ -118,11 +126,11 @@ export default function StatusHistoriesCreate({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="trigger_reason">
-                                    Motivo
+                                    {t('Reason')}
                                     {!cancelling && (
                                         <span className="text-muted-foreground font-normal">
                                             {' '}
-                                            (opcional)
+                                            {t('(optional)')}
                                         </span>
                                     )}
                                 </Label>
@@ -133,8 +141,10 @@ export default function StatusHistoriesCreate({
                                     maxLength={255}
                                     placeholder={
                                         cancelling
-                                            ? 'Explique por que o vínculo está sendo cancelado.'
-                                            : 'O que motivou a mudança.'
+                                            ? t(
+                                                  'Explain why the link is being cancelled.',
+                                              )
+                                            : t('What prompted the change.')
                                     }
                                     aria-invalid={
                                         errors.trigger_reason ? true : undefined
@@ -146,7 +156,7 @@ export default function StatusHistoriesCreate({
                             <div className="grid gap-4 sm:grid-cols-2">
                                 <div className="grid gap-2">
                                     <Label htmlFor="owner_id">
-                                        Registrado por
+                                        {t('Recorded by')}
                                     </Label>
                                     <Select
                                         name="owner_id"
@@ -162,7 +172,11 @@ export default function StatusHistoriesCreate({
                                                     : undefined
                                             }
                                         >
-                                            <SelectValue placeholder="Selecione o responsável" />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'Select the owner',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {owners.map((owner) => (
@@ -181,7 +195,7 @@ export default function StatusHistoriesCreate({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="change_date">
-                                        Data da mudança
+                                        {t('Change date')}
                                     </Label>
                                     <Input
                                         id="change_date"
@@ -201,10 +215,10 @@ export default function StatusHistoriesCreate({
 
                             <div className="grid gap-2">
                                 <Label htmlFor="adverse_event_id">
-                                    Evento adverso relacionado
+                                    {t('Related adverse event')}
                                     <span className="text-muted-foreground font-normal">
                                         {' '}
-                                        (opcional)
+                                        {t('(optional)')}
                                     </span>
                                 </Label>
                                 <Select
@@ -224,7 +238,7 @@ export default function StatusHistoriesCreate({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value={NO_EVENT}>
-                                            Nenhum
+                                            {t('None')}
                                         </SelectItem>
                                         {adverseEvents.map((event) => (
                                             <SelectItem
@@ -262,11 +276,13 @@ export default function StatusHistoriesCreate({
                                     }
                                 >
                                     {cancelling
-                                        ? 'Cancelar vínculo'
-                                        : 'Registrar mudança'}
+                                        ? t('Cancel link')
+                                        : t('Record change')}
                                 </Button>
                                 <Button variant="ghost" asChild>
-                                    <Link href={show(link.id)}>Voltar</Link>
+                                    <Link href={show(link.id)}>
+                                        {t('Back')}
+                                    </Link>
                                 </Button>
                             </div>
                         </>
@@ -277,11 +293,18 @@ export default function StatusHistoriesCreate({
     );
 }
 
-StatusHistoriesCreate.layout = ({ link }: Props) => ({
-    breadcrumbs: [
-        { title: 'Vínculos', href: index() },
-        { title: linkLabel(link), href: show(link.id) },
-        { title: 'Histórico', href: historyIndex(link.id) },
-        { title: 'Registrar mudança', href: create(link.id) },
-    ],
-});
+StatusHistoriesCreate.layout = ({
+    link,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Links'), href: index() },
+            { title: linkLabel(link, t), href: show(link.id) },
+            { title: t('History'), href: historyIndex(link.id) },
+            { title: t('Record change'), href: create(link.id) },
+        ],
+    };
+};

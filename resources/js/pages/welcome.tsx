@@ -43,7 +43,7 @@ export default function Welcome() {
             icon: Link2,
             title: t('Links'),
             summary: t(
-                'The core of the chain: one mitigation applied to one risk under one accountable owner, proven by evidence and carrying a review date.',
+                'The core of the chain: one mitigation applied to one risk under one accountable owner, proven by evidence and under periodic review after its verification.',
             ),
         },
         {

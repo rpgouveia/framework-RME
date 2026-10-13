@@ -25,15 +25,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { create as createAdverseEvent } from '@/routes/adverse-events';
-import {
-    categoryBadgeClasses,
-    categoryLabels,
-    lifecyclePhaseLabels,
-    sourceTypeLabels,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { categoryBadgeClasses } from '@/lib/labels';
 import { edit, index, show } from '@/routes/ai-systems';
 import {
     adverseEvents as adverseEventsCsv,
@@ -50,6 +48,8 @@ type Props = {
 };
 
 export default function AiSystemsShow({ aiSystem }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const risks = aiSystem.risks ?? [];
 
     return (
@@ -67,7 +67,7 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                     categoryBadgeClasses[aiSystem.category]
                                 }
                             >
-                                {categoryLabels[aiSystem.category]}
+                                {enumLabels.AiSystemCategory[aiSystem.category]}
                             </Badge>
                         </div>
                         {aiSystem.application_domain && (
@@ -83,19 +83,22 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                     query: { ai_system: aiSystem.id },
                                 })}
                             >
-                                Registrar evento adverso
+                                {t('Register adverse event')}
                             </Link>
                         </Button>
                         <Button variant="outline" asChild>
-                            <Link href={edit(aiSystem.id)}>Editar</Link>
+                            <Link href={edit(aiSystem.id)}>{t('Edit')}</Link>
                         </Button>
                         {risks.length === 0 && (
                             <DeleteDialog
                                 form={AiSystemController.destroy.form(
                                     aiSystem.id,
                                 )}
-                                title="Excluir este sistema de IA?"
-                                description={`O sistema "${aiSystem.name}" será removido do portfólio. Esta ação não pode ser desfeita.`}
+                                title={t('Delete this AI system?')}
+                                description={t(
+                                    'The system ":name" will be removed from the portfolio. This action cannot be undone.',
+                                    { name: aiSystem.name },
+                                )}
                             />
                         )}
                     </div>
@@ -107,20 +110,24 @@ export default function AiSystemsShow({ aiSystem }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Detalhes</CardTitle>
+                        <CardTitle>{t('Details')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                            <DetailItem label="Origem">
-                                {sourceTypeLabels[aiSystem.source_type]}
+                            <DetailItem label={t('Origin')}>
+                                {
+                                    enumLabels.SystemSourceType[
+                                        aiSystem.source_type
+                                    ]
+                                }
                             </DetailItem>
-                            <DetailItem label="Categoria">
-                                {categoryLabels[aiSystem.category]}
+                            <DetailItem label={t('Category')}>
+                                {enumLabels.AiSystemCategory[aiSystem.category]}
                             </DetailItem>
-                            <DetailItem label="Cadastro">
+                            <DetailItem label={t('Registration')}>
                                 {formatDate(aiSystem.registration_date)}
                             </DetailItem>
-                            <DetailItem label="Riscos">
+                            <DetailItem label={t('Risks')}>
                                 {risks.length}
                             </DetailItem>
                         </dl>
@@ -129,22 +136,23 @@ export default function AiSystemsShow({ aiSystem }: Props) {
 
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
-                        <CardTitle>Riscos</CardTitle>
+                        <CardTitle>{t('Risks')}</CardTitle>
                         <Button size="sm" asChild>
                             <Link
                                 href={createRisk({
                                     query: { ai_system: aiSystem.id },
                                 })}
                             >
-                                Cadastrar risco
+                                {t('Register risk')}
                             </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
                         {risks.length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Nenhum risco foi mapeado para este sistema
-                                ainda.
+                                {t(
+                                    'No risk has been mapped for this system yet.',
+                                )}
                             </p>
                         ) : (
                             <RisksTable risks={risks} />
@@ -155,24 +163,25 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between gap-4">
                         <div className="grid gap-1.5">
-                            <CardTitle>Mudanças do sistema</CardTitle>
+                            <CardTitle>{t('System changes')}</CardTitle>
                             <CardDescription>
-                                Novas versões do modelo e alterações na base de
-                                dados levam os vínculos verificados à
-                                reavaliação.
+                                {t(
+                                    'New model versions and changes to the database take the verified links to reassessment.',
+                                )}
                             </CardDescription>
                         </div>
                         <Button size="sm" asChild>
                             <Link href={createSystemChange(aiSystem.id)}>
-                                Registrar mudança
+                                {t('Record change')}
                             </Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
                         {(aiSystem.system_changes ?? []).length === 0 ? (
                             <p className="text-muted-foreground text-sm">
-                                Nenhuma mudança foi registrada para este
-                                sistema.
+                                {t(
+                                    'No change has been recorded for this system.',
+                                )}
                             </p>
                         ) : (
                             <SystemChangesTable
@@ -184,13 +193,11 @@ export default function AiSystemsShow({ aiSystem }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Relatório de rastreabilidade</CardTitle>
+                        <CardTitle>{t('Traceability report')}</CardTitle>
                         <CardDescription>
-                            O arquivo traz a cadeia completa de cada risco deste
-                            sistema: as mitigações aplicadas e as evidências que
-                            as comprovam. As planilhas de eventos adversos e de
-                            mudanças do sistema trazem uma linha por registro,
-                            inclusive os que não reverteram vínculos.
+                            {t(
+                                'The file holds the full chain of each risk of this system: the mitigations applied and the evidence proving them. The spreadsheets of adverse events and of system changes hold one row per record, including those that reverted no link.',
+                            )}
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-wrap gap-2">
@@ -198,12 +205,12 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                             response and would break on a file download. */}
                         <Button variant="outline" asChild>
                             <a href={reportCsv(aiSystem.id).url} download>
-                                Baixar CSV
+                                {t('Download CSV')}
                             </a>
                         </Button>
                         <Button variant="outline" asChild>
                             <a href={reportJson(aiSystem.id).url} download>
-                                Baixar JSON
+                                {t('Download JSON')}
                             </a>
                         </Button>
                         <Button variant="outline" asChild>
@@ -211,7 +218,7 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                 href={adverseEventsCsv(aiSystem.id).url}
                                 download
                             >
-                                Baixar eventos adversos (CSV)
+                                {t('Download adverse events (CSV)')}
                             </a>
                         </Button>
                         <Button variant="outline" asChild>
@@ -219,7 +226,7 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                 href={systemChangesCsv(aiSystem.id).url}
                                 download
                             >
-                                Baixar mudanças do sistema (CSV)
+                                {t('Download system changes (CSV)')}
                             </a>
                         </Button>
                     </CardContent>
@@ -230,15 +237,18 @@ export default function AiSystemsShow({ aiSystem }: Props) {
 }
 
 function RisksTable({ risks }: { risks: Risk[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <Table>
             <TableHeader>
                 <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Subdomínio de risco</TableHead>
-                    <TableHead>Fase do ciclo de vida</TableHead>
-                    <TableHead>Incerteza</TableHead>
-                    <TableHead className="text-right">Vínculos</TableHead>
+                    <TableHead>{t('Name')}</TableHead>
+                    <TableHead>{t('Risk subdomain')}</TableHead>
+                    <TableHead>{t('Lifecycle phase')}</TableHead>
+                    <TableHead>{t('Uncertainty')}</TableHead>
+                    <TableHead className="text-right">{t('Links')}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -256,10 +266,14 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                             <RiskSubdomain subdomain={risk.risk_subdomain} />
                         </TableCell>
                         <TableCell>
-                            {lifecyclePhaseLabels[risk.lifecycle_phase]}
+                            {enumLabels.LifecyclePhase[risk.lifecycle_phase]}
                         </TableCell>
                         <TableCell>
-                            {uncertaintyLevelLabels[risk.uncertainty_level]}
+                            {
+                                enumLabels.UncertaintyLevel[
+                                    risk.uncertainty_level
+                                ]
+                            }
                         </TableCell>
                         <TableCell className="text-right tabular-nums">
                             {risk.links_count ?? 0}
@@ -271,9 +285,16 @@ function RisksTable({ risks }: { risks: Risk[] }) {
     );
 }
 
-AiSystemsShow.layout = ({ aiSystem }: Props) => ({
-    breadcrumbs: [
-        { title: 'Sistemas de IA', href: index() },
-        { title: aiSystem.name, href: show(aiSystem.id) },
-    ],
-});
+AiSystemsShow.layout = ({
+    aiSystem,
+    translations,
+}: Props & WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('AI systems'), href: index() },
+            { title: aiSystem.name, href: show(aiSystem.id) },
+        ],
+    };
+};

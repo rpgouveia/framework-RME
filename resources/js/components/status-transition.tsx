@@ -1,6 +1,8 @@
 import { VerificationBadge } from '@/components/link-status-badges';
 import { Badge } from '@/components/ui/badge';
-import { linkStatusBadgeClasses, linkStatusLabels } from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { linkStatusBadgeClasses } from '@/lib/labels';
 import type { StatusHistory } from '@/types/models';
 
 type Entry = Pick<
@@ -17,6 +19,9 @@ type Entry = Pick<
  * verification, labelled as such.
  */
 export function StatusTransition({ entry }: { entry: Entry }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     if (
         entry.previous_verification === 'verified' &&
         entry.new_verification === 'verified'
@@ -25,7 +30,7 @@ export function StatusTransition({ entry }: { entry: Entry }) {
         return (
             <span className="flex flex-wrap items-center gap-2 text-sm">
                 <span className="text-muted-foreground">
-                    Renovação da verificação:
+                    {t('Verification renewal:')}
                 </span>
                 <VerificationBadge verification="verified" />
             </span>
@@ -35,7 +40,9 @@ export function StatusTransition({ entry }: { entry: Entry }) {
     if (entry.new_verification !== null) {
         return (
             <span className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Verificação:</span>
+                <span className="text-muted-foreground">
+                    {t('Verification:')}
+                </span>
                 {entry.previous_verification !== null && (
                     <VerificationBadge
                         verification={entry.previous_verification}
@@ -52,12 +59,12 @@ export function StatusTransition({ entry }: { entry: Entry }) {
     return (
         <span className="flex flex-wrap items-center gap-2 text-sm">
             {entry.previous_status === null ? (
-                <span className="text-muted-foreground">Abertura</span>
+                <span className="text-muted-foreground">{t('Opening')}</span>
             ) : (
                 <Badge
                     className={linkStatusBadgeClasses[entry.previous_status]}
                 >
-                    {linkStatusLabels[entry.previous_status]}
+                    {enumLabels.LinkStatus[entry.previous_status]}
                 </Badge>
             )}
             <span aria-hidden className="text-muted-foreground">
@@ -65,7 +72,7 @@ export function StatusTransition({ entry }: { entry: Entry }) {
             </span>
             {entry.new_status !== null && (
                 <Badge className={linkStatusBadgeClasses[entry.new_status]}>
-                    {linkStatusLabels[entry.new_status]}
+                    {enumLabels.LinkStatus[entry.new_status]}
                 </Badge>
             )}
         </span>

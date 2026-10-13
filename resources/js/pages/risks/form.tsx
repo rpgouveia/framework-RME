@@ -13,12 +13,10 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-    labelFor,
-    lifecyclePhaseLabels,
-    termLabel,
-    uncertaintyLevelLabels,
-} from '@/lib/labels';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
+import { labelFor } from '@/lib/enum-labels';
+import { termLabel } from '@/lib/names';
 import type { AiSystem, EnumOption, Risk, RiskDomain } from '@/types/models';
 
 /** Mirrors the `max:2000` rule in RiskValidationRules. */
@@ -62,6 +60,8 @@ export function RiskForm({
     defaultAiSystemId,
     defaultSubdomainCode,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t, tc } = useTranslations();
     const aiSystemId = risk?.ai_system_id ?? defaultAiSystemId;
     const linkCount = risk?.links_count ?? 0;
     const [descriptionLength, setDescriptionLength] = useState(
@@ -98,7 +98,7 @@ export function RiskForm({
                     // the field is not sent.
                     <>
                         <span className="text-sm font-medium">
-                            Sistema de IA
+                            {t('AI system')}
                         </span>
                         <p className="font-medium">
                             {
@@ -109,14 +109,15 @@ export function RiskForm({
                             }
                         </p>
                         <p className="text-muted-foreground text-sm">
-                            Não pode ser alterado: o risco tem {linkCount}{' '}
-                            {linkCount === 1 ? 'vínculo' : 'vínculos'} na cadeia
-                            de rastreabilidade deste sistema.
+                            {tc(
+                                'It cannot be changed: the risk has :count link in the traceability chain of this system.|It cannot be changed: the risk has :count links in the traceability chain of this system.',
+                                linkCount,
+                            )}
                         </p>
                     </>
                 ) : (
                     <>
-                        <Label htmlFor="ai_system_id">Sistema de IA</Label>
+                        <Label htmlFor="ai_system_id">{t('AI system')}</Label>
                         <Select
                             name="ai_system_id"
                             defaultValue={
@@ -133,7 +134,9 @@ export function RiskForm({
                                     errors.ai_system_id ? true : undefined
                                 }
                             >
-                                <SelectValue placeholder="Selecione o sistema" />
+                                <SelectValue
+                                    placeholder={t('Select the system')}
+                                />
                             </SelectTrigger>
                             <SelectContent>
                                 {aiSystems.map((system) => (
@@ -152,14 +155,14 @@ export function RiskForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="name">Nome</Label>
+                <Label htmlFor="name">{t('Name')}</Label>
                 <Input
                     id="name"
                     name="name"
                     defaultValue={risk?.name}
                     required
                     maxLength={255}
-                    placeholder="Ex.: Viés de seleção"
+                    placeholder={t('E.g.: Selection bias')}
                     aria-describedby="name-help"
                     aria-invalid={errors.name ? true : undefined}
                 />
@@ -167,14 +170,15 @@ export function RiskForm({
                     may repeat across systems; the description is this
                     system's own. */}
                 <p id="name-help" className="text-muted-foreground text-sm">
-                    O tipo de risco, em poucas palavras. É o que aparece nas
-                    listas e pode se repetir em outros sistemas.
+                    {t(
+                        'The kind of risk, in a few words. It is what the lists show, and it may repeat in other systems.',
+                    )}
                 </p>
                 <InputError message={errors.name} />
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="description">Descrição</Label>
+                <Label htmlFor="description">{t('Description')}</Label>
                 <Textarea
                     id="description"
                     name="description"
@@ -183,7 +187,9 @@ export function RiskForm({
                     maxLength={DESCRIPTION_MAX}
                     // Grows with the text, then scrolls.
                     className="max-h-80 min-h-32"
-                    placeholder="Ex.: O modelo apresenta desempenho inferior para grupos sub-representados nos dados de treino, o que pode levar a decisões discriminatórias."
+                    placeholder={t(
+                        'E.g.: The model performs worse for groups underrepresented in the training data, which may lead to discriminatory decisions.',
+                    )}
                     aria-invalid={errors.description ? true : undefined}
                     aria-describedby="description-help description-count"
                     onChange={(event) =>
@@ -194,8 +200,9 @@ export function RiskForm({
                     id="description-help"
                     className="text-muted-foreground text-sm"
                 >
-                    Como esse risco se manifesta neste sistema: o contexto, o
-                    mecanismo e quem pode ser afetado.
+                    {t(
+                        'How this risk shows in this system: the context, the mechanism and who may be affected.',
+                    )}
                 </p>
                 <div className="flex justify-between gap-4">
                     <InputError message={errors.description} />
@@ -209,7 +216,7 @@ export function RiskForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="risk_domain">Domínio de risco</Label>
+                <Label htmlFor="risk_domain">{t('Risk domain')}</Label>
                 <Select
                     value={domainCode}
                     onValueChange={(code) => {
@@ -218,7 +225,7 @@ export function RiskForm({
                     }}
                 >
                     <SelectTrigger id="risk_domain" className="w-full">
-                        <SelectValue placeholder="Selecione o domínio" />
+                        <SelectValue placeholder={t('Select the domain')} />
                     </SelectTrigger>
                     <SelectContent>
                         {riskDomains.map((domain) => (
@@ -229,14 +236,14 @@ export function RiskForm({
                     </SelectContent>
                 </Select>
                 <p className="text-muted-foreground text-sm">
-                    A classificação padronizada do risco, pela taxonomia do MIT
-                    AI Risk Repository (Slattery et al.). Liga o risco às
-                    mitigações recomendadas e aos eventos adversos.
+                    {t(
+                        'The standard classification of the risk, by the taxonomy of the MIT AI Risk Repository (Slattery et al.). It ties the risk to the recommended mitigations and to the adverse events.',
+                    )}
                 </p>
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="risk_subdomain_id">Subdomínio de risco</Label>
+                <Label htmlFor="risk_subdomain_id">{t('Risk subdomain')}</Label>
                 <Select
                     name="risk_subdomain_id"
                     value={subdomainId}
@@ -254,8 +261,8 @@ export function RiskForm({
                         <SelectValue
                             placeholder={
                                 domainCode === ''
-                                    ? 'Selecione primeiro o domínio'
-                                    : 'Selecione o subdomínio'
+                                    ? t('Select the domain first')
+                                    : t('Select the subdomain')
                             }
                         />
                     </SelectTrigger>
@@ -283,7 +290,7 @@ export function RiskForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="lifecycle_phase">Fase do ciclo de vida</Label>
+                <Label htmlFor="lifecycle_phase">{t('Lifecycle phase')}</Label>
                 <Select
                     name="lifecycle_phase"
                     defaultValue={risk?.lifecycle_phase}
@@ -294,12 +301,15 @@ export function RiskForm({
                         className="w-full"
                         aria-invalid={errors.lifecycle_phase ? true : undefined}
                     >
-                        <SelectValue placeholder="Selecione a fase" />
+                        <SelectValue placeholder={t('Select the phase')} />
                     </SelectTrigger>
                     <SelectContent>
                         {lifecyclePhases.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
-                                {labelFor(lifecyclePhaseLabels, option.value)}
+                                {labelFor(
+                                    enumLabels.LifecyclePhase,
+                                    option.value,
+                                )}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -308,7 +318,9 @@ export function RiskForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="uncertainty_level">Nível de incerteza</Label>
+                <Label htmlFor="uncertainty_level">
+                    {t('Uncertainty level')}
+                </Label>
                 <Select
                     name="uncertainty_level"
                     defaultValue={risk?.uncertainty_level}
@@ -321,12 +333,15 @@ export function RiskForm({
                             errors.uncertainty_level ? true : undefined
                         }
                     >
-                        <SelectValue placeholder="Selecione o nível" />
+                        <SelectValue placeholder={t('Select the level')} />
                     </SelectTrigger>
                     <SelectContent>
                         {uncertaintyLevels.map((option) => (
                             <SelectItem key={option.value} value={option.value}>
-                                {labelFor(uncertaintyLevelLabels, option.value)}
+                                {labelFor(
+                                    enumLabels.UncertaintyLevel,
+                                    option.value,
+                                )}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -337,7 +352,7 @@ export function RiskForm({
             <div className="flex items-center gap-4">
                 <Button disabled={processing}>{submitLabel}</Button>
                 <Button variant="ghost" asChild>
-                    <Link href={cancelHref}>Cancelar</Link>
+                    <Link href={cancelHref}>{t('Cancel')}</Link>
                 </Button>
             </div>
         </>

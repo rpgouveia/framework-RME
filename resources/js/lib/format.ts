@@ -36,3 +36,13 @@ export function dateFromToday(days: number): string {
 
     return new Intl.DateTimeFormat('pt-BR').format(date);
 }
+
+/** Whole days from a date to today, to say how long something waited. */
+export function daysSince(date: string): number {
+    const [year, month, day] = date.slice(0, 10).split('-').map(Number);
+    const then = Date.UTC(year, month - 1, day);
+    const now = new Date();
+    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return Math.max(0, Math.round((today - then) / 86_400_000));
+}

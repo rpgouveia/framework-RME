@@ -28,10 +28,14 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { dateInputValue } from '@/lib/format';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
 import { eventReassessment } from '@/lib/event-reassessment';
 import type { SystemLink } from '@/lib/event-reassessment';
-import { adverseEventNatureLabels, labelFor } from '@/lib/labels';
+import { labelFor } from '@/lib/enum-labels';
 import type { ExpectedSubdomain } from '@/lib/risk-profile';
 import { create, index } from '@/routes/adverse-events';
 import type { AiSystem, EnumOption, RiskDomainOption } from '@/types/models';
@@ -60,6 +64,8 @@ export default function AdverseEventsCreate({
     natures,
     linksBySystem,
 }: Props) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const { url } = usePage();
 
     // The AI system page links here with `?ai_system=<id>`.
@@ -124,16 +130,19 @@ export default function AdverseEventsCreate({
 
     return (
         <>
-            <Head title="Registrar evento adverso" />
+            <Head title={t('Register adverse event')} />
             <div className="flex h-full flex-1 flex-col p-4">
                 <Heading
-                    title="Registrar evento adverso"
-                    description="Registre algo que deu errado em um sistema de IA em operação."
+                    title={t('Register adverse event')}
+                    description={t(
+                        'Record something that went wrong in an AI system in operation.',
+                    )}
                 />
                 {aiSystems.length === 0 ? (
                     <p className="text-muted-foreground max-w-xl text-sm">
-                        Nenhum sistema de IA foi cadastrado ainda. Todo evento
-                        adverso acontece em um sistema.
+                        {t(
+                            'No AI system has been registered yet. Every adverse event happens in a system.',
+                        )}
                     </p>
                 ) : (
                     <Form
@@ -146,7 +155,7 @@ export default function AdverseEventsCreate({
                             <>
                                 <div className="grid gap-2">
                                     <Label htmlFor="ai_system_id">
-                                        Sistema afetado
+                                        {t('Affected system')}
                                     </Label>
                                     <Select
                                         name="ai_system_id"
@@ -163,7 +172,11 @@ export default function AdverseEventsCreate({
                                                     : undefined
                                             }
                                         >
-                                            <SelectValue placeholder="Selecione o sistema" />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'Select the system',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {aiSystems.map((system) => (
@@ -189,7 +202,9 @@ export default function AdverseEventsCreate({
                                 </div>
 
                                 <div className="grid gap-2">
-                                    <Label htmlFor="nature">Natureza</Label>
+                                    <Label htmlFor="nature">
+                                        {t('Nature')}
+                                    </Label>
                                     <Select
                                         name="nature"
                                         value={nature}
@@ -203,7 +218,11 @@ export default function AdverseEventsCreate({
                                                 errors.nature ? true : undefined
                                             }
                                         >
-                                            <SelectValue placeholder="Selecione a natureza" />
+                                            <SelectValue
+                                                placeholder={t(
+                                                    'Select the nature',
+                                                )}
+                                            />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {natures.map((option) => (
@@ -212,7 +231,7 @@ export default function AdverseEventsCreate({
                                                     value={option.value}
                                                 >
                                                     {labelFor(
-                                                        adverseEventNatureLabels,
+                                                        enumLabels.AdverseEventNature,
                                                         option.value,
                                                     )}
                                                 </SelectItem>
@@ -220,16 +239,18 @@ export default function AdverseEventsCreate({
                                         </SelectContent>
                                     </Select>
                                     <p className="text-muted-foreground text-sm">
-                                        Um quase-incidente foi percebido antes
-                                        de causar dano. Os dois disparam a
-                                        reavaliação dos vínculos.
+                                        {t(
+                                            'A near miss was noticed before it caused harm. Both trigger the reassessment of the links.',
+                                        )}
                                     </p>
                                     <InputError message={errors.nature} />
                                 </div>
 
                                 <RiskSubdomainPicker
-                                    legend="Subdomínios de risco materializados"
-                                    help="Selecione os riscos que a ocorrência materializa; um evento pode tocar mais de um."
+                                    legend={t('Risk subdomains materialized')}
+                                    help={t(
+                                        'Select the risks the occurrence materializes; an event may touch more than one.',
+                                    )}
                                     domains={riskDomains}
                                     expected={expected}
                                     selected={selected}
@@ -237,14 +258,16 @@ export default function AdverseEventsCreate({
                                     disabled={!aiSystemId}
                                     error={
                                         missingSubdomain
-                                            ? 'Selecione ao menos um subdomínio de risco que a ocorrência materializa.'
+                                            ? t(
+                                                  'Select at least one risk subdomain the occurrence materializes.',
+                                              )
                                             : subdomainError(errors)
                                     }
                                 />
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="description">
-                                        Descrição
+                                        {t('Description')}
                                     </Label>
                                     <Textarea
                                         id="description"
@@ -252,7 +275,9 @@ export default function AdverseEventsCreate({
                                         required
                                         maxLength={2000}
                                         className="max-h-80 min-h-32"
-                                        placeholder="Ex.: O modelo recusou todas as solicitações de clientes acima de 60 anos durante dois dias."
+                                        placeholder={t(
+                                            'E.g.: The model refused every request from customers over 60 for two days.',
+                                        )}
                                         aria-invalid={
                                             errors.description
                                                 ? true
@@ -264,7 +289,7 @@ export default function AdverseEventsCreate({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="occurrence_date">
-                                        Data de ocorrência
+                                        {t('Occurrence date')}
                                     </Label>
                                     <Input
                                         id="occurrence_date"
@@ -286,7 +311,7 @@ export default function AdverseEventsCreate({
                                         }
                                     />
                                     <p className="text-muted-foreground text-sm">
-                                        Não pode ser uma data futura.
+                                        {t('It cannot be a future date.')}
                                     </p>
                                     <InputError
                                         message={errors.occurrence_date}
@@ -295,9 +320,9 @@ export default function AdverseEventsCreate({
 
                                 <div className="grid gap-2">
                                     <Label htmlFor="detected_at">
-                                        Data de detecção{' '}
+                                        {t('Detection date')}{' '}
                                         <span className="text-muted-foreground font-normal">
-                                            (opcional)
+                                            {t('(optional)')}
                                         </span>
                                     </Label>
                                     <Input
@@ -318,10 +343,9 @@ export default function AdverseEventsCreate({
                                         id="detected_at-help"
                                         className="text-muted-foreground text-sm"
                                     >
-                                        Quando o monitoramento percebeu a
-                                        ocorrência, entre a data de ocorrência e
-                                        hoje. O intervalo mede a demora em
-                                        detectar.
+                                        {t(
+                                            'When the monitoring noticed the occurrence, between the occurrence date and today. The interval measures how long detecting took.',
+                                        )}
                                     </p>
                                     <InputError message={errors.detected_at} />
                                 </div>
@@ -329,9 +353,9 @@ export default function AdverseEventsCreate({
                                 {nearMiss && aiSystemId && (
                                     <div className="grid gap-2">
                                         <Label htmlFor="intercepting_link_id">
-                                            Vínculo que interceptou{' '}
+                                            {t('Intercepting link')}{' '}
                                             <span className="text-muted-foreground font-normal">
-                                                (opcional)
+                                                {t('(optional)')}
                                             </span>
                                         </Label>
                                         <Select
@@ -359,7 +383,7 @@ export default function AdverseEventsCreate({
                                                 <SelectItem
                                                     value={NO_INTERCEPTOR}
                                                 >
-                                                    Nenhum
+                                                    {t('None')}
                                                 </SelectItem>
                                                 {offered.map((link) => (
                                                     <SelectItem
@@ -385,8 +409,12 @@ export default function AdverseEventsCreate({
                                             className="text-muted-foreground text-sm"
                                         >
                                             {offered.length === 0
-                                                ? 'Nenhum vínculo deste sistema trata os subdomínios selecionados.'
-                                                : 'O vínculo cuja mitigação barrou a ocorrência. Ele não é revertido, porque o evento mostra que funcionou.'}
+                                                ? t(
+                                                      'No link of this system treats the selected subdomains.',
+                                                  )
+                                                : t(
+                                                      'The link whose mitigation stopped the occurrence. It is not reverted, because the event shows it worked.',
+                                                  )}
                                         </p>
                                         <InputError
                                             message={
@@ -399,14 +427,12 @@ export default function AdverseEventsCreate({
                                 <Alert>
                                     <TriangleAlertIcon />
                                     <AlertTitle>
-                                        O registro é permanente
+                                        {t('The record is permanent')}
                                     </AlertTitle>
                                     <AlertDescription>
-                                        Eventos adversos não podem ser editados
-                                        nem excluídos. O registro devolve a
-                                        declarados os vínculos verificados do
-                                        sistema cujo risco está em algum dos
-                                        subdomínios do evento.
+                                        {t(
+                                            "Adverse events can be neither edited nor deleted. The record takes back to declared the system's verified links whose risk is in one of the event's subdomains.",
+                                        )}
                                     </AlertDescription>
                                 </Alert>
 
@@ -416,10 +442,12 @@ export default function AdverseEventsCreate({
                                         disabled={processing}
                                         onClick={askToConfirm}
                                     >
-                                        Registrar evento
+                                        {t('Record event')}
                                     </Button>
                                     <Button variant="ghost" asChild>
-                                        <Link href={index()}>Cancelar</Link>
+                                        <Link href={index()}>
+                                            {t('Cancel')}
+                                        </Link>
                                     </Button>
                                 </div>
 
@@ -429,19 +457,22 @@ export default function AdverseEventsCreate({
                                 >
                                     <DialogContent>
                                         <DialogTitle>
-                                            Registrar este evento adverso?
+                                            {t('Record this adverse event?')}
                                         </DialogTitle>
                                         <DialogDescription>
-                                            Confira o sistema, os subdomínios de
-                                            risco ({selected.join(', ')}) e a
-                                            data: depois de registrado, o evento
-                                            não pode ser editado nem excluído.
+                                            {t(
+                                                'Check the system, the risk subdomains (:subdomains) and the date: once recorded, the event can be neither edited nor deleted.',
+                                                {
+                                                    subdomains:
+                                                        selected.join(', '),
+                                                },
+                                            )}
                                         </DialogDescription>
                                         <ReversalPreview reverted={reverted} />
                                         <DialogFooter className="gap-2">
                                             <DialogClose asChild>
                                                 <Button variant="secondary">
-                                                    Voltar
+                                                    {t('Back')}
                                                 </Button>
                                             </DialogClose>
                                             <Button
@@ -449,7 +480,7 @@ export default function AdverseEventsCreate({
                                                 form={FORM_ID}
                                                 disabled={processing}
                                             >
-                                                Registrar
+                                                {t('Record')}
                                             </Button>
                                         </DialogFooter>
                                     </DialogContent>
@@ -468,10 +499,12 @@ export default function AdverseEventsCreate({
  * confirmation says it before the event is recorded (0019, item 3).
  */
 function ReversalPreview({ reverted }: { reverted: SystemLink[] }) {
+    const { t, tc } = useTranslations();
+
     if (reverted.length === 0) {
         return (
             <p className="text-sm">
-                Nenhum vínculo verificado deste sistema será revertido.
+                {t('No verified link of this system will be reverted.')}
             </p>
         );
     }
@@ -479,10 +512,10 @@ function ReversalPreview({ reverted }: { reverted: SystemLink[] }) {
     return (
         <div className="grid gap-2 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
             <p className="font-semibold">
-                {reverted.length === 1
-                    ? '1 vínculo verificado voltará a declarado'
-                    : `${reverted.length} vínculos verificados voltarão a declarados`}
-                , aguardando reavaliação:
+                {tc(
+                    ':count verified link will go back to declared, awaiting reassessment:|:count verified links will go back to declared, awaiting reassessment:',
+                    reverted.length,
+                )}
             </p>
             <ul className="list-disc pl-5">
                 {reverted.map((link) => (
@@ -495,9 +528,13 @@ function ReversalPreview({ reverted }: { reverted: SystemLink[] }) {
     );
 }
 
-AdverseEventsCreate.layout = {
-    breadcrumbs: [
-        { title: 'Eventos adversos', href: index() },
-        { title: 'Registrar', href: create() },
-    ],
+AdverseEventsCreate.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [
+            { title: t('Adverse events'), href: index() },
+            { title: t('Record'), href: create() },
+        ],
+    };
 };

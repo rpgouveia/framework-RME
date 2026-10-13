@@ -12,12 +12,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    categoryBadgeClasses,
-    categoryLabels,
-    sourceTypeLabels,
-} from '@/lib/labels';
+import { translator } from '@/lib/i18n';
+import type { WithTranslations } from '@/lib/i18n';
+import { categoryBadgeClasses } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { create, edit, index, show } from '@/routes/ai-systems';
 import type { AiSystem, Paginated } from '@/types/models';
@@ -27,14 +27,16 @@ type Props = {
 };
 
 export default function AiSystemsIndex({ aiSystems }: Props) {
+    const { t } = useTranslations();
+
     return (
         <>
-            <Head title="Sistemas de IA" />
+            <Head title={t('AI systems')} />
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 <div className="flex items-start justify-between gap-4">
-                    <Heading title="Sistemas de IA" />
+                    <Heading title={t('AI systems')} />
                     <Button asChild>
-                        <Link href={create()}>Cadastrar sistema de IA</Link>
+                        <Link href={create()}>{t('Register AI system')}</Link>
                     </Button>
                 </div>
 
@@ -54,31 +56,38 @@ export default function AiSystemsIndex({ aiSystems }: Props) {
 }
 
 function EmptyState() {
+    const { t } = useTranslations();
+
     return (
         <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">
-                Nenhum sistema de IA foi cadastrado ainda.
+                {t('No AI system has been registered yet.')}
             </p>
             <Button asChild>
-                <Link href={create()}>Cadastrar sistema de IA</Link>
+                <Link href={create()}>{t('Register AI system')}</Link>
             </Button>
         </div>
     );
 }
 
 function SystemsTable({ systems }: { systems: AiSystem[] }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
+
     return (
         <div className="rounded-xl border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Origem</TableHead>
-                        <TableHead>Categoria</TableHead>
-                        <TableHead>Cadastro</TableHead>
-                        <TableHead className="text-right">Riscos</TableHead>
+                        <TableHead>{t('Name')}</TableHead>
+                        <TableHead>{t('Origin')}</TableHead>
+                        <TableHead>{t('Category')}</TableHead>
+                        <TableHead>{t('Registration')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('Risks')}
+                        </TableHead>
                         <TableHead>
-                            <span className="sr-only">Ações</span>
+                            <span className="sr-only">{t('Actions')}</span>
                         </TableHead>
                     </TableRow>
                 </TableHeader>
@@ -103,7 +112,11 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                             </TableCell>
                             <TableCell>
                                 <Badge variant="outline">
-                                    {sourceTypeLabels[system.source_type]}
+                                    {
+                                        enumLabels.SystemSourceType[
+                                            system.source_type
+                                        ]
+                                    }
                                 </Badge>
                             </TableCell>
                             <TableCell>
@@ -112,7 +125,11 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                                         categoryBadgeClasses[system.category]
                                     }
                                 >
-                                    {categoryLabels[system.category]}
+                                    {
+                                        enumLabels.AiSystemCategory[
+                                            system.category
+                                        ]
+                                    }
                                 </Badge>
                             </TableCell>
                             <TableCell>
@@ -126,7 +143,7 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                                     href={edit(system.id)}
                                     className="text-muted-foreground hover:text-foreground text-sm hover:underline"
                                 >
-                                    Editar
+                                    {t('Edit')}
                                 </Link>
                             </TableCell>
                         </TableRow>
@@ -137,6 +154,10 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
     );
 }
 
-AiSystemsIndex.layout = {
-    breadcrumbs: [{ title: 'Sistemas de IA', href: index() }],
+AiSystemsIndex.layout = ({ translations }: WithTranslations) => {
+    const t = translator(translations);
+
+    return {
+        breadcrumbs: [{ title: t('AI systems'), href: index() }],
+    };
 };

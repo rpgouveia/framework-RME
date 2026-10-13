@@ -31,13 +31,11 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useEnumLabels } from '@/hooks/use-enum-labels';
+import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
-import {
-    changeOriginLabels,
-    reassessmentOutcomeLabels,
-    subdomainCodes,
-    systemChangeTypeLabels,
-} from '@/lib/labels';
+import { interpolateNodes } from '@/lib/i18n';
+import { subdomainCodes } from '@/lib/names';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { show as showReassessment } from '@/routes/reassessments';
@@ -65,6 +63,8 @@ export function LinkVerificationCard({
     link: Link;
     verification: VerificationProps;
 }) {
+    const enumLabels = useEnumLabels();
+    const { t } = useTranslations();
     const { url } = usePage();
     const declared = link.verification_status === 'declared';
     const reversal = declared ? link.last_reversal : null;
@@ -81,14 +81,15 @@ export function LinkVerificationCard({
         <Card>
             <CardHeader>
                 <CardTitle className="flex flex-wrap items-center gap-2">
-                    Verificação
+                    {t('Verification')}
                     <VerificationBadge
                         verification={link.verification_status}
                     />
                 </CardTitle>
                 <CardDescription>
-                    A verificação comprova, com evidência, que a mitigação está
-                    aplicada. A revisão periódica começa na verificação.
+                    {t(
+                        'The verification proves, with evidence, that the mitigation is applied. The periodic review starts at the verification.',
+                    )}
                 </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-6">
@@ -102,98 +103,139 @@ export function LinkVerificationCard({
                         {reversal.reassessment ? (
                             // Decided, still to be proven (0020, item 4).
                             <p className="font-semibold">
-                                Reavaliado (
-                                <InertiaLink
-                                    href={showReassessment(
-                                        reversal.reassessment.id,
-                                    )}
-                                    className="underline underline-offset-4"
-                                >
-                                    {reassessmentOutcomeLabels[
-                                        reversal.reassessment.outcome
-                                    ].toLowerCase()}{' '}
-                                    em{' '}
-                                    {formatDate(
-                                        reversal.reassessment.reassessment_date,
-                                    )}
-                                </InertiaLink>
-                                ): aguardando verificação
+                                {interpolateNodes(
+                                    t(
+                                        'Reassessed (:reassessment): awaiting verification',
+                                    ),
+                                    {
+                                        reassessment: (
+                                            <InertiaLink
+                                                href={showReassessment(
+                                                    reversal.reassessment.id,
+                                                )}
+                                                className="underline underline-offset-4"
+                                            >
+                                                {t(':outcome on :date', {
+                                                    outcome:
+                                                        enumLabels.ReassessmentOutcome[
+                                                            reversal
+                                                                .reassessment
+                                                                .outcome
+                                                        ].toLowerCase(),
+                                                    date: formatDate(
+                                                        reversal.reassessment
+                                                            .reassessment_date,
+                                                    ),
+                                                })}
+                                            </InertiaLink>
+                                        ),
+                                    },
+                                )}
                             </p>
                         ) : unacceptable && aiSystem ? (
                             <p className="font-semibold">
-                                <InertiaLink
-                                    href={`${showAiSystem.url(aiSystem.id)}#${UNACCEPTABLE_ALERT_ID}`}
-                                    className="underline underline-offset-4"
-                                >
-                                    Sistema na faixa inaceitável
-                                </InertiaLink>
-                                : planejar a descontinuação
+                                {interpolateNodes(
+                                    t(':system: plan the discontinuation'),
+                                    {
+                                        system: (
+                                            <InertiaLink
+                                                href={`${showAiSystem.url(aiSystem.id)}#${UNACCEPTABLE_ALERT_ID}`}
+                                                className="underline underline-offset-4"
+                                            >
+                                                {t(
+                                                    'System in the unacceptable tier',
+                                                )}
+                                            </InertiaLink>
+                                        ),
+                                    },
+                                )}
                             </p>
                         ) : (
                             <p className="font-semibold">
-                                Aguardando reavaliação
+                                {t('Awaiting reassessment')}
                             </p>
                         )}
                         <p>
-                            Verificação revertida em{' '}
-                            {formatDate(reversal.change_date)} (origem:{' '}
-                            {changeOriginLabels[reversal.origin].toLowerCase()}
-                            ).
+                            {t(
+                                'Verification reverted on :date (origin: :origin).',
+                                {
+                                    date: formatDate(reversal.change_date),
+                                    origin: enumLabels.ChangeOrigin[
+                                        reversal.origin
+                                    ].toLowerCase(),
+                                },
+                            )}
                         </p>
                         {reversal.trigger_reason && (
-                            <p>Motivo: {reversal.trigger_reason}</p>
+                            <p>
+                                {t('Reason: :reason', {
+                                    reason: reversal.trigger_reason,
+                                })}
+                            </p>
                         )}
                         {reversal.system_change && (
                             <p>
-                                Mudança do sistema:{' '}
-                                <InertiaLink
-                                    href={showSystemChange(
-                                        reversal.system_change.id,
-                                    )}
-                                    className="font-medium underline underline-offset-4"
-                                >
-                                    {
-                                        systemChangeTypeLabels[
-                                            reversal.system_change.type
-                                        ]
-                                    }{' '}
-                                    de{' '}
-                                    {formatDate(
-                                        reversal.system_change.change_date,
-                                    )}
-                                </InertiaLink>
+                                {interpolateNodes(t('System change: :change'), {
+                                    change: (
+                                        <InertiaLink
+                                            href={showSystemChange(
+                                                reversal.system_change.id,
+                                            )}
+                                            className="font-medium underline underline-offset-4"
+                                        >
+                                            {t(':type of :date', {
+                                                type: enumLabels
+                                                    .SystemChangeType[
+                                                    reversal.system_change.type
+                                                ],
+                                                date: formatDate(
+                                                    reversal.system_change
+                                                        .change_date,
+                                                ),
+                                            })}
+                                        </InertiaLink>
+                                    ),
+                                })}
                             </p>
                         )}
                         {reversal.adverse_event && (
                             <p>
-                                Evento adverso:{' '}
-                                <InertiaLink
-                                    href={showAdverseEvent(
-                                        reversal.adverse_event.id,
-                                    )}
-                                    className="font-medium underline underline-offset-4"
-                                >
-                                    {subdomainCodes(reversal.adverse_event)} de{' '}
-                                    {formatDate(
-                                        reversal.adverse_event.occurrence_date,
-                                    )}
-                                </InertiaLink>
+                                {interpolateNodes(t('Adverse event: :event'), {
+                                    event: (
+                                        <InertiaLink
+                                            href={showAdverseEvent(
+                                                reversal.adverse_event.id,
+                                            )}
+                                            className="font-medium underline underline-offset-4"
+                                        >
+                                            {t(':subdomains of :date', {
+                                                subdomains: subdomainCodes(
+                                                    reversal.adverse_event,
+                                                ),
+                                                date: formatDate(
+                                                    reversal.adverse_event
+                                                        .occurrence_date,
+                                                ),
+                                            })}
+                                        </InertiaLink>
+                                    ),
+                                })}
                             </p>
                         )}
                     </div>
                 )}
 
                 <dl className="grid gap-4 sm:grid-cols-2">
-                    <DetailItem label="Última verificação">
+                    <DetailItem label={t('Last verification')}>
                         {link.last_verification ? (
                             formatDate(link.last_verification.change_date)
                         ) : (
                             <span className="text-muted-foreground font-normal">
-                                Nunca verificado
+                                {t('Never verified')}
                             </span>
                         )}
                     </DetailItem>
-                    <DetailItem label="Verificado por">
+                    <DetailItem label={t('Verified by')}>
                         {link.last_verification ? (
                             <EntryAuthor entry={link.last_verification} />
                         ) : (
@@ -215,7 +257,7 @@ export function LinkVerificationCard({
                                     : undefined
                             }
                         >
-                            Verificar
+                            {t('Verify')}
                         </Button>
                         {verification.problem && (
                             <p
@@ -240,13 +282,13 @@ export function LinkVerificationCard({
                                         : undefined
                                 }
                             >
-                                Renovar verificação
+                                {t('Renew verification')}
                             </Button>
                             <Button
                                 variant="outline"
                                 onClick={() => setReverting(true)}
                             >
-                                Reverter verificação
+                                {t('Revert verification')}
                             </Button>
                         </div>
                         {verification.problem && (
@@ -292,19 +334,25 @@ function VerifyDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }) {
+    const { t } = useTranslations();
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogTitle>
                     {renewal
-                        ? 'Renovar a verificação deste vínculo?'
-                        : 'Verificar este vínculo?'}
+                        ? t('Renew the verification of this link?')
+                        : t('Verify this link?')}
                 </DialogTitle>
                 <DialogDescription>
                     {renewal
-                        ? 'A nova evidência renova a verificação antes do vencimento: a revisão periódica volta a contar a partir de hoje, com o intervalo da faixa atual do sistema.'
-                        : 'A revisão periódica passa a contar a partir de hoje, com o intervalo da faixa do sistema.'}{' '}
-                    O registro fica no histórico.
+                        ? t(
+                              "The new evidence renews the verification before it falls due: the periodic review counts again from today, with the interval of the system's current tier.",
+                          )
+                        : t(
+                              "The periodic review counts from today, with the interval of the system's tier.",
+                          )}{' '}
+                    {t('The record stays in the history.')}
                 </DialogDescription>
                 <Form
                     {...LinkVerificationController.store.form(link.id)}
@@ -317,18 +365,18 @@ function VerifyDialog({
                             <OwnerSelect
                                 owners={owners}
                                 defaultOwnerId={link.owner_id}
-                                label="Quem verifica"
+                                label={t('Who verifies')}
                                 error={errors.owner_id}
                             />
                             <InputError message={errors.verification} />
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary">
-                                        Voltar
+                                        {t('Back')}
                                     </Button>
                                 </DialogClose>
                                 <Button type="submit" disabled={processing}>
-                                    {renewal ? 'Renovar' : 'Verificar'}
+                                    {renewal ? t('Renew') : t('Verify')}
                                 </Button>
                             </DialogFooter>
                         </>
@@ -350,14 +398,16 @@ function RevertDialog({
     open: boolean;
     onOpenChange: (open: boolean) => void;
 }) {
+    const { t } = useTranslations();
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
-                <DialogTitle>Reverter a verificação?</DialogTitle>
+                <DialogTitle>{t('Revert the verification?')}</DialogTitle>
                 <DialogDescription>
-                    O vínculo volta a declarado e sai da revisão periódica. Para
-                    verificá-lo de novo, será preciso registrar uma evidência
-                    nova.
+                    {t(
+                        'The link goes back to declared and leaves the periodic review. To verify it again, new evidence must be registered.',
+                    )}
                 </DialogDescription>
                 <Form
                     {...LinkVerificationController.destroy.form(link.id)}
@@ -370,17 +420,21 @@ function RevertDialog({
                             <OwnerSelect
                                 owners={owners}
                                 defaultOwnerId={link.owner_id}
-                                label="Quem reverte"
+                                label={t('Who reverts')}
                                 error={errors.owner_id}
                             />
                             <div className="grid gap-2">
-                                <Label htmlFor="trigger_reason">Motivo</Label>
+                                <Label htmlFor="trigger_reason">
+                                    {t('Reason')}
+                                </Label>
                                 <Textarea
                                     id="trigger_reason"
                                     name="trigger_reason"
                                     required
                                     maxLength={255}
-                                    placeholder="Ex.: A auditoria encontrou o controle desativado em produção."
+                                    placeholder={t(
+                                        'E.g.: The audit found the control disabled in production.',
+                                    )}
                                     aria-invalid={
                                         errors.trigger_reason ? true : undefined
                                     }
@@ -391,7 +445,7 @@ function RevertDialog({
                             <DialogFooter className="gap-2">
                                 <DialogClose asChild>
                                     <Button type="button" variant="secondary">
-                                        Voltar
+                                        {t('Back')}
                                     </Button>
                                 </DialogClose>
                                 <Button
@@ -399,7 +453,7 @@ function RevertDialog({
                                     variant="destructive"
                                     disabled={processing}
                                 >
-                                    Reverter
+                                    {t('Revert')}
                                 </Button>
                             </DialogFooter>
                         </>
@@ -425,6 +479,7 @@ function OwnerSelect({
     label: string;
     error?: string;
 }) {
+    const { t } = useTranslations();
     const preselected = owners.some((owner) => owner.id === defaultOwnerId)
         ? String(defaultOwnerId)
         : undefined;
@@ -438,7 +493,9 @@ function OwnerSelect({
                     className="w-full"
                     aria-invalid={error ? true : undefined}
                 >
-                    <SelectValue placeholder="Selecione o papel responsável" />
+                    <SelectValue
+                        placeholder={t('Select the accountable role')}
+                    />
                 </SelectTrigger>
                 <SelectContent>
                     {owners.map((owner) => (
