@@ -17,9 +17,9 @@ A situação do catálogo é parecida, mas o AC1 calculado código a código tem
 2. **Medida principal:** alfa de Krippendorff com a distância MASI (Passonneau, 2006), que compara conjuntos, dá crédito parcial à sobreposição e desconta a concordância por acaso. Pesos da MASI: 1 para conjuntos iguais, 2/3 quando um contém o outro, 1/3 quando há interseção sem inclusão e 0 quando são disjuntos. A implementação de referência é a da biblioteca NLTK.
 3. **Valor mínimo aceitável:** alfa de 0,667, mínimo indicado por Krippendorff para conclusões provisórias, com 0,800 como meta. O resultado é relatado com intervalo de confiança de 95%, por reamostragem das mitigações (10.000 reamostragens, semente fixa, método percentil).
 4. **Medidas complementares:**
-   - AC1 de Gwet e g de Guilford por subdomínio, com média e variação, calculados como no AGORA, para comparação. A média considera só os subdomínios marcados ao menos uma vez por algum anotador; os nunca marcados teriam concordância perfeita trivial.
-   - Concordância positiva por subdomínio, como diagnóstico dos subdomínios que confundem os anotadores (Cicchetti; Feinstein, 1990).
-   - Proporção de mitigações com conjuntos idênticos, como descrição.
+    - AC1 de Gwet e g de Guilford por subdomínio, com média e variação, calculados como no AGORA, para comparação. A média considera só os subdomínios marcados ao menos uma vez por algum anotador; os nunca marcados teriam concordância perfeita trivial.
+    - Concordância positiva por subdomínio, como diagnóstico dos subdomínios que confundem os anotadores (Cicchetti; Feinstein, 1990).
+    - Proporção de mitigações com conjuntos idênticos, como descrição.
 5. **Se o mínimo não for atingido:** o resultado é relatado como está, sem repetir a anotação para melhorar o número. As divergências são analisadas pela concordância positiva, o guia de anotação é revisto nos subdomínios problemáticos e isso é registrado como achado. Uma segunda medição, se houver tempo, é feita pelos membros que ainda não viram aquelas mitigações e relatada separadamente, sem substituir a primeira.
 6. **Guia de anotação:** antes da anotação, um guia curto com as definições dos subdomínios e a regra central: marcar apenas os subdomínios cujo risco a mitigação reduz diretamente.
 7. **Calibração:** feita com mitigações elegíveis que não estão entre as 40 do catálogo; as mitigações medidas não são usadas no treino.
