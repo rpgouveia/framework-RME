@@ -184,11 +184,14 @@ class MitigationCatalogSource
     /**
      * The header and the rows of the CSV, each row keyed by column and paired
      * with the line it starts on. Comma or semicolon separated, as the
-     * spreadsheet exports it, with or without a byte order mark.
+     * spreadsheet exports it, with or without a byte order mark. Also read by
+     * the OE1 agreement measure (0025).
      *
      * @return array{list<string>, list<array{int, array<string, string>}>}
+     *
+     * @throws InvalidMitigationCatalog When the file is missing or unreadable.
      */
-    protected function rows(string $path): array
+    public function rows(string $path): array
     {
         if (! is_file($path)) {
             throw new InvalidMitigationCatalog("CSV do catálogo não encontrado: {$path}");

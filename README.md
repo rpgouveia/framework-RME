@@ -95,6 +95,17 @@ the catalogue's validation:
 docker compose exec app php artisan mitigations:import-catalog
 ```
 
+The same CSV holds the raw double annotation behind OE1. The agreement between
+the two annotators (decision 0025: Krippendorff's alpha with the MASI distance,
+a seeded bootstrap interval and per subdomain measures) is computed from it,
+shown as tables and written to `catalog-source/oe1-agreement.json`. The
+annotators follow [`docs/catalog-annotation-guide.md`](docs/catalog-annotation-guide.md),
+in Portuguese:
+
+```bash
+docker compose exec app php artisan mitigations:agreement
+```
+
 ### Using the app
 
 [`docs/tutorial.md`](docs/tutorial.md) is a step-by-step guide to the app, in
@@ -421,7 +432,7 @@ New translations follow the vocabulary of the interface:
 app/
 ├── Actions/           the write paths: RecordStatusChange and the actions built on it
 ├── Concerns/          validation rule traits + the enum options helper
-├── Console/Commands/  links:flag-due-for-review
+├── Console/Commands/  links:flag-due-for-review, mitigations:import-catalog, mitigations:agreement
 ├── Enums/             every classification used by the domain
 ├── Http/
 │   ├── Controllers/   one controller per entity, plus the dashboard and the report

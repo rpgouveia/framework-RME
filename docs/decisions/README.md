@@ -29,5 +29,6 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0022](0022-padrao-de-idioma.md)                     | Padrão de idioma da interface                                        | Aceita; implementada                                  |
 | [0023](0023-licenca-das-traducoes.md)                | Licença das traduções e de dependências de terceiros                 | Aceita; implementada                                  |
 | [0024](0024-catalogo-real.md)                        | Catálogo real de mitigações (C2)                                     | Aceita; em execução (preenchimento pelo grupo)        |
+| [0025](0025-medida-de-concordancia-oe1.md)           | Medida de concordância do OE1                                        | Aceita; implementada (cálculo e rascunho do guia)     |
 
 Itens em aberto: [PENDENTES.md](PENDENTES.md).
