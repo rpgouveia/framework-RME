@@ -346,7 +346,7 @@
     "in the subcategory :term": "na subcategoria :term",
     "Inactive": "Inativo",
     "inactive": "inativo",
-    "Incidents and near misses on a system, classified by risk subdomain, which send the links they touch back to reassessment.": "Incidentes e quase-incidentes em um sistema, classificados por subdomínio de risco, que enviam os vínculos atingidos de volta à reavaliação.",
+    "Incidents and near misses in systems in operation, with actual or plausible harm to people, the organization or the ecosystem, classified by risk subdomain, which send the links they touch back to reassessment.": "Incidentes e quase-incidentes de sistemas em operação, com dano ocorrido ou plausível a pessoas, à organização ou ao ecossistema, classificados por subdomínio de risco e que devolvem à reavaliação os vínculos atingidos.",
     "Insufficient Storage": "Armazenamento Insuficiente",
     "Intercepting link": "Vínculo que interceptou",
     "Internal Server Error": "Erro Interno Do Servidor",

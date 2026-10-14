@@ -29,7 +29,9 @@ As referências divergem sobre o primeiro ponto. A OCDE (2024) define incidente 
 
 ## Implementação
 
-Não há mudança de código: a definição orienta o registro e a avaliação. O documento do C3 (versão 6) traz os critérios, o posicionamento e os itens do painel nas Seções 5.7 e 5.9 a 5.11. A inclusão do texto da definição no arquivo versionado do protocolo, prevista na decisão 0017, fica para quando o grupo quiser exibi-la na tela de registro de evento.
+Não há mudança no modelo de dados nem nas regras: a definição orienta o registro e a avaliação. O documento do C3 (versão 6) traz os critérios, o posicionamento e os itens do painel nas Seções 5.7 e 5.9 a 5.11. A inclusão do texto da definição no arquivo versionado do protocolo, prevista na decisão 0017, fica para quando o grupo quiser exibi-la na tela de registro de evento.
+
+O texto público da página inicial sobre eventos adversos (`resources/js/pages/welcome.tsx`, com a tradução em `lang/pt_BR.json`) foi ajustado à definição: passa a falar em sistemas em operação e em dano ocorrido ou plausível a pessoas, à organização ou ao ecossistema.
 
 ## Referências
 

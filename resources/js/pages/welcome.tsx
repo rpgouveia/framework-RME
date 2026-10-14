@@ -50,7 +50,7 @@ export default function Welcome() {
             icon: TriangleAlert,
             title: t('Adverse events'),
             summary: t(
-                'Incidents and near misses on a system, classified by risk subdomain, which send the links they touch back to reassessment.',
+                'Incidents and near misses in systems in operation, with actual or plausible harm to people, the organization or the ecosystem, classified by risk subdomain, which send the links they touch back to reassessment.',
             ),
         },
         {
