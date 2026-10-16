@@ -38,6 +38,16 @@ A situação do catálogo é parecida, mas o AC1 calculado código a código tem
 - **Testes:** valores de referência conferidos de forma independente, inclusive contra a NLTK, com tolerância de 1e-6: três mitigações (alfa 0,390244), concordância perfeita (alfa 1), doze mitigações (alfa 0,405429) e um subdomínio em 40 mitigações (po 0,85, g 0,70, AC1 0,808, concordância positiva 0,40). Os testes também conferem que o mesmo CSV gera o mesmo arquivo, inclusive o intervalo, e que conjunto vazio e código inválido são recusados com a linha.
 - **Item 6 (guia de anotação):** rascunho em `docs/catalog-annotation-guide.md`, para revisão do grupo, com a regra central, a regra de independência (o anotador B não vê a coluna do A, e nenhuma ferramenta de IA sugere ou confere subdomínios), o formato dos códigos, a lista dos 24 subdomínios gerada a partir do arquivo de taxonomia do projeto e a indicação de que a calibração usa mitigações fora das 40. Um teste confere que a lista do guia acompanha o arquivo de taxonomia.
 
+### Resultado oficial do OE1
+
+Calculado com `php artisan mitigations:agreement --strict` sobre as 40 mitigações do catálogo (`database/data/catalog-source/catalog.csv`), sem linhas de fora; o resultado completo está em `database/data/catalog-source/oe1-agreement.json`.
+
+- **Alfa de Krippendorff (MASI):** 0,527, com intervalo de confiança de 95% de 0,389 a 0,646 (10.000 reamostragens, nenhuma descartada). O mínimo de 0,667 não foi atingido, nem a meta de 0,800; o limite superior do intervalo também fica abaixo do mínimo.
+- **Conjuntos idênticos:** 40% das mitigações.
+- **Medidas por subdomínio**, sobre os 20 subdomínios marcados ao menos uma vez: AC1 de Gwet médio de 0,897 (de 0,644 a 1) e g de Guilford médio de 0,865 (de 0,60 a 1).
+
+Conforme o item 5, o resultado é relatado como está, sem repetir a anotação. Fica como encaminhamento a revisão do guia de anotação (`docs/catalog-annotation-guide.md`) nos subdomínios problemáticos, identificados pela concordância positiva, registrada como achado.
+
 ## Referências
 
 - ARNOLD, Z. et al. Introducing the AI Governance and Regulatory Archive (AGORA). Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society, v. 7, n. 1, p. 39-48, 2024. DOI: 10.1609/aies.v7i1.31615.
