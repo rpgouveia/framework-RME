@@ -1,0 +1,330 @@
+{
+    "measure": "Alfa de Krippendorff com a distância MASI (decisão 0025)",
+    "strict": true,
+    "n": 40,
+    "left_out": 0,
+    "alpha": 0.526764,
+    "observed_disagreement": 0.417166,
+    "expected_disagreement": 0.881518,
+    "confidence_interval": {
+        "level": 0.95,
+        "lower": 0.388741,
+        "upper": 0.646365,
+        "method": "percentil",
+        "resamples": 10000,
+        "seed": 2026,
+        "discarded": 0
+    },
+    "minimum": {
+        "threshold": 0.667,
+        "met": false
+    },
+    "target": {
+        "threshold": 0.8,
+        "met": false
+    },
+    "identical_sets": 0.4,
+    "subdomains": [
+        {
+            "code": "1.1",
+            "name": "Discriminação injusta e representação distorcida",
+            "both": 4,
+            "only_a": 1,
+            "only_b": 0,
+            "neither": 35,
+            "observed_agreement": 0.975,
+            "g": 0.95,
+            "ac1": 0.968762,
+            "positive_agreement": 0.888889
+        },
+        {
+            "code": "1.2",
+            "name": "Exposição a conteúdo tóxico",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 1,
+            "neither": 38,
+            "observed_agreement": 0.975,
+            "g": 0.95,
+            "ac1": 0.973055,
+            "positive_agreement": 0.666667
+        },
+        {
+            "code": "1.3",
+            "name": "Desempenho desigual entre grupos",
+            "both": 0,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 40,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": null
+        },
+        {
+            "code": "2.1",
+            "name": "Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis",
+            "both": 8,
+            "only_a": 1,
+            "only_b": 1,
+            "neither": 30,
+            "observed_agreement": 0.95,
+            "g": 0.9,
+            "ac1": 0.923225,
+            "positive_agreement": 0.888889
+        },
+        {
+            "code": "2.2",
+            "name": "Vulnerabilidades de segurança e ataques a sistemas de IA",
+            "both": 8,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 32,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        },
+        {
+            "code": "3.1",
+            "name": "Informação falsa ou enganosa",
+            "both": 4,
+            "only_a": 1,
+            "only_b": 4,
+            "neither": 31,
+            "observed_agreement": 0.875,
+            "g": 0.75,
+            "ac1": 0.828252,
+            "positive_agreement": 0.615385
+        },
+        {
+            "code": "3.2",
+            "name": "Poluição do ecossistema de informação e perda de uma realidade comum",
+            "both": 3,
+            "only_a": 2,
+            "only_b": 2,
+            "neither": 33,
+            "observed_agreement": 0.9,
+            "g": 0.8,
+            "ac1": 0.872,
+            "positive_agreement": 0.6
+        },
+        {
+            "code": "4.1",
+            "name": "Desinformação, vigilância e influência em larga escala",
+            "both": 7,
+            "only_a": 1,
+            "only_b": 4,
+            "neither": 28,
+            "observed_agreement": 0.875,
+            "g": 0.75,
+            "ac1": 0.804018,
+            "positive_agreement": 0.736842
+        },
+        {
+            "code": "4.2",
+            "name": "Ciberataques, desenvolvimento ou uso de armas e danos em massa",
+            "both": 3,
+            "only_a": 1,
+            "only_b": 0,
+            "neither": 36,
+            "observed_agreement": 0.975,
+            "g": 0.95,
+            "ac1": 0.970249,
+            "positive_agreement": 0.857143
+        },
+        {
+            "code": "4.3",
+            "name": "Fraudes, golpes e manipulação direcionada",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 39,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        },
+        {
+            "code": "5.1",
+            "name": "Dependência excessiva e uso inseguro",
+            "both": 1,
+            "only_a": 1,
+            "only_b": 3,
+            "neither": 35,
+            "observed_agreement": 0.9,
+            "g": 0.8,
+            "ac1": 0.88389,
+            "positive_agreement": 0.333333
+        },
+        {
+            "code": "5.2",
+            "name": "Perda de agência e autonomia humanas",
+            "both": 3,
+            "only_a": 2,
+            "only_b": 0,
+            "neither": 35,
+            "observed_agreement": 0.95,
+            "g": 0.9,
+            "ac1": 0.939024,
+            "positive_agreement": 0.75
+        },
+        {
+            "code": "6.1",
+            "name": "Centralização de poder e distribuição injusta de benefícios",
+            "both": 0,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 40,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": null
+        },
+        {
+            "code": "6.2",
+            "name": "Aumento da desigualdade e piora na qualidade do emprego",
+            "both": 0,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 40,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": null
+        },
+        {
+            "code": "6.3",
+            "name": "Desvalorização econômica e cultural do esforço humano",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 39,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        },
+        {
+            "code": "6.4",
+            "name": "Dinâmicas competitivas",
+            "both": 0,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 40,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": null
+        },
+        {
+            "code": "6.5",
+            "name": "Falha de governança",
+            "both": 23,
+            "only_a": 0,
+            "only_b": 8,
+            "neither": 9,
+            "observed_agreement": 0.8,
+            "g": 0.6,
+            "ac1": 0.643653,
+            "positive_agreement": 0.851852
+        },
+        {
+            "code": "6.6",
+            "name": "Danos ambientais",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 39,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        },
+        {
+            "code": "7.1",
+            "name": "IA perseguindo objetivos próprios em conflito com objetivos ou valores humanos",
+            "both": 1,
+            "only_a": 2,
+            "only_b": 0,
+            "neither": 37,
+            "observed_agreement": 0.95,
+            "g": 0.9,
+            "ac1": 0.944751,
+            "positive_agreement": 0.5
+        },
+        {
+            "code": "7.2",
+            "name": "IA com capacidades perigosas",
+            "both": 1,
+            "only_a": 1,
+            "only_b": 5,
+            "neither": 33,
+            "observed_agreement": 0.85,
+            "g": 0.7,
+            "ac1": 0.817073,
+            "positive_agreement": 0.25
+        },
+        {
+            "code": "7.3",
+            "name": "Falta de capacidade ou robustez",
+            "both": 20,
+            "only_a": 2,
+            "only_b": 5,
+            "neither": 13,
+            "observed_agreement": 0.825,
+            "g": 0.65,
+            "ac1": 0.6604,
+            "positive_agreement": 0.851064
+        },
+        {
+            "code": "7.4",
+            "name": "Falta de transparência ou interpretabilidade",
+            "both": 14,
+            "only_a": 1,
+            "only_b": 5,
+            "neither": 20,
+            "observed_agreement": 0.85,
+            "g": 0.7,
+            "ac1": 0.706601,
+            "positive_agreement": 0.823529
+        },
+        {
+            "code": "7.5",
+            "name": "Bem-estar e direitos da IA",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 39,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        },
+        {
+            "code": "7.6",
+            "name": "Riscos multiagentes",
+            "both": 1,
+            "only_a": 0,
+            "only_b": 0,
+            "neither": 39,
+            "observed_agreement": 1.0,
+            "g": 1.0,
+            "ac1": 1.0,
+            "positive_agreement": 1.0
+        }
+    ],
+    "subdomain_summary": {
+        "marked": 20,
+        "ac1": {
+            "mean": 0.896748,
+            "min": 0.643653,
+            "max": 1.0
+        },
+        "g": {
+            "mean": 0.865,
+            "min": 0.6,
+            "max": 1.0
+        }
+    }
+}

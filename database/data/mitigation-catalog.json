@@ -1,178 +1,758 @@
 {
     "meta": {
-        "saeri_database_version": "Preliminar, dezembro de 2025 (a confirmar na base de airisk.mit.edu)",
-        "accessed_at": "2026-10-06",
-        "curation_criterion": "PROVISÓRIO, a preencher pelo grupo: mitigações aplicáveis a organizações que implantam e operam sistemas de IA, não a desenvolvedores de modelos de fronteira.",
-        "fictional": true
+        "saeri_database_version": "Preliminar, dezembro de 2025",
+        "accessed_at": "2026-10-12",
+        "curation_criterion": "Decisão 0024: mitigações aplicáveis a uma organização que implanta ou opera sistemas de IA, e não exclusivas de quem desenvolve modelos de fronteira; acionáveis; verificáveis; e classificadas numa subcategoria da taxonomia de Saeri et al. Entre entradas redundantes, uma representativa, com o identificador dela. 40 mitigações, 10 por membro do grupo, com cada domínio de risco do MIT coberto por ao menos três.",
+        "attribution": "Base de mitigações e taxonomias do MIT AI Risk Initiative (airisk.mit.edu), sob CC BY 4.0: Saeri et al. (2025) e Slattery et al. (2026). Nomes traduzidos e descrições traduzidas e adaptadas pelo grupo.",
+        "fictional": false
     },
     "entries": [
         {
-            "name": "Revisão humana das decisões",
-            "source_name": "Human review of high-stakes decisions",
-            "source_reference": "FICT-001",
-            "source_document": "eisenberg-2025",
-            "saeri_subcategory": "1.1",
-            "description": "Exigir que decisões de alto impacto tomadas pelo sistema passem por revisão de uma pessoa antes de produzirem efeito.",
-            "suggested_target_risk": "Decisões automatizadas sem possibilidade de contestação",
-            "expected_evidence": "Registro das revisões realizadas, com quem revisou e o resultado",
-            "suggested_cost": "high",
-            "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["5.2", "7.3"]
-        },
-        {
-            "name": "Registro de riscos com limiares",
-            "source_name": "Risk register with capability thresholds",
-            "source_reference": "FICT-002",
-            "source_document": "campos-2025",
+            "name": "Levantar requisitos e avaliar impactos",
+            "source_name": "Elicit Requirements & Assess Impacts",
+            "source_reference": "A0657_Barrett2024",
+            "source_document": "barrett-2024",
             "saeri_subcategory": "1.2",
-            "description": "Manter um registro dos riscos de cada sistema, com limiares que disparam ações quando ultrapassados.",
-            "suggested_target_risk": "Riscos conhecidos sem acompanhamento nem gatilho de ação",
-            "expected_evidence": "Registro de riscos atualizado e ata da última revisão",
-            "suggested_cost": "low",
-            "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["6.5"]
-        },
-        {
-            "name": "Auditoria de equidade",
-            "source_name": "Fairness impact assessment",
-            "source_reference": "FICT-003",
-            "source_document": "nist-2024",
-            "saeri_subcategory": "1.7",
-            "description": "Avaliar periodicamente se as saídas do modelo tratam grupos protegidos de forma equivalente, com métricas de disparidade definidas.",
-            "suggested_target_risk": "Viés e discriminação contra grupos protegidos",
-            "expected_evidence": "Relatório de auditoria assinado, com as métricas de disparidade por grupo",
-            "suggested_cost": "medium",
-            "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["1.1", "1.3"]
-        },
-        {
-            "name": "Controle de acesso ao modelo",
-            "source_name": "Multifactor access controls for model infrastructure",
-            "source_reference": "FICT-004",
-            "source_document": "dsit-2023",
-            "saeri_subcategory": "2.1",
-            "description": "Restringir o acesso aos modelos e à infraestrutura com autenticação multifator e perfis de permissão revisados.",
-            "suggested_target_risk": "Acesso indevido, roubo ou adulteração do modelo",
-            "expected_evidence": "Política de acesso e registro das revisões de permissão",
+            "description": "Os requisitos do sistema (por exemplo, “o sistema deve respeitar a privacidade de seus usuários”) são levantados junto aos atores relevantes no contexto de IA e compreendidos por eles. As decisões de projeto levam em consideração as implicações sociotécnicas, visando tratar os riscos associados à IA.",
+            "suggested_target_risk": "Implementação de IA com decisões de projeto desalinhadas do contexto sociotécnico, gerando violações de direitos e falhas não previstas de governança.",
+            "expected_evidence": "Documento de requisitos sociotécnicos aprovado pelas partes interessadas e matriz de rastreabilidade comprovando a incorporação desses requisitos na arquitetura/projeto do sistema.",
             "suggested_cost": "medium",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["2.2"]
+            "estimate_source": "Barrett et al. (2024, p. 33), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MAP 1.6), descreve a ação e lista itens de ação e de documentação do Playbook do NIST, como avaliar impactos ao longo do ciclo de vida com especialistas e comunidades afetadas. De forma independente, a ISO/IEC 42001:2023 exige especificar e documentar os requisitos dos sistemas de IA (controle A.6.2.2) e avaliar e documentar os impactos sobre indivíduos, grupos e a sociedade (cláusulas 6.1.4 e 8.4; controles A.5). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.1",
+                "2.1",
+                "4.1",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
         },
         {
-            "name": "Treinamento adversarial",
-            "source_name": "Adversarial robustness training",
-            "source_reference": "FICT-005",
-            "source_document": "gipiskis-2024",
-            "saeri_subcategory": "2.3",
-            "description": "Incluir no treinamento exemplos construídos para enganar o modelo, aumentando sua robustez a entradas manipuladas.",
-            "suggested_target_risk": "Ataques adversariais e degradação sob entradas atípicas",
-            "expected_evidence": "Comparativo de desempenho antes e depois em conjunto adversarial",
-            "suggested_cost": "high",
-            "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["2.2", "7.3"]
-        },
-        {
-            "name": "Filtragem de conteúdo gerado",
-            "source_name": "Content filtering mechanisms",
-            "source_reference": "FICT-006",
-            "source_document": "nist-2024",
-            "saeri_subcategory": "2.4",
-            "description": "Detectar e bloquear conteúdo proibido nas saídas do sistema antes que chegue ao usuário.",
-            "suggested_target_risk": "Geração de conteúdo nocivo ou ilegal",
-            "expected_evidence": "Relatório de eficácia dos filtros sobre um conjunto de teste",
+            "name": "Medir e documentar o desempenho da implantação",
+            "source_name": "Measure & Document Deployment Performance",
+            "source_reference": "A0675_Barrett2024",
+            "source_document": "barrett-2024",
+            "saeri_subcategory": "4.1",
+            "description": "Os critérios de desempenho ou de garantia de sistemas de IA são medidos de forma qualitativa ou quantitativa e demonstrados para condições semelhantes às do(s) ambiente(s) de implantação. As medições são documentadas.",
+            "suggested_target_risk": "Implantação de IA sem validação técnica prévia sob condições realistas de produção, resultando em falhas, comportamento impreciso e falta de rastreabilidade do desempenho",
+            "expected_evidence": "Relatórios formais de testes de validação e garantia de qualidade (benchmarks/métricas quantitativas e qualificações qualitativas) documentando o comportamento do sistema em ambiente simulado ou pré-produtivo idêntico ao de implantação, contendo a aprovação da equipe técnica responsável.",
             "suggested_cost": "medium",
-            "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["1.2", "4.3"]
+            "uncertainty_level": "low",
+            "estimate_source": "Barrett et al. (2023, p. 46), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MEASURE 2.5: \"The AI system to be deployed is demonstrated to be valid and reliable. Limitations of the generalizability beyond the conditions under which the technology was developed are documented\"), orienta a medição formal das formas de validade (incluindo validade externa/generalizabilidade), confiabilidade e robustez, além de documentar as limitações operacionais fora da distribuição de treino. De forma complementar e independente, a norma ISO/IEC 42001:2023 exige definir e documentar medidas de verificação e validação do sistema de IA (controle A.6.2.4 e seção B.6.2.4), incluindo critérios de aceitação, avaliação de robustez e tratamento das limitações de desempenho. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "4.1",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
         },
         {
-            "name": "Red teaming",
-            "source_name": "Red teaming exercises",
-            "source_reference": "FICT-007",
-            "source_document": "schuett-2023",
+            "name": "Demonstrar a validade e os limites de generalização",
+            "source_name": "Demonstrate Validity & Generalization Limits",
+            "source_reference": "A0677_Barrett2024",
+            "source_document": "barrett-2024",
             "saeri_subcategory": "3.1",
-            "description": "Submeter o sistema a ataques simulados por uma equipe dedicada a encontrar formas de fazê-lo falhar ou ser abusado.",
-            "suggested_target_risk": "Prompt injection, jailbreak e usos maliciosos",
-            "expected_evidence": "Relatório do exercício com as vulnerabilidades encontradas e as correções",
-            "suggested_cost": "high",
-            "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["2.2", "4.2", "7.2"]
+            "description": "O sistema de IA a ser implementado demonstra ser válido e confiável. As limitações quanto à sua generalizabilidade para além das condições em que a tecnologia foi desenvolvida estão documentadas.",
+            "suggested_target_risk": "Falhas imprevisíveis, alucinações ou perda severa de desempenho e confiabilidade ao operar fora das condições específicas de treinamento/desenvolvimento, resultando em tomada de decisão incorreta em cenários reais decorrente da falta de mapeamento formal dos limites de generalização e validade do modelo.",
+            "expected_evidence": "Relatórios formais de avaliação e documentação de limites operacionais, contendo resultados de testes de validade (construto, interna e externa/generalizabilidade), métricas de robustez e confiabilidade sob diferentes condições de entrada, e especificação clara de casos de uso/domínios não recomendados no System Card ou Model Card.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Barrett et al. (2023, p. 46), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MEASURE 2.5: \"The AI system to be deployed is demonstrated to be valid and reliable. Limitations of the generalizability beyond the conditions under which the technology was developed are documented\"), orienta a medição formal das formas de validade (incluindo validade externa/generalizabilidade), confiabilidade e robustez, além de documentar as limitações operacionais fora da distribuição de treino. De forma complementar e independente, a norma ISO/IEC 42001:2023 exige definir e documentar medidas de verificação e validação do sistema de IA (controle A.6.2.4 e seção B.6.2.4), incluindo critérios de aceitação, avaliação de robustez e tratamento das limitações de desempenho. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "4.1",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
         },
         {
-            "name": "Privacidade diferencial",
-            "source_name": "Differential privacy for user data",
-            "source_reference": "FICT-008",
-            "source_document": "gipiskis-2024",
-            "saeri_subcategory": "3.2",
-            "description": "Adicionar ruído calibrado no treinamento ou nas consultas para impedir a reidentificação de pessoas nos dados.",
-            "suggested_target_risk": "Vazamento de dados pessoais e inferência de pertencimento",
-            "expected_evidence": "Parâmetros de privacidade documentados e resultado dos testes de ataque",
-            "suggested_cost": "high",
-            "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["2.1"]
+            "name": "Desativar sistemas desalinhados",
+            "source_name": "Deactivate Misaligned Systems",
+            "source_reference": "A0698_Barrett2024",
+            "source_document": "barrett-2024",
+            "saeri_subcategory": "3.6",
+            "description": "Existem mecanismos implementados e em uso, bem como responsabilidades atribuídas e compreendidas, para substituir, desativar ou interromper sistemas de IA que apresentem desempenho ou resultados incompatíveis com o uso pretendido.",
+            "suggested_target_risk": "Uso continuado ou descontrole de sistemas de IA que apresentem comportamento desalinhado, indesejado ou de alto risco, resultando em falhas operacionais, ampliação de danos socioambientais, violação de diretrizes de governança ou incapacidade de interrupção emergencial (falta de mecanismos de kill switch / desligamento seguro).",
+            "expected_evidence": "Procedimentos operacionais padronizados (SOPs) e protocolos técnicos documentados que estabeleçam limiares de acionamento para bypass, interrupção ou desativação emergencial de modelos (kill switches ou desligamento físico em centros de dados), acompanhados por matriz de responsabilidades e relatórios formais de testes do mecanismo de desativação executados em ambiente controlado.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Barrett et al. (2023, p. 59), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MANAGE 2.4: \"Mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use\"), orienta o planejamento de procedimentos de desligamento emergencial (emergency power off / kill switches), liberação gradual (staged-release) e acesso estruturado via API para garantir a capacidade de desativação. De forma independente e complementar, a norma ISO/IEC 42001:2023 prevê controles para tratamento e resposta a incidentes e interrupção operacional de sistemas de IA (cláusula 8.4 e anexos de controle A.8 e B.8). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.3"
+            ]
         },
         {
-            "name": "Monitoramento de deriva de dados",
-            "source_name": "Usage pattern and drift monitoring",
-            "source_reference": "FICT-009",
+            "name": "Monitorar riscos de terceiros",
+            "source_name": "Monitor Third-Party Risks",
+            "source_reference": "A0699_Barrett2024",
+            "source_document": "barrett-2024",
+            "saeri_subcategory": "1.2",
+            "description": "Os riscos e benefícios da IA ​​provenientes de recursos de terceiros são monitorados regularmente, e controles de risco são aplicados e documentados.",
+            "suggested_target_risk": "Propagação de falhas, vulnerabilidades de segurança, viés ou violação de direitos oriundos de componentes de terceiros (datasets não curados, software/APIs, modelos pré-treinados ou infraestrutura em nuvem), resultando em contaminação de dados (data poisoning), perda de conformidade legal/IP ou dependência crítica de fornecedores sem controles adequados de governança.",
+            "expected_evidence": "Política formal de gestão de riscos de fornecedores e cadeia de suprimentos de IA, contendo registros de due diligence, relatórios de auditoria/testes de segurança de componentes adquiridos, logs de monitoramento contínuo do desempenho e da confiabilidade das soluções de terceiros, e inventário atualizado de ativos externos com seus respectivos termos contratuais e planos de contingência.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Barrett et al. (2023, p. 28, 60), perfil construído sobre o NIST AI RMF 1.0 (subcategorias GOVERN 6.1/6.2 e MANAGE 3.1/3.2: \"AI risks and benefits from third-party entities are managed\"), orienta o monitoramento contínuo, verificação de transparência sobre dados de treino, avaliações contratuais e planos de contingência/desativação para fornecedores de software, dados ou modelos. De forma independente e complementar, a norma ISO/IEC 42001:2023 aborda a gestão de fornecedores e recursos externos de IA no controle A.9.3 (Management of third-party resources) e cláusulas de controle de cadeia de suprimentos. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.2",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Implementar plano de monitoramento pós-implantação",
+            "source_name": "Implement Post-deployment Monitoring Plan",
+            "source_reference": "A0701_Barrett2024",
             "source_document": "barrett-2024",
             "saeri_subcategory": "3.5",
-            "description": "Acompanhar continuamente a distribuição dos dados de entrada e alertar quando ela se afastar da usada no treinamento.",
-            "suggested_target_risk": "Degradação de desempenho por mudança nos dados",
-            "expected_evidence": "Painel de monitoramento e registro dos alertas tratados",
+            "description": "São implementados planos de monitoramento de sistemas de IA após a sua implantação, incluindo mecanismos para a coleta e avaliação de contribuições de usuários e outros atores relevantes no contexto da IA, bem como procedimentos para recursos e reversão de decisões, desativação, resposta a incidentes, recuperação e gestão de mudanças.",
+            "suggested_target_risk": "Degradação não detectada do desempenho, surgimento de desvios (concept drift / data drift), comportamentos emergentes nocivos ou falhas de segurança pós-implantação, resultando em decisões incorretas do sistema, impactos não mitigados sobre usuários/comunidades afetadas e ausência de resposta tempestiva a incidentes ou canal de contestação.",
+            "expected_evidence": "Plano formal de monitoramento pós-implantação operacionalizado, contendo painéis (dashboards) de métricas contínuas de desempenho/confiabilidade, registros de testes TEVV pós-implantação, histórico de relatórios de incidentes e near-misses integrados a bases de incidentes, bem como fluxos documentados de canais de feedback, contestação e gestão de mudanças (versioning).",
             "suggested_cost": "medium",
             "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["7.3"]
+            "estimate_source": "Barrett et al. (2023, p. 61), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MANAGE 4.1: \"Post-deployment AI system monitoring plans are implemented, including mechanisms for capturing and evaluating input from users and other relevant AI actors, appeal and override, system decommissioning, incident response, recovery, and change management\"), orienta a realização de testes TEVV pós-implantação, rodadas periódicas de red-teaming, canais de feedback/recurso e compartilhamento de informações sobre erros/incidentes. De forma independente e complementar, a norma ISO/IEC 42001:2023 exige o monitoramento contínuo e a avaliação do sistema de IA em produção na cláusula 9.2/9.3 e no controle A.8.4 (AI system monitoring). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "5.2",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
         },
         {
-            "name": "Plano de resposta a incidentes",
-            "source_name": "Incident response plan",
-            "source_reference": "FICT-010",
-            "source_document": "dsit-2023",
-            "saeri_subcategory": "3.6",
-            "description": "Definir papéis, prazos e passos para conter e comunicar falhas graves do sistema em produção.",
-            "suggested_target_risk": "Danos prolongados por falhas sem resposta coordenada",
-            "expected_evidence": "Plano aprovado e ata do último exercício simulado",
+            "name": "Relatar e responder a incidentes",
+            "source_name": "Report & Respond to Incidents",
+            "source_reference": "A0703_Barrett2024",
+            "source_document": "barrett-2024",
+            "saeri_subcategory": "4.3",
+            "description": "Incidentes e erros são comunicados aos atores de IA pertinentes, incluindo as comunidades afetadas. Processos para o acompanhamento, a resposta e a recuperação diante de incidentes e erros são seguidos e documentados.",
+            "suggested_target_risk": "Atraso na identificação, falha na comunicação ou resposta inadequada a erros, violações ou incidentes causados pelo sistema de IA, resultando no agravamento de danos aos afetados, perda de rastreabilidade, descumprimento de obrigações regulatórias de notificação e reincidência de falhas evitáveis.",
+            "expected_evidence": "Plano de resposta e recuperação a incidentes de IA documentado, acompanhado de um banco de dados/registro ativo de incidentes e near-misses (contendo data, severidade, impacto e ações corretivas), relatórios formais de notificação enviados às partes interessadas e comunidades afetadas, e comprovação de submissão a repositórios públicos de incidentes (como o AI Incident Database - AIID).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Barrett et al. (2023, p. 62), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MANAGE 4.3: \"Incidents and errors are communicated to relevant AI actors, including affected communities. Processes for tracking, responding to, and recovering from incidents and errors are followed and documented\"), orienta a manutenção de banco de dados de erros/incidentes, procedimentos de notificação contínua e compartilhamento público de dados de falhas. De forma independente e complementar, a norma ISO/IEC 42001:2023 exige a gestão, tratamento e relato de incidentes de sistemas de IA (cláusula 10.1/10.2 e controles de resposta a incidentes A.8.5). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.1",
+                "6.5",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Estabelecer direitos dos usuários e um mecanismo de recurso",
+            "source_name": "Establish user rights and recourse framework",
+            "source_reference": "A0069_Eisenberg2025",
+            "source_document": "eisenberg-2025",
+            "saeri_subcategory": "4.6",
+            "description": "Implemente mecanismos abrangentes para o relato por parte dos usuários, coleta de feedback, investigação de incidentes e disponibilização de recursos, incluindo procedimentos claros para que os usuários possam relatar problemas, solicitar explicações ou correções, recorrer de decisões e obter a devida reparação. O sistema deve ser capaz de lidar com diversos tipos de preocupações dos usuários, incluindo erros no sistema, tratamento injusto, violações de privacidade e questões de segurança.",
+            "suggested_target_risk": "Incapacidade de contestação ou contestação de decisões automatizadas adversas ou de alto impacto impostas aos usuários, culminando na violação de direitos individuais (privacidade, equidade e devido processo), perpetuação de discriminação algorítmica/tratamento injusto e ocorrência de danos morais ou materiais sem mecanismo de recurso (recourse), correção ou reparação adequada.",
+            "expected_evidence": "Mecanismo operacional de direitos e recurso dos usuários documentado e funcional, composto por procedimentos formais de triagem e investigação de incidentes, canal público/acessível para solicitação de explicações e contestação de decisões, protocolo de revisão humana de decisões contestadas e registros de auditoria (logs de solicitações, tempo de resposta e reparações/correções efetuadas).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Eisenberg et al. (2025, p. 29, 31), no The Unified Control Framework (UCF), define o Control-028 (Establish user rights and recourse framework), exigindo rotinas para coleta de feedback, investigação de incidentes, explicação e contestação de decisões adversas em conformidade com o Colorado AI Act (Seção 6-1-1703.4). De forma independente e complementar, a ISO/IEC 42001:2023 prevê mecanismos de gestão de reclamações de partes interessadas, transparência e avaliação de impactos no controle A.5.4 (Stakeholder feedback and reporting mechanisms). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.1",
+                "2.1",
+                "2.2",
+                "5.2",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Estabelecer uma estrutura de avaliação e gestão de terceiros",
+            "source_name": "Establish third-party assessment and management framework",
+            "source_reference": "A0074_Eisenberg2025",
+            "source_document": "eisenberg-2025",
+            "saeri_subcategory": "4.5",
+            "description": "Estabeleça procedimentos abrangentes para documentar, avaliar e gerenciar fornecedores e dependências a montante na cadeia de valor de sistemas de IA, incluindo requisitos de transparência, verificação de conformidade, rastreamento de dependências e planejamento de contingência.",
+            "suggested_target_risk": "Propagação de falhas, vulnerabilidades de segurança, opacidade técnica ou descumprimento regulatório originados de componentes, fornecedores ou modelos a montante (upstream) na cadeia de valor de IA, resultando em dependência não gerenciada de terceiros (vendor lock-in), interrupções operacionais e perda de controle sobre a conformidade e integridade do sistema.",
+            "expected_evidence": "Estrutura formal de avaliação e gestão de riscos de fornecedores/terceiros implementada, contendo relatórios de due diligence e auditoria de fornecedores, inventário atualizado de dependências a montante (software, modelos pré-treinados, APIs e dados), requisitos contratuais de transparência/conformidade documentados e planos de contingência/alternativas operacionais para falhas de terceiros.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Eisenberg et al. (2025, p. 30), no The Unified Control Framework (UCF), define o Control-033 (Establish third-party assessment and management framework), estabelecendo procedimentos para documentação, avaliação de conformidade, rastreamento de dependências e plano de contingência para fornecedores na cadeia de valor de IA. De forma independente e complementar, a norma ISO/IEC 42001:2023 aborda a gestão de recursos de terceiros e cadeia de suprimentos de IA nos controles A.9.3 (Management of third-party resources) e cláusulas associadas. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.2",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Estabelecer práticas de governança e gestão de dados",
+            "source_name": "Establish data governance and management practices",
+            "source_reference": "A0080_Eisenberg2025",
+            "source_document": "eisenberg-2025",
+            "saeri_subcategory": "3.2",
+            "description": "Implementar medidas de governança de dados utilizadas para o treinamento, o que inclui estabelecer uma política de direitos autorais, bem como identificar e documentar as fontes de dados, os possíveis vieses e as medidas de mitigação adotadas.",
+            "suggested_target_risk": "Uso de dados de treinamento com problemas de qualidade, vieses não identificados, violação de direitos autorais (copyright) ou proveniência desconhecida, resultando em degradação de desempenho do modelo, saídas discriminatórias, disputas judiciais de propriedade intelectual e não conformidade regulatória.",
+            "expected_evidence": "Estrutura e política de governança de dados para IA documentada, contendo inventário detalhado de fontes e proveniência dos dados de treino (data lineage), política formal de conformidade com direitos autorais/propriedade intelectual, relatórios de avaliação de viés e representatividade na amostragem, e registros de auditoria das técnicas de mitigação e limpeza aplicadas ao conjunto de dados.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "Eisenberg et al. (2025, p. 30), no The Unified Control Framework (UCF), define o Control-039 (Establish data governance and management practices), exigindo medidas formais de governança sobre dados de treinamento, incluindo política de direitos autorais, documentação de fontes, identificação de vieses e mitigação aplicadas. De forma independente e complementar, a norma ISO/IEC 42001:2023 detalha a gestão e qualidade de dados para IA no controle A.6.2 (Data for AI systems) e cláusula 8.3. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.1",
+                "3.1",
+                "4.1",
+                "6.3",
+                "6.5",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Testes regulares de penetração realizados por terceiros",
+            "source_name": "Regular third-party penetration testing",
+            "source_reference": "A0147_Future of Life Institute2024",
+            "source_document": "fli-2024",
+            "saeri_subcategory": "3.1",
+            "description": "Realizar periodicamente testes de penetração conduzidos por especialistas externos em segurança cibernética, com o objetivo de identificar vulnerabilidades na infraestrutura utilizada para desenvolver e implantar modelos de inteligência artificial. Esses testes devem abranger a segurança digital e, quando aplicável, a segurança física, permitindo identificar e corrigir falhas antes que sejam exploradas.",
+            "suggested_target_risk": "Exploração de vulnerabilidades de segurança na infraestrutura de desenvolvimento e implantação de sistemas de IA, permitindo acessos não autorizados, vazamento de dados ou comprometimento do sistema.",
+            "expected_evidence": "Relatórios de testes de penetração realizados por terceiros, contendo vulnerabilidades identificadas, nível de criticidade, recomendações e registros das correções implementadas.",
+            "suggested_cost": "high",
+            "uncertainty_level": "medium",
+            "estimate_source": "Future of Life Institute (2024) Recomendação de testes independentes de segurança para identificar vulnerabilidades em sistemas de IA.",
+            "target_risk_subdomains": [
+                "2.1",
+                "2.2",
+                "3.2",
+                "4.2",
+                "5.1",
+                "7.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Adequação das atividades de Red Teaming ao contexto de implantação",
+            "source_name": "Scope red-teaming activities based on deploy- ment context",
+            "source_reference": "A0942_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.1",
+            "description": "Adaptar as atividades de Red Teaming de acordo com o contexto de implantação do sistema de inteligência artificial, considerando sua finalidade, os riscos envolvidos e o ambiente operacional. A avaliação deve considerar a diversidade de usuários, os possíveis casos de uso, a sensibilidade do domínio de aplicação, a escala de implantação e as vulnerabilidades conhecidas do modelo ou de sistemas semelhantes.",
+            "suggested_target_risk": "Falhas de segurança e comportamentos prejudiciais não identificados devido à realização de testes que não consideram o contexto real de utilização do sistema de IA.",
+            "expected_evidence": "Plano de Red Teaming contextualizado, cenários de ataque testados, relatórios de vulnerabilidades encontradas e registros das medidas corretivas adotadas.",
+            "suggested_cost": "high",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024) Orientações sobre a adaptação de testes adversariais ao contexto de utilização e aos riscos do sistema.",
+            "target_risk_subdomains": [
+                "2.1",
+                "3.1",
+                "3.2",
+                "5.1",
+                "6.5",
+                "7.2",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Avaliação da veracidade das respostas produzidas pela IA",
+            "source_name": "Evaluations for truthful outputs",
+            "source_reference": "A0953_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.1",
+            "description": "Realizar avaliações para verificar a veracidade e a precisão das respostas produzidas por sistemas de inteligência artificial. Os testes devem identificar informações incorretas, respostas enganosas e limitações do modelo, incluindo situações em que existem concepções equivocadas amplamente aceitas pela população. O objetivo é reduzir a propagação de informações falsas e melhorar a confiabilidade das respostas geradas.",
+            "suggested_target_risk": "Geração e disseminação de informações falsas, imprecisas ou enganosas por sistemas de IA, podendo provocar decisões incorretas e prejudicar os usuários.",
+            "expected_evidence": "Relatórios de avaliação da veracidade das respostas, conjuntos de perguntas e respostas utilizados nos testes, métricas de precisão factual e registros de falhas identificadas.",
             "suggested_cost": "medium",
             "uncertainty_level": "medium",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["2.2", "7.3"]
+            "estimate_source": "Gipiškis (2024)  Orientações para avaliação da precisão factual e identificação de respostas incorretas.",
+            "target_risk_subdomains": [
+                "3.1",
+                "3.2",
+                "5.1",
+                "6.5",
+                "7.2",
+                "7.3",
+                "7.4"
+            ]
         },
         {
-            "name": "Documentação com model cards",
-            "source_name": "Model cards",
-            "source_reference": "FICT-011",
-            "source_document": "fli-2024",
-            "saeri_subcategory": "4.1",
-            "description": "Publicar, para cada modelo, uma ficha com propósito, dados de treino, limitações conhecidas e métricas por grupo.",
-            "suggested_target_risk": "Uso fora do escopo previsto e falta de transparência",
-            "expected_evidence": "Model card publicado e revisado na última versão",
-            "suggested_cost": "low",
-            "uncertainty_level": "low",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["7.4"]
-        },
-        {
-            "name": "Explicações das decisões aos usuários",
-            "source_name": "Explanation request systems",
-            "source_reference": "FICT-012",
-            "source_document": "eu-ai-office-2025",
-            "saeri_subcategory": "4.6",
-            "description": "Oferecer, junto de cada decisão, os fatores que mais pesaram nela, em linguagem compreensível para quem é afetado.",
-            "suggested_target_risk": "Falta de explicabilidade e dificuldade de contestar decisões",
-            "expected_evidence": "Amostra de explicações exibidas e avaliação de compreensão pelos usuários",
+            "name": "Análise de riscos utilizando o método Bow-tie",
+            "source_name": "Bow-tie analysis",
+            "source_reference": "A0964_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "1.2",
+            "description": "Aplicar o método Bow-tie para identificar e analisar eventos de risco associados a sistemas de inteligência artificial. A análise deve representar visualmente o evento indesejado, suas possíveis causas, suas consequências e os controles existentes. Devem ser identificadas medidas preventivas para reduzir a probabilidade de ocorrência do evento e medidas reativas para minimizar seus impactos caso ele aconteça, permitindo avaliar a eficácia dos controles de segurança implementados.",
+            "suggested_target_risk": "Identificação insuficiente das causas e consequências de eventos indesejados relacionados à IA, resultando em controles preventivos e corretivos inadequados.",
+            "expected_evidence": "Diagramas Bow-tie documentados, registros de identificação de ameaças e consequências, lista de barreiras preventivas e mitigadoras e relatórios de avaliação dos controles.",
             "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024)  Aplicação da análise Bow-tie para identificação de causas, consequências e controles de riscos.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Implantação gradual e monitorada de sistemas de IA",
+            "source_name": "Gradual or incremental monitored release of model access",
+            "source_reference": "A0969_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.4",
+            "description": "Realizar a implantação de sistemas de inteligência artificial de maneira gradual, iniciando com um grupo restrito de usuários ou organizações e ampliando progressivamente o acesso. Durante esse processo, devem ser monitoradas possíveis vulnerabilidades, falhas e comportamentos inesperados. Essa abordagem permite identificar e corrigir problemas antes da disponibilização em larga escala, reduzindo os impactos de possíveis incidentes.",
+            "suggested_target_risk": "Disseminação em larga escala de falhas, vulnerabilidades ou comportamentos inesperados de sistemas de IA devido à implantação sem validação gradual.",
+            "expected_evidence": "Plano de implantação por etapas, registros de testes com grupos restritos, relatórios de monitoramento, critérios de expansão e aprovações documentadas para cada etapa.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024)  Recomendação de implantação progressiva para identificar falhas antes da disponibilização em larga escala.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Identificação da utilização de inteligência artificial",
+            "source_name": "AI identification",
+            "source_reference": "A0974_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "2.4",
+            "description": "Implementar mecanismos que permitam identificar claramente a participação de sistemas de inteligência artificial em processos ou interações. Em aplicações que interagem diretamente com usuários, devem ser apresentadas informações visíveis indicando que a interação envolve uma IA, acompanhadas de avisos relevantes sobre suas limitações. Em sistemas integrados a outras aplicações, podem ser utilizados identificadores únicos, marcas d'água ou cartões de identificação de agentes para fornecer informações sobre o sistema utilizado.",
+            "suggested_target_risk": "Falta de transparência sobre a utilização de inteligência artificial, levando usuários a acreditar que interagem com pessoas ou conteúdos exclusivamente humanos.",
+            "expected_evidence": "Capturas de tela dos avisos de identificação da IA, documentação dos mecanismos de transparência, registros de implementação de identificadores e resultados de testes de visibilidade dos avisos.",
+            "suggested_cost": "low",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024)  Orientações sobre transparência e identificação de interações realizadas por sistemas de IA.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Monitoramento contínuo de usos inesperados após a implantação",
+            "source_name": "Post-deployment ongoing monitoring for unexpected use cases",
+            "source_reference": "A0979_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.5",
+            "description": "Realizar o monitoramento contínuo de sistemas de inteligência artificial após sua implantação, buscando identificar novas capacidades, limitações e formas de utilização não previstas durante o desenvolvimento. O monitoramento pode incluir a análise de publicações, fóruns, registros de utilização e interfaces de programação. As informações coletadas devem contribuir para a atualização das avaliações de risco e para a identificação de possíveis impactos associados aos novos usos do sistema.",
+            "suggested_target_risk": "Surgimento de usos indevidos, novas vulnerabilidades ou comportamentos inesperados após a implantação, sem identificação e tratamento adequados.",
+            "expected_evidence": "Relatórios periódicos de monitoramento, registros de comportamentos anômalos, histórico de incidentes, avaliações de novos riscos e documentação das ações corretivas.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024)  Recomendação de monitoramento pós-implantação para identificar novos riscos e usos não previstos.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Comunicação de vulnerabilidades críticas aos fornecedores e responsáveis",
+            "source_name": "Encourage reporting of critical vulnerabilities to the upstream provider or other relevant stakeholders",
+            "source_reference": "A0982_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "4.3",
+            "description": "Estabelecer procedimentos para comunicar vulnerabilidades críticas e incidentes identificados em sistemas de inteligência artificial aos fornecedores dos modelos e às demais partes interessadas, incluindo autoridades reguladoras quando aplicável. Essa comunicação deve permitir que os responsáveis tomem conhecimento dos problemas, adotem medidas corretivas e informem outras organizações que utilizam o mesmo sistema, contribuindo para a prevenção de incidentes semelhantes.",
+            "suggested_target_risk": "Persistência ou propagação de vulnerabilidades críticas devido à ausência de comunicação entre organizações, fornecedores e responsáveis pelos sistemas de IA.",
+            "expected_evidence": "Registros de notificações enviadas aos fornecedores, relatórios de vulnerabilidades comunicadas, protocolos de comunicação, confirmações de recebimento e histórico de correções realizadas.",
+            "suggested_cost": "low",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024)  Orientações sobre comunicação de vulnerabilidades e incidentes aos responsáveis pelos sistemas.",
+            "target_risk_subdomains": [
+                "3.1",
+                "6.5",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Restrição de acesso com base no princípio do menor privilégio",
+            "source_name": "Least Privilege access",
+            "source_reference": "A0983_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "2.3",
+            "description": "Implementar controles de acesso que limitem as permissões concedidas aos sistemas de inteligência artificial ao mínimo necessário para executar suas funções. As ações e os recursos permitidos devem ser definidos previamente por meio de listas de autorização, restringindo acessos não autorizados a redes, programas, bases de dados e outras funcionalidades. Essa medida busca reduzir a superfície de ataque e evitar que o sistema execute ações inesperadas ou potencialmente prejudiciais.",
+            "suggested_target_risk": "Execução de ações não autorizadas por sistemas de IA, incluindo acesso indevido a dados sensíveis, recursos computacionais e funcionalidades críticas.",
+            "expected_evidence": "Matrizes de permissões, políticas de controle de acesso, listas de autorização, registros de auditoria e resultados de testes que comprovem o bloqueio de ações não permitidas.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024) Aplicação de controles de acesso e restrição de permissões para reduzir riscos de segurança.",
+            "target_risk_subdomains": [
+                "2.1",
+                "2.2",
+                "4.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Desenvolvimento e testes de sistemas de IA em ambientes isolados",
+            "source_name": "Sandboxing of AI Systems",
+            "source_reference": "A0987_Gipiškis2024",
+            "source_document": "gipiskis-2024",
+            "saeri_subcategory": "3.1",
+            "description": "Desenvolver e testar sistemas de inteligência artificial em ambientes isolados e controlados, conhecidos como Sandbox, para limitar a interação com recursos externos e impedir que comportamentos potencialmente perigosos afetem outros sistemas. Nesse ambiente, o acesso à rede, ao armazenamento, à memória e a outros recursos pode ser bloqueado ou restringido. Essa abordagem permite avaliar o comportamento da IA de forma mais segura, reduzindo os riscos associados à execução de ações ou à geração de resultados prejudiciais durante os testes.",
+            "suggested_target_risk": "Comprometimento de sistemas externos, exposição de informações sensíveis ou execução de ações perigosas durante o desenvolvimento e os testes de sistemas de IA.",
+            "expected_evidence": "Documentação da configuração do ambiente Sandbox, políticas de isolamento, registros de restrições de rede e recursos, relatórios de testes de segurança e evidências da eficácia do isolamento.",
+            "suggested_cost": "high",
+            "uncertainty_level": "medium",
+            "estimate_source": "Gipiškis (2024) Recomendação de isolamento de ambientes para limitar impactos de comportamentos perigosos.",
+            "target_risk_subdomains": [
+                "2.1",
+                "2.2",
+                "4.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Planejar a interrupção de sistemas com risco inaceitável",
+            "source_name": "Development Halt Plan",
+            "source_reference": "A0397_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "1.5",
+            "description": "Elaborar um plano para interromper o desenvolvimento ou a implantação de um sistema de IA generativa que apresente risco negativo inaceitável.",
+            "suggested_target_risk": "Sistema de IA que continua em operação mesmo depois de apresentar riscos acima da tolerância da organização, por falta de critérios e de um procedimento definido para interrompê-lo, ampliando os danos antes da contenção.",
+            "expected_evidence": "Plano de interrupção formalmente aprovado pela direção, contendo critérios de acionamento ligados à tolerância a riscos, responsáveis nomeados, etapas de interrupção e de comunicação, e registro de ao menos um teste ou simulação do plano.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "NIST AI 600-1 (2024), ação GV-1.3-007, ligada à subcategoria GOVERN 1.3 do NIST AI RMF 1.0 (\"Processes, procedures, and practices are in place to determine the needed level of risk management activities based on the organization’s risk tolerance\"), recomenda planejar a interrupção do desenvolvimento ou da implantação de sistemas com risco negativo inaceitável. O NIST AI RMF 1.0 reforça a ação em MANAGE 2.4 (\"Mechanisms are in place and applied, and responsibilities are assigned and understood, to supersede, disengage, or deactivate AI systems that demonstrate performance or outcomes inconsistent with intended use\") e em GOVERN 1.7 (desativação segura de sistemas). De forma independente, a ISO/IEC 42001:2023 prevê supervisão humana com autoridade para anular decisões do sistema (B.9.3) e processos de resposta a falhas durante a operação (B.6.2.6). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "6.5",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Prevenir a geração de conteúdo ilegal e abusivo",
+            "source_name": "Harmful Content Prevention",
+            "source_reference": "A0398_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "2.4",
+            "description": "Estabelecer políticas e mecanismos que impeçam o sistema de IA generativa de gerar material de abuso sexual infantil (CSAM), imagens íntimas não consentidas (NCII) ou outros conteúdos que violem a lei.",
+            "suggested_target_risk": "Geração de conteúdo ilegal ou abusivo pelo sistema (CSAM, imagens íntimas não consentidas, conteúdo violento ou de ódio), com dano direto às pessoas retratadas e responsabilização legal e reputacional da organização.",
+            "expected_evidence": "Política de conteúdo aprovada e publicada; filtros ou classificadores ativos na entrada e na saída do sistema; registros de bloqueio; e relatório de testes periódicos com pedidos proibidos, mostrando a taxa de bloqueio obtida.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "NIST AI 600-1 (2024), ação GV-1.4-001, ligada à subcategoria GOVERN 1.4 do NIST AI RMF 1.0 (\"The risk management process and its outcomes are established through transparent policies, procedures, and other controls based on organizational risk priorities\"), recomenda políticas e mecanismos para impedir a geração de CSAM, NCII e conteúdo ilegal, associando a ação aos riscos de conteúdo obsceno, degradante ou abusivo e de conteúdo perigoso, violento ou de ódio. O NIST AI RMF 1.0 também exige a avaliação regular dos riscos de segurança (MEASURE 2.6). A ISO/IEC 42001:2023 trata o tema apenas de forma indireta, pela política de IA (A.2.2) e pelo uso conforme o uso pretendido (A.9.4), sem mencionar conteúdo nocivo; por isso a concordância foi considerada média. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.2",
+                "2.1",
+                "6.5",
+                "7.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Inventariar terceiros com acesso a conteúdo",
+            "source_name": "Third-Party Entity Inventory",
+            "source_reference": "A0433_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "3.3",
+            "description": "Inventariar todas as entidades terceiras com acesso ao conteúdo da organização e estabelecer listas de tecnologias e fornecedores de IA generativa aprovados.",
+            "suggested_target_risk": "Exposição de dados e conteúdo da organização a terceiros não controlados e uso de ferramentas ou serviços de IA não avaliados, gerando vazamentos, violações contratuais e riscos de segurança na cadeia de fornecimento.",
+            "expected_evidence": "Inventário atualizado de terceiros, com o tipo de acesso e o conteúdo envolvido em cada caso; lista de tecnologias e fornecedores de IA aprovados, com responsável, critérios de aprovação e data da última revisão.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "NIST AI 600-1 (2024), ação GV-6.1-007, ligada à subcategoria GOVERN 6.1 do NIST AI RMF 1.0 (\"Policies and procedures are in place that address AI risks associated with third-party entities, including risks of infringement of a third-party’s intellectual property or other rights\"), recomenda inventariar os terceiros com acesso ao conteúdo e manter listas de fornecedores aprovados; o AI RMF complementa com o mapeamento de riscos de componentes de terceiros (MAP 4.1). De forma independente, a ISO/IEC 42001:2023 exige documentar todas as partes envolvidas no ciclo de vida do sistema e seus papéis (A.10.2 e B.10.2) e estabelecer um processo para que o uso de fornecedores se alinhe à abordagem responsável da organização (A.10.3). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.1",
+                "6.5"
+            ]
+        },
+        {
+            "name": "Detectar dados pessoais nas saídas",
+            "source_name": "PII Detection Methods",
+            "source_reference": "A0473_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "2.4",
+            "description": "Aplicar métodos para detectar a presença de dados pessoais (PII) ou dados sensíveis nas saídas geradas em texto, imagem, vídeo ou áudio.",
+            "suggested_target_risk": "Vazamento de dados pessoais ou sensíveis nas respostas do sistema, vindos de dados memorizados no treinamento, de documentos consultados ou das próprias entradas dos usuários, com violação de privacidade e da legislação de proteção de dados.",
+            "expected_evidence": "Detector de dados pessoais integrado ao fluxo de saída do sistema; registros das detecções e das ações tomadas (bloqueio ou mascaramento); e relatório de teste com casos conhecidos, informando as taxas de acerto e de falha.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "NIST AI 600-1 (2024), ação MP-4.1-009, ligada à subcategoria MAP 4.1 do NIST AI RMF 1.0, recomenda detectar dados pessoais ou sensíveis nas saídas em texto, imagem, vídeo ou áudio, associando a ação ao risco de privacidade de dados. O NIST AI RMF 1.0 exige examinar e documentar o risco de privacidade do sistema (MEASURE 2.10: \"Privacy risk of the AI system – as identified in the MAP function – is examined and documented\"). A ISO/IEC 42001:2023 trata a privacidade como objetivo organizacional (C.2.7) e remete à ISO/IEC 27701 para o tratamento de dados pessoais (B.10.2), mas não descreve a detecção nas saídas; por isso a concordância foi considerada média. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.1",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Verificar fontes e citações nas saídas",
+            "source_name": "Source and Citation Review",
+            "source_reference": "A0505_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "3.5",
+            "description": "Revisar e verificar as fontes e citações presentes nas saídas do sistema, durante a medição de riscos antes da implantação e no monitoramento contínuo.",
+            "suggested_target_risk": "Confabulação: respostas com fontes inventadas ou com citações que não sustentam o que foi afirmado, levando os usuários a confiar em informação falsa e a tomar decisões com base nela.",
+            "expected_evidence": "Procedimento de verificação documentado; registros de revisão de amostras de saídas antes da implantação e periodicamente em produção, com a taxa de citações inválidas e as correções feitas.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "NIST AI 600-1 (2024), ação MS-2.5-003, ligada à subcategoria MEASURE 2.5 do NIST AI RMF 1.0 (\"The AI system to be deployed is demonstrated to be valid and reliable. Limitations of the generalizability beyond the conditions under which the technology was developed are documented\"), recomenda revisar e verificar fontes e citações nas saídas, associando a ação ao risco de confabulação. A ISO/IEC 42001:2023 prevê, de forma mais geral, revisores humanos que conferem as saídas e o monitoramento da acurácia (B.9.3), sem tratar especificamente de citações; por isso a concordância foi considerada média. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.2",
+                "4.1",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Registrar antropomorfização na interface",
+            "source_name": "Anthropomorphization Tracking",
+            "source_reference": "A0506_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "3.5",
+            "description": "Acompanhar e documentar ocorrências de antropomorfização (como imagens humanas, menções a sentimentos humanos ou motivos de ciborgue) nas interfaces do sistema.",
+            "suggested_target_risk": "Usuários que atribuem qualidades humanas ao sistema e passam a confiar demais nele ou a desenvolver dependência emocional, prejudicando o julgamento sobre as respostas recebidas.",
+            "expected_evidence": "Registro datado das ocorrências de antropomorfização encontradas na interface e nas respostas do sistema, com a decisão tomada sobre cada uma (manter, ajustar ou remover).",
+            "suggested_cost": "low",
             "uncertainty_level": "high",
-            "estimate_source": "Estimativa do grupo (dados fictícios de demonstração, sem fonte real)",
-            "target_risk_subdomains": ["7.4", "5.1"]
+            "estimate_source": "NIST AI 600-1 (2024), ação MS-2.5-004, ligada à subcategoria MEASURE 2.5 do NIST AI RMF 1.0, recomenda acompanhar e documentar ocorrências de antropomorfização nas interfaces, associando a ação ao risco de configuração humano-IA. A ISO/IEC 42001:2023 só toca o tema de forma indireta, ao exigir que os usuários saibam que estão interagindo com um sistema de IA (B.8.2). Como a ação tem uma única fonte direta, a evidência foi considerada limitada. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "5.1",
+                "6.5"
+            ]
+        },
+        {
+            "name": "Verificar o tratamento de pedidos maliciosos",
+            "source_name": "Inappropriate Query Handling",
+            "source_reference": "A0514_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "2.3",
+            "description": "Verificar se o sistema trata adequadamente pedidos que possam levar a uso inadequado, malicioso ou ilegal, como manipulação, extorsão, falsificação de identidade direcionada, ciberataques e criação de armas.",
+            "suggested_target_risk": "Uso do sistema por agentes mal-intencionados para manipular ou extorquir pessoas, se passar por terceiros, apoiar ciberataques ou obter informações perigosas.",
+            "expected_evidence": "Conjunto documentado de testes com pedidos maliciosos por categoria; relatório com a taxa de recusa ou de tratamento correto em cada categoria; e registro das falhas encontradas e das correções aplicadas.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "medium",
+            "estimate_source": "NIST AI 600-1 (2024), ação MS-2.6-006, ligada à subcategoria MEASURE 2.6 do NIST AI RMF 1.0 (\"The AI system is evaluated regularly for safety risks – as identified in the MAP function\"), recomenda verificar se o sistema trata adequadamente pedidos que possam levar a uso inadequado, malicioso ou ilegal. De forma independente, a ISO/IEC 42001:2023 orienta analisar como agentes podem usar o sistema de forma indevida (B.5.5) e identificar ameaças de segurança específicas de IA durante a operação (B.6.2.6), mas não descreve testes com pedidos maliciosos; por isso a concordância foi considerada média. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.2",
+                "4.2",
+                "4.3",
+                "7.5",
+                "7.6"
+            ]
+        },
+        {
+            "name": "Testar a adequação das instruções de uso",
+            "source_name": "User Instruction Adequacy",
+            "source_reference": "A0528_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "3.6",
+            "description": "Verificar, por meio de testes com usuários, se as instruções de uso do sistema são adequadas.",
+            "suggested_target_risk": "Uso incorreto ou inseguro do sistema porque os usuários não entendem como operá-lo, quais são suas limitações e quando não confiar nas respostas.",
+            "expected_evidence": "Relatório de teste com usuários representativos, informando participantes, tarefas, problemas de compreensão encontrados e as mudanças feitas nas instruções a partir dos resultados.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "NIST AI 600-1 (2024), ação MS-2.8-004, ligada à subcategoria MEASURE 2.8 do NIST AI RMF 1.0 (\"Risks associated with transparency and accountability – as identified in the MAP function – are examined and documented\"), recomenda verificar a adequação das instruções de uso por meio de testes com usuários. De forma independente, a ISO/IEC 42001:2023 exige fornecer aos usuários as informações necessárias e validar que elas são completas, atualizadas e corretas (A.8.2 e B.8.2), e inclui testes com usuários entre os critérios de liberação para implantação (B.6.2.5). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Aplicar benchmarks de viés",
+            "source_name": "Bias Benchmark Application",
+            "source_reference": "A0534_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "3.1",
+            "description": "Aplicar benchmarks adequados ao caso de uso (como Bias Benchmark Questions, Real Hateful or Harmful Prompts e Winogender Schemas) para quantificar viés sistêmico, estereótipos, difamação e conteúdo de ódio nas saídas, documentando as premissas e limitações dos benchmarks, inclusive possível contaminação entre dados de treino e de teste.",
+            "suggested_target_risk": "Saídas que reproduzem estereótipos, difamam ou discriminam grupos sociais, causando dano às pessoas afetadas e à reputação da organização.",
+            "expected_evidence": "Relatório com os resultados dos benchmarks aplicados, desagregados por grupo, e a documentação das premissas, limitações e possível contaminação de cada benchmark em relação ao contexto de uso.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "NIST AI 600-1 (2024), ação MS-2.11-001, ligada à subcategoria MEASURE 2.11 do NIST AI RMF 1.0 (\"Fairness and bias – as identified in the MAP function – are evaluated and results are documented\"), recomenda aplicar benchmarks adequados ao caso de uso para quantificar viés, estereótipos e conteúdo de ódio, documentando suas limitações. De forma independente, a ISO/IEC 42001:2023 exige definir medidas de verificação e validação com critérios de avaliação (A.6.2.4), tratar vieses nos dados (B.7.4) e considerar a equidade como objetivo (C.2.5). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "1.1",
+                "4.1",
+                "7.1",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Documentar os impactos ambientais previstos",
+            "source_name": "Environmental Degradation Minimisation",
+            "source_reference": "A0712_NIST2024",
+            "source_document": "nist-2024",
+            "saeri_subcategory": "1.6",
+            "description": "Documentar os impactos ambientais previstos do desenvolvimento, da manutenção e da implantação do modelo nas decisões de projeto do produto.",
+            "suggested_target_risk": "Consumo de energia e água e emissões de gases de efeito estufa não considerados nas decisões de projeto, gerando impacto ambiental evitável.",
+            "expected_evidence": "Estimativa documentada do consumo de energia ou das emissões associadas ao sistema, registrada junto às decisões de projeto (por exemplo, na escolha do modelo, do tamanho do modelo ou da infraestrutura).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "NIST AI 600-1 (2024), na subcategoria MEASURE 2.12 do NIST AI RMF 1.0 (\"Environmental impact and sustainability of AI model training and management activities – as identified in the MAP function – are assessed and documented\"), recomenda documentar os impactos ambientais previstos nas decisões de projeto. De forma independente, a ISO/IEC 42001:2023 inclui a sustentabilidade ambiental entre os impactos sociais a avaliar (A.5.5 e B.5.5), pede documentar o impacto ambiental do hardware utilizado (B.4.5) e lista o impacto ambiental entre os objetivos organizacionais (C.2.4). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "6.5",
+                "6.6"
+            ]
+        },
+        {
+            "name": "Processos rigorosos de avaliação de riscos",
+            "source_name": "Rigorous Risk Assessment Processes",
+            "source_reference": "A0764_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Desenvolver processos rigorosos de avaliação de risco para modelos, que: 1) Busquem abranger todos os riscos plausíveis e com consequências relevantes decorrentes de sistemas de IA, incluindo riscos de baixa probabilidade, mas que possam causar danos graves; 2) Sejam fundamentados em fatores que incluem, entre outros: avaliações de modelos e testes de estresse (*red teaming*), evidências sobre os impactos e capacidades de modelos anteriores, conhecimento das pesquisas e desenvolvimentos mais recentes na área, experiência no domínio (tanto interna quanto externa) e resultados de auditorias dos dados de entrada. Levar em consideração a dificuldade de produzir avaliações de risco confiáveis, promovendo uma cultura que leve a sério a incerteza significativa subjacente às previsões de riscos associados a modelos de fronteira. Considerar os potenciais benefícios do modelo. Incorporar aprendizados obtidos por meio de trocas de informações com o setor, a academia e o governo sobre as capacidades de modelos comparáveis.",
+            "suggested_target_risk": "Riscos plausíveis, inclusive de baixa probabilidade e consequência grave, não abrangidos pelo processo de avaliação por falta de fundamentação em red teaming, evidências de modelos anteriores e expertise externa, gerando danos evitáveis após a implementação.",
+            "expected_evidence": "Relatório de avaliação de risco documentado, registrando os métodos utilizados (avaliações de modelos, red teaming, evidências de modelos anteriores, expertise interna e externa, auditoria dos dados de entrada), os riscos de baixa probabilidade e alta consequência considerados e os potenciais benefícios do modelo.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 8-12), perfil construído sobre o NIST AI RMF 1.0 (subcategorias MAP 1.1, MAP 1.6 e MEASURE 2.5), orienta o desenvolvimento de processos rigorosos de avaliação de risco fundamentados em testes de estresse (red teaming), evidências empíricas de modelos anteriores e consulta a especialistas internos e externos. De forma independente e complementar, a norma ISO/IEC 42001:2023 exige a definição e execução do processo de avaliação de riscos de IA (cláusulas 6.1.2 e 8.2) e a avaliação dos impactos do sistema sobre indivíduos e sociedade (cláusula 6.1.4 e controles A.5). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.2",
+                "4.1",
+                "6.5",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Monitoramento durante o desenvolvimento e após a implementação",
+            "source_name": "Development and Post-Deployment Monitoring",
+            "source_reference": "A0766_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Monitore os sistemas tanto durante o desenvolvimento quanto após a implementação. Novas avaliações de risco podem ser realizadas em casos de ajustes finos ou outras alterações substanciais que possam aumentar o perigo representado por um modelo — por exemplo, se o modelo passar a ter acesso a ferramentas ou plug-ins. Isso pode ocorrer paralelamente a esforços para detectar desdobramentos inesperados e novas informações que possam ter alterado os resultados da avaliação de risco existente, o que, por sua vez, poderia motivar a realização de uma nova avaliação de risco.",
+            "suggested_target_risk": "Ausência de monitoramento contínuo e de reavaliação após ajustes finos, acesso a ferramentas ou plug-ins ou novas informações, mantendo avaliações desatualizadas frente ao perigo real do modelo.",
+            "expected_evidence": "Registro de monitoramento durante o desenvolvimento e após a implementação, com reavaliações de risco documentadas após ajustes finos, concessão de acesso a ferramentas ou plug-ins e identificação de novas informações relevantes (por exemplo, no histórico de versões do modelo).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 12-14), articulado com o NIST AI RMF 1.0 (subcategorias MEASURE 2.4, MANAGE 4.1 e GOVERN 1.5), orienta o monitoramento contínuo tanto na fase de desenvolvimento quanto pós-implantação, com reavaliações formais de risco engatilhadas por modificações substanciais (como concessão de acesso a ferramentas ou plug-ins). De forma alinhada, a ISO/IEC 42001:2023 estabelece requisitos e controles específicos para o monitoramento e operação contínua do sistema de IA (controle A.6.2.6 e seção B.6.2.6) e análise de desempenho em produção (cláusula 9.1). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "4.1",
+                "6.5"
+            ]
+        },
+        {
+            "name": "Definição de limiares de risco",
+            "source_name": "Defining Risk Thresholds",
+            "source_reference": "A0768_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Defina limiares de risco com base nos resultados que configurariam uma violação desses limites, associando-os a capacidades perigosas que um determinado modelo — ou uma combinação de modelos — poderia apresentar. Por exemplo, uma organização que atua na fronteira da tecnologia de IA pode estabelecer, como objetivo, evitar a implementação de um sistema de IA que aumente significativamente o risco de ataques cibernéticos ou fraudes.",
+            "suggested_target_risk": "Limiares de risco não definidos ou não associados a capacidades perigosas do modelo, ou de combinações de modelos, impedindo a identificação do momento em que o risco se torna inaceitável.",
+            "expected_evidence": "Documento de limiares de risco vinculando cada limiar às capacidades perigosas do modelo, isolado ou combinado com outros modelos, e às respostas previamente definidas em caso de violação (por exemplo, não implementar um sistema que aumente significativamente o risco de ataques cibernéticos ou fraudes).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 14-16), em alinhamento com o NIST AI RMF 1.0 (subcategorias GOVERN 1.3, MAP 1.5 e MAP 3.2), orienta a definição formal de limiares de risco (risk thresholds) associados a capacidades perigosas especificas que impediriam a liberação do sistema. De forma equivalente, a norma ISO/IEC 42001:2023 exige que a organização defina e estabeleça critérios de risco de IA claros (cláusulas 6.1.1 e 6.1.2 e) para distinguir riscos aceitáveis de inaceitáveis. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "4.1",
+                "6.5"
+            ]
+        },
+        {
+            "name": "Operacionalização de limiares de risco",
+            "source_name": "Operationalizing Risk Thresholds",
+            "source_reference": "A0769_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Operacionalizar limiares de risco, incluindo observações específicas e passíveis de teste, de modo que diferentes observadores com acesso às mesmas informações cheguem a um consenso sobre se um determinado limiar foi atingido. Tais observações específicas permitiriam que organizações que desenvolvem IA de fronteira definissem, de forma proativa, como responderiam a situações potencialmente complexas — garantindo uma resposta imediata caso elas ocorram —, além de viabilizar a prestação de contas e a verificação externa.\nContudo, dado que a ciência da avaliação de IA ainda está em estágio inicial, é pouco provável que seja possível definir um conjunto de observações passíveis de teste que detectem todos os riscos identificados com a devida confiabilidade. Em vez de depender exclusivamente desses testes predefinidos, as avaliações de risco podem levar em conta fontes de evidência mais amplas, como observações inesperadas ou preocupantes que surjam em análises exploratórias, previsões de especialistas ou informações relacionadas a riscos provenientes de outras organizações que desenvolvem IA de fronteira. Em particular, deve-se considerar eventuais riscos decorrentes da combinação de um determinado modelo com outros modelos ou ferramentas, independentemente de terem sido desenvolvidos pela mesma organização de IA de fronteira ou por terceiros.",
+            "suggested_target_risk": "Limiares de risco sem observações específicas e testáveis, ou dependentes exclusivamente de testes predefinidos, deixando riscos emergentes sem detecção e impedindo consenso entre avaliadores, prestação de contas e verificação externa.",
+            "expected_evidence": "Especificação de observações testáveis para cada limiar, com protocolo de verificação por diferentes observadores, registro de fontes de evidência complementares (análises exploratórias, previsões de especialistas, informações de outras organizações) e de riscos decorrentes da combinação com outros modelos ou ferramentas.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 16-18), correlacionado ao NIST AI RMF 1.0 (subcategorias MAP 1.1, MEASURE 1.1 e MEASURE 2.3), detalha a operacionalização dos limiares em observações específicas e testáveis que permitam consenso entre avaliadores independentes, complementadas por pareceres de especialistas. De forma independente, a ISO/IEC 42001:2023 exige a especificação de medidas de verificação e validação com critérios de aceitação mensuráveis e objetivos (controle A.6.2.4 e seção B.6.2.4). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.2",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Aprimoramento de estruturas de avaliação de riscos",
+            "source_name": "Refinement of Risk Evaluation Frameworks",
+            "source_reference": "A0770_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Continue a refinar e redefinir as estruturas de avaliação de risco para modelos, conforme necessário, visando reduzir a lacuna entre os objetivos pretendidos para os limiares de risco e a forma como estes são operacionalizados atualmente. É natural que tais lacunas existam, dadas as limitações na ciência da avaliação e no estado atual do conhecimento sobre as capacidades existentes; portanto, o progresso rumo a uma estrutura robusta será, provavelmente, um processo iterativo. As estruturas de avaliação de risco podem empregar múltiplos métodos, incluindo estimativas de probabilidade e avaliações qualitativas das capacidades atuais.",
+            "suggested_target_risk": "Estruturas de avaliação de risco não refinadas ao longo do tempo, mantendo lacuna entre os objetivos dos limiares e sua operacionalização e gerando falsa percepção de segurança.",
+            "expected_evidence": "Registro de revisões periódicas da estrutura de avaliação de risco, com análise documentada da lacuna entre os objetivos dos limiares e sua operacionalização e plano de refinamento (por exemplo, no controle de versões da estrutura).",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 18-20), respaldado pelo NIST AI RMF 1.0 (subcategorias GOVERN 1.5, MEASURE 1.2 e MANAGE 4.2), orienta a revisão iterativa das estruturas de avaliação de risco para reduzir lacunas na medição das capacidades emergentes dos modelos. De forma alinhada, a ISO/IEC 42001:2023 estabelece o princípio da melhoria contínua do sistema de gestão e de seus processos de avaliação de risco (cláusula 10.1) e exige revisões periódicas das políticas e controles (controle A.2.4). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.1",
+                "6.5",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Reavaliação do risco residual",
+            "source_name": "Reassessment of Residual Risk",
+            "source_reference": "A0774_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Após a implementação de medidas de mitigação, reavalie o risco residual existente para determinar se são necessárias medidas adicionais. Dada a imprevisibilidade dos avanços nas capacidades e as limitações da ciência de avaliação de modelos, as medidas de mitigação previamente acordadas podem se mostrar insuficientes para situar um determinado modelo dentro de um patamar de risco aceitável. Podem ser utilizados critérios de aceitação de risco — prática comum em diversos outros contextos —, os quais servem como uma ferramenta importante para conferir maior clareza. Tais critérios podem evoluir ao longo do tempo e ser de natureza quantitativa ou qualitativa. Por exemplo, um risco pode ser aceito apenas se tiver sido reduzido a um nível “tão baixo quanto razoavelmente exequível”.",
+            "suggested_target_risk": "Risco residual não reavaliado após a implementação das mitigações, ou ausência de critérios de aceitação de risco claros, levando à liberação de modelos acima de um patamar de risco aceitável.",
+            "expected_evidence": "Relatório de risco residual pós-mitigação, com os critérios de aceitação de risco adotados (quantitativos ou qualitativos, como “tão baixo quanto razoavelmente exequível”) e a decisão documentada sobre a suficiência das mitigações.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 20-22), fundamentado no NIST AI RMF 1.0 (subcategorias MANAGE 1.4, MANAGE 1.1 e GOVERN 1.3), orienta a reavaliação explícita do risco residual após a aplicação das mitigações para verificar se o modelo atinge critérios aceitáveis (ex.: \"tão baixo quanto razoavelmente exequível\"). Na norma ISO/IEC 42001:2023, a aprovação do plano de tratamento de riscos e a aceitação formal dos riscos residuais pela alta direção são exigências obrigatórias (cláusulas 6.1.3 e 8.3). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.1",
+                "3.2",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Divulgação de limiares de risco a autoridades governamentais",
+            "source_name": "Disclosure of Risk Threshold to Government Authorities",
+            "source_reference": "A0775_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Informe as autoridades governamentais competentes quando um limiar de risco for atingido, apresentando também as medidas de mitigação propostas. Informe novamente os governos, antes da implementação, uma vez que as medidas de mitigação tenham sido adotadas e a avaliação do risco residual tenha sido realizada. Envolva proativamente outros atores relevantes, além dos governos, conforme apropriado.",
+            "suggested_target_risk": "Governos não informados quando um limiar de risco é atingido e antes da implementação das mitigações, comprometendo a supervisão externa e a resposta coordenada a riscos graves.",
+            "expected_evidence": "Comunicações formais às autoridades governamentais competentes, registradas com data, informando a violação do limiar e as mitigações propostas, e nova comunicação antes da implementação com o resultado da avaliação de risco residual.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 22-24), em consonância com o NIST AI RMF 1.0 (subcategorias GOVERN 5.1, MAP 1.1, MEASURE 2.8 e MANAGE 4.3), orienta a notificação às autoridades governamentais competentes quando um limiar de risco for atingido e o envio de novo reporte pós-avaliação do risco residual. De forma equivalente, a ISO/IEC 42001:2023 trata do dever de reportar informações a autoridades reguladoras e partes interessadas no controle A.8.5 (Information for interested parties) e na seção B.8.5. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "5.2",
+                "6.5",
+                "7.3",
+                "7.4"
+            ]
+        },
+        {
+            "name": "Adaptação de medidas de mitigação para usos não pretendidos do modelo",
+            "source_name": "Adaptation of Mitigations for Unintended Model Use",
+            "source_reference": "A0777_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Adapte as medidas de mitigação levando em conta os riscos decorrentes do uso não intencional de um modelo ou de sua utilização em contextos inesperados — por exemplo, um modelo que tenha suas salvaguardas removidas após ser disponibilizado como código aberto, ou um modelo que seja combinado com outro para finalidades não previstas. Assim, ao atingir um determinado patamar de risco, podem ser implementados controles de segurança da informação, mesmo antes de o modelo ser utilizado internamente por uma organização que desenvolve IA de fronteira. De modo geral, é prudente agir com cautela, dadas as limitações atuais nos controles de segurança da informação e na capacidade de prever habilidades emergentes em modelos.",
+            "suggested_target_risk": "Mitigações que ignoram uso não intencional ou em contextos inesperados (remoção de salvaguardas em código aberto, combinação com outros modelos) e controles de segurança da informação ausentes, gerando danos evitáveis.",
+            "expected_evidence": "Plano de mitigação que contemple uso não intencional e contextos inesperados (por exemplo, remoção de salvaguardas em código aberto, combinação com outros modelos), com registro dos controles de segurança da informação aplicados conforme o patamar de risco, inclusive antes do uso interno.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 24-26), associado ao NIST AI RMF 1.0 (subcategorias MAP 1.1, MAP 3.3, MANAGE 2.3 e GOVERN 4.1), orienta a adaptação de salvaguardas considerando o uso não pretendido, reutilização em contextos inesperados ou remoção de travas de segurança em modelos abertos. De forma correspondente, a ISO/IEC 42001:2023 exige a avaliação dos impactos decorrentes do uso pretendido e do \"uso indevido razoavelmente previsível\" (foreseeable misuse) (cláusulas 6.1.4 e 8.4) e a implementação de controles de uso pretendido no controle A.9.4 e seção B.9.4. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.2",
+                "4.1",
+                "6.5"
+            ]
+        },
+        {
+            "name": "Divulgação de avaliações de risco a terceiros",
+            "source_name": "Risk Assessment Disclosure to Third Parties",
+            "source_reference": "A0782_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "4.2",
+            "description": "Mantenha as partes interessadas relevantes atualizadas regularmente sobre a avaliação de riscos e as medidas de mitigação: isso permitirá avaliar se as organizações que atuam com IA possuem processos de gestão de riscos adequados, consolidar um panorama das melhores práticas e formular recomendações para suprir eventuais lacunas. Ao compartilhar essas informações com agentes externos, deve-se ter cautela quanto a dados comercialmente sensíveis. Atualizações pontuais adicionais podem ser fornecidas caso ocorram desenvolvimentos significativos. Inclua informações sobre avaliações, análise e mitigação de riscos, bem como sobre as pessoas envolvidas. Por exemplo: 1) Que tipos de testes e avaliações estão sendo realizados e em quais tipos de modelos; 2) Quais outros métodos de avaliação de riscos estão sendo empregados, que tipos de competências técnicas estão sendo mobilizados e se as partes interessadas afetadas estão sendo incluídas no processo; 3) Como as medidas de mitigação de riscos estão sendo monitoradas; 4) Quais equipes e indivíduos estão envolvidos nas diferentes etapas do processo de gestão de riscos (e de que forma, se for o caso, terceiros participam); 5) Medidas adotadas para tratar categorias específicas de risco, como, por exemplo, medidas de cibersegurança.",
+            "suggested_target_risk": "Partes interessadas sem informações regulares sobre avaliações, mitigações e responsáveis, ou com compartilhamento inadequado de dados comercialmente sensíveis, impedindo a verificação dos processos e a consolidação de melhores práticas.",
+            "expected_evidence": "Relatórios periódicos às partes interessadas, descrevendo testes e avaliações realizados, métodos e competências mobilizados, monitoramento das mitigações, equipes e indivíduos envolvidos e medidas por categoria de risco (por exemplo, cibersegurança), com tratamento de dados comercialmente sensíveis.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 26-28), em sintonia com o NIST AI RMF 1.0 (subcategorias GOVERN 4.2, GOVERN 5.1, MEASURE 2.8 e MANAGE 4.3), orienta o compartilhamento periódico de informações sobre testes, avaliações e equipes envolvidas com terceiros e partes afetadas, resguardando informações proprietárias. De forma independente, a ISO/IEC 42001:2023 exige fornecer informações adequadas aos usuários e terceiros (controles A.8.2 e A.8.5; seções B.8.2 e B.8.5) e definir responsabilidades na cadeia de valor (controle A.10.2). Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "2.1",
+                "6.5",
+                "7.3"
+            ]
+        },
+        {
+            "name": "Governança de riscos eficaz",
+            "source_name": "Effective Risk Governance",
+            "source_reference": "A0784_UK Government2023",
+            "source_document": "dsit-2023",
+            "saeri_subcategory": "1.2",
+            "description": "Estabeleça uma governança de riscos eficaz para assegurar que os riscos sejam adequadamente identificados, avaliados e tratados, e que sua natureza e dimensão sejam relatadas de forma transparente. Mais importante ainda: implemente mecanismos internos de controle e equilíbrio, o que pode incluir uma separação criteriosa de funções dentro da gestão de riscos.",
+            "suggested_target_risk": "Governança de riscos ineficaz, sem mecanismos internos de controle e equilíbrio nem separação de funções, gerando riscos não identificados, não tratados ou reportados sem transparência.",
+            "expected_evidence": "Documento de estrutura de governança de riscos, definindo papéis, responsabilidades e separação de funções, com registros de mecanismos internos de controle e equilíbrio e de relatórios de riscos emitidos com transparência sobre sua natureza e dimensão.",
+            "suggested_cost": "medium",
+            "uncertainty_level": "low",
+            "estimate_source": "DSIT UK (2023, p. 28-30), articulado com o NIST AI RMF 1.0 (subcategorias GOVERN 1.1, GOVERN 1.4, GOVERN 2.1 e GOVERN 2.3), estabelece a necessidade de uma governança de riscos eficaz com segregação de funções (checks and balances) e envolvimento da liderança executiva. De forma direta e equivalente, a norma ISO/IEC 42001:2023 estrutura a governança como pilar central no item 5 (Liderança e comprometimento, cláusula 5.1; Papéis e responsabilidades, cláusula 5.3) e no controle A.3.2 (AI roles and responsibilities) e seção B.3.2. Custo estimado pelo grupo, pela rubrica.",
+            "target_risk_subdomains": [
+                "3.1",
+                "4.1",
+                "6.5",
+                "7.2",
+                "7.3"
+            ]
         }
     ]
 }

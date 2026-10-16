@@ -51,5 +51,14 @@ reamostragem (semente fixa), situação em relação ao mínimo (0,667) e à met
 O mesmo CSV gera sempre o mesmo arquivo. A anotação segue o guia em
 `docs/catalog-annotation-guide.md`.
 
+## Arquivos gerados
+
+`database/data/mitigation-catalog.json` e `oe1-agreement.json` são gerados
+pelos comandos acima e **não devem ser editados nem formatados à mão**. As
+decisões 0024 e 0025 dependem de que o arquivo versionado seja idêntico ao que
+o comando produz a partir do `catalog.csv`; por isso os dois ficam fora do
+formatador do projeto (`fmt.ignorePatterns` em `vite.config.ts`). Para
+mudá-los, altere a planilha, exporte o CSV de novo e rode os comandos.
+
 Os dados vêm do MIT AI Risk Initiative (airisk.mit.edu), sob CC BY 4.0. Os
 nomes foram traduzidos e as descrições traduzidas e adaptadas pelo grupo.
