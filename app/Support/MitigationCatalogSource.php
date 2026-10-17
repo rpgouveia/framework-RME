@@ -79,6 +79,7 @@ class MitigationCatalogSource
 
     public function __construct(
         protected MitigationCatalog $catalog,
+        protected CsvTable $csv,
     ) {}
 
     public static function csvPath(): string
@@ -193,49 +194,11 @@ class MitigationCatalogSource
      */
     public function rows(string $path): array
     {
-        if (! is_file($path)) {
-            throw new InvalidMitigationCatalog("CSV do catálogo não encontrado: {$path}");
+        try {
+            return $this->csv->rows($path, 'do catálogo');
+        } catch (InvalidCsvFile $exception) {
+            throw new InvalidMitigationCatalog($exception->getMessage(), previous: $exception);
         }
-
-        $content = (string) file_get_contents($path);
-        $content = str_starts_with($content, "\u{FEFF}") ? substr($content, 3) : $content;
-        $firstLine = strtok($content, "\n");
-        $delimiter = substr_count((string) $firstLine, ';') > substr_count((string) $firstLine, ',') ? ';' : ',';
-
-        $handle = fopen('php://temp', 'r+');
-
-        if ($handle === false) {
-            throw new InvalidMitigationCatalog("Não foi possível ler o CSV do catálogo: {$path}");
-        }
-
-        fwrite($handle, $content);
-        rewind($handle);
-
-        $header = array_map(fn (?string $column): string => trim((string) $column), fgetcsv($handle, null, $delimiter, '"', '') ?: []);
-        $rows = [];
-
-        while (true) {
-            // A quoted cell may span lines, so the line is counted from the
-            // position where the row starts.
-            $line = substr_count($content, "\n", 0, (int) ftell($handle)) + 1;
-            $values = fgetcsv($handle, null, $delimiter, '"', '');
-
-            if ($values === false) {
-                break;
-            }
-
-            $row = [];
-
-            foreach ($header as $index => $column) {
-                $row[$column] = trim((string) ($values[$index] ?? ''));
-            }
-
-            $rows[] = [$line, $row];
-        }
-
-        fclose($handle);
-
-        return [$header, $rows];
     }
 
     /**
