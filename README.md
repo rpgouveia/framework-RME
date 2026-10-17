@@ -14,35 +14,44 @@ An applied research project at PUCPR.
 
 ```mermaid
 erDiagram
-    AI_SYSTEM     ||--o{ RISK           : "is exposed to"
-    AI_SYSTEM     ||--o{ ADVERSE_EVENT  : "suffers"
-    AI_SYSTEM     ||--o{ SYSTEM_CHANGE  : "goes through"
-    RISK          ||--o{ LINK           : "is addressed by"
-    MITIGATION    ||--o{ LINK           : "is applied through"
-    OWNER         ||--o{ LINK           : "is accountable for"
-    LINK          ||--o{ STATUS_HISTORY : "changes through"
-    LINK          ||--o{ EVIDENCE       : "is proven by"
-    LINK          ||--o{ REASSESSMENT   : "is reassessed in"
-    LINK          |o--o| LINK           : "replaces"
-    ADVERSE_EVENT ||--o{ STATUS_HISTORY : "reverts"
-    SYSTEM_CHANGE ||--o{ STATUS_HISTORY : "reverts"
-    STATUS_HISTORY ||--o| REASSESSMENT  : "is concluded by"
-    TAXONOMY_TERM ||--o{ RISK           : "classifies"
+    AI_SYSTEM      ||--o{ RISK           : "is exposed to"
+    AI_SYSTEM      ||--o{ ADVERSE_EVENT  : "suffers"
+    AI_SYSTEM      ||--o{ SYSTEM_CHANGE  : "goes through"
+    RISK           ||--o{ LINK           : "is addressed by"
+    MITIGATION     ||--o{ LINK           : "is applied through"
+    OWNER          ||--o{ LINK           : "is accountable for"
+    LINK           ||--o{ STATUS_HISTORY : "changes through"
+    LINK           ||--o{ EVIDENCE       : "is proven by"
+    LINK           ||--o{ REASSESSMENT   : "is reassessed in"
+    LINK           |o--o| LINK           : "replaces"
+    LINK           |o--o{ ADVERSE_EVENT  : "intercepts"
+    ADVERSE_EVENT  ||--o{ STATUS_HISTORY : "reverts"
+    SYSTEM_CHANGE  ||--o{ STATUS_HISTORY : "reverts"
+    STATUS_HISTORY ||--o| REASSESSMENT   : "is concluded by"
+    OWNER          |o--o{ STATUS_HISTORY : "records"
+    OWNER          ||--o{ REASSESSMENT   : "concludes"
+    TAXONOMY       ||--o{ TAXONOMY_TERM  : "lists"
+    TAXONOMY_TERM  ||--o{ RISK           : "classifies"
+    TAXONOMY_TERM  ||--o{ MITIGATION     : "classifies"
+    TAXONOMY_TERM  }o--o{ MITIGATION     : "is targeted by"
+    TAXONOMY_TERM  }o--o{ ADVERSE_EVENT  : "classifies"
+    TAXONOMY_TERM  }o--o{ SYSTEM_CHANGE  : "is reached by"
 ```
 
-| Entity          | Table              | What it holds                                                                                                                        |
-| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `AiSystem`      | `ai_systems`       | An AI system in the portfolio: name, application domain, source type, EU AI Act tier, registration date.                             |
-| `Risk`          | `risks`            | A risk identified for one system: name, description, MIT risk subdomain, lifecycle phase, uncertainty level.                         |
-| `Mitigation`    | `mitigations`      | A read-only catalogue entry: measure, Saeri et al. subcategory, target risk subdomains, expected evidence, suggested cost, source.   |
-| `Owner`         | `owners`           | The organizational role accountable for a mitigation, and its area. Deactivated rather than deleted once in use.                     |
-| `Link`          | `links`            | **The core entity.** Applies one mitigation to one risk under one owner, with a progress status and a verification status.           |
-| `Evidence`      | `evidence`         | An artifact proving a link is in place, optionally with the cost actually observed. Append-only.                                     |
-| `StatusHistory` | `status_histories` | The append-only audit trail of a link: every change of progress or verification, with its origin, author or trigger.                 |
-| `AdverseEvent`  | `adverse_events`   | An incident or a near miss on a system, classified by MIT risk subdomains. Append-only.                                              |
-| `SystemChange`  | `system_changes`   | A new model version or a data change of a system, optionally naming the risk subdomains it reaches. Append-only.                     |
-| `Reassessment`  | `reassessments`    | The conclusion of one reversal: outcome (maintain, adjust, replace, close), owner, justification, cause analysis and changes made.   |
-| `Taxonomy`      | `taxonomies`       | A versioned reference taxonomy (MIT AI risk domains, Saeri et al. mitigations), with its citation; `TaxonomyTerm` holds its entries. |
+| Entity             | Table                | What it holds                                                                                                                                          |
+| ------------------ | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `AiSystem`         | `ai_systems`         | An AI system in the portfolio: name, application domain, source type, EU AI Act tier, registration date.                                               |
+| `Risk`             | `risks`              | A risk identified for one system: name, description, MIT risk subdomain, lifecycle phase, uncertainty level.                                           |
+| `Mitigation`       | `mitigations`        | A read-only catalogue entry: measure, Saeri et al. subcategory, target risk subdomains, expected evidence, suggested cost and its uncertainty, source. |
+| `Owner`            | `owners`             | The organizational role accountable for a mitigation, and its area. Deactivated rather than deleted once in use.                                       |
+| `Link`             | `links`              | **The core entity.** Applies one mitigation to one risk under one owner, with a progress status and a verification status.                             |
+| `Evidence`         | `evidence`           | An artifact proving a link is in place, optionally with the cost actually observed. Append-only.                                                       |
+| `StatusHistory`    | `status_histories`   | The append-only audit trail of a link: every change of progress or verification, with its origin, author or trigger.                                   |
+| `AdverseEvent`     | `adverse_events`     | An incident or a near miss on a system, classified by MIT risk subdomains; a near miss may name the link that intercepted it. Append-only.             |
+| `SystemChange`     | `system_changes`     | A new model version or a data change of a system, optionally naming the risk subdomains it reaches. Append-only.                                       |
+| `Reassessment`     | `reassessments`      | The conclusion of one reversal: outcome (maintain, adjust, replace, close), owner, justification, cause analysis and changes made.                     |
+| `Taxonomy`         | `taxonomies`         | A versioned reference taxonomy (MIT AI risk domains, Saeri et al. mitigations), with its citation; `TaxonomyTerm` holds its entries.                   |
+| `ReferenceDataset` | `reference_datasets` | The metadata of a reference file as it was loaded, such as the catalogue's, so the app describes the data it actually holds.                           |
 
 A link has **two status dimensions**: its progress (`planned`,`in_progress`,
 `implemented`, `monitoring`, `suspended`, `cancelled`) and its verification
