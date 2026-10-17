@@ -28,7 +28,7 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0021](0021-mudancas-do-sistema.md)                  | Mudanças do sistema como gatilho de reavaliação                      | Aceita; implementada na etapa 4d                                                |
 | [0022](0022-padrao-de-idioma.md)                     | Padrão de idioma da interface                                        | Aceita; implementada                                                            |
 | [0023](0023-licenca-das-traducoes.md)                | Licença das traduções e de dependências de terceiros                 | Aceita; implementada                                                            |
-| [0024](0024-catalogo-real.md)                        | Catálogo real de mitigações (C2)                                     | Aceita; em execução (preenchimento pelo grupo)                                  |
+| [0024](0024-catalogo-real.md)                        | Catálogo real de mitigações (C2)                                     | Aceita; implementada                                                            |
 | [0025](0025-medida-de-concordancia-oe1.md)           | Medida de concordância do OE1                                        | Aceita; implementada (cálculo e rascunho do guia)                               |
 | [0026](0026-definicao-de-evento-adverso.md)          | Definição operacional de evento adverso                              | Aceita; implementada (texto da página inicial)                                  |
 | [0027](0027-painel-de-especialistas.md)              | Painel de especialistas (OE6): protocolo e banco de itens            | Aceita; protocolo, banco de itens e cálculo implementados; painel não executado |
