@@ -115,8 +115,8 @@ class AnnotationAgreement
         sort($alphas);
 
         return [
-            'lower' => $this->percentile($alphas, 0.025),
-            'upper' => $this->percentile($alphas, 0.975),
+            'lower' => self::percentile($alphas, 0.025),
+            'upper' => self::percentile($alphas, 0.975),
             'discarded' => $discarded,
         ];
     }
@@ -259,11 +259,12 @@ class AnnotationAgreement
 
     /**
      * A percentile of sorted values, by linear interpolation between the
-     * closest ranks (the default of R and NumPy).
+     * closest ranks (the default of R and NumPy). Also the quartiles of the
+     * expert panel's review intervals (0027).
      *
      * @param  list<float>  $sorted
      */
-    protected function percentile(array $sorted, float $fraction): ?float
+    public static function percentile(array $sorted, float $fraction): ?float
     {
         if ($sorted === []) {
             return null;
