@@ -115,7 +115,7 @@ O cálculo (Seção 7) lê o CSV exportado do formulário, desde que:
 
 - a coluna do código se chame `Respondente`, com valores únicos;
 - cada pergunta de item comece pelo identificador entre colchetes, seguido do texto, por exemplo `[DEF-C1] A ocorrência é observada...`;
-- as respostas dos itens sejam exatamente `Essencial`, `Útil, mas não essencial` ou `Desnecessário`;
+- as respostas dos itens sejam `Essencial`, `Útil, mas não essencial` ou `Desnecessário`, admitindo-se diferenças de maiúsculas e de espaços nas pontas;
 - as perguntas de intervalo comecem por `[INT-ALTO]`, `[INT-LIMITADO]` e `[INT-MINIMO]`, com números inteiros de dias.
 
 Colunas sem colchetes, como o carimbo de data e hora do formulário e os comentários, são ignoradas. Antes de versionar, remover do CSV qualquer coluna que identifique o respondente além do código, inclusive comentários que mencionem nome ou organização.
