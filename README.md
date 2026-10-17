@@ -8,7 +8,7 @@ review deadlines, adverse events and changes to a system take verified
 mitigations back to reassessment, and every step lands in an append-only audit
 trail exported as a traceability report.
 
-Applied research project — PUCPR.
+An applied research project at PUCPR.
 
 ## Domain model
 
@@ -64,7 +64,7 @@ a new enum also joins the list shared by `HandleInertiaRequests` and the
 Cost is one of those enums: `CostLevel` (low/medium/high) backs a mitigation's
 `suggested_cost`, a link's `estimated_cost` and the cost observed on evidence,
 so an estimate and the actual cost stay comparable. It is deliberately
-qualitative — if the team later needs real currency amounts, add a numeric
+qualitative: if the team later needs real currency amounts, add a numeric
 column next to it rather than widening the scale.
 
 > **Still to confirm:** several enums (`AiSystemCategory`, `CostLevel`,
@@ -82,9 +82,10 @@ seeders and validated on load (`app/Support`):
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | `taxonomies/mit-ai-risk-domains.json`       | The MIT AI Risk Repository domain taxonomy (7 domains, 24 subdomains), classifying risks and events. |
 | `taxonomies/saeri-mitigation-taxonomy.json` | The preliminary mitigation taxonomy of Saeri et al., classifying the catalogue.                      |
-| `mitigation-catalog.json`                   | The mitigation catalogue. **Currently fictional** (`meta.fictional`), pending the group's curation.  |
+| `mitigation-catalog.json`                   | The mitigation catalogue: 40 entries curated by the group (decision 0024).                           |
 | `protocols/c3-monitoring-protocol.json`     | The C3 monitoring protocol: review interval per EU AI Act tier and the dashboard windows.            |
 | `catalog-source/`                           | Where the real catalogue comes from: the group's spreadsheet export (`catalog.csv`) and `meta.json`. |
+| `expert-panel/`                             | The item bank of the expert panel (`items.csv`) and, once the panel runs, its responses and result.  |
 
 The catalogue file is generated from `catalog-source/`: the "Catálogo" sheet
 exported as CSV, kept as is with the raw double annotation, and the editable
@@ -104,6 +105,37 @@ in Portuguese:
 
 ```bash
 docker compose exec app php artisan mitigations:agreement
+```
+
+The measured alpha (0.527) fell short of the 0.667 minimum. As decision 0025
+sets, the result is reported as is, without annotating again, and the guide was
+revised afterwards for future annotation: its section on the OE1 measurement
+records where the annotators diverged and how to mark those subdomains. The
+spreadsheet the group annotated in is kept as `docs/catalog-annotation.xlsx`.
+
+### Expert panel
+
+The expert panel that would evaluate the framework's content validity (OE6) and
+validate the adverse event definition (OE3) was planned but not run within this
+project, for lack of time (decision 0027). Everything it needs is ready for a
+future run, in Portuguese:
+
+| File                                                             | What it holds                                                                   |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [`docs/expert-panel-protocol.md`](docs/expert-panel-protocol.md) | The procedure: profiles, recruitment, consent, the two rounds and the analysis. |
+| `database/data/expert-panel/items.csv`                           | The 21 items the experts rate, each tied to the decision behind it.             |
+| `docs/form-expert-panel-OE6.xlsx`                                | The questionnaire, a sheet to collect the second round and a cross-check of it. |
+
+The second round's answers, exported as
+`database/data/expert-panel/round-2-responses.csv`, give Lawshe's content
+validity ratio per item, the critical value for the panel size (Ayre and
+Scally's exact binomial method), whether the OE3 and OE6 criteria are met, the
+content validity index and the review intervals the experts suggest. The result
+is shown as tables and written to
+`database/data/expert-panel/oe6-cvr.json`:
+
+```bash
+docker compose exec app php artisan expert-panel:cvr
 ```
 
 ### Using the app
@@ -138,7 +170,7 @@ router.
 
 ## Requirements
 
-Docker is the only requirement — the whole stack runs in containers.
+Docker is the only requirement: the whole stack runs in containers.
 
 To run the app on the host instead (`composer dev`), you also need PHP 8.5 with
 the `pdo_pgsql` extension, Composer 2 and Node 22+; Docker then only serves the
@@ -189,9 +221,9 @@ docker compose exec postgres psql -U root -d laravel      # a psql shell
 ```
 
 Drop `docker compose exec app` from those Artisan calls when you work on the
-host — the container and the host share the same database.
+host; the container and the host share the same database.
 
-Tests never touch this database — `phpunit.xml` points them at an in-memory
+Tests never touch this database: `phpunit.xml` points them at an in-memory
 SQLite connection.
 
 ## Development
@@ -203,7 +235,7 @@ service:
 
 | Service     | Command                                     | What it is                                              |
 | ----------- | ------------------------------------------- | ------------------------------------------------------- |
-| `postgres`  | —                                           | PostgreSQL 18 on :5432                                  |
+| `postgres`  | none                                        | PostgreSQL 18 on :5432                                  |
 | `setup`     | `docker/setup.sh`                           | one-shot: dependencies, app key, migrations, first seed |
 | `app`       | `php artisan serve` → http://localhost:8000 | `composer dev` › server                                 |
 | `vite`      | `npm run dev` → http://localhost:5173       | `composer dev` › vite (HMR + SSR)                       |
@@ -221,7 +253,7 @@ docker compose up -d --build          # rebuild after editing docker/Dockerfile
 ```
 
 Everything runs off the bind-mounted working tree, so edits on the host apply
-immediately — Vite polls for changes because bind mounts do not forward
+immediately. Vite polls for changes because bind mounts do not forward
 filesystem events.
 
 Worth knowing:
@@ -237,7 +269,7 @@ Worth knowing:
   installs the Linux builds of Rollup, Tailwind Oxide and lightningcss without
   touching the macOS ones. `docker compose down -v` wipes it, and the next `up`
   reinstalls.
-- **`setup` runs on every `up`** and is idempotent — it installs what is
+- **`setup` runs on every `up`** and is idempotent: it installs what is
   missing, migrates, and seeds only when the database holds no users, so your
   data survives a restart.
 - **Both the containers and `composer dev` bind :8000 and :5173**, so run one
@@ -257,7 +289,7 @@ Run `npm run dev` on its own if you only need the asset server.
 > **`Unable to locate file in Vite manifest`** means the frontend has not been
 > built: run `npm run dev` (or `npm run build`) and reload. The same error
 > naming a page under `resources/js/pages/` means that page component does not
-> exist yet — see below.
+> exist yet; see below.
 
 ## How a feature is wired
 
@@ -279,8 +311,8 @@ routes/web.php                          Route::resource('ai-systems', AiSystemCo
   transaction. In particular, `RecordStatusChange` is the **single write path**
   for a link's status: opening, progress changes, verification and reversal all
   pass through it, so the history and the rules cannot be bypassed (decision
-  0007). The other actions — `RecordAdverseEvent`, `RecordSystemChange`,
-  `RecordReassessment`, `UpdateAiSystem`, `RevertOverdueLinks` — call it.
+  0007). The other actions (`RecordAdverseEvent`, `RecordSystemChange`,
+  `RecordReassessment`, `UpdateAiSystem`, `RevertOverdueLinks`) call it.
 - **Append-only records** (status history, evidence, adverse events, system
   changes, reassessments) expose no `edit`, `update` or `destroy` routes. Those
   that belong to another record are nested under it with `shallow()`, such as
@@ -365,7 +397,7 @@ A husky `pre-commit` hook runs `lint-staged` and `composer lint`, so formatting
 is fixed before a commit lands.
 
 Commit messages follow the conventional style already used in the history:
-`feat:`, `fix:`, `ci:`, `style:`, `chore:`.
+`feat:`, `fix:`, `docs:`, `ci:`, `style:`, `chore:`.
 
 ## Translations
 
@@ -420,11 +452,11 @@ New translations follow the vocabulary of the interface:
 | excluir           | removing                                                                                     | deletar                |
 | digite            | asking for input                                                                             | insira                 |
 | e-mail            | the address and the message                                                                  | email                  |
-| cadastrar         | the domain entities that are edited and listed: systems, risks, owners                       | —                      |
+| cadastrar         | the domain entities that are edited and listed: systems, risks, owners                       |                        |
 | registrar         | what is append only: evidence, adverse events, system changes, reassessments, status history | cadastrar              |
 | criar conta       | the user's own account                                                                       | cadastrar              |
 | entrar, sair      | starting and ending the session                                                              | fazer login, login     |
-| painel            | the home screen                                                                              | —                      |
+| painel            | the home screen                                                                              |                        |
 
 ## Project structure
 
@@ -432,22 +464,30 @@ New translations follow the vocabulary of the interface:
 app/
 ├── Actions/           the write paths: RecordStatusChange and the actions built on it
 ├── Concerns/          validation rule traits + the enum options helper
-├── Console/Commands/  links:flag-due-for-review, mitigations:import-catalog, mitigations:agreement
+├── Console/Commands/  links:flag-due-for-review, mitigations:import-catalog, mitigations:agreement,
+│                      expert-panel:cvr
 ├── Enums/             every classification used by the domain
 ├── Http/
 │   ├── Controllers/   one controller per entity, plus the dashboard and the report
 │   └── Requests/      Store*/Update* form requests
 ├── Models/            the domain models
 ├── Policies/          one policy per entity
-└── Support/           reference data loaders: taxonomies, catalogue, monitoring protocol
+└── Support/           reference data loaders (taxonomies, catalogue, monitoring protocol) and the
+                       OE1 and OE6 measures (annotation agreement, content validity)
 
 database/
-├── data/              versioned reference files (taxonomies, catalogue, protocol)
+├── data/              versioned reference files (taxonomies, catalogue, protocol, panel items)
 ├── factories/         factories with states (implemented, highRisk, inSubdomain, ...)
 ├── migrations/        the schema
 └── seeders/           one seeder per entity, chained by DatabaseSeeder
 
-docs/decisions/        the domain decision records, in Portuguese
+docs/                  in Portuguese
+├── decisions/         the domain decision records
+├── tutorial.md        a step-by-step guide to the app
+├── catalog-annotation-guide.md, catalog-annotation.xlsx
+│                      the OE1 annotation guide and the group's annotation spreadsheet
+└── expert-panel-protocol.md, form-expert-panel-OE6.xlsx
+                       the OE6 panel protocol and its questionnaire
 
 lang/                  pt_BR translations: Laravel Lang defaults + the project's lines
 
@@ -455,7 +495,7 @@ resources/js/
 ├── components/        shared React components
 ├── lib/               labels, formatting and the pure preview functions
 ├── pages/             one directory per entity, mapped to Inertia::render()
-├── routes/            generated by Wayfinder — do not edit
+├── routes/            generated by Wayfinder; do not edit
 └── types/models.ts    TypeScript mirror of the models and enums
 
 docker/
@@ -475,7 +515,7 @@ date plus the review interval of the EU AI Act tier of the risk's system, as the
 C3 protocol file `database/data/protocols/c3-monitoring-protocol.json` sets it
 (high 90 days, limited 180, minimal 365). A declared link has no review date,
 and a system in the unacceptable tier never operates, so its links cannot be
-verified — they serve to plan its discontinuation. The rules are recorded in
+verified: they serve to plan its discontinuation. The rules are recorded in
 decisions 0017 and 0018.
 
 ### Triggers
@@ -484,19 +524,19 @@ Five triggers take a verified link back to declared, awaiting reassessment.
 Each reversal is recorded in the status history with its origin and, when
 automatic, no author:
 
-- **Review due** — `links:flag-due-for-review` reverts the links past their
+- **Review due:** `links:flag-due-for-review` reverts the links past their
   review date. The date is the last valid day: a link due today is shown as
   "Vence hoje" and reverted from the next day. Running it twice on the same day
   changes nothing more.
-- **Adverse event** — recording an event reverts, in the same transaction, the
+- **Adverse event:** recording an event reverts, in the same transaction, the
   verified links of the system whose risk is in one of the event's subdomains,
   except the link that intercepted a near miss.
-- **Reclassification** — editing a system into the unacceptable tier reverts
+- **Reclassification:** editing a system into the unacceptable tier reverts
   all its verified links.
-- **New model version** and **data change** — recording a system change
+- **New model version** and **data change:** recording a system change
   reverts the verified links of the system whose risk is in one of the
   subdomains it names, or **all** of them when it names none.
-- **Manual** — a user may revert a verified link by hand, with a reason.
+- **Manual:** a user may revert a verified link by hand, with a reason.
 
 An event or a change naming a subdomain the system has no risk for shows on the
 dashboard as a risk not yet mapped, with a shortcut to register it.
