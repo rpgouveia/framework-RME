@@ -1,6 +1,6 @@
 # Guia de anotação dos subdomínios de risco do catálogo
 
-> **Rascunho para revisão do grupo.** Este guia ainda não foi aprovado e pode mudar até a calibração. Nenhuma mitigação do catálogo deve ser anotada antes da versão final.
+> **Versão revisada após a medição do OE1.** As 40 mitigações do catálogo foram anotadas com a versão anterior deste guia, sem a seção "Revisão após a medição do OE1". Essa seção atende ao item 5 da decisão 0025: registra os subdomínios em que os anotadores mais divergiram e esclarece como marcá-los. Ela orienta anotações futuras e não foi aplicada às mitigações já anotadas.
 
 Este guia orienta a anotação dupla do catálogo de mitigações (decisões 0024 e 0025). Cada mitigação recebe dois anotadores, de membros diferentes, que indicam de forma independente os subdomínios de risco do MIT AI Risk Repository que ela trata. A concordância entre os dois é a medida do OE1.
 
@@ -13,6 +13,46 @@ Pergunte: se esta mitigação for aplicada como descrita, qual risco fica menor,
 Exemplo: o registro das decisões de um sistema reduz diretamente a falta de transparência (7.4). Ele também pode ajudar, mais tarde, a investigar um caso de discriminação (1.1), mas não reduz esse risco por si só; por isso, marca-se 7.4, e não 1.1.
 
 Em geral, uma mitigação trata um ou dois subdomínios. Se você marcou muitos, revise cada um pela regra central.
+
+## Revisão após a medição do OE1
+
+### O que a medição mostrou
+
+O alfa de Krippendorff ficou em 0,527, com intervalo de confiança de 95% de 0,389 a 0,646, abaixo do mínimo de 0,667 (decisão 0025). Dois padrões explicam a maior parte das divergências:
+
+- **Marcação além da regra central.** O anotador A marcou, em média, 3,05 subdomínios por mitigação, e o anotador B, 3,6 (122 e 144 marcações no total), quando a regra central espera, em geral, um ou dois. Na maioria das divergências, um anotador acrescentou subdomínios ao conjunto do outro.
+- **Confusão entre a categoria da mitigação e o risco, e entre subdomínios vizinhos.** Mitigações de gestão de riscos, testes ou documentação receberam subdomínios ligados ao tipo de ação, e não ao risco reduzido.
+
+O consenso seguiu o mesmo padrão: em 14 das 24 mitigações com divergência, registrou a união dos dois conjuntos, e 28 das 40 mitigações ficaram com três ou mais subdomínios.
+
+### Subdomínios com mais divergência
+
+Foram considerados problemáticos os subdomínios com concordância positiva abaixo de 0,70 e ao menos duas marcações divergentes, ou com ao menos cinco marcações divergentes. A decisão 0025 não fixou esse critério; ele foi definido depois da medição e serve apenas para escolher onde esclarecer o guia, sem alterar a medida.
+
+| Subdomínio                                                 | Em comum | Só A | Só B | Concordância positiva |
+| ---------------------------------------------------------- | -------- | ---- | ---- | --------------------- |
+| 3.1 Informação falsa ou enganosa                           | 4        | 1    | 4    | 0,615                 |
+| 3.2 Poluição do ecossistema de informação                  | 3        | 2    | 2    | 0,600                 |
+| 4.1 Desinformação, vigilância e influência em larga escala | 7        | 1    | 4    | 0,737                 |
+| 5.1 Dependência excessiva e uso inseguro                   | 1        | 1    | 3    | 0,333                 |
+| 6.5 Falha de governança                                    | 23       | 0    | 8    | 0,852                 |
+| 7.1 IA perseguindo objetivos próprios                      | 1        | 2    | 0    | 0,500                 |
+| 7.2 IA com capacidades perigosas                           | 1        | 1    | 5    | 0,250                 |
+| 7.3 Falta de capacidade ou robustez                        | 20       | 2    | 5    | 0,851                 |
+| 7.4 Falta de transparência ou interpretabilidade           | 14       | 1    | 5    | 0,824                 |
+
+Os valores vêm de `database/data/catalog-source/oe1-agreement.json`.
+
+### Esclarecimentos
+
+1. **A categoria não define o subdomínio.** A categoria de Saeri et al. descreve o tipo de ação (gestão de riscos, testes, documentação); o subdomínio descreve o risco reduzido. Uma mitigação de gestão de riscos não recebe 6.5 por ser de gestão, nem uma de documentação recebe 7.4 por documentar.
+2. **6.5 Falha de governança.** Marque quando o objeto direto da mitigação é a própria estrutura de supervisão: políticas, papéis e responsabilidades, processos de gestão de riscos, prestação de contas e relato a autoridades. Não marque em mitigação técnica ou operacional apenas porque ela faz parte de uma boa governança, como testes, filtros de conteúdo ou monitoramento.
+3. **7.1, 7.2 e 7.3.** A falha comum de desempenho ou de robustez é 7.3. Marque 7.2 só quando a mitigação limita ou avalia capacidades que podem causar dano em massa, como ataque cibernético, desenvolvimento de armas, persuasão em larga escala ou autorreplicação. Marque 7.1 só quando ela trata de comportamento do sistema em conflito com os objetivos de quem o projetou ou o usa. Na dúvida entre falha comum e capacidade perigosa, marque 7.3.
+4. **Domínio 4 (agentes maliciosos e uso indevido).** Marque 4.1, 4.2 ou 4.3 só quando a mitigação dificulta o uso deliberado do sistema por agentes mal-intencionados. Medir o desempenho, documentar o sistema ou testar sua validade não reduz diretamente a desinformação nem a vigilância em larga escala.
+5. **3.1 e 3.2.** Marque 3.1 quando a mitigação reduz a produção ou a propagação de informação incorreta pelo sistema, como a avaliação da veracidade das respostas. Marque 3.2 só quando ela atua no efeito agregado sobre o ecossistema de informação, como a identificação da origem de conteúdo gerado por IA em larga escala; reduzir erros individuais não basta.
+6. **5.1 Dependência excessiva e uso inseguro.** Marque quando a mitigação atua sobre a confiança ou a dependência do usuário em relação ao sistema, como avisos sobre antropomorfização ou instruções sobre os limites de uso. Testes de veracidade ou de segurança não reduzem 5.1 diretamente.
+7. **7.4 Falta de transparência ou interpretabilidade.** Marque quando a mitigação torna o funcionamento ou as decisões do sistema compreensíveis para quem o supervisiona ou é afetado por ele. Documentos internos de avaliação de risco não tornam o sistema mais interpretável.
+8. **Consenso.** O consenso não é a união dos dois conjuntos. Depois da discussão, cada subdomínio entra apenas se os dois anotadores concordarem que a mitigação reduz diretamente aquele risco.
 
 ## Independência
 

@@ -1,6 +1,6 @@
 # 0025. Medida de concordância do OE1
 
-- **Situação:** Aceita; implementada (cálculo e rascunho do guia)
+- **Situação:** Aceita; implementada (cálculo e guia, revisado após a medição)
 - **Registrada em:** 2026-10-12
 
 ## Contexto
@@ -46,7 +46,9 @@ Calculado com `php artisan mitigations:agreement --strict` sobre as 40 mitigaç�
 - **Conjuntos idênticos:** 40% das mitigações.
 - **Medidas por subdomínio**, sobre os 20 subdomínios marcados ao menos uma vez: AC1 de Gwet médio de 0,897 (de 0,644 a 1) e g de Guilford médio de 0,865 (de 0,60 a 1).
 
-Conforme o item 5, o resultado é relatado como está, sem repetir a anotação. Fica como encaminhamento a revisão do guia de anotação (`docs/catalog-annotation-guide.md`) nos subdomínios problemáticos, identificados pela concordância positiva, registrada como achado.
+Conforme o item 5, o resultado é relatado como está, sem repetir a anotação. O guia de anotação (`docs/catalog-annotation-guide.md`) foi revisto na seção "Revisão após a medição do OE1", que registra como achado os padrões de divergência (marcação além da regra central e confusão entre a categoria da mitigação e o risco), os nove subdomínios problemáticos e um esclarecimento para cada grupo deles. O critério de seleção desses subdomínios foi definido depois da medição, porque este registro não o fixava, e serve só para orientar a revisão. A revisão não foi aplicada às 40 mitigações já anotadas, nem ao consenso registrado no catálogo, que tendeu à união dos dois conjuntos.
+
+A análise da concordância por par de anotadores não foi feita: com 9 a 11 mitigações por par, o alfa de cada par teria intervalos largos demais para comparar os pares. Ela fica em `PENDENTES.md`, para reavaliação após o MVP.
 
 ## Referências
 
