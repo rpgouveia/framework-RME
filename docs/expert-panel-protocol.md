@@ -17,13 +17,13 @@ O banco de itens está em [`database/data/expert-panel/items.csv`](../database/d
 
 ### 2.1 Perfis
 
-| Perfil | Exemplos de atuação |
-|---|---|
-| Governança e conformidade | Gestão de riscos, auditoria interna, compliance, ISO/IEC 42001 |
-| Segurança da informação | Gestão de incidentes, SOC, segurança de sistemas |
-| Desenvolvimento ou operação de IA | Ciência de dados, engenharia de aprendizado de máquina, MLOps |
-| Jurídico e regulatório | Proteção de dados, regulação de IA, EU AI Act |
-| Pesquisa acadêmica | Governança, ética ou segurança de IA |
+| Perfil                            | Exemplos de atuação                                            |
+| --------------------------------- | -------------------------------------------------------------- |
+| Governança e conformidade         | Gestão de riscos, auditoria interna, compliance, ISO/IEC 42001 |
+| Segurança da informação           | Gestão de incidentes, SOC, segurança de sistemas               |
+| Desenvolvimento ou operação de IA | Ciência de dados, engenharia de aprendizado de máquina, MLOps  |
+| Jurídico e regulatório            | Proteção de dados, regulação de IA, EU AI Act                  |
+| Pesquisa acadêmica                | Governança, ética ou segurança de IA                           |
 
 ### 2.2 Critérios
 
@@ -154,18 +154,18 @@ O texto do trabalho deve trazer:
 ## 9. Registro de alterações da primeira rodada
 
 | Item | Redação anterior | Redação nova | Motivo |
-|---|---|---|---|
-| | | | |
+| ---- | ---------------- | ------------ | ------ |
+|      |                  |              |        |
 
 ## 10. Cronograma de referência
 
-| Semana | Atividades |
-|---|---|
-| 1 | Consulta ao orientador sobre ética; lista de candidatos; convites |
-| 2 | Termo e formulários; material de apoio |
-| 3 | Primeira rodada aberta (sete dias) |
-| 4 | Consolidação; segunda rodada aberta (sete dias) |
-| 5 | Exportação, cálculo e relato |
+| Semana | Atividades                                                        |
+| ------ | ----------------------------------------------------------------- |
+| 1      | Consulta ao orientador sobre ética; lista de candidatos; convites |
+| 2      | Termo e formulários; material de apoio                            |
+| 3      | Primeira rodada aberta (sete dias)                                |
+| 4      | Consolidação; segunda rodada aberta (sete dias)                   |
+| 5      | Exportação, cálculo e relato                                      |
 
 ## Referências
 
