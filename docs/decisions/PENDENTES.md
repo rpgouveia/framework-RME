@@ -10,5 +10,4 @@ Itens ainda em aberto. **Não implementar sem decisão do grupo registrada nesta
 
 ## Outros
 
-- Revisão das traduções das taxonomias de Saeri e do MIT.
-- Conteúdo real do catálogo (C2) e critério de curadoria: decididos na [0024](0024-catalogo-real.md); o preenchimento pelo grupo está em andamento.
+- Revisão das traduções dos nomes das taxonomias de Saeri e do MIT pelo grupo, e tradução das descrições, hoje em inglês e exibidas no seletor de subdomínios.

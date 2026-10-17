@@ -1,6 +1,6 @@
 # 0024. Catálogo real de mitigações (C2)
 
-- **Situação:** Aceita; em execução (preenchimento pelo grupo)
+- **Situação:** Aceita; implementada
 - **Registrada em:** 2026-10-12
 
 ## Contexto
