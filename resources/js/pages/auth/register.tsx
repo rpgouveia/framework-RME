@@ -1,7 +1,7 @@
-
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
 import { Spinner } from '@/components/ui/spinner';
@@ -13,6 +13,7 @@ type Props = {
 };
 
 export default function Register({ passwordRules }: Props) {
+    const { t } = useTranslations();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -51,23 +52,22 @@ export default function Register({ passwordRules }: Props) {
                         className="flex items-center gap-2 hover:opacity-75"
                     >
                         <span className="text-xs font-semibold tracking-widest">
-                            PUCPR
+                            {t('PUCPR')}
                         </span>
-                        <span className="text-[#e0e0e0]">|</span>
+                        <span className="text-[#e0e0e0]">{t(' | ')}</span>
                         <span className="text-xs text-[#525252]">
-                            Framework RME
+                            {t('Framework RME')}
                         </span>
                     </Link>
 
                     <span className="hidden text-xs text-[#8c8c8c] sm:block">
-                        Governança &amp; Engenharia de Software
+                        {t('Governança & Engenharia de Software')}
                     </span>
                 </header>
 
                 {/* Conteúdo principal */}
                 <main className="flex w-full flex-1 items-center justify-center px-4 py-12">
                     <section className="mx-auto flex w-full max-w-[400px] flex-col">
-
                         {/* Logo original */}
                         <div className="mb-6 flex justify-center">
                             <Link
@@ -86,10 +86,12 @@ export default function Register({ passwordRules }: Props) {
                         {/* Título */}
                         <div className="mb-8 text-center">
                             <h1 className="mb-2 text-[32px] leading-10 font-light">
-                                Criar uma conta
+                                {t('Criar uma conta')}
                             </h1>
                             <p className="text-sm leading-5 text-[#525252]">
-                                Digite seus dados abaixo para criar sua conta
+                                {t(
+                                    'Digite seus dados abaixo para criar sua conta',
+                                )}
                             </p>
                         </div>
 
@@ -175,7 +177,9 @@ export default function Register({ passwordRules }: Props) {
                                                 placeholder="Senha"
                                                 passwordrules={passwordRules}
                                                 className={`${inputClass} pr-12`}
-                                                aria-invalid={Boolean(errors.password)}
+                                                aria-invalid={Boolean(
+                                                    errors.password,
+                                                )}
                                             />
 
                                             <button
@@ -256,7 +260,9 @@ export default function Register({ passwordRules }: Props) {
                                         </div>
 
                                         <InputError
-                                            message={errors.password_confirmation}
+                                            message={
+                                                errors.password_confirmation
+                                            }
                                         />
                                     </div>
 
@@ -266,7 +272,7 @@ export default function Register({ passwordRules }: Props) {
                                             type="submit"
                                             disabled={processing}
                                             data-test="register-user-button"
-                                            className="flex h-12 w-full items-center justify-between bg-[#0f62fe] px-4 text-sm text-white transition-colors hover:bg-[#0353e9] active:bg-[#002d9c] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="flex h-12 w-full items-center justify-between bg-[#0f62fe] px-4 text-sm text-white transition-colors hover:bg-[#0353e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] active:bg-[#002d9c] disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <span>
                                                 {processing
@@ -291,14 +297,14 @@ export default function Register({ passwordRules }: Props) {
                         {/* Voltar ao login */}
                         <div className="mt-8 text-center text-sm">
                             <span className="text-[#525252]">
-                                Já tem uma conta?
+                                {t('Já tem uma conta?')}
                             </span>
 
                             <Link
                                 href={login()}
                                 className="ml-1 text-[#0f62fe] hover:text-[#0353e9] hover:underline"
                             >
-                                Entrar
+                                {t('Entrar')}
                             </Link>
                         </div>
                     </section>
@@ -309,15 +315,20 @@ export default function Register({ passwordRules }: Props) {
                     <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-2 sm:flex-row">
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-[#161616]">
-                                PUCPR
+                                {t('PUCPR')}
                             </span>
+
                             <span>
-                                — Pontifícia Universidade Católica do Paraná
+                                {t(
+                                    '— Pontifícia Universidade Católica do Paraná',
+                                )}
                             </span>
                         </div>
 
                         <span>
-                            Framework RME © 2025. Todos os direitos reservados.
+                            {t(
+                                'Framework RME © 2025. Todos os direitos reservados.',
+                            )}
                         </span>
                     </div>
                 </footer>

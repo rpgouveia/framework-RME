@@ -1,6 +1,6 @@
-
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
+import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
 import { Spinner } from '@/components/ui/spinner';
@@ -12,6 +12,8 @@ type Props = {
 };
 
 export default function ForgotPassword({ status }: Props) {
+    const { t } = useTranslations();
+
     setLayoutProps({
         title: '',
         description: '',
@@ -45,7 +47,6 @@ export default function ForgotPassword({ status }: Props) {
                 {/* Conteúdo principal */}
                 <main className="flex w-full flex-1 items-center justify-center px-4 py-12 sm:px-6">
                     <div className="flex w-full max-w-[400px] flex-col items-center">
-
                         {/* Logo */}
                         <div className="mb-6 flex items-center justify-center">
                             <Link
@@ -64,12 +65,13 @@ export default function ForgotPassword({ status }: Props) {
                         {/* Título e descrição */}
                         <div className="mb-8 w-full text-center">
                             <h1 className="mb-2 text-[32px] leading-[1.25] font-light tracking-tight">
-                                Esqueceu a senha
+                                {t('Esqueceu a senha')}
                             </h1>
 
                             <p className="mx-auto max-w-[340px] text-sm leading-[1.4] text-[#525252]">
-                                Digite seu e-mail para receber um link de
-                                redefinição de senha
+                                {t(
+                                    'Digite seu e-mail para receber um link de redefinição de senha',
+                                )}
                             </p>
                         </div>
 
@@ -84,10 +86,7 @@ export default function ForgotPassword({ status }: Props) {
                         )}
 
                         {/* Formulário */}
-                       <Form
-                            {...email.form()}
-                            className="w-full space-y-6"
-                        >
+                        <Form {...email.form()} className="w-full space-y-6">
                             {({ processing, errors }) => (
                                 <>
                                     <div className="space-y-2">
@@ -118,7 +117,7 @@ export default function ForgotPassword({ status }: Props) {
                                             type="submit"
                                             disabled={processing}
                                             data-test="email-password-reset-link"
-                                            className="flex h-12 w-full items-center justify-between bg-[#161616] px-4 text-sm text-white transition-colors hover:bg-[#393939] active:bg-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="flex h-12 w-full items-center justify-between bg-[#161616] px-4 text-sm text-white transition-colors hover:bg-[#393939] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] active:bg-black disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <span>
                                                 {processing
@@ -144,14 +143,14 @@ export default function ForgotPassword({ status }: Props) {
                         {/* Voltar ao login */}
                         <div className="mt-8 text-center text-sm">
                             <span className="text-[#525252]">
-                                Ou volte para
+                                {t('Ou volte para')}
                             </span>
 
                             <Link
                                 href={login()}
                                 className="ml-1 text-[#0f62fe] hover:text-[#0353e9] hover:underline focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
-                                entrar
+                                {t('entrar')}
                             </Link>
                         </div>
                     </div>
@@ -162,19 +161,22 @@ export default function ForgotPassword({ status }: Props) {
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row">
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-[#161616]">
-                                PUCPR
+                                {t('PUCPR')}
                             </span>
 
-                            <span className="text-[#8d8d8d]">|</span>
+                            <span className="text-[#8d8d8d]">{t(' | ')}</span>
 
                             <span>
-                                Framework RME • Governança de Riscos e Maturidade
+                                {t(
+                                    'Framework RME • Governança de Riscos e Maturidade',
+                                )}
                             </span>
                         </div>
 
                         <span className="text-center text-[#8c8c8c] sm:text-right">
-                            © Pontifícia Universidade Católica do Paraná.
-                            Todos os direitos reservados.
+                            {t(
+                                '© Pontifícia Universidade Católica do Paraná. Todos os direitos reservados.',
+                            )}
                         </span>
                     </div>
                 </footer>

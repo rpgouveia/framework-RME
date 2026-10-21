@@ -1,4 +1,3 @@
-
 import { Head, Link, usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -153,7 +152,6 @@ export default function Welcome() {
                         className="mx-auto w-full max-w-[1312px] px-4 pt-12 pb-12 sm:px-8 sm:pt-16"
                     >
                         <div className="max-w-4xl">
-
                             {/* Logo original */}
                             <div className="mb-8 flex h-16 w-16 items-center justify-center bg-[#161616] p-3">
                                 <AppLogoIcon className="h-10 w-10 text-white" />
@@ -232,28 +230,26 @@ export default function Welcome() {
                         </h2>
 
                         <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                            {sections.map(
-                                ({ icon: Icon, title, summary }) => (
-                                    <li
-                                        key={title}
-                                        className="flex flex-col border border-[#e0e0e0] bg-white p-6 transition-colors duration-150 hover:border-[#c6c6c6] hover:bg-[#f4f4f4]"
-                                    >
-                                        <Icon
-                                            className="mb-4 h-6 w-6 text-[#161616]"
-                                            strokeWidth={1.5}
-                                            aria-hidden="true"
-                                        />
+                            {sections.map(({ icon: Icon, title, summary }) => (
+                                <li
+                                    key={title}
+                                    className="flex flex-col border border-[#e0e0e0] bg-white p-6 transition-colors duration-150 hover:border-[#c6c6c6] hover:bg-[#f4f4f4]"
+                                >
+                                    <Icon
+                                        className="mb-4 h-6 w-6 text-[#161616]"
+                                        strokeWidth={1.5}
+                                        aria-hidden="true"
+                                    />
 
-                                        <h3 className="mb-2 text-base font-semibold text-[#161616]">
-                                            {title}
-                                        </h3>
+                                    <h3 className="mb-2 text-base font-semibold text-[#161616]">
+                                        {title}
+                                    </h3>
 
-                                        <p className="text-sm leading-[1.45] text-[#525252]">
-                                            {summary}
-                                        </p>
-                                    </li>
-                                ),
-                            )}
+                                    <p className="text-sm leading-[1.45] text-[#525252]">
+                                        {summary}
+                                    </p>
+                                </li>
+                            ))}
                         </ul>
                     </section>
                 </main>
@@ -262,18 +258,16 @@ export default function Welcome() {
                 <footer className="mt-auto w-full border-t border-[#e0e0e0] bg-white py-8">
                     <div className="mx-auto flex w-full max-w-[1312px] flex-col items-start justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row sm:items-center sm:px-8">
                         <span>
-                            {t('Applied research project — PUCPR.')}
+                            {t(
+                                'Conformidade com EU AI Act & MIT AI Risk Repository',
+                            )}
                         </span>
 
-                        <div className="flex flex-wrap items-center gap-4 text-[#8c8c8c] sm:gap-6">
-                            <span>
-                                Conformidade com EU AI Act &amp; MIT AI Risk Repository
-                            </span>
-                            <span className="hidden md:inline">·</span>
-                            <span className="hidden md:inline">
-                                Governança Responsável de IA
-                            </span>
-                        </div>
+                        <span className="hidden md:inline">{t('·')}</span>
+
+                        <span className="hidden md:inline">
+                            {t('Governança Responsável de IA')}
+                        </span>
                     </div>
                 </footer>
             </div>

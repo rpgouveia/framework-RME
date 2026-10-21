@@ -1,7 +1,7 @@
-
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
 import { Spinner } from '@/components/ui/spinner';
@@ -14,10 +14,7 @@ type Props = {
     canResetPassword: boolean;
 };
 
-export default function Login({
-    status,
-    canResetPassword,
-}: Props) {
+export default function Login({ status, canResetPassword }: Props) {
     const [showPassword, setShowPassword] = useState(false);
 
     setLayoutProps({
@@ -33,6 +30,8 @@ export default function Login({
         'focus:outline-2 focus:-outline-offset-2 ' +
         'focus:outline-[#0f62fe] ' +
         'focus:border-b-2 focus:border-b-[#0f62fe]';
+
+    const { t } = useTranslations();
 
     return (
         <>
@@ -55,7 +54,6 @@ export default function Login({
 
                 <main className="flex w-full flex-1 items-center justify-center px-4 py-12">
                     <div className="mx-auto w-full max-w-[420px]">
-
                         {/* Logo e título */}
                         <div className="mb-8 flex flex-col items-center">
                             <Link
@@ -70,12 +68,14 @@ export default function Login({
                                 />
                             </Link>
 
-                            <h1 className="text-center text-[32px] leading-[1.25] font-light">
-                                Entre na sua conta
+                            <h1 className="text-center">
+                                {t('Entre na sua conta')}
                             </h1>
 
                             <p className="mt-2 text-center text-sm leading-relaxed text-[#525252]">
-                                Digite seu e-mail e senha abaixo para entrar
+                                {t(
+                                    'Digite seu e-mail e senha abaixo para entrar',
+                                )}
                             </p>
                         </div>
 
@@ -154,7 +154,9 @@ export default function Login({
                                                 autoComplete="current-password"
                                                 placeholder="Senha"
                                                 className={`${inputClass} pr-12`}
-                                                aria-invalid={Boolean(errors.password)}
+                                                aria-invalid={Boolean(
+                                                    errors.password,
+                                                )}
                                             />
 
                                             <button
@@ -213,7 +215,7 @@ export default function Login({
                                             type="submit"
                                             disabled={processing}
                                             data-test="login-button"
-                                            className="flex h-12 w-full items-center justify-between bg-[#161616] px-4 text-sm text-white transition-colors hover:bg-[#393939] active:bg-[#0f62fe] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="flex h-12 w-full items-center justify-between bg-[#161616] px-4 text-sm text-white transition-colors hover:bg-[#393939] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] active:bg-[#0f62fe] disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <span>
                                                 {processing
@@ -237,13 +239,13 @@ export default function Login({
 
                         {/* Cadastro */}
                         <div className="mt-8 text-center text-sm">
-                            <span>Não tem uma conta? </span>
+                            <span>{t('Não tem uma conta?')}</span>
 
                             <Link
                                 href={register.url()}
                                 className="ml-1 underline hover:text-[#0f62fe] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
-                                Cadastrar-se
+                                {t('Cadastrar-se')}
                             </Link>
                         </div>
                     </div>
@@ -252,7 +254,9 @@ export default function Login({
                 {/* Rodapé */}
                 <footer className="w-full border-t border-[#e0e0e0] bg-white py-6 text-center">
                     <p className="px-4 text-xs text-[#8c8c8c]">
-                        Framework RME · Projeto de pesquisa aplicada — PUCPR
+                        {t(
+                            'Framework RME · Projeto de pesquisa aplicada — PUCPR',
+                        )}
                     </p>
                 </footer>
             </div>

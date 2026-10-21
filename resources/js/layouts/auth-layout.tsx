@@ -1,4 +1,3 @@
-
 import { usePage } from '@inertiajs/react';
 import AuthLayoutTemplate from '@/layouts/auth/auth-simple-layout';
 
