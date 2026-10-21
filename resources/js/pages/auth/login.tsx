@@ -35,7 +35,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
     return (
         <>
-            <Head title="Entrar - Framework RME">
+            <Head title={t('Log in')}>
                 <link
                     rel="stylesheet"
                     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
@@ -58,7 +58,7 @@ export default function Login({ status, canResetPassword }: Props) {
                         <div className="mb-8 flex flex-col items-center">
                             <Link
                                 href={home()}
-                                aria-label="Voltar à página inicial"
+                                aria-label={t('Back to the home page')}
                                 className="mb-6 inline-flex h-12 w-12 items-center justify-center focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
                                 <img
@@ -69,12 +69,12 @@ export default function Login({ status, canResetPassword }: Props) {
                             </Link>
 
                             <h1 className="text-center">
-                                {t('Entre na sua conta')}
+                                {t('Log in to your account')}
                             </h1>
 
                             <p className="mt-2 text-center text-sm leading-relaxed text-[#525252]">
                                 {t(
-                                    'Digite seu e-mail e senha abaixo para entrar',
+                                    'Enter your email and password below to log in',
                                 )}
                             </p>
                         </div>
@@ -103,7 +103,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                             htmlFor="email"
                                             className="mb-2 block text-xs text-[#525252]"
                                         >
-                                            Endereço de e-mail
+                                            {t('Email address')}
                                         </label>
 
                                         <input
@@ -128,7 +128,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                                 htmlFor="password"
                                                 className="text-xs text-[#525252]"
                                             >
-                                                Senha
+                                                {t('Password')}
                                             </label>
 
                                             {canResetPassword && (
@@ -136,7 +136,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                                     href={request.url()}
                                                     className="text-xs text-[#0f62fe] hover:underline focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                                                 >
-                                                    Esqueceu sua senha?
+                                                    {t('Forgot your password?')}
                                                 </Link>
                                             )}
                                         </div>
@@ -152,7 +152,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                                 }
                                                 required
                                                 autoComplete="current-password"
-                                                placeholder="Senha"
+                                                placeholder={t('Password')}
                                                 className={`${inputClass} pr-12`}
                                                 aria-invalid={Boolean(
                                                     errors.password,
@@ -168,8 +168,8 @@ export default function Login({ status, canResetPassword }: Props) {
                                                 }
                                                 aria-label={
                                                     showPassword
-                                                        ? 'Ocultar senha'
-                                                        : 'Mostrar senha'
+                                                        ? t('Hide password')
+                                                        : t('Show password')
                                                 }
                                                 aria-pressed={showPassword}
                                                 className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:bg-[#e0e0e0] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
@@ -205,7 +205,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                             htmlFor="remember"
                                             className="cursor-pointer text-sm text-[#161616]"
                                         >
-                                            Lembrar-me
+                                            {t('Remember me')}
                                         </label>
                                     </div>
 
@@ -219,8 +219,8 @@ export default function Login({ status, canResetPassword }: Props) {
                                         >
                                             <span>
                                                 {processing
-                                                    ? 'Entrando...'
-                                                    : 'Entrar'}
+                                                    ? t('Logging in...')
+                                                    : t('Log in')}
                                             </span>
 
                                             {processing ? (
@@ -239,13 +239,13 @@ export default function Login({ status, canResetPassword }: Props) {
 
                         {/* Cadastro */}
                         <div className="mt-8 text-center text-sm">
-                            <span>{t('Não tem uma conta?')}</span>
+                            <span>{t("Don't have an account?")}</span>
 
                             <Link
                                 href={register.url()}
                                 className="ml-1 underline hover:text-[#0f62fe] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
-                                {t('Cadastrar-se')}
+                                {t('Sign up')}
                             </Link>
                         </div>
                     </div>
@@ -254,9 +254,7 @@ export default function Login({ status, canResetPassword }: Props) {
                 {/* Rodapé */}
                 <footer className="w-full border-t border-[#e0e0e0] bg-white py-6 text-center">
                     <p className="px-4 text-xs text-[#8c8c8c]">
-                        {t(
-                            'Framework RME · Projeto de pesquisa aplicada — PUCPR',
-                        )}
+                        {t('Framework RME · Applied research project — PUCPR')}
                     </p>
                 </footer>
             </div>

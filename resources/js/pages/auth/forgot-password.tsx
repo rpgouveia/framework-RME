@@ -30,7 +30,7 @@ export default function ForgotPassword({ status }: Props) {
 
     return (
         <>
-            <Head title="Esqueceu a senha - Framework RME">
+            <Head title={t('Forgot password')}>
                 <link
                     rel="stylesheet"
                     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
@@ -51,7 +51,7 @@ export default function ForgotPassword({ status }: Props) {
                         <div className="mb-6 flex items-center justify-center">
                             <Link
                                 href={login()}
-                                aria-label="Voltar ao login"
+                                aria-label={t('Back to log in')}
                                 className="flex h-12 w-12 items-center justify-center focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
                                 <img
@@ -65,12 +65,12 @@ export default function ForgotPassword({ status }: Props) {
                         {/* Título e descrição */}
                         <div className="mb-8 w-full text-center">
                             <h1 className="mb-2 text-[32px] leading-[1.25] font-light tracking-tight">
-                                {t('Esqueceu a senha')}
+                                {t('Forgot password')}
                             </h1>
 
                             <p className="mx-auto max-w-[340px] text-sm leading-[1.4] text-[#525252]">
                                 {t(
-                                    'Digite seu e-mail para receber um link de redefinição de senha',
+                                    'Enter your email to receive a password reset link',
                                 )}
                             </p>
                         </div>
@@ -94,7 +94,7 @@ export default function ForgotPassword({ status }: Props) {
                                             htmlFor="email"
                                             className="block text-xs text-[#525252]"
                                         >
-                                            Endereço de e-mail
+                                            {t('Email address')}
                                         </label>
 
                                         <input
@@ -121,8 +121,10 @@ export default function ForgotPassword({ status }: Props) {
                                         >
                                             <span>
                                                 {processing
-                                                    ? 'Enviando...'
-                                                    : 'Enviar link de redefinição de senha'}
+                                                    ? t('Sending...')
+                                                    : t(
+                                                          'Email password reset link',
+                                                      )}
                                             </span>
 
                                             {processing ? (
@@ -143,14 +145,14 @@ export default function ForgotPassword({ status }: Props) {
                         {/* Voltar ao login */}
                         <div className="mt-8 text-center text-sm">
                             <span className="text-[#525252]">
-                                {t('Ou volte para')}
+                                {t('Or, return to')}
                             </span>
 
                             <Link
                                 href={login()}
                                 className="ml-1 text-[#0f62fe] hover:text-[#0353e9] hover:underline focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
                             >
-                                {t('entrar')}
+                                {t('log in')}
                             </Link>
                         </div>
                     </div>
@@ -161,21 +163,21 @@ export default function ForgotPassword({ status }: Props) {
                     <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row">
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-[#161616]">
-                                {t('PUCPR')}
+                                PUCPR
                             </span>
 
-                            <span className="text-[#8d8d8d]">{t(' | ')}</span>
+                            <span className="text-[#8d8d8d]"> | </span>
 
                             <span>
                                 {t(
-                                    'Framework RME • Governança de Riscos e Maturidade',
+                                    'Framework RME • Risk and Maturity Governance',
                                 )}
                             </span>
                         </div>
 
                         <span className="text-center text-[#8c8c8c] sm:text-right">
                             {t(
-                                '© Pontifícia Universidade Católica do Paraná. Todos os direitos reservados.',
+                                '© Pontifical Catholic University of Paraná. All rights reserved.',
                             )}
                         </span>
                     </div>

@@ -31,7 +31,7 @@ export default function Register({ passwordRules }: Props) {
 
     return (
         <>
-            <Head title="Criar uma conta - Framework RME">
+            <Head title={t('Create an account')}>
                 <link
                     rel="stylesheet"
                     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
@@ -52,16 +52,16 @@ export default function Register({ passwordRules }: Props) {
                         className="flex items-center gap-2 hover:opacity-75"
                     >
                         <span className="text-xs font-semibold tracking-widest">
-                            {t('PUCPR')}
+                            PUCPR
                         </span>
-                        <span className="text-[#e0e0e0]">{t(' | ')}</span>
+                        <span className="text-[#e0e0e0]"> | </span>
                         <span className="text-xs text-[#525252]">
-                            {t('Framework RME')}
+                            Framework RME
                         </span>
                     </Link>
 
                     <span className="hidden text-xs text-[#8c8c8c] sm:block">
-                        {t('Governança & Engenharia de Software')}
+                        {t('Governance & Software Engineering')}
                     </span>
                 </header>
 
@@ -72,7 +72,7 @@ export default function Register({ passwordRules }: Props) {
                         <div className="mb-6 flex justify-center">
                             <Link
                                 href={home()}
-                                aria-label="Voltar à página inicial"
+                                aria-label={t('Back to the home page')}
                                 className="flex h-14 w-14 items-center justify-center"
                             >
                                 <img
@@ -86,11 +86,11 @@ export default function Register({ passwordRules }: Props) {
                         {/* Título */}
                         <div className="mb-8 text-center">
                             <h1 className="mb-2 text-[32px] leading-10 font-light">
-                                {t('Criar uma conta')}
+                                {t('Create an account')}
                             </h1>
                             <p className="text-sm leading-5 text-[#525252]">
                                 {t(
-                                    'Digite seus dados abaixo para criar sua conta',
+                                    'Enter your details below to create your account',
                                 )}
                             </p>
                         </div>
@@ -113,7 +113,7 @@ export default function Register({ passwordRules }: Props) {
                                             htmlFor="name"
                                             className="mb-2 text-xs text-[#525252]"
                                         >
-                                            Nome
+                                            {t('Name')}
                                         </label>
 
                                         <input
@@ -123,7 +123,7 @@ export default function Register({ passwordRules }: Props) {
                                             required
                                             autoFocus
                                             autoComplete="name"
-                                            placeholder="Nome completo"
+                                            placeholder={t('Full name')}
                                             className={inputClass}
                                             aria-invalid={Boolean(errors.name)}
                                         />
@@ -137,7 +137,7 @@ export default function Register({ passwordRules }: Props) {
                                             htmlFor="email"
                                             className="mb-2 text-xs text-[#525252]"
                                         >
-                                            Endereço de e-mail
+                                            {t('Email address')}
                                         </label>
 
                                         <input
@@ -160,7 +160,7 @@ export default function Register({ passwordRules }: Props) {
                                             htmlFor="password"
                                             className="mb-2 text-xs text-[#525252]"
                                         >
-                                            Senha
+                                            {t('Password')}
                                         </label>
 
                                         <div className="relative">
@@ -174,7 +174,7 @@ export default function Register({ passwordRules }: Props) {
                                                 }
                                                 required
                                                 autoComplete="new-password"
-                                                placeholder="Senha"
+                                                placeholder={t('Password')}
                                                 passwordrules={passwordRules}
                                                 className={`${inputClass} pr-12`}
                                                 aria-invalid={Boolean(
@@ -191,8 +191,8 @@ export default function Register({ passwordRules }: Props) {
                                                 }
                                                 aria-label={
                                                     showPassword
-                                                        ? 'Ocultar senha'
-                                                        : 'Mostrar senha'
+                                                        ? t('Hide password')
+                                                        : t('Show password')
                                                 }
                                                 aria-pressed={showPassword}
                                                 className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:text-[#161616] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
@@ -214,7 +214,7 @@ export default function Register({ passwordRules }: Props) {
                                             htmlFor="password_confirmation"
                                             className="mb-2 text-xs text-[#525252]"
                                         >
-                                            Confirmar senha
+                                            {t('Confirm password')}
                                         </label>
 
                                         <div className="relative">
@@ -228,7 +228,9 @@ export default function Register({ passwordRules }: Props) {
                                                 }
                                                 required
                                                 autoComplete="new-password"
-                                                placeholder="Confirmar senha"
+                                                placeholder={t(
+                                                    'Confirm password',
+                                                )}
                                                 passwordrules={passwordRules}
                                                 className={`${inputClass} pr-12`}
                                                 aria-invalid={Boolean(
@@ -245,8 +247,8 @@ export default function Register({ passwordRules }: Props) {
                                                 }
                                                 aria-label={
                                                     showConfirmation
-                                                        ? 'Ocultar confirmação'
-                                                        : 'Mostrar confirmação'
+                                                        ? t('Hide confirmation')
+                                                        : t('Show confirmation')
                                                 }
                                                 aria-pressed={showConfirmation}
                                                 className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:text-[#161616] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
@@ -276,8 +278,8 @@ export default function Register({ passwordRules }: Props) {
                                         >
                                             <span>
                                                 {processing
-                                                    ? 'Criando conta...'
-                                                    : 'Criar conta'}
+                                                    ? t('Creating account...')
+                                                    : t('Create account')}
                                             </span>
 
                                             {processing ? (
@@ -297,14 +299,14 @@ export default function Register({ passwordRules }: Props) {
                         {/* Voltar ao login */}
                         <div className="mt-8 text-center text-sm">
                             <span className="text-[#525252]">
-                                {t('Já tem uma conta?')}
+                                {t('Already have an account?')}
                             </span>
 
                             <Link
                                 href={login()}
                                 className="ml-1 text-[#0f62fe] hover:text-[#0353e9] hover:underline"
                             >
-                                {t('Entrar')}
+                                {t('Log in')}
                             </Link>
                         </div>
                     </section>
@@ -315,20 +317,18 @@ export default function Register({ passwordRules }: Props) {
                     <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-2 sm:flex-row">
                         <div className="flex items-center gap-2">
                             <span className="font-semibold text-[#161616]">
-                                {t('PUCPR')}
+                                PUCPR
                             </span>
 
                             <span>
                                 {t(
-                                    '— Pontifícia Universidade Católica do Paraná',
+                                    '— Pontifical Catholic University of Paraná',
                                 )}
                             </span>
                         </div>
 
                         <span>
-                            {t(
-                                'Framework RME © 2025. Todos os direitos reservados.',
-                            )}
+                            {t('Framework RME © 2025. All rights reserved.')}
                         </span>
                     </div>
                 </footer>

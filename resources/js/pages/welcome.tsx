@@ -103,7 +103,7 @@ export default function Welcome() {
                         <Link
                             href={home()}
                             className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
-                            aria-label="Framework RME - Página inicial"
+                            aria-label={t('Framework RME - Home page')}
                         >
                             <AppLogoIcon className="h-7 w-7 shrink-0" />
 
@@ -113,7 +113,7 @@ export default function Welcome() {
                         </Link>
 
                         <nav
-                            aria-label="Navegação de acesso"
+                            aria-label={t('Access navigation')}
                             className="flex items-center gap-1 sm:gap-2"
                         >
                             {auth.user ? (
@@ -259,14 +259,14 @@ export default function Welcome() {
                     <div className="mx-auto flex w-full max-w-[1312px] flex-col items-start justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row sm:items-center sm:px-8">
                         <span>
                             {t(
-                                'Conformidade com EU AI Act & MIT AI Risk Repository',
+                                'Compliance with the EU AI Act & MIT AI Risk Repository',
                             )}
                         </span>
 
-                        <span className="hidden md:inline">{t('·')}</span>
+                        <span className="hidden md:inline">·</span>
 
                         <span className="hidden md:inline">
-                            {t('Governança Responsável de IA')}
+                            {t('Responsible AI governance')}
                         </span>
                     </div>
                 </footer>
