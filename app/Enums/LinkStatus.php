@@ -5,11 +5,11 @@ namespace App\Enums;
 use App\Concerns\EnumOptions;
 
 /**
- * Implementation status of a risk/mitigation link.
+ * Progress of a link: how far the implementation of the mitigation has gone,
+ * apart from its verification (0013). Each value has an entry criterion in
+ * docs/glossary.md (decision 0028, item 5).
  *
  * Also used for both columns of a status history entry.
- *
- * @todo Confirm the value list against the RME framework definition.
  */
 enum LinkStatus: string
 {
@@ -18,7 +18,6 @@ enum LinkStatus: string
     case Planned = 'planned';
     case InProgress = 'in_progress';
     case Implemented = 'implemented';
-    case Monitoring = 'monitoring';
     case Suspended = 'suspended';
     case Cancelled = 'cancelled';
 

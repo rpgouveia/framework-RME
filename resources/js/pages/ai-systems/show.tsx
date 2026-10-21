@@ -121,7 +121,7 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                     ]
                                 }
                             </DetailItem>
-                            <DetailItem label={t('Category')}>
+                            <DetailItem label={t('Risk tier')}>
                                 {enumLabels.AiSystemCategory[aiSystem.category]}
                             </DetailItem>
                             <DetailItem label={t('Registration')}>

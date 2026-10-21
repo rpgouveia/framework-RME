@@ -156,7 +156,7 @@ test('the owner, the justification and the cause analysis are checked', function
     'inactive owner' => [['owner_id' => 'inactive'], 'owner_id', 'Escolha um responsável ativo.'],
     'no justification' => [['justification' => ''], 'justification', 'Informe a justificativa da reavaliação.'],
     'no cause status' => [['cause_status' => null], 'cause_status', 'Informe se a causa foi apurada.'],
-    'identified without the cause' => [['cause_status' => 'identified', 'cause_phase' => 'design'], 'cause', 'Descreva a causa apurada.'],
+    'identified without the cause' => [['cause_status' => 'identified', 'cause_phase' => 'design_and_development'], 'cause', 'Descreva a causa apurada.'],
     'identified without the phase' => [['cause_status' => 'identified', 'cause' => 'Uma causa'], 'cause_phase', 'Escolha a fase do ciclo de vida em que a causa se originou.'],
 ]);
 
@@ -174,15 +174,15 @@ test('the cause analysis follows the origin of the reversal', function (ChangeOr
 
     if ($expected === CauseStatus::Identified) {
         expect($reassessment->cause)->toBe('Filtro desatualizado')
-            ->and($reassessment->cause_phase)->toBe(LifecyclePhase::Monitoring);
+            ->and($reassessment->cause_phase)->toBe(LifecyclePhase::OperationAndMonitoring);
     } else {
         expect($reassessment->cause)->toBeNull()->and($reassessment->cause_phase)->toBeNull();
     }
 })->with([
-    'manual, identified' => [ChangeOrigin::Manual, ['cause_status' => 'identified', 'cause' => 'Filtro desatualizado', 'cause_phase' => 'monitoring'], CauseStatus::Identified],
+    'manual, identified' => [ChangeOrigin::Manual, ['cause_status' => 'identified', 'cause' => 'Filtro desatualizado', 'cause_phase' => 'operation_and_monitoring'], CauseStatus::Identified],
     'adverse event, not identified' => [ChangeOrigin::AdverseEvent, ['cause_status' => 'not_identified'], CauseStatus::NotIdentified],
     // No cause to find, whatever is sent.
-    'review due' => [ChangeOrigin::ReviewDue, ['cause_status' => 'identified', 'cause' => 'x', 'cause_phase' => 'design'], CauseStatus::NotApplicable],
+    'review due' => [ChangeOrigin::ReviewDue, ['cause_status' => 'identified', 'cause' => 'x', 'cause_phase' => 'design_and_development'], CauseStatus::NotApplicable],
     'reclassification' => [ChangeOrigin::SystemReclassification, [], CauseStatus::NotApplicable],
 ]);
 
@@ -195,7 +195,7 @@ test('the database keeps the cause analysis consistent', function () {
         'cause_status' => CauseStatus::NotIdentified,
     ]);
 
-    expect(fn () => DB::transaction(fn () => DB::table('reassessments')->where('id', $reassessment->id)->update(['cause_status' => 'identified', 'cause_phase' => 'design'])))
+    expect(fn () => DB::transaction(fn () => DB::table('reassessments')->where('id', $reassessment->id)->update(['cause_status' => 'identified', 'cause_phase' => 'design_and_development'])))
         ->toThrow(QueryException::class);
     expect(fn () => DB::transaction(fn () => DB::table('reassessments')->where('id', $reassessment->id)->update(['cause' => 'Algo'])))
         ->toThrow(QueryException::class);
@@ -242,7 +242,7 @@ test('adjusting applies and records the changes, and leaves the link awaiting ve
     $newOwner = Owner::factory()->create();
     $before = ['owner_id' => (string) $link->owner_id, 'estimated_cost' => $link->estimated_cost->value, 'lifecycle_phase' => $link->lifecycle_phase->value];
     $cost = $link->estimated_cost === CostLevel::High ? CostLevel::Low : CostLevel::High;
-    $phase = $link->lifecycle_phase === LifecyclePhase::Monitoring ? LifecyclePhase::Design : LifecyclePhase::Monitoring;
+    $phase = $link->lifecycle_phase === LifecyclePhase::OperationAndMonitoring ? LifecyclePhase::DesignAndDevelopment : LifecyclePhase::OperationAndMonitoring;
 
     $this->post(route('links.reassessments.store', $link), reassessmentPayload($link, [
         'outcome' => ReassessmentOutcome::Adjust->value,
@@ -423,10 +423,10 @@ test('a link of an unacceptable system can only be adjusted or closed', function
     $this->post(route('links.reassessments.store', $link), reassessmentPayload($link, [
         'outcome' => ReassessmentOutcome::Adjust->value,
         'cause_status' => null,
-        'changes' => ['lifecycle_phase' => LifecyclePhase::Decommissioning->value],
+        'changes' => ['lifecycle_phase' => LifecyclePhase::Retirement->value],
     ]))->assertSessionHasNoErrors();
 
-    expect($link->refresh()->lifecycle_phase)->toBe(LifecyclePhase::Decommissioning)
+    expect($link->refresh()->lifecycle_phase)->toBe(LifecyclePhase::Retirement)
         ->and(Reassessment::sole()->cause_status)->toBe(CauseStatus::NotApplicable);
 });
 
@@ -560,7 +560,7 @@ test('the report exports the events and the reassessments', function () {
         'justification' => 'Não se justifica mais.',
         'cause_status' => CauseStatus::Identified,
         'cause' => 'Filtro desatualizado',
-        'cause_phase' => LifecyclePhase::Monitoring,
+        'cause_phase' => LifecyclePhase::OperationAndMonitoring,
     ]);
     $event = AdverseEvent::sole();
 
@@ -579,7 +579,7 @@ test('the report exports the events and the reassessments', function () {
         ->assertJsonPath('links.0.reassessments.0.justification', 'Não se justifica mais.')
         ->assertJsonPath('links.0.reassessments.0.cause_status', 'identified')
         ->assertJsonPath('links.0.reassessments.0.cause', 'Filtro desatualizado')
-        ->assertJsonPath('links.0.reassessments.0.cause_phase', 'monitoring')
+        ->assertJsonPath('links.0.reassessments.0.cause_phase', 'operation_and_monitoring')
         ->assertJsonPath('links.0.reassessments.0.reversal_origin', 'adverse_event')
         ->assertJsonPath('links.0.reverting_adverse_events.0.id', $event->id);
 
@@ -587,7 +587,7 @@ test('the report exports the events and the reassessments', function () {
     $row = array_combine($rows[0], $rows[1]);
 
     expect($row['reassessments'])->toContain('close by Revisor de riscos')
-        ->toContain('cause: identified, monitoring, Filtro desatualizado')
+        ->toContain('cause: identified, operation_and_monitoring, Filtro desatualizado')
         ->and($row['reverting_adverse_events'])->toContain("#{$event->id} incident [2.1] occurred 2026-01-10, detected 2026-01-12")
         ->and($row['replaces_link_id'])->toBe('');
 });

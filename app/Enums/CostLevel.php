@@ -5,14 +5,12 @@ namespace App\Enums;
 use App\Concerns\EnumOptions;
 
 /**
- * Qualitative effort a mitigation costs to put in place.
+ * Qualitative effort a mitigation costs to put in place, not only money.
+ * Defined in docs/glossary.md (decisions 0024 and 0028, item 2).
  *
- * Shared by a mitigation's suggested cost and by both cost columns of a link,
- * so an estimate and the cost actually observed stay comparable.
- *
- * @todo Confirm the value list against the RME framework definition. If the
- *       team later needs real currency amounts, add a numeric column next to
- *       these rather than widening the scale.
+ * Shared by a mitigation's suggested cost, a link's estimated cost and the
+ * observed cost recorded on evidence (0018). The rubric of 0024 applies to
+ * all three, changing only the reference, so they stay comparable.
  */
 enum CostLevel: string
 {

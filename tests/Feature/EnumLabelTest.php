@@ -1,11 +1,21 @@
 <?php
 
+use App\Concerns\EnumOptions;
 use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
-use App\Enums\LifecyclePhase;
-use App\Enums\LinkStatus;
 use App\Enums\UncertaintyLevel;
 use Illuminate\Support\Facades\File;
+
+/**
+ * A case named like a translation file (`lang/pt_BR/validation.php`), which no
+ * domain enum has: a bare `__('Validation')` could resolve to the whole file.
+ */
+enum TranslationFileCase: string
+{
+    use EnumOptions;
+
+    case Validation = 'validation';
+}
 
 /**
  * Every enum of the domain, keyed by its name. Read from the directory, so a
@@ -38,13 +48,13 @@ test('the key names the enum, so a case name reads differently in each one', fun
     expect(UncertaintyLevel::High->labelKey())->toBe('Uncertainty Level: High')
         ->and(UncertaintyLevel::High->label())->toBe('Alta')
         ->and(CostLevel::High->label())->toBe('Alto')
-        ->and(AiSystemCategory::High->label())->toBe('Alto')
-        ->and(LifecyclePhase::Monitoring->label())->toBe('Monitoramento')
-        ->and(LinkStatus::Monitoring->label())->toBe('Em monitoramento');
+        ->and(AiSystemCategory::High->label())->toBe('Alto');
 });
 
 test('a case whose name matches a translation file is translated too', function () {
-    expect(LifecyclePhase::Validation->label())->toBe('Validação');
+    app('translator')->addLines(['*.Translation File Case: Validation' => 'Validação'], app()->getLocale());
+
+    expect(TranslationFileCase::Validation->label())->toBe('Validação');
 });
 
 test('options are shaped for a select input', function (string $enum) {

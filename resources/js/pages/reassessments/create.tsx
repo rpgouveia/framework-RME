@@ -81,7 +81,7 @@ function outcomeEffect(
 ): string {
     if (outcome === 'adjust' && unacceptable) {
         return t(
-            'Record the discontinuation plan, taking the link to the Decommissioning phase.',
+            'Record the discontinuation plan, taking the link to the Retirement phase.',
         );
     }
 

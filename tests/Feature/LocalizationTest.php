@@ -10,7 +10,7 @@ test('the react pages receive the lines of the active locale', function () {
 
     $this->get(route('dashboard'))->assertOk()->assertInertia(
         fn (AssertableInertia $page) => $page
-            ->where('translations.Dashboard', 'Painel')
+            ->where('translations.Dashboard', 'Acompanhamento')
             ->where('translations.Platform', 'Plataforma')
             ->where('translations.AI systems', 'Sistemas de IA')
             ->where('translations.Log out', 'Sair')

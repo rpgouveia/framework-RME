@@ -282,7 +282,7 @@ class ExpertPanel
         }
 
         if ($problems !== []) {
-            throw new InvalidExpertPanel("Respostas do painel inválidas ({$path}):\n- ".implode("\n- ", $problems));
+            throw new InvalidExpertPanel("Respostas do painel de especialistas inválidas ({$path}):\n- ".implode("\n- ", $problems));
         }
 
         return [$n, $ratings, $intervals];

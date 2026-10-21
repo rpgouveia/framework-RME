@@ -199,6 +199,7 @@ test('fewer than five respondents are refused and nothing is written', function 
     [$code, $report, $output] = measurePanel(panelResponsesCsv(panelColumns(), array_slice(panelResponses(), 0, 4)));
 
     expect($code)->toBe(1)
+        ->and($report)->toContain('Respostas do painel de especialistas inválidas')
         ->and($report)->toContain('4 respondentes (linhas 2 a 5); o cálculo exige de 5 a 60.')
         ->and(file_exists($output))->toBeFalse();
 });

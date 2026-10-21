@@ -125,7 +125,7 @@ class ReassessmentSeeder extends Seeder
         $this->reassess($maintained, ReassessmentOutcome::Maintain, 'A mitigação estava ativa; o incidente veio de um caso fora do escopo dela, já tratado por outro vínculo.', [
             'cause_status' => CauseStatus::Identified,
             'cause' => 'Entrada fora do domínio previsto, que o filtro não cobria.',
-            'cause_phase' => LifecyclePhase::Design,
+            'cause_phase' => LifecyclePhase::DesignAndDevelopment,
         ]);
 
         // Adjusted, still to be proven: it goes on awaiting verification.
@@ -187,7 +187,7 @@ class ReassessmentSeeder extends Seeder
         $this->reassess($other, ReassessmentOutcome::Close, 'A mitigação interceptadora já cobre o risco; manter esta duplica o esforço.', [
             'cause_status' => CauseStatus::Identified,
             'cause' => 'Duas mitigações sobrepostas para o mesmo vetor.',
-            'cause_phase' => LifecyclePhase::Design,
+            'cause_phase' => LifecyclePhase::DesignAndDevelopment,
         ]);
     }
 
@@ -229,7 +229,7 @@ class ReassessmentSeeder extends Seeder
 
         $this->at(10, 0, daysAgo: 3);
         $this->reassess($planned, ReassessmentOutcome::Adjust, 'Plano de descontinuação: a mitigação segue ativa até o desligamento do sistema, previsto para o próximo trimestre.', [
-            'changes' => ['lifecycle_phase' => LifecyclePhase::Decommissioning],
+            'changes' => ['lifecycle_phase' => LifecyclePhase::Retirement],
         ]);
     }
 

@@ -15,13 +15,13 @@ export type AiSystemCategory = 'unacceptable' | 'high' | 'limited' | 'minimal';
 
 export type LifecyclePhase =
     | 'inception'
-    | 'design'
-    | 'data_collection'
-    | 'development'
-    | 'validation'
+    | 'design_and_development'
+    | 'verification_and_validation'
     | 'deployment'
-    | 'monitoring'
-    | 'decommissioning';
+    | 'operation_and_monitoring'
+    | 'continuous_validation'
+    | 're_evaluation'
+    | 'retirement';
 
 export type UncertaintyLevel = 'low' | 'medium' | 'high';
 
@@ -70,7 +70,6 @@ export type LinkStatus =
     | 'planned'
     | 'in_progress'
     | 'implemented'
-    | 'monitoring'
     | 'suspended'
     | 'cancelled';
 

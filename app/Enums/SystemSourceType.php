@@ -5,9 +5,9 @@ namespace App\Enums;
 use App\Concerns\EnumOptions;
 
 /**
- * How an AI system came to be part of the organization's portfolio.
- *
- * @todo Confirm the value list against the RME framework definition.
+ * How an AI system came to be part of the organization's portfolio: the
+ * organization's relation to it, after the roles of ISO/IEC 22989 (5.19).
+ * Defined in docs/glossary.md (decision 0028, item 8).
  */
 enum SystemSourceType: string
 {

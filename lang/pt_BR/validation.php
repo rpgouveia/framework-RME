@@ -172,7 +172,7 @@ return [
         'available' => 'disponível',
         'birthday' => 'aniversário',
         'body' => 'conteúdo',
-        'category' => 'categoria',
+        'category' => 'faixa de risco',
         'change_date' => 'data da mudança',
         'city' => 'cidade',
         'color' => 'cor',

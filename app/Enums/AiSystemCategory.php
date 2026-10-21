@@ -6,9 +6,8 @@ use App\Concerns\EnumOptions;
 
 /**
  * Risk tier an AI system falls into, following the EU AI Act classification.
- *
- * @todo Confirm the value list against the RME framework definition. If "category"
- *       means the system's purpose rather than its risk tier, replace these cases.
+ * Defined in docs/glossary.md (decisions 0016 and 0028, item 4); the
+ * interface calls it the risk tier, keeping "category" for Saeri's taxonomy.
  */
 enum AiSystemCategory: string
 {

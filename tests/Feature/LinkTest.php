@@ -263,14 +263,14 @@ test('a link can be updated', function () {
 
     $response = $this->put(route('links.update', $link), [
         'owner_id' => $owner->id,
-        'lifecycle_phase' => LifecyclePhase::Monitoring->value,
+        'lifecycle_phase' => LifecyclePhase::OperationAndMonitoring->value,
         'estimated_cost' => CostLevel::Low->value,
     ]);
 
     $response->assertSessionHasNoErrors()->assertRedirect(route('links.show', $link));
 
     expect($link->refresh()->owner_id)->toBe($owner->id)
-        ->and($link->lifecycle_phase)->toBe(LifecyclePhase::Monitoring)
+        ->and($link->lifecycle_phase)->toBe(LifecyclePhase::OperationAndMonitoring)
         ->and($link->estimated_cost)->toBe(CostLevel::Low);
 });
 
