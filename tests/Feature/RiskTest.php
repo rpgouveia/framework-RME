@@ -9,7 +9,9 @@ use App\Models\Risk;
 use App\Models\User;
 use App\Support\AiRiskDomains;
 use App\Support\SaeriTaxonomy;
+use Database\Factories\RiskFactory;
 use Database\Seeders\AiSystemSeeder;
+use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\RiskSeeder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Inertia\Testing\AssertableInertia;
@@ -393,4 +395,15 @@ test('the risk seeder spreads the risks over several subdomains', function () {
     $this->seed([AiSystemSeeder::class, RiskSeeder::class]);
 
     expect(Risk::query()->distinct()->count('risk_subdomain_id'))->toBeGreaterThan(1);
+});
+
+test('every seeded risk carries the subdomain and the description of its risk in the catalogue', function () {
+    // The whole portfolio, including the risks the trigger seeders register.
+    $this->seed(DatabaseSeeder::class);
+
+    Risk::with('riskSubdomain')->get()->each(function (Risk $risk): void {
+        expect(RiskFactory::RISKS)->toHaveKey($risk->name)
+            ->and($risk->riskSubdomain->code)->toBe(RiskFactory::RISKS[$risk->name]['subdomain'])
+            ->and($risk->description)->toBe(RiskFactory::RISKS[$risk->name]['description']);
+    });
 });

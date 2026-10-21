@@ -2,28 +2,35 @@
 
 namespace Database\Seeders;
 
-use App\Enums\AiSystemCategory;
 use App\Models\AiSystem;
 use Database\Factories\AiSystemFactory;
-use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 
 class AiSystemSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * The whole demonstration portfolio is registered, each system with its
+     * own application domain, origin and tier, plus one system in the
+     * unacceptable tier, to show how the app treats a system that may not
+     * operate.
      */
     public function run(): void
     {
-        // A different application domain for each system.
-        $domains = fake()->randomElements(AiSystemFactory::APPLICATION_DOMAINS, 5);
+        $portfolio = array_map(
+            fn (string $name): array => ['name' => $name, ...AiSystemFactory::SYSTEMS[$name]],
+            array_keys(AiSystemFactory::SYSTEMS),
+        );
 
-        AiSystem::factory(5)
-            ->sequence(fn (Sequence $sequence): array => ['application_domain' => $domains[$sequence->index]])
-            ->create();
+        AiSystem::factory(count($portfolio))->sequence(...$portfolio)->create();
 
-        // One system in the unacceptable tier, to show how the app treats a
-        // system that may not operate.
-        AiSystem::query()->latest('id')->firstOrFail()->update(['category' => AiSystemCategory::Unacceptable]);
+        // Named, and not drawn, so the tutorial can point at it.
+        $prohibited = array_key_first(AiSystemFactory::PROHIBITED);
+
+        AiSystem::factory()->unacceptable()->create([
+            'name' => $prohibited,
+            ...AiSystemFactory::PROHIBITED[$prohibited],
+        ]);
     }
 }

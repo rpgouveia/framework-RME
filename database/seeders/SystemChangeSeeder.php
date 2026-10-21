@@ -19,6 +19,7 @@ use App\Models\Risk;
 use App\Models\TaxonomyTerm;
 use App\Support\AiRiskDomains;
 use Carbon\CarbonImmutable;
+use Database\Factories\RiskFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 
@@ -61,7 +62,11 @@ class SystemChangeSeeder extends Seeder
                 'application_domain' => 'Suporte técnico',
             ]);
 
-            [$first, $second] = $this->riskDomains->subdomains()->random(2)->values();
+            // Subdomains with a risk of their own in the catalogue, so the
+            // risks registered here read like the ones of the portfolio.
+            $curated = $this->riskDomains->subdomains()->whereIn('code', RiskFactory::subdomainCodes());
+
+            [$first, $second] = $curated->random(2)->values();
             $unmapped = $this->riskDomains->subdomains()->whereNotIn('id', [$first->id, $second->id])->random();
 
             foreach ([$first, $second] as $index => $subdomain) {

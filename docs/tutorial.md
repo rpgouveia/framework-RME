@@ -2,7 +2,7 @@
 
 Este tutorial mostra, na ordem em que acontecem, como usar o Framework RME para gerenciar os riscos de um sistema de IA: do cadastro até a reavaliação depois de um incidente. Ele segue um caso de exemplo, o **Modelo de score de crédito**, e dá para refazer cada passo na aplicação.
 
-Os nomes entre aspas são os que aparecem na tela. Os itens do menu lateral ainda estão em inglês (`AI systems`, `Risks`, `Adverse events`, `Mitigations`, `Links`, `Owners`); o restante da interface está em português.
+Os nomes entre aspas e em negrito são os que aparecem na tela. A interface está toda em português (0022): o menu lateral traz **Acompanhamento**, **Sistemas de IA**, **Riscos**, **Eventos adversos**, **Mitigações**, **Vínculos** e **Responsáveis**.
 
 ## Antes de começar
 
@@ -10,13 +10,17 @@ Os nomes entre aspas são os que aparecem na tela. Os itens do menu lateral aind
 2. Entre com `test@example.com` / `password` (ou `teste@teste.com` / `teste123`).
 3. O banco já vem com um portfólio de exemplo (`php artisan migrate:fresh --seed` o recria do zero). Você pode seguir o tutorial criando registros novos ao lado dele.
 
-> O catálogo de mitigações é **fictício** por enquanto, até o grupo definir o critério de curadoria. A tela de vínculos avisa isso.
+O portfólio de exemplo traz treze sistemas de domínios diferentes, com os riscos que fazem sentido para cada um, os responsáveis por área, os vínculos em todos os estados de verificação, as evidências, os eventos adversos, as mudanças do sistema e as reavaliações. Ele não é um conjunto de dados aleatórios: os nomes, as descrições e as classificações são os do próprio framework, para que as telas possam ser lidas e avaliadas como um caso real.
+
+> **Atenção ao repetir o caso de exemplo.** O portfólio já tem um sistema chamado **Modelo de score de crédito**. Nomes de sistema não são únicos, então nada impede cadastrar outro, mas para não ver dois iguais nas listas use um nome próprio no seu teste, como "Modelo de score de crédito (meu teste)".
+
+> O catálogo de mitigações é **real** (0024): 40 medidas curadas pelo grupo a partir da base de Saeri et al. (2025), do MIT AI Risk Initiative, usada sob CC BY 4.0, com nomes e descrições traduzidos e adaptados. Os subdomínios de risco que cada medida trata, o custo sugerido e a incerteza são contribuição do grupo, pelas rubricas da 0024; a **fonte da estimativa** de cada mitigação mostra em que ela se apoia.
 
 ## Os conceitos em dois minutos
 
 - **Sistema de IA**: o que a organização opera. Tem uma **faixa de risco** do EU AI Act (inaceitável, alto, limitado ou mínimo), que define a periodicidade das revisões.
 - **Risco**: algo que pode dar errado em _um_ sistema, classificado por um **subdomínio de risco do MIT** (24 subdomínios, em 7 domínios).
-- **Mitigação**: uma medida do catálogo (somente consulta), classificada pela taxonomia de Saeri et al.
+- **Mitigação**: uma das 40 medidas do catálogo real (somente consulta), classificada pela taxonomia de Saeri et al.
 - **Responsável**: o cargo que responde por uma mitigação.
 - **Vínculo**: **a peça central**. Aplica uma mitigação a um risco, sob um responsável. O par risco e mitigação é único, e o vínculo nunca é excluído: termina por cancelamento.
 - **Evidência**: o documento que comprova que a mitigação está em vigor.
@@ -36,26 +40,26 @@ A ideia do framework: **um vínculo só vale como verificado enquanto nada mudou
 
 ### 1. Cadastre o responsável
 
-Menu **Owners** → "Cadastrar responsável".
+Menu **Responsáveis** → "Cadastrar responsável".
 
 | Campo | Exemplo                 |
 | ----- | ----------------------- |
 | Cargo | Gestor de Risco de IA   |
 | Área  | Segurança da Informação |
 
-Cargo e área formam uma combinação única. Um responsável que já tem vínculos ou histórico **não pode ser excluído**, só **desativado** (e reativado depois). Responsáveis desativados não aparecem nas listas de escolha.
+Cargo e área formam uma combinação única: o portfólio de exemplo já traz onze cargos, um deles desativado, então, se a combinação que você digitar já existir, a tela recusa o cadastro. Um responsável que já tem vínculos ou histórico **não pode ser excluído**, só **desativado** (e reativado depois). Responsáveis desativados não aparecem nas listas de escolha, mas continuam no histórico do que assinaram.
 
 ### 2. Cadastre o sistema de IA
 
-Menu **AI systems** → "Cadastrar sistema de IA".
+Menu **Sistemas de IA** → "Cadastrar sistema de IA".
 
-| Campo                | Exemplo                    |
-| -------------------- | -------------------------- |
-| Nome                 | Modelo de score de crédito |
-| Domínio de aplicação | Serviços financeiros       |
-| Origem               | Interno                    |
-| Faixa de risco       | Alto                       |
-| Data de cadastro     | hoje                       |
+| Campo                | Exemplo                        |
+| -------------------- | ------------------------------ |
+| Nome                 | Modelo de score de crédito     |
+| Domínio de aplicação | Crédito e concessão financeira |
+| Origem               | Interno                        |
+| Faixa de risco       | Alto                           |
+| Data de cadastro     | hoje                           |
 
 A **faixa de risco** importa de verdade: ela define o intervalo de revisão dos vínculos verificados do sistema (Alto, 90 dias; Limitado, 180; Mínimo, 365).
 
@@ -65,20 +69,20 @@ A **faixa de risco** importa de verdade: ela define o intervalo de revisão dos 
 
 Na página do sistema, card **Riscos** → "Cadastrar risco".
 
-| Campo                 | Exemplo                                                               |
-| --------------------- | --------------------------------------------------------------------- |
-| Nome                  | Viés de seleção                                                       |
-| Descrição             | O modelo apresenta desempenho inferior para grupos sub-representados… |
-| Domínio de risco      | 1. Discriminação e toxicidade                                         |
-| Subdomínio de risco   | 1.1 Discriminação injusta e representação distorcida                  |
-| Fase do ciclo de vida | Projeto e desenvolvimento                                             |
-| Nível de incerteza    | Média                                                                 |
+| Campo                 | Exemplo                                                           |
+| --------------------- | ----------------------------------------------------------------- |
+| Nome                  | Viés de seleção                                                   |
+| Descrição             | A base de treinamento sub-representa parte da população atendida… |
+| Domínio de risco      | 1. Discriminação e toxicidade                                     |
+| Subdomínio de risco   | 1.1 Discriminação injusta e representação distorcida              |
+| Fase do ciclo de vida | Projeto e desenvolvimento                                         |
+| Nível de incerteza    | Média                                                             |
 
 Escolha o **subdomínio** com cuidado: é por ele que o framework sabe quais vínculos reverter quando um evento adverso ou uma mudança do sistema atinge aquele tipo de risco. O sistema do risco fica travado depois do primeiro vínculo.
 
 ### 4. Crie o vínculo
 
-Menu **Links** → "Criar vínculo" (ou "Criar vínculo" no detalhe do risco).
+Menu **Vínculos** → "Criar vínculo" (ou "Criar vínculo" no detalhe do risco).
 
 1. **Risco**: escolha o risco que você acabou de cadastrar.
 2. **Mitigação**: escolha do catálogo. Os filtros por categoria e subcategoria de Saeri et al. ajudam a achar. Ao escolher, a tela mostra a descrição, os subdomínios de risco que a medida trata, o custo sugerido, a incerteza e a fonte da estimativa.
@@ -153,7 +157,7 @@ Faltando pouco para a revisão, o vínculo aparece em **Próximas revisões** na
 
 ### Registrando um evento adverso
 
-Na página do sistema, **"Registrar evento adverso"** (ou menu **Adverse events**).
+Na página do sistema, **"Registrar evento adverso"** (ou menu **Eventos adversos**).
 
 | Campo                               | O que informar                                                               |
 | ----------------------------------- | ---------------------------------------------------------------------------- |
@@ -187,7 +191,7 @@ Num sistema da faixa Inaceitável, a mudança é registrada para documentação,
 
 ## Parte 3: reavaliar
 
-Os vínculos revertidos aparecem em **Links** → filtro **Aguardando reavaliação**, ordenados pelos que esperam há mais tempo, e no card **Verificação dos vínculos** da tela de Acompanhamento, por origem. No detalhe do vínculo, o destaque mostra a causa (o evento, a mudança, o vencimento) com link, e o botão **Reavaliar**.
+Os vínculos revertidos aparecem em **Vínculos** → filtro **Aguardando reavaliação**, ordenados pelos que esperam há mais tempo, e no card **Verificação dos vínculos** da tela de Acompanhamento, por origem. No detalhe do vínculo, o destaque mostra a causa (o evento, a mudança, o vencimento) com link, e o botão **Reavaliar**.
 
 A reavaliação conclui **uma reversão** e escolhe um dos quatro desfechos:
 
@@ -237,10 +241,10 @@ Os arquivos trazem a versão do protocolo de monitoramento com que foram gerados
 Com o banco populado (`php artisan migrate:fresh --seed`):
 
 1. **Acompanhamento**: veja os cartões de "Verificação dos vínculos" e o alerta "Riscos não mapeados".
-2. **Links** → filtro **Aguardando reavaliação**: use os chips de origem para ver os vínculos revertidos por evento adverso, vencimento, reclassificação e mudança do sistema.
+2. **Vínculos** → filtro **Aguardando reavaliação**: use os chips de origem para ver os vínculos revertidos por evento adverso, vencimento, reclassificação e mudança do sistema.
 3. Abra um vínculo aguardando reavaliação: leia o destaque, a **linha do tempo** do histórico e clique em **Reavaliar**.
-4. **AI systems** → **Triagem automática de chamados**: veja o card **Mudanças do sistema** e abra cada mudança para ver os vínculos revertidos e o andamento da reavaliação.
-5. **AI systems** → **Pontuação de comportamento de cidadãos**: um sistema da faixa Inaceitável, com o alerta de descontinuação e vínculos reavaliados rumo à fase Retirada.
+4. **Sistemas de IA** → **Triagem automática de chamados**: veja o card **Mudanças do sistema** e abra cada mudança para ver os vínculos revertidos e o andamento da reavaliação.
+5. **Sistemas de IA** → **Pontuação de comportamento de cidadãos**: um sistema que foi **reclassificado** para a faixa Inaceitável depois de ter vínculos verificados, com o alerta de descontinuação e vínculos reavaliados rumo à fase Retirada. Em **Reconhecimento de emoções no monitoramento de atendentes** você vê o outro caso: uma prática proibida (art. 5) cadastrada já na faixa, que nunca teve vínculo verificado.
 6. Baixe o **JSON** e os **CSV** de um desses sistemas e confira o que o relatório traz.
 7. Para ver o encadeamento inteiro, escolha um sistema com vínculos verificados e **registre uma mudança do sistema sem informar subdomínios**: o diálogo mostra todos os vínculos que serão revertidos. Depois reavalie um deles com **Manter**: o botão de verificar só habilita depois de uma **evidência nova**.
 
@@ -254,4 +258,4 @@ Com o banco populado (`php artisan migrate:fresh --seed`):
 
 ## Para aprofundar
 
-As regras de negócio e o porquê de cada uma estão em [`docs/decisions`](decisions/README.md): vínculos permanentes (0006), duas dimensões de status (0013, 0018), gatilhos de reavaliação (0019), reavaliação e desfechos (0020) e mudanças do sistema (0021).
+As regras de negócio e o porquê de cada uma estão em [`docs/decisions`](decisions/README.md): vínculos permanentes (0006), duas dimensões de status (0013, 0018), gatilhos de reavaliação (0019), reavaliação e desfechos (0020), mudanças do sistema (0021) e o catálogo real de mitigações (0024). A terminologia usada aqui está no [glossário](glossary.md).

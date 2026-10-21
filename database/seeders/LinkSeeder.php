@@ -19,6 +19,8 @@ use App\Models\Risk;
 use App\Support\MonitoringProtocol;
 use Carbon\CarbonImmutable;
 use Closure;
+use Database\Factories\EvidenceFactory;
+use Database\Factories\StatusHistoryFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
@@ -181,7 +183,8 @@ class LinkSeeder extends Seeder
                 $this->recordStatusChange->handle($link, $newStatus, [
                     'change_date' => today(),
                     'owner_id' => $owners->random()->id,
-                    'trigger_reason' => fake()->boolean() ? fake()->sentence() : null,
+                    // The reason is optional, and explains the move it justifies.
+                    'trigger_reason' => fake()->boolean() ? StatusHistoryFactory::reasonFor($newStatus) : null,
                     // Some changes are forced by something that went wrong.
                     'adverse_event_id' => $events->isNotEmpty() && fake()->boolean(33) ? $events->random()->id : null,
                 ]);
@@ -286,9 +289,11 @@ class LinkSeeder extends Seeder
      */
     protected function evidence(): array
     {
+        $type = fake()->randomElement(EvidenceType::cases());
+
         return [
-            'type' => fake()->randomElement(EvidenceType::cases()),
-            'description' => fake()->sentence(),
+            'type' => $type,
+            'description' => EvidenceFactory::describe($type),
             'observed_cost' => fake()->boolean() ? fake()->randomElement(CostLevel::cases()) : null,
         ];
     }
