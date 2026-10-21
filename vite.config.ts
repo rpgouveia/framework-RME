@@ -78,8 +78,9 @@ export default defineConfig({
         plugins: ['typescript', 'unicorn', 'oxc', 'react'],
         rules: {
             // Every visible text goes through t() (0022). Props are left out,
-            // since most of them are classes and ids; symbols and the name of
-            // the MIT repository are not translated.
+            // since most of them are classes and ids; symbols and the names of
+            // the MIT repository, the university and the framework are not
+            // translated.
             'react/jsx-no-literals': [
                 'error',
                 {
@@ -90,8 +91,11 @@ export default defineConfig({
                         '·',
                         '—',
                         '/',
+                        '|',
                         ' ',
                         'MIT AI Risk Repository',
+                        'PUCPR',
+                        'Framework RME',
                     ],
                 },
             ],

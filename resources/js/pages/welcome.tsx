@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import type { LucideIcon } from 'lucide-react';
 import {
+    ArrowRight,
     Bot,
     Link2,
     ScrollText,
@@ -8,16 +9,20 @@ import {
     ShieldCheck,
     TriangleAlert,
 } from 'lucide-react';
+
 import AppLogoIcon from '@/components/app-logo-icon';
-import { Button } from '@/components/ui/button';
 import { useTranslations } from '@/hooks/use-translations';
-import { dashboard, login, register } from '@/routes';
+import { dashboard, home, login, register } from '@/routes';
 
 export default function Welcome() {
     const { auth, name } = usePage().props;
     const { t } = useTranslations();
 
-    const sections: { icon: LucideIcon; title: string; summary: string }[] = [
+    const sections: {
+        icon: LucideIcon;
+        title: string;
+        summary: string;
+    }[] = [
         {
             icon: Bot,
             title: t('AI systems'),
@@ -62,111 +67,185 @@ export default function Welcome() {
         },
     ];
 
+    const primaryButton =
+        'inline-flex min-h-11 items-center justify-center ' +
+        'bg-[#0f62fe] px-5 py-3 text-sm text-white ' +
+        'transition-colors hover:bg-[#0353e9] ' +
+        'active:bg-[#002d9c] focus-visible:outline-2 ' +
+        'focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe]';
+
+    const secondaryButton =
+        'inline-flex min-h-11 items-center justify-center ' +
+        'border border-[#e0e0e0] bg-[#f4f4f4] px-5 py-3 ' +
+        'text-sm text-[#161616] transition-colors ' +
+        'hover:bg-[#e0e0e0] focus-visible:outline-2 ' +
+        'focus-visible:outline-[#0f62fe]';
+
     return (
         <>
-            <Head title={t('Welcome')} />
+            <Head title={t('Welcome')}>
+                <link
+                    rel="stylesheet"
+                    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+                />
+            </Head>
 
-            <div className="bg-background text-foreground flex min-h-svh flex-col">
-                <header className="border-border/70 border-b">
-                    <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-6 py-4">
+            <div
+                className="flex min-h-svh flex-col bg-white text-[#161616]"
+                style={{
+                    fontFamily: "'IBM Plex Sans', sans-serif",
+                    letterSpacing: '0.16px',
+                }}
+            >
+                {/* Cabeçalho */}
+                <header className="sticky top-0 z-50 w-full border-b border-[#e0e0e0] bg-white">
+                    <div className="mx-auto flex h-12 w-full max-w-[1312px] items-center justify-between gap-4 px-4 sm:px-8">
                         <Link
-                            href={auth.user ? dashboard() : login()}
-                            className="flex items-center gap-2.5"
+                            href={home()}
+                            className="flex items-center gap-2.5 transition-opacity hover:opacity-80"
+                            aria-label={t('Framework RME - Home page')}
                         >
-                            <AppLogoIcon className="size-8 shrink-0" />
-                            <span className="text-sm font-semibold tracking-tight">
-                                {name}
+                            <AppLogoIcon className="h-7 w-7 shrink-0" />
+
+                            <span className="text-[15px] font-medium text-[#161616]">
+                                {name || 'Framework RME'}
                             </span>
                         </Link>
 
-                        <nav className="flex items-center gap-2">
+                        <nav
+                            aria-label={t('Access navigation')}
+                            className="flex items-center gap-1 sm:gap-2"
+                        >
                             {auth.user ? (
-                                <Button size="sm" asChild>
-                                    <Link href={dashboard()} prefetch>
-                                        {t('Dashboard')}
-                                    </Link>
-                                </Button>
+                                <Link
+                                    href={dashboard()}
+                                    prefetch
+                                    className="inline-flex min-h-9 items-center bg-[#161616] px-4 text-sm text-white hover:bg-[#393939]"
+                                >
+                                    {t('Dashboard')}
+                                </Link>
                             ) : (
                                 <>
-                                    <Button variant="ghost" size="sm" asChild>
-                                        <Link href={login()}>
-                                            {t('Log in')}
-                                        </Link>
-                                    </Button>
-                                    <Button variant="outline" size="sm" asChild>
-                                        <Link href={register()}>
-                                            {t('Sign up')}
-                                        </Link>
-                                    </Button>
+                                    <Link
+                                        href={login()}
+                                        className="inline-flex min-h-9 items-center px-4 text-sm text-[#161616] hover:bg-[#e8e8e8]"
+                                    >
+                                        {t('Log in')}
+                                    </Link>
+
+                                    <Link
+                                        href={register()}
+                                        className="inline-flex min-h-9 items-center border border-[#161616] bg-[#161616] px-4 text-sm text-white hover:bg-[#393939]"
+                                    >
+                                        {t('Sign up')}
+                                    </Link>
                                 </>
                             )}
                         </nav>
                     </div>
                 </header>
 
-                <main className="mx-auto w-full max-w-5xl flex-1 px-6">
-                    <section className="flex flex-col items-start gap-6 py-14 lg:py-20">
-                        <AppLogoIcon className="size-16 shrink-0 lg:size-20" />
+                <main className="w-full flex-1">
+                    {/* Seção principal */}
+                    <section
+                        aria-labelledby="hero-title"
+                        className="mx-auto w-full max-w-[1312px] px-4 pt-12 pb-12 sm:px-8 sm:pt-16"
+                    >
+                        <div className="max-w-4xl">
+                            {/* Logo original */}
+                            <div className="mb-8 flex h-16 w-16 items-center justify-center bg-[#161616] p-3">
+                                <AppLogoIcon className="h-10 w-10 text-white" />
+                            </div>
 
-                        <div className="space-y-4">
-                            <h1 className="text-3xl font-semibold tracking-tight text-balance lg:text-4xl">
+                            <h1
+                                id="hero-title"
+                                className="mb-6 text-3xl leading-[1.2] font-light tracking-normal text-[#161616] sm:text-4xl md:text-[42px]"
+                            >
                                 {t('Risk management for AI systems')}
                             </h1>
-                            <p className="text-muted-foreground max-w-2xl text-base leading-relaxed">
-                                {t(
-                                    'Keep a registry of the AI systems your organization runs, the risks identified for each one, the mitigations applied to those risks, who is accountable for each, and the evidence proving they are in place.',
-                                )}
-                            </p>
-                            <p className="text-muted-foreground max-w-2xl text-base leading-relaxed">
-                                {t(
-                                    'Review deadlines, adverse events and changes to a system take verified mitigations back to reassessment, and every step lands in an append-only audit trail.',
-                                )}
-                            </p>
-                        </div>
 
-                        <div className="flex flex-wrap items-center gap-3">
-                            {auth.user ? (
-                                <Button asChild>
-                                    <Link href={dashboard()} prefetch>
+                            <div className="mb-8 max-w-3xl space-y-4 text-base leading-[1.5] text-[#525252]">
+                                <p>
+                                    {t(
+                                        'Keep a registry of the AI systems your organization runs, the risks identified for each one, the mitigations applied to those risks, who is accountable for each, and the evidence proving they are in place.',
+                                    )}
+                                </p>
+
+                                <p>
+                                    {t(
+                                        'Review deadlines, adverse events and changes to a system take verified mitigations back to reassessment, and every step lands in an append-only audit trail.',
+                                    )}
+                                </p>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3">
+                                {auth.user ? (
+                                    <Link
+                                        href={dashboard()}
+                                        prefetch
+                                        className={primaryButton}
+                                    >
                                         {t('Open the dashboard')}
+                                        <ArrowRight
+                                            className="ml-3 h-4 w-4"
+                                            aria-hidden="true"
+                                        />
                                     </Link>
-                                </Button>
-                            ) : (
-                                <>
-                                    <Button asChild>
-                                        <Link href={register()}>
+                                ) : (
+                                    <>
+                                        <Link
+                                            href={register()}
+                                            className={primaryButton}
+                                        >
                                             {t('Create an account')}
                                         </Link>
-                                    </Button>
-                                    <Button variant="outline" asChild>
-                                        <Link href={login()}>
+
+                                        <Link
+                                            href={login()}
+                                            className={secondaryButton}
+                                        >
                                             {t('Log in')}
                                         </Link>
-                                    </Button>
-                                </>
-                            )}
+                                    </>
+                                )}
+                            </div>
                         </div>
                     </section>
 
-                    <section className="border-border/70 border-t py-12">
-                        <h2 className="text-muted-foreground mb-6 text-xs font-medium tracking-wider uppercase">
+                    {/* Divisor */}
+                    <div className="mx-auto w-full max-w-[1312px] px-4 sm:px-8">
+                        <hr className="border-t border-[#e0e0e0]" />
+                    </div>
+
+                    {/* Funcionalidades */}
+                    <section
+                        aria-labelledby="features-title"
+                        className="mx-auto w-full max-w-[1312px] px-4 pt-10 pb-20 sm:px-8"
+                    >
+                        <h2
+                            id="features-title"
+                            className="mb-8 text-sm font-normal text-[#525252]"
+                        >
                             {t('What the framework keeps')}
                         </h2>
 
-                        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <ul className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {sections.map(({ icon: Icon, title, summary }) => (
                                 <li
                                     key={title}
-                                    className="bg-card border-border/70 flex flex-col gap-2 rounded-xl border p-5"
+                                    className="flex flex-col border border-[#e0e0e0] bg-white p-6 transition-colors duration-150 hover:border-[#c6c6c6] hover:bg-[#f4f4f4]"
                                 >
                                     <Icon
-                                        className="text-muted-foreground size-5"
+                                        className="mb-4 h-6 w-6 text-[#161616]"
+                                        strokeWidth={1.5}
                                         aria-hidden="true"
                                     />
-                                    <h3 className="text-sm font-semibold">
+
+                                    <h3 className="mb-2 text-base font-semibold text-[#161616]">
                                         {title}
                                     </h3>
-                                    <p className="text-muted-foreground text-sm leading-relaxed">
+
+                                    <p className="text-sm leading-[1.45] text-[#525252]">
                                         {summary}
                                     </p>
                                 </li>
@@ -175,9 +254,20 @@ export default function Welcome() {
                     </section>
                 </main>
 
-                <footer className="border-border/70 border-t">
-                    <div className="text-muted-foreground mx-auto w-full max-w-5xl px-6 py-6 text-xs">
-                        {t('Applied research project — PUCPR.')}
+                {/* Rodapé */}
+                <footer className="mt-auto w-full border-t border-[#e0e0e0] bg-white py-8">
+                    <div className="mx-auto flex w-full max-w-[1312px] flex-col items-start justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row sm:items-center sm:px-8">
+                        <span>
+                            {t(
+                                'Compliance with the EU AI Act & MIT AI Risk Repository',
+                            )}
+                        </span>
+
+                        <span className="hidden md:inline">·</span>
+
+                        <span className="hidden md:inline">
+                            {t('Responsible AI governance')}
+                        </span>
                     </div>
                 </footer>
             </div>
