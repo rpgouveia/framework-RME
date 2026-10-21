@@ -14,7 +14,7 @@ Os nomes entre aspas são os que aparecem na tela. Os itens do menu lateral aind
 
 ## Os conceitos em dois minutos
 
-- **Sistema de IA**: o que a organização opera. Tem uma **categoria** do EU AI Act (inaceitável, alto, limitado ou mínimo), que define a periodicidade das revisões.
+- **Sistema de IA**: o que a organização opera. Tem uma **faixa de risco** do EU AI Act (inaceitável, alto, limitado ou mínimo), que define a periodicidade das revisões.
 - **Risco**: algo que pode dar errado em _um_ sistema, classificado por um **subdomínio de risco do MIT** (24 subdomínios, em 7 domínios).
 - **Mitigação**: uma medida do catálogo (somente consulta), classificada pela taxonomia de Saeri et al.
 - **Responsável**: o cargo que responde por uma mitigação.
@@ -25,7 +25,7 @@ Cada vínculo tem **duas dimensões de status**:
 
 | Dimensão        | Valores                                                                       | Quem muda                                |
 | --------------- | ----------------------------------------------------------------------------- | ---------------------------------------- |
-| **Progresso**   | Planejado, Em andamento, Implementado, Em monitoramento, Suspenso, Cancelado  | Você, em "Registrar mudança"             |
+| **Progresso**   | Planejado, Em andamento, Implementado, Suspenso, Cancelado                    | Você, em "Registrar mudança"             |
 | **Verificação** | **Declarada** (alguém afirma que está feito) ou **Verificada** (há evidência) | Você ao verificar; o sistema ao reverter |
 
 A ideia do framework: **um vínculo só vale como verificado enquanto nada mudou**. Quando passa o prazo, ocorre um evento adverso ou o sistema muda, a verificação volta a "Declarada" e o vínculo entra em **Aguardando reavaliação**, até alguém concluir a reavaliação.
@@ -54,12 +54,12 @@ Menu **AI systems** → "Cadastrar sistema de IA".
 | Nome                 | Modelo de score de crédito |
 | Domínio de aplicação | Serviços financeiros       |
 | Origem               | Interno                    |
-| Categoria            | Alto                       |
+| Faixa de risco       | Alto                       |
 | Data de cadastro     | hoje                       |
 
-A **categoria** importa de verdade: ela define o intervalo de revisão dos vínculos verificados do sistema (Alto, 90 dias; Limitado, 180; Mínimo, 365).
+A **faixa de risco** importa de verdade: ela define o intervalo de revisão dos vínculos verificados do sistema (Alto, 90 dias; Limitado, 180; Mínimo, 365).
 
-> **Categoria Inaceitável.** São práticas proibidas pelo EU AI Act: o sistema nunca é considerado em operação. Por isso seus vínculos **não podem ser verificados** e não têm revisão periódica; servem para planejar a descontinuação. Se você mudar um sistema para essa categoria, os vínculos já verificados dele são revertidos na hora.
+> **Faixa Inaceitável.** São práticas proibidas pelo EU AI Act: o sistema nunca é considerado em operação. Por isso seus vínculos **não podem ser verificados** e não têm revisão periódica; servem para planejar a descontinuação. Se você mudar um sistema para essa faixa, os vínculos já verificados dele são revertidos na hora.
 
 ### 3. Cadastre o risco
 
@@ -71,7 +71,7 @@ Na página do sistema, card **Riscos** → "Cadastrar risco".
 | Descrição             | O modelo apresenta desempenho inferior para grupos sub-representados… |
 | Domínio de risco      | 1. Discriminação e toxicidade                                         |
 | Subdomínio de risco   | 1.1 Discriminação injusta e representação distorcida                  |
-| Fase do ciclo de vida | Desenvolvimento                                                       |
+| Fase do ciclo de vida | Projeto e desenvolvimento                                             |
 | Nível de incerteza    | Média                                                                 |
 
 Escolha o **subdomínio** com cuidado: é por ele que o framework sabe quais vínculos reverter quando um evento adverso ou uma mudança do sistema atinge aquele tipo de risco. O sistema do risco fica travado depois do primeiro vínculo.
@@ -128,13 +128,13 @@ O botão fica desabilitado, com o motivo logo abaixo, enquanto a regra não for 
 | "Um vínculo cancelado não pode ser verificado."                                                               | Reative o vínculo.                                   |
 | "Um vínculo de sistema na faixa inaceitável não pode ser verificado…"                                         | Por desenho: o sistema nunca opera.                  |
 
-Ao verificar, o vínculo passa a **Verificado**, ganha uma **próxima revisão** (a data de hoje mais o intervalo da categoria do sistema) e a verificação entra no histórico.
+Ao verificar, o vínculo passa a **Verificado**, ganha uma **próxima revisão** (a data de hoje mais o intervalo da faixa de risco do sistema) e a verificação entra no histórico.
 
 > **Regra de ouro:** só vale a evidência registrada **depois** da última mudança de verificação. Depois de qualquer reversão, evidência velha não serve.
 
 ### 8. Renove antes de vencer
 
-Faltando pouco para a revisão, o vínculo aparece em **Próximas revisões** no Painel. Registre uma nova evidência e use **Renovar verificação**: a contagem recomeça de hoje. Se preferir desfazer a verificação por conta própria, use **Reverter verificação**, escolha **Quem reverte** e informe o **Motivo**.
+Faltando pouco para a revisão, o vínculo aparece em **Próximas revisões** na tela de Acompanhamento. Registre uma nova evidência e use **Renovar verificação**: a contagem recomeça de hoje. Se preferir desfazer a verificação por conta própria, use **Reverter verificação**, escolha **Quem reverte** e informe o **Motivo**.
 
 ---
 
@@ -148,7 +148,7 @@ Faltando pouco para a revisão, o vínculo aparece em **Próximas revisões** no
 | **Evento adverso**             | Você registra o evento; reverte os vínculos do sistema cujo risco está nos subdomínios do evento.                           |
 | **Nova versão do modelo**      | Você registra a mudança do sistema; reverte todos os vínculos verificados do sistema (ou só os dos subdomínios informados). |
 | **Alteração na base de dados** | Idem.                                                                                                                       |
-| **Reclassificação do sistema** | Automático ao editar o sistema para a categoria Inaceitável: reverte todos os vínculos verificados.                         |
+| **Reclassificação do sistema** | Automático ao editar o sistema para a faixa Inaceitável: reverte todos os vínculos verificados.                             |
 | **Manual**                     | Você usa "Reverter verificação" no vínculo, com motivo.                                                                     |
 
 ### Registrando um evento adverso
@@ -166,7 +166,7 @@ Na página do sistema, **"Registrar evento adverso"** (ou menu **Adverse events*
 
 Antes de gravar, um diálogo mostra **quais vínculos serão revertidos**. O evento é permanente: não pode ser editado nem excluído.
 
-Se o subdomínio informado **não tem risco cadastrado** para o sistema, o Painel mostra o caso em **Riscos não mapeados**, com atalho para "Cadastrar risco".
+Se o subdomínio informado **não tem risco cadastrado** para o sistema, a tela de Acompanhamento mostra o caso em **Riscos não mapeados**, com atalho para "Cadastrar risco".
 
 ### Registrando uma mudança do sistema
 
@@ -181,13 +181,13 @@ Na página do sistema, card **Mudanças do sistema** → **"Registrar mudança"*
 
 O diálogo de confirmação diz **quantos vínculos serão revertidos**. Sem subdomínios, a regra é conservadora: **todos** os vínculos verificados do sistema voltam a declarados, porque nenhuma prova pode ser dada como ainda válida sem a análise do alcance da mudança. Informar os subdomínios afetados evita reverter além do necessário.
 
-Num sistema da categoria Inaceitável, a mudança é registrada para documentação, mas não reverte nada.
+Num sistema da faixa Inaceitável, a mudança é registrada para documentação, mas não reverte nada.
 
 ---
 
 ## Parte 3: reavaliar
 
-Os vínculos revertidos aparecem em **Links** → filtro **Aguardando reavaliação**, ordenados pelos que esperam há mais tempo, e no card **Verificação dos vínculos** do Painel, por origem. No detalhe do vínculo, o destaque mostra a causa (o evento, a mudança, o vencimento) com link, e o botão **Reavaliar**.
+Os vínculos revertidos aparecem em **Links** → filtro **Aguardando reavaliação**, ordenados pelos que esperam há mais tempo, e no card **Verificação dos vínculos** da tela de Acompanhamento, por origem. No detalhe do vínculo, o destaque mostra a causa (o evento, a mudança, o vencimento) com link, e o botão **Reavaliar**.
 
 A reavaliação conclui **uma reversão** e escolhe um dos quatro desfechos:
 
@@ -200,7 +200,7 @@ A reavaliação conclui **uma reversão** e escolhe um dos quatro desfechos:
 
 Preencha também **Quem reavalia** e a **Justificativa**. Quando a reversão veio de um **evento adverso** ou foi **manual**, a tela pede a análise de causa: **Apurada** (com a **Causa apurada** e a **Fase do ciclo de vida em que a causa se originou**) ou **Não apurada**. Nos demais casos (vencimento, reclassificação, mudança do sistema), a causa **não se aplica** e a tela não pergunta.
 
-Em sistemas na categoria Inaceitável, **Manter** e **Substituir** ficam indisponíveis; o ajuste leva o vínculo à fase **Descomissionamento**, registrando o plano de descontinuação.
+Em sistemas na faixa Inaceitável, **Manter** e **Substituir** ficam indisponíveis; o ajuste leva o vínculo à fase **Retirada**, registrando o plano de descontinuação.
 
 No detalhe do evento ou da mudança, o andamento aparece como "**2 de 4 reavaliados**".
 
@@ -208,9 +208,9 @@ No detalhe do evento ou da mudança, o andamento aparece como "**2 de 4 reavalia
 
 ## Parte 4: acompanhar e prestar contas
 
-### O Painel
+### A tela de Acompanhamento
 
-O **Painel** é o ponto de partida do dia a dia:
+A tela de **Acompanhamento** é o ponto de partida do dia a dia:
 
 - totais do portfólio, **riscos sem vínculo** e **vínculos sem evidência**;
 - **Próximas revisões** (nos próximos 14 dias) e **Eventos recentes** (nos últimos 30);
@@ -236,11 +236,11 @@ Os arquivos trazem a versão do protocolo de monitoramento com que foram gerados
 
 Com o banco populado (`php artisan migrate:fresh --seed`):
 
-1. **Painel**: veja os cartões de "Verificação dos vínculos" e o alerta "Riscos não mapeados".
+1. **Acompanhamento**: veja os cartões de "Verificação dos vínculos" e o alerta "Riscos não mapeados".
 2. **Links** → filtro **Aguardando reavaliação**: use os chips de origem para ver os vínculos revertidos por evento adverso, vencimento, reclassificação e mudança do sistema.
 3. Abra um vínculo aguardando reavaliação: leia o destaque, a **linha do tempo** do histórico e clique em **Reavaliar**.
 4. **AI systems** → **Triagem automática de chamados**: veja o card **Mudanças do sistema** e abra cada mudança para ver os vínculos revertidos e o andamento da reavaliação.
-5. **AI systems** → **Pontuação de comportamento de cidadãos**: um sistema da categoria Inaceitável, com o alerta de descontinuação e vínculos reavaliados rumo ao Descomissionamento.
+5. **AI systems** → **Pontuação de comportamento de cidadãos**: um sistema da faixa Inaceitável, com o alerta de descontinuação e vínculos reavaliados rumo à fase Retirada.
 6. Baixe o **JSON** e os **CSV** de um desses sistemas e confira o que o relatório traz.
 7. Para ver o encadeamento inteiro, escolha um sistema com vínculos verificados e **registre uma mudança do sistema sem informar subdomínios**: o diálogo mostra todos os vínculos que serão revertidos. Depois reavalie um deles com **Manter**: o botão de verificar só habilita depois de uma **evidência nova**.
 

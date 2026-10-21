@@ -59,7 +59,7 @@ test('the dashboard shows where the chain is incomplete', function () {
         'next_review_date' => '2026-06-10',
     ]);
     $dueToday = Link::factory()->verified()->for($linked)->create([
-        'status' => LinkStatus::Monitoring,
+        'status' => LinkStatus::Implemented,
         'creation_date' => '2026-01-02',
         'next_review_date' => '2026-06-15',
     ]);
@@ -94,8 +94,7 @@ test('the dashboard shows where the chain is incomplete', function () {
             ->where('linksByStatus', [
                 ['status' => 'planned', 'count' => 1],
                 ['status' => 'in_progress', 'count' => 1],
-                ['status' => 'implemented', 'count' => 1],
-                ['status' => 'monitoring', 'count' => 1],
+                ['status' => 'implemented', 'count' => 2],
                 ['status' => 'suspended', 'count' => 0],
             ])
             ->where('linksWithoutEvidence.count', 1)

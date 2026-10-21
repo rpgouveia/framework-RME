@@ -5,9 +5,8 @@ namespace App\Enums;
 use App\Concerns\EnumOptions;
 
 /**
- * Kind of artifact recorded as evidence that a mitigation is in place.
- *
- * @todo Confirm the value list against the RME framework definition.
+ * Kind of artifact recorded as evidence that a mitigation is in place, told
+ * apart by what it proves. Defined in docs/glossary.md (decision 0028, item 7).
  */
 enum EvidenceType: string
 {

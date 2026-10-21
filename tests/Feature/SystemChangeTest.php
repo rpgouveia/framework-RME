@@ -163,7 +163,7 @@ test('a link reverted by a system change is reassessed with no cause to find', f
         'justification' => 'A nova versão segue coberta pela mitigação.',
         'cause_status' => CauseStatus::Identified,
         'cause' => 'Ignorada',
-        'cause_phase' => 'design',
+        'cause_phase' => 'design_and_development',
     ]);
 
     expect($reassessment->cause_status)->toBe(CauseStatus::NotApplicable)

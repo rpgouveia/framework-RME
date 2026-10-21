@@ -276,7 +276,6 @@ test('a cancelled link cannot move anywhere but planned', function (LinkStatus $
 })->with([
     LinkStatus::InProgress,
     LinkStatus::Implemented,
-    LinkStatus::Monitoring,
     LinkStatus::Suspended,
 ]);
 

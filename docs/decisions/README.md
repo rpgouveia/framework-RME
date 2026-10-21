@@ -32,5 +32,6 @@ Decisões de domínio do Framework RME. Leia a decisão correspondente antes de 
 | [0025](0025-medida-de-concordancia-oe1.md)           | Medida de concordância do OE1                                        | Aceita; implementada (cálculo e rascunho do guia)                               |
 | [0026](0026-definicao-de-evento-adverso.md)          | Definição operacional de evento adverso                              | Aceita; implementada (texto da página inicial)                                  |
 | [0027](0027-painel-de-especialistas.md)              | Painel de especialistas (OE6): protocolo e banco de itens            | Aceita; protocolo, banco de itens e cálculo implementados; painel não executado |
+| [0028](0028-glossario-e-terminologia.md)             | Glossário e terminologia                                             | Aceita; implementada                                                            |
 
 Itens em aberto: [PENDENTES.md](PENDENTES.md).

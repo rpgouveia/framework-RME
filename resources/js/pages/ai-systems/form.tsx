@@ -128,7 +128,7 @@ export function AiSystemForm({
             </div>
 
             <div className="grid gap-2">
-                <Label htmlFor="category">{t('Category')}</Label>
+                <Label htmlFor="category">{t('Risk tier')}</Label>
                 <Select
                     name="category"
                     value={category}
@@ -141,9 +141,7 @@ export function AiSystemForm({
                         aria-invalid={errors.category ? true : undefined}
                     >
                         <SelectValue
-                            placeholder={t(
-                                'Select the risk category (EU AI Act)',
-                            )}
+                            placeholder={t('Select the risk tier (EU AI Act)')}
                         />
                     </SelectTrigger>
                     <SelectContent>

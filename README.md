@@ -54,7 +54,7 @@ erDiagram
 | `ReferenceDataset` | `reference_datasets` | The metadata of a reference file as it was loaded, such as the catalogue's, so the app describes the data it actually holds.                           |
 
 A link has **two status dimensions**: its progress (`planned`,`in_progress`,
-`implemented`, `monitoring`, `suspended`, `cancelled`) and its verification
+`implemented`, `suspended`, `cancelled`) and its verification
 (`declared` or `verified`). A link is only _verified_ on evidence recorded
 after its last verification change, and a verified link carries a review
 date. Links are never deleted: they end by cancellation, and a replacement
@@ -74,12 +74,8 @@ Cost is one of those enums: `CostLevel` (low/medium/high) backs a mitigation's
 `suggested_cost`, a link's `estimated_cost` and the cost observed on evidence,
 so an estimate and the actual cost stay comparable. It is deliberately
 qualitative: if the team later needs real currency amounts, add a numeric
-column next to it rather than widening the scale.
-
-> **Still to confirm:** several enums (`AiSystemCategory`, `CostLevel`,
-> `EvidenceType`, `LifecyclePhase`, `LinkStatus`, `SystemSourceType`,
-> `UncertaintyLevel`) carry a `@todo` to check their values against the RME
-> framework definition.
+column next to it rather than widening the scale. Each level follows the
+rubric of decision 0024, which applies to all three costs (0028).
 
 ### Reference data
 
@@ -160,6 +156,10 @@ The business rules are recorded, in Portuguese, in
 Read the matching decision before changing a rule, and check
 [`PENDENTES.md`](docs/decisions/PENDENTES.md) before implementing anything
 not yet decided there.
+
+The project's terminology is fixed in [`docs/glossary.md`](docs/glossary.md),
+in Portuguese: each term with its name in the code and the decision or
+reference that defines it. Use it for labels, documentation and the article.
 
 ## Stack
 
@@ -455,17 +455,19 @@ when a new departure from Laravel Lang is left out of the list (decision 0023).
 
 New translations follow the vocabulary of the interface:
 
-| Use               | For                                                                                          | Not                    |
-| ----------------- | -------------------------------------------------------------------------------------------- | ---------------------- |
-| ativar, desativar | turning a feature on or off, such as 2FA                                                     | habilitar, desabilitar |
-| excluir           | removing                                                                                     | deletar                |
-| digite            | asking for input                                                                             | insira                 |
-| e-mail            | the address and the message                                                                  | email                  |
-| cadastrar         | the domain entities that are edited and listed: systems, risks, owners                       |                        |
-| registrar         | what is append only: evidence, adverse events, system changes, reassessments, status history | cadastrar              |
-| criar conta       | the user's own account                                                                       | cadastrar              |
-| entrar, sair      | starting and ending the session                                                              | fazer login, login     |
-| painel            | the home screen                                                                              |                        |
+| Use                     | For                                                                                          | Not                    |
+| ----------------------- | -------------------------------------------------------------------------------------------- | ---------------------- |
+| ativar, desativar       | turning a feature on or off, such as 2FA                                                     | habilitar, desabilitar |
+| excluir                 | removing                                                                                     | deletar                |
+| digite                  | asking for input                                                                             | insira                 |
+| e-mail                  | the address and the message                                                                  | email                  |
+| cadastrar               | the domain entities that are edited and listed: systems, risks, owners                       |                        |
+| registrar               | what is append only: evidence, adverse events, system changes, reassessments, status history | cadastrar              |
+| criar conta             | the user's own account                                                                       | cadastrar              |
+| entrar, sair            | starting and ending the session                                                              | fazer login, login     |
+| acompanhamento          | the home screen                                                                              | painel                 |
+| faixa de risco          | a system's EU AI Act tier                                                                    | categoria              |
+| painel de especialistas | the expert panel of decision 0027, always in full                                            | painel                 |
 
 ## Project structure
 

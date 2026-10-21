@@ -81,7 +81,7 @@ function SystemsTable({ systems }: { systems: AiSystem[] }) {
                     <TableRow>
                         <TableHead>{t('Name')}</TableHead>
                         <TableHead>{t('Origin')}</TableHead>
-                        <TableHead>{t('Category')}</TableHead>
+                        <TableHead>{t('Risk tier')}</TableHead>
                         <TableHead>{t('Registration')}</TableHead>
                         <TableHead className="text-right">
                             {t('Risks')}

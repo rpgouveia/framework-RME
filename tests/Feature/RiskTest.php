@@ -119,7 +119,7 @@ test('a risk can be updated', function () {
         'name' => 'Updated name',
         'description' => 'Updated description',
         'risk_subdomain_id' => riskSubdomainId('2.1'),
-        'lifecycle_phase' => LifecyclePhase::Development->value,
+        'lifecycle_phase' => LifecyclePhase::DesignAndDevelopment->value,
         'uncertainty_level' => UncertaintyLevel::Low->value,
         'ai_system_id' => $risk->ai_system_id,
     ]);

@@ -19,7 +19,7 @@ return [
         'Search' => 'Buscar',
 
         // The screens of the starter kit.
-        'Dashboard' => 'Painel',
+        'Dashboard' => 'Acompanhamento',
         'Email password reset link' => 'Enviar link de redefinição de senha',
         'Enter your email and password below to log in' => 'Digite seu e-mail e senha abaixo para entrar',
         'Forgot your password?' => 'Esqueceu sua senha?',
