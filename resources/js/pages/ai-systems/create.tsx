@@ -28,7 +28,7 @@ export default function AiSystemsCreate({ sourceTypes, categories }: Props) {
                 />
                 <Form
                     {...AiSystemController.store.form()}
-                    className="max-w-xl space-y-6"
+                    className="grid max-w-3xl gap-10"
                 >
                     {({ processing, errors }) => (
                         <AiSystemForm

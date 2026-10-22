@@ -35,7 +35,7 @@ export default function AiSystemsEdit({
                 <Form
                     {...AiSystemController.update.form(aiSystem.id)}
                     options={{ preserveScroll: true }}
-                    className="max-w-xl space-y-6"
+                    className="grid max-w-3xl gap-10"
                 >
                     {({ processing, errors }) => (
                         <AiSystemForm

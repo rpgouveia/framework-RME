@@ -91,7 +91,7 @@ export function RiskSubdomainPicker({
                             {selected.join(', ')}
                         </p>
                     )}
-                    <div className="grid max-h-[32rem] gap-6 overflow-y-auto rounded-lg border p-4">
+                    <div className="relative grid max-h-[32rem] gap-6 overflow-y-auto border p-4">
                         {profile.expected.length > 0 ? (
                             <section className="grid gap-3">
                                 <h3 className="text-sm font-semibold">
