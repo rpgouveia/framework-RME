@@ -4,7 +4,7 @@ import { DeleteDialog } from '@/components/delete-dialog';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { RiskSubdomain } from '@/components/risk-subdomain';
-import { Badge } from '@/components/ui/badge';
+import { UncertaintyBadge } from '@/components/link-status-badges';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -18,7 +18,6 @@ import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
 import { translator } from '@/lib/i18n';
 import type { WithTranslations } from '@/lib/i18n';
-import { uncertaintyBadgeClasses } from '@/lib/labels';
 import { rowLink } from '@/lib/row-link';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { create, edit, index, show } from '@/routes/risks';
@@ -34,7 +33,7 @@ export default function RisksIndex({ risks }: Props) {
     return (
         <>
             <Head title={t('Risks')} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <div className="flex items-start justify-between gap-4">
                     <Heading title={t('Risks')} />
                     <Button asChild>
@@ -140,19 +139,9 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                 }
                             </TableCell>
                             <TableCell>
-                                <Badge
-                                    className={
-                                        uncertaintyBadgeClasses[
-                                            risk.uncertainty_level
-                                        ]
-                                    }
-                                >
-                                    {
-                                        enumLabels.UncertaintyLevel[
-                                            risk.uncertainty_level
-                                        ]
-                                    }
-                                </Badge>
+                                <UncertaintyBadge
+                                    level={risk.uncertainty_level}
+                                />
                             </TableCell>
                             <TableCell className="text-right tabular-nums">
                                 {risk.links_count ?? 0}

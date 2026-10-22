@@ -34,7 +34,7 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     ];
 
     return (
-        <div className="px-4 py-6">
+        <div className="grid gap-8 px-4 py-6">
             <Heading
                 title={t('Settings')}
                 description={t('Manage your profile and account settings')}

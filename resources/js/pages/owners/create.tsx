@@ -13,7 +13,7 @@ export default function OwnersCreate() {
     return (
         <>
             <Head title={t('Register owner')} />
-            <div className="flex h-full flex-1 flex-col p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Register owner')}
                     description={t(
@@ -22,7 +22,7 @@ export default function OwnersCreate() {
                 />
                 <Form
                     {...OwnerController.store.form()}
-                    className="max-w-xl space-y-6"
+                    className="grid max-w-3xl gap-8"
                 >
                     {({ processing, errors }) => (
                         <OwnerForm

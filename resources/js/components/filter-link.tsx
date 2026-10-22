@@ -1,7 +1,7 @@
 import { Link } from '@inertiajs/react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import type { ReactNode } from 'react';
-import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 /**
  * One option of a server side list filter: a link that keeps the page state
@@ -20,27 +20,20 @@ export function FilterLink({
     children: ReactNode;
 }) {
     return (
-        <Button
-            size="sm"
-            variant={
+        <Link
+            href={href}
+            preserveState
+            preserveScroll
+            aria-current={active ? 'page' : undefined}
+            className={cn(
+                'focus-visible:outline-ring inline-flex h-8 items-center gap-2 border px-3 text-sm tracking-[0.16px] whitespace-nowrap transition-colors outline-none focus-visible:outline-2 focus-visible:-outline-offset-2',
                 active
-                    ? subtle
-                        ? 'secondary'
-                        : 'default'
-                    : subtle
-                      ? 'ghost'
-                      : 'outline'
-            }
-            asChild
+                    ? 'border-foreground bg-foreground text-background'
+                    : 'border-border-strong text-foreground hover:bg-accent',
+                subtle && !active && 'border-border',
+            )}
         >
-            <Link
-                href={href}
-                preserveState
-                preserveScroll
-                aria-current={active ? 'page' : undefined}
-            >
-                {children}
-            </Link>
-        </Button>
+            {children}
+        </Link>
     );
 }

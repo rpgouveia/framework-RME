@@ -2,6 +2,7 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { useState } from 'react';
 import ReassessmentController from '@/actions/App/Http/Controllers/ReassessmentController';
 import { DetailItem } from '@/components/detail-item';
+import { FormSection } from '@/components/form-section';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { LinkStatusBadges } from '@/components/link-status-badges';
@@ -18,6 +19,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioTile } from '@/components/ui/radio-group';
 import {
     Select,
     SelectContent,
@@ -33,7 +35,6 @@ import { translator } from '@/lib/i18n';
 import type { TranslateFn, WithTranslations } from '@/lib/i18n';
 import { labelFor } from '@/lib/enum-labels';
 import { linkLabel, subdomainCodes } from '@/lib/names';
-import { cn } from '@/lib/utils';
 import { show as showAdverseEvent } from '@/routes/adverse-events';
 import { show as showSystemChange } from '@/routes/system-changes';
 import { index as linksIndex, show as showLink } from '@/routes/links';
@@ -147,7 +148,7 @@ export default function ReassessmentsCreate(props: Props) {
     return (
         <>
             <Head title={t('Reassess link')} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Reassess link')}
                     description={linkLabel(link, t)}
@@ -155,235 +156,264 @@ export default function ReassessmentsCreate(props: Props) {
 
                 {unacceptable && <UnacceptableTierAlert short />}
 
-                <ReversalContext link={link} reversal={reversal} />
+                <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+                    <Form
+                        {...ReassessmentController.store.form(link.id)}
+                        id={FORM_ID}
+                        onError={() => setConfirming(false)}
+                        className="grid min-w-0 gap-10"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <InputError message={errors.reassessment} />
 
-                <Form
-                    {...ReassessmentController.store.form(link.id)}
-                    id={FORM_ID}
-                    onError={() => setConfirming(false)}
-                    className="max-w-3xl space-y-6"
-                >
-                    {({ processing, errors }) => (
-                        <>
-                            <InputError message={errors.reassessment} />
-
-                            <fieldset className="grid gap-3">
-                                <legend className="mb-2 text-sm font-medium">
-                                    {t('Outcome')}
-                                </legend>
-                                {outcomes.map((option) => (
-                                    <label
-                                        key={option.value}
-                                        className={cn(
-                                            'flex items-start gap-3 rounded-lg border p-3',
-                                            option.problem
-                                                ? 'cursor-not-allowed opacity-70'
-                                                : 'hover:bg-muted/50 cursor-pointer',
-                                            outcome === option.value &&
-                                                'border-primary',
-                                        )}
+                                <FormSection step={1} title={t('Outcome')}>
+                                    <RadioGroup
+                                        name="outcome"
+                                        value={outcome ?? ''}
+                                        onValueChange={(value) => {
+                                            setOutcome(
+                                                value as ReassessmentOutcome,
+                                            );
+                                            setMissingOutcome(false);
+                                        }}
+                                        aria-label={t('Outcome')}
                                     >
-                                        <input
-                                            type="radio"
-                                            name="outcome"
-                                            value={option.value}
-                                            disabled={option.problem !== null}
-                                            checked={outcome === option.value}
-                                            onChange={() => {
-                                                setOutcome(option.value);
-                                                setMissingOutcome(false);
-                                            }}
-                                            className="mt-1"
-                                        />
-                                        <span className="grid gap-0.5">
-                                            <span className="font-medium">
-                                                {
+                                        {outcomes.map((option) => (
+                                            <RadioTile
+                                                key={option.value}
+                                                value={option.value}
+                                                disabled={
+                                                    option.problem !== null
+                                                }
+                                                title={
                                                     enumLabels
                                                         .ReassessmentOutcome[
                                                         option.value
                                                     ]
                                                 }
-                                            </span>
-                                            <span className="text-muted-foreground text-sm">
-                                                {outcomeEffect(
+                                                description={outcomeEffect(
                                                     option.value,
                                                     unacceptable,
                                                     t,
                                                 )}
-                                            </span>
-                                            {option.problem && (
-                                                <span className="text-sm text-amber-700 dark:text-amber-300">
-                                                    {t(
-                                                        'Unavailable: :problem',
-                                                        {
-                                                            problem:
-                                                                option.problem,
-                                                        },
-                                                    )}
-                                                </span>
-                                            )}
-                                        </span>
-                                    </label>
-                                ))}
-                                <InputError
-                                    message={
-                                        missingOutcome
-                                            ? t(
-                                                  'Choose the outcome of the reassessment.',
-                                              )
-                                            : errors.outcome
-                                    }
-                                />
-                            </fieldset>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="owner_id">
-                                    {t('Who reassesses')}
-                                </Label>
-                                <Select
-                                    name="owner_id"
-                                    defaultValue={
-                                        owners.some(
-                                            (owner) =>
-                                                owner.id === link.owner_id,
-                                        )
-                                            ? String(link.owner_id)
-                                            : undefined
-                                    }
-                                    required
-                                >
-                                    <SelectTrigger
-                                        id="owner_id"
-                                        className="w-full"
-                                        aria-invalid={
-                                            errors.owner_id ? true : undefined
-                                        }
-                                    >
-                                        <SelectValue
-                                            placeholder={t(
-                                                'Select the accountable role',
-                                            )}
-                                        />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {owners.map((owner) => (
-                                            <SelectItem
-                                                key={owner.id}
-                                                value={String(owner.id)}
-                                            >
-                                                {owner.organizational_role} (
-                                                {owner.area})
-                                            </SelectItem>
+                                                reason={
+                                                    option.problem &&
+                                                    t('Unavailable: :problem', {
+                                                        problem: option.problem,
+                                                    })
+                                                }
+                                            />
                                         ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.owner_id} />
-                            </div>
+                                    </RadioGroup>
+                                    <InputError
+                                        message={
+                                            missingOutcome
+                                                ? t(
+                                                      'Choose the outcome of the reassessment.',
+                                                  )
+                                                : errors.outcome
+                                        }
+                                    />
+                                </FormSection>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="justification">
-                                    {t('Justification')}
-                                </Label>
-                                <Textarea
-                                    id="justification"
-                                    name="justification"
-                                    required
-                                    maxLength={2000}
-                                    className="min-h-28"
-                                    placeholder={t(
-                                        'E.g.: The mitigation was active; the event came from a case outside its scope.',
-                                    )}
-                                    aria-invalid={
-                                        errors.justification ? true : undefined
+                                {outcome === 'adjust' && (
+                                    <AdjustFields
+                                        {...props}
+                                        step={2}
+                                        errors={errors}
+                                        verify={verify}
+                                        onVerify={setVerify}
+                                        verificationProblem={
+                                            verificationProblem
+                                        }
+                                    />
+                                )}
+
+                                {causeApplies && (
+                                    <CauseFields
+                                        step={outcome === 'adjust' ? 3 : 2}
+                                        causeStatus={causeStatus}
+                                        onCauseStatus={setCauseStatus}
+                                        causeStatuses={causeStatuses}
+                                        lifecyclePhases={props.lifecyclePhases}
+                                        errors={errors}
+                                    />
+                                )}
+
+                                <FormSection
+                                    step={
+                                        2 +
+                                        (outcome === 'adjust' ? 1 : 0) +
+                                        (causeApplies ? 1 : 0)
                                     }
-                                />
-                                <InputError message={errors.justification} />
-                            </div>
-
-                            {causeApplies && (
-                                <CauseFields
-                                    causeStatus={causeStatus}
-                                    onCauseStatus={setCauseStatus}
-                                    causeStatuses={causeStatuses}
-                                    lifecyclePhases={props.lifecyclePhases}
-                                    errors={errors}
-                                />
-                            )}
-
-                            {outcome === 'adjust' && (
-                                <AdjustFields
-                                    {...props}
-                                    errors={errors}
-                                    verify={verify}
-                                    onVerify={setVerify}
-                                    verificationProblem={verificationProblem}
-                                />
-                            )}
-
-                            <InputError message={errors.verification} />
-
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    type="button"
-                                    disabled={processing}
-                                    onClick={askToConfirm}
+                                    title={t('Decision')}
                                 >
-                                    {t('Record reassessment')}
-                                </Button>
-                                <Button variant="ghost" asChild>
-                                    <Link href={showLink(link.id)}>
-                                        {t('Cancel')}
-                                    </Link>
-                                </Button>
-                            </div>
-
-                            <Dialog
-                                open={confirming}
-                                onOpenChange={setConfirming}
-                            >
-                                <DialogContent>
-                                    <DialogTitle>
-                                        {t('Record this reassessment?')}
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        {t(
-                                            'Outcome: :outcome. :effect The reassessment is permanent: it can be neither edited nor deleted.',
-                                            {
-                                                outcome: outcome
-                                                    ? enumLabels
-                                                          .ReassessmentOutcome[
-                                                          outcome
-                                                      ]
-                                                    : '',
-                                                effect: outcome
-                                                    ? outcomeEffect(
-                                                          outcome,
-                                                          unacceptable,
-                                                          t,
-                                                      )
-                                                    : '',
-                                            },
-                                        )}
-                                    </DialogDescription>
-                                    <DialogFooter className="gap-2">
-                                        <DialogClose asChild>
-                                            <Button variant="secondary">
-                                                {t('Back')}
-                                            </Button>
-                                        </DialogClose>
-                                        <Button
-                                            type="submit"
-                                            form={FORM_ID}
-                                            disabled={processing}
+                                    <div className="grid gap-2 sm:max-w-sm">
+                                        <Label htmlFor="owner_id">
+                                            {t('Who reassesses')}
+                                        </Label>
+                                        <Select
+                                            name="owner_id"
+                                            defaultValue={
+                                                owners.some(
+                                                    (owner) =>
+                                                        owner.id ===
+                                                        link.owner_id,
+                                                )
+                                                    ? String(link.owner_id)
+                                                    : undefined
+                                            }
+                                            required
                                         >
-                                            {t('Record')}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                        </>
-                    )}
-                </Form>
+                                            <SelectTrigger
+                                                id="owner_id"
+                                                className="w-full"
+                                                aria-invalid={
+                                                    errors.owner_id
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            >
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        'Select the accountable role',
+                                                    )}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {owners.map((owner) => (
+                                                    <SelectItem
+                                                        key={owner.id}
+                                                        value={String(owner.id)}
+                                                    >
+                                                        {
+                                                            owner.organizational_role
+                                                        }{' '}
+                                                        ({owner.area})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.owner_id} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="justification">
+                                            {t('Justification')}
+                                        </Label>
+                                        <Textarea
+                                            id="justification"
+                                            name="justification"
+                                            required
+                                            maxLength={2000}
+                                            className="min-h-28"
+                                            placeholder={t(
+                                                'E.g.: The mitigation was active; the event came from a case outside its scope.',
+                                            )}
+                                            aria-invalid={
+                                                errors.justification
+                                                    ? true
+                                                    : undefined
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.justification}
+                                        />
+                                    </div>
+                                </FormSection>
+
+                                <InputError message={errors.verification} />
+
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        type="button"
+                                        size="lg"
+                                        disabled={processing}
+                                        onClick={askToConfirm}
+                                    >
+                                        {t('Record reassessment')}
+                                    </Button>
+                                    <Button variant="ghost" size="lg" asChild>
+                                        <Link href={showLink(link.id)}>
+                                            {t('Cancel')}
+                                        </Link>
+                                    </Button>
+                                </div>
+
+                                <Dialog
+                                    open={confirming}
+                                    onOpenChange={setConfirming}
+                                >
+                                    <DialogContent>
+                                        <DialogTitle>
+                                            {t('Record this reassessment?')}
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            {t(
+                                                'Outcome: :outcome. :effect The reassessment is permanent: it can be neither edited nor deleted.',
+                                                {
+                                                    outcome: outcome
+                                                        ? enumLabels
+                                                              .ReassessmentOutcome[
+                                                              outcome
+                                                          ]
+                                                        : '',
+                                                    effect: outcome
+                                                        ? outcomeEffect(
+                                                              outcome,
+                                                              unacceptable,
+                                                              t,
+                                                          )
+                                                        : '',
+                                                },
+                                            )}
+                                        </DialogDescription>
+                                        <DialogFooter className="gap-2">
+                                            <DialogClose asChild>
+                                                <Button variant="secondary">
+                                                    {t('Back')}
+                                                </Button>
+                                            </DialogClose>
+                                            <Button
+                                                type="submit"
+                                                form={FORM_ID}
+                                                disabled={processing}
+                                            >
+                                                {t('Record')}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </>
+                        )}
+                    </Form>
+
+                    <aside className="grid gap-6 lg:sticky lg:top-6">
+                        <ReversalContext link={link} reversal={reversal} />
+                        {outcome && (
+                            <section
+                                aria-live="polite"
+                                className="bg-muted border-l-info grid gap-2 border-l-[3px] p-4 text-sm"
+                            >
+                                <h2 className="font-semibold">
+                                    {t('When recorded with ":outcome"', {
+                                        outcome:
+                                            enumLabels.ReassessmentOutcome[
+                                                outcome
+                                            ],
+                                    })}
+                                </h2>
+                                <p>{outcomeEffect(outcome, unacceptable, t)}</p>
+                                <p className="text-muted-foreground">
+                                    {t(
+                                        'The reassessment is permanent: it can be neither edited nor deleted.',
+                                    )}
+                                </p>
+                            </section>
+                        )}
+                    </aside>
+                </div>
             </div>
         </>
     );
@@ -401,19 +431,19 @@ function ReversalContext({
     const { t } = useTranslations();
 
     return (
-        <Card className="max-w-3xl">
+        <Card>
             <CardHeader>
                 <CardTitle>{t('Reversal to reassess')}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4">
-                <dl className="grid gap-4 sm:grid-cols-3">
+                <dl className="grid gap-4">
                     <DetailItem label={t('Origin')}>
                         {enumLabels.ChangeOrigin[reversal.origin]}
                     </DetailItem>
                     <DetailItem label={t('Date')}>
                         {formatDate(reversal.change_date)}
                     </DetailItem>
-                    <DetailItem label={t('Link status')}>
+                    <DetailItem label={t('Current state')}>
                         <LinkStatusBadges link={link} />
                     </DetailItem>
                 </dl>
@@ -433,7 +463,7 @@ function ReversalContext({
                                 href={showSystemChange(
                                     reversal.system_change.id,
                                 )}
-                                className="hover:underline"
+                                className="text-link hover:text-link-hover hover:underline"
                             >
                                 {t(':type of :date', {
                                     type: enumLabels.SystemChangeType[
@@ -454,7 +484,7 @@ function ReversalContext({
                                 href={showAdverseEvent(
                                     reversal.adverse_event.id,
                                 )}
-                                className="hover:underline"
+                                className="text-link hover:text-link-hover hover:underline"
                             >
                                 {t(':subdomains of :date', {
                                     subdomains: subdomainCodes(
@@ -479,12 +509,14 @@ function ReversalContext({
  * explicitly not identified.
  */
 function CauseFields({
+    step,
     causeStatus,
     onCauseStatus,
     causeStatuses,
     lifecyclePhases,
     errors,
 }: {
+    step: number;
     causeStatus: string;
     onCauseStatus: (value: string) => void;
     causeStatuses: EnumOption[];
@@ -495,15 +527,18 @@ function CauseFields({
     const { t } = useTranslations();
 
     return (
-        <fieldset className="grid gap-3 rounded-lg border p-4">
-            <legend className="px-1 text-sm font-medium">
-                {t('Cause analysis')}
-            </legend>
-            <div className="flex flex-wrap gap-4">
+        <FormSection
+            step={step}
+            title={t('Cause analysis')}
+            description={t(
+                'Asked for because the reversal came from an adverse event or was manual.',
+            )}
+        >
+            <div className="flex flex-wrap gap-6">
                 {causeStatuses.map((option) => (
                     <label
                         key={option.value}
-                        className="flex items-center gap-2 text-sm"
+                        className="flex items-center gap-2"
                     >
                         <input
                             type="radio"
@@ -571,7 +606,7 @@ function CauseFields({
                     </div>
                 </>
             )}
-        </fieldset>
+        </FormSection>
     );
 }
 
@@ -580,6 +615,7 @@ function CauseFields({
  * is. Verifying in the same act is optional, when the evidence allows it.
  */
 function AdjustFields({
+    step,
     link,
     owners,
     costLevels,
@@ -590,6 +626,7 @@ function AdjustFields({
     onVerify,
     verificationProblem,
 }: Props & {
+    step: number;
     errors: Partial<Record<string, string>>;
     verify: boolean;
     onVerify: (value: boolean) => void;
@@ -598,16 +635,14 @@ function AdjustFields({
     const { t } = useTranslations();
 
     return (
-        <fieldset className="grid gap-4 rounded-lg border p-4">
-            <legend className="px-1 text-sm font-medium">
-                {t('Adjustments to the link')}
-            </legend>
-            <p className="text-muted-foreground text-sm">
-                {t(
-                    'Leave "No change" on what does not change. The before and after of each change are recorded in the reassessment.',
-                )}
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2">
+        <FormSection
+            step={step}
+            title={t('Adjustments to the link')}
+            description={t(
+                'Leave "No change" on what does not change. The before and after of each change are recorded in the reassessment.',
+            )}
+        >
+            <div className="grid gap-6 sm:grid-cols-2">
                 <ChangeSelect
                     name="changes[owner_id]"
                     label={t('Owner')}
@@ -685,7 +720,7 @@ function AdjustFields({
                     </p>
                 </div>
             </div>
-        </fieldset>
+        </FormSection>
     );
 }
 
@@ -708,7 +743,7 @@ function ChangeSelect({
     const id = name.replace(/\W+/g, '_');
 
     return (
-        <div className="grid gap-2">
+        <div className="grid min-w-0 content-start gap-2">
             <Label htmlFor={id}>{label}</Label>
             <Select value={value} onValueChange={setValue}>
                 <SelectTrigger

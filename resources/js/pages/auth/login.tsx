@@ -24,34 +24,20 @@ export default function Login({ status, canResetPassword }: Props) {
 
     const inputClass =
         'block h-12 w-full rounded-none border-0 ' +
-        'border-b border-[#8d8d8d] bg-[#f4f4f4] ' +
-        'px-4 text-sm text-[#161616] shadow-none ' +
-        'placeholder:text-[#8c8c8c] ' +
+        'border-b border-input bg-field ' +
+        'px-4 text-sm text-foreground shadow-none ' +
+        'placeholder:text-subtle-foreground ' +
         'focus:outline-2 focus:-outline-offset-2 ' +
-        'focus:outline-[#0f62fe] ' +
-        'focus:border-b-2 focus:border-b-[#0f62fe]';
+        'focus:outline-ring ' +
+        'focus:border-b-2 focus:border-b-primary';
 
     const { t } = useTranslations();
 
     return (
         <>
-            <Head title={t('Log in')}>
-                <link
-                    rel="stylesheet"
-                    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
-                />
-            </Head>
+            <Head title={t('Log in')}></Head>
 
-            <div
-                className="flex min-h-svh w-full flex-col bg-white text-[#161616]"
-                style={{
-                    fontFamily: "'IBM Plex Sans', sans-serif",
-                    letterSpacing: '0.16px',
-                }}
-            >
-                {/* Barra azul do Stitch */}
-                <div className="h-1 w-full shrink-0 bg-[#0f62fe]" />
-
+            <div className="bg-background text-foreground flex min-h-svh w-full flex-col">
                 <main className="flex w-full flex-1 items-center justify-center px-4 py-12">
                     <div className="mx-auto w-full max-w-[420px]">
                         {/* Logo e título */}
@@ -59,7 +45,7 @@ export default function Login({ status, canResetPassword }: Props) {
                             <Link
                                 href={home()}
                                 aria-label={t('Back to the home page')}
-                                className="mb-6 inline-flex h-12 w-12 items-center justify-center focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                className="focus-visible:outline-ring mb-6 inline-flex h-12 w-12 items-center justify-center focus-visible:outline-2"
                             >
                                 <img
                                     src="/favicon.svg"
@@ -72,7 +58,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                 {t('Log in to your account')}
                             </h1>
 
-                            <p className="mt-2 text-center text-sm leading-relaxed text-[#525252]">
+                            <p className="text-muted-foreground mt-2 text-center text-sm leading-relaxed">
                                 {t(
                                     'Enter your email and password below to log in',
                                 )}
@@ -101,7 +87,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                     <div>
                                         <label
                                             htmlFor="email"
-                                            className="mb-2 block text-xs text-[#525252]"
+                                            className="text-muted-foreground mb-2 block text-xs"
                                         >
                                             {t('Email address')}
                                         </label>
@@ -126,7 +112,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                         <div className="mb-2 flex items-center justify-between gap-3">
                                             <label
                                                 htmlFor="password"
-                                                className="text-xs text-[#525252]"
+                                                className="text-muted-foreground text-xs"
                                             >
                                                 {t('Password')}
                                             </label>
@@ -134,7 +120,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                             {canResetPassword && (
                                                 <Link
                                                     href={request.url()}
-                                                    className="text-xs text-[#0f62fe] hover:underline focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                                    className="text-link focus-visible:outline-ring text-xs hover:underline focus-visible:outline-2"
                                                 >
                                                     {t('Forgot your password?')}
                                                 </Link>
@@ -172,7 +158,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                                         : t('Show password')
                                                 }
                                                 aria-pressed={showPassword}
-                                                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:bg-[#e0e0e0] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                                className="text-muted-foreground hover:bg-secondary focus-visible:outline-ring absolute inset-y-0 right-0 flex w-12 items-center justify-center focus-visible:outline-2"
                                             >
                                                 {showPassword ? (
                                                     <EyeOff
@@ -198,12 +184,12 @@ export default function Login({ status, canResetPassword }: Props) {
                                             name="remember"
                                             type="checkbox"
                                             value="1"
-                                            className="h-[18px] w-[18px] cursor-pointer rounded-none border border-[#161616] accent-[#161616] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe]"
+                                            className="border-foreground accent-foreground focus-visible:outline-ring h-[18px] w-[18px] cursor-pointer rounded-none border focus-visible:outline-2 focus-visible:outline-offset-2"
                                         />
 
                                         <label
                                             htmlFor="remember"
-                                            className="cursor-pointer text-sm text-[#161616]"
+                                            className="text-foreground cursor-pointer text-sm"
                                         >
                                             {t('Remember me')}
                                         </label>
@@ -215,7 +201,7 @@ export default function Login({ status, canResetPassword }: Props) {
                                             type="submit"
                                             disabled={processing}
                                             data-test="login-button"
-                                            className="flex h-12 w-full items-center justify-between bg-[#161616] px-4 text-sm text-white transition-colors hover:bg-[#393939] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] active:bg-[#0f62fe] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-ring active:bg-primary flex h-12 w-full items-center justify-between px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <span>
                                                 {processing
@@ -243,7 +229,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
                             <Link
                                 href={register.url()}
-                                className="ml-1 underline hover:text-[#0f62fe] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                className="hover:text-link focus-visible:outline-ring ml-1 underline focus-visible:outline-2"
                             >
                                 {t('Sign up')}
                             </Link>
@@ -252,8 +238,8 @@ export default function Login({ status, canResetPassword }: Props) {
                 </main>
 
                 {/* Rodapé */}
-                <footer className="w-full border-t border-[#e0e0e0] bg-white py-6 text-center">
-                    <p className="px-4 text-xs text-[#8c8c8c]">
+                <footer className="border-border bg-background w-full border-t py-6 text-center">
+                    <p className="text-subtle-foreground px-4 text-xs">
                         {t('Framework RME · Applied research project — PUCPR')}
                     </p>
                 </footer>

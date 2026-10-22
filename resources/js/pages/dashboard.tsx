@@ -5,9 +5,9 @@ import { WaitingDays } from '@/components/waiting-days';
 import Heading from '@/components/heading';
 import { AiSystemName } from '@/components/ai-system-name';
 import { ReviewDate } from '@/components/review-date';
+import { FilterLink } from '@/components/filter-link';
 import { VerificationBadge } from '@/components/link-status-badges';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
-import { unacceptableTone } from '@/components/unacceptable-tier-alert';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,6 @@ import type { WithTranslations } from '@/lib/i18n';
 import { categoryBadgeClasses, linkStatusBadgeClasses } from '@/lib/labels';
 import { linkLabel } from '@/lib/names';
 import { linksWith } from '@/lib/link-filters';
-import type { VerificationFilter } from '@/lib/link-filters';
 import { cn } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import {
@@ -45,12 +44,9 @@ import {
     create as createAiSystem,
     show as showAiSystem,
 } from '@/routes/ai-systems';
-import {
-    create as createLink,
-    index as linksIndex,
-    show as showLink,
-} from '@/routes/links';
+import { create as createLink, show as showLink } from '@/routes/links';
 import { create as createEvidence } from '@/routes/links/evidence';
+import { create as createReassessment } from '@/routes/links/reassessments';
 import { show as showSystemChange } from '@/routes/system-changes';
 import {
     create as createRisk,
@@ -127,11 +123,12 @@ type Props = {
 
 /** Tones for the review labels of the reassessment screen (Tela 5). */
 const reviewBadge = {
-    dueToday:
-        'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    onTrack:
-        'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
+    dueToday: 'border-transparent bg-tag-yellow text-tag-yellow-foreground',
+    onTrack: 'border-transparent bg-tag-green text-tag-green-foreground',
 };
+
+/** A pending count that is not zero reads in the warning colour. */
+const pendingTone = 'text-tag-yellow-foreground font-semibold';
 
 export default function Dashboard(props: Props) {
     const { t } = useTranslations();
@@ -140,13 +137,33 @@ export default function Dashboard(props: Props) {
     return (
         <>
             <Head title={t('Dashboard')} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title={t('Dashboard')}
-                    description={t(
-                        'Where the traceability chain is still incomplete.',
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
+                <div className="flex flex-wrap items-end justify-between gap-6">
+                    <Heading
+                        title={t('Dashboard')}
+                        description={t(
+                            'Where the traceability chain is still incomplete.',
+                        )}
+                    />
+                    {totals.aiSystems > 0 && (
+                        <dl className="flex flex-wrap gap-x-8 gap-y-2">
+                            <Total
+                                label={t('AI systems')}
+                                value={totals.aiSystems}
+                            />
+                            <Total label={t('Risks')} value={totals.risks} />
+                            <Total label={t('Links')} value={totals.links} />
+                            <Total
+                                label={t('Mitigations in the catalogue')}
+                                value={totals.mitigations}
+                            />
+                            <Total
+                                label={t('Active owners')}
+                                value={totals.owners}
+                            />
+                        </dl>
                     )}
-                />
+                </div>
                 {totals.aiSystems === 0 ? <Welcome /> : <Overview {...props} />}
             </div>
         </>
@@ -158,11 +175,9 @@ function Welcome() {
     const { t } = useTranslations();
 
     return (
-        <div className="flex max-w-2xl flex-col items-start gap-4 rounded-xl border border-dashed p-8">
-            <h2 className="text-lg font-semibold">
-                {t('Start with the AI system')}
-            </h2>
-            <p className="text-muted-foreground text-sm">
+        <div className="flex max-w-2xl flex-col items-start gap-4 border border-dashed p-8">
+            <h2 className="text-xl">{t('Start with the AI system')}</h2>
+            <p className="text-muted-foreground">
                 {t(
                     "The framework's cycle starts from a registered AI system: the risks, the mitigations applied, the evidence and the adverse events tie to it. Register the first system for the dashboard to start showing what is missing at each step.",
                 )}
@@ -175,7 +190,6 @@ function Welcome() {
 }
 
 function Overview({
-    totals,
     unlinkedRisks,
     linksByStatus,
     linksWithoutEvidence,
@@ -194,128 +208,137 @@ function Overview({
                 <UnacceptableSystemsAlert systems={unacceptableSystems} />
             )}
 
-            <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                <Total label={t('AI systems')} value={totals.aiSystems} />
-                <Total label={t('Risks')} value={totals.risks} />
-                <Total label={t('Links')} value={totals.links} />
-                <Total
-                    label={t('Mitigations in the catalogue')}
-                    value={totals.mitigations}
-                />
-                <Total label={t('Active owners')} value={totals.owners} />
-            </dl>
+            <section aria-labelledby="needs-action" className="grid gap-4">
+                <h2 id="needs-action" className="text-xl">
+                    {t('What needs action')}
+                </h2>
+                <div className="grid gap-px border bg-[var(--border)] sm:grid-cols-2 lg:grid-cols-4">
+                    <ActionTile
+                        count={verification.awaitingReassessment}
+                        title={t('Awaiting reassessment')}
+                        sentence={t(
+                            'Reverted to declared, waiting for a decision.',
+                        )}
+                        href={linksWith('awaiting_reassessment')}
+                        action={t('See the queue')}
+                    />
+                    <ActionTile
+                        count={verification.awaitingVerification}
+                        title={t('Awaiting verification')}
+                        sentence={t(
+                            'Declared, waiting for the proof: never verified, or reassessed without verification.',
+                        )}
+                        href={linksWith('awaiting_verification')}
+                        action={t('See in the list')}
+                    />
+                    <ActionTile
+                        count={linksWithoutEvidence.count}
+                        title={t('Links without evidence')}
+                        sentence={t(
+                            'Mitigations applied with nothing proving their execution.',
+                        )}
+                        href="#links-without-evidence"
+                        action={t('See below')}
+                    />
+                    <ActionTile
+                        count={unmappedRisks.length}
+                        title={t('Risks not mapped')}
+                        sentence={t(
+                            'Subdomains cited by events or changes with no risk registered in the system.',
+                        )}
+                        href="#risks-not-mapped"
+                        action={t('See below')}
+                    />
+                </div>
+                <p className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
+                    <span>
+                        {unlinkedRisks.count === 0
+                            ? t('Every risk has at least one link.')
+                            : interpolateNodes(
+                                  t('Risks without a link: :count'),
+                                  {
+                                      count: (
+                                          <a
+                                              href="#risks-without-link"
+                                              className={cn(
+                                                  'hover:underline',
+                                                  pendingTone,
+                                              )}
+                                          >
+                                              {unlinkedRisks.count}
+                                          </a>
+                                      ),
+                                  },
+                              )}
+                    </span>
+                    <span>
+                        {interpolateNodes(
+                            t('Events in the last :days days: :count', {
+                                days: recentEvents.days,
+                            }),
+                            {
+                                count: (
+                                    <Link
+                                        href={adverseEventsIndex()}
+                                        className="text-link hover:text-link-hover hover:underline"
+                                    >
+                                        {recentEvents.count}
+                                    </Link>
+                                ),
+                            },
+                        )}
+                    </span>
+                    <span>
+                        {interpolateNodes(t('Verified links: :count'), {
+                            count: (
+                                <Link
+                                    href={linksWith('verified')}
+                                    className="text-link hover:text-link-hover hover:underline"
+                                >
+                                    {verification.verified}
+                                </Link>
+                            ),
+                        })}
+                    </span>
+                </p>
+            </section>
 
-            <div className="grid gap-4 sm:grid-cols-3">
-                <PendingCard
-                    count={unlinkedRisks.count}
-                    title={t('Risks without a link')}
-                    sentence={t('Identified risks with no mitigation applied.')}
-                    href={risksIndex()}
-                    action={t('See risks')}
-                />
-                <PendingCard
-                    count={linksWithoutEvidence.count}
-                    title={t('Links without evidence')}
-                    sentence={t(
-                        'Mitigations applied with nothing proving their execution.',
-                    )}
-                    href={linksIndex()}
-                    action={t('See links')}
-                />
-                <PendingCard
-                    count={recentEvents.count}
-                    title={t('Events in the last :days days', {
-                        days: recentEvents.days,
-                    })}
-                    sentence={t('Recent problems in the systems in operation.')}
-                    href={adverseEventsIndex()}
-                    action={t('See events')}
-                />
+            <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+                <ReassessmentQueue counts={verification} />
+                <div className="grid gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{t('Upcoming reviews')}</CardTitle>
+                            <CardDescription>
+                                {t(
+                                    'Due today or in the next :days days. The date is the last valid day: on the next day, the link goes back to declared.',
+                                    { days: reviews.upcomingDays },
+                                )}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {reviews.upcoming.length === 0 ? (
+                                <Empty>
+                                    {t(
+                                        'No review due in the next :days days.',
+                                        { days: reviews.upcomingDays },
+                                    )}
+                                </Empty>
+                            ) : (
+                                <ul className="divide-y">
+                                    {reviews.upcoming.map((link) => (
+                                        <ReviewItem key={link.id} link={link} />
+                                    ))}
+                                </ul>
+                            )}
+                        </CardContent>
+                    </Card>
+                    <UnmappedRisks risks={unmappedRisks} />
+                </div>
             </div>
 
-            <VerificationSummary counts={verification} />
-
-            <UnmappedRisks risks={unmappedRisks} />
-
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Risks without a link')}</CardTitle>
-                        <CardDescription>
-                            {t('The oldest first.')}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {unlinkedRisks.items.length === 0 ? (
-                            <Empty>
-                                {t('Every risk has at least one link.')}
-                            </Empty>
-                        ) : (
-                            <ul className="divide-y">
-                                {unlinkedRisks.items.map((risk) => (
-                                    <li
-                                        key={risk.id}
-                                        className="flex items-center justify-between gap-4 py-2"
-                                    >
-                                        <span className="grid gap-1">
-                                            <Link
-                                                href={showRisk(risk.id)}
-                                                className="font-medium hover:underline"
-                                            >
-                                                {risk.name}
-                                            </Link>
-                                            <span className="text-muted-foreground text-xs">
-                                                {risk.ai_system?.name}
-                                            </span>
-                                        </span>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            asChild
-                                        >
-                                            <Link
-                                                href={createLink({
-                                                    query: { risk: risk.id },
-                                                })}
-                                            >
-                                                {t('Create link')}
-                                            </Link>
-                                        </Button>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Upcoming reviews')}</CardTitle>
-                        <CardDescription>
-                            {t(
-                                'Due today or in the next :days days. The date is the last valid day: on the next day, the link goes back to declared.',
-                                { days: reviews.upcomingDays },
-                            )}
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {reviews.upcoming.length === 0 ? (
-                            <Empty>
-                                {t('No review due in the next :days days.', {
-                                    days: reviews.upcomingDays,
-                                })}
-                            </Empty>
-                        ) : (
-                            <ul className="divide-y">
-                                {reviews.upcoming.map((link) => (
-                                    <ReviewItem key={link.id} link={link} />
-                                ))}
-                            </ul>
-                        )}
-                    </CardContent>
-                </Card>
-
-                <Card>
+            <div className="grid items-start gap-6 lg:grid-cols-2">
+                <Card id="links-without-evidence" className="scroll-mt-6">
                     <CardHeader>
                         <CardTitle>{t('Links without evidence')}</CardTitle>
                         <CardDescription>
@@ -334,31 +357,26 @@ function Overview({
                                 {linksWithoutEvidence.items.map((link) => (
                                     <li
                                         key={link.id}
-                                        className="flex items-center justify-between gap-4 py-2"
+                                        className="flex items-center justify-between gap-4 py-3"
                                     >
-                                        <span className="grid">
+                                        <span className="grid gap-0.5">
                                             <Link
                                                 href={showLink(link.id)}
-                                                className="font-medium hover:underline"
+                                                className="text-link hover:text-link-hover hover:underline"
                                             >
                                                 {linkLabel(link, t)}
                                             </Link>
-                                            <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
+                                            <span className="text-muted-foreground text-xs tracking-[0.32px]">
                                                 {t('Created on :date', {
                                                     date: formatDate(
                                                         link.creation_date,
                                                     ),
                                                 })}
-                                                <VerificationBadge
-                                                    verification={
-                                                        link.verification_status
-                                                    }
-                                                />
                                             </span>
                                         </span>
                                         <Button
                                             size="sm"
-                                            variant="outline"
+                                            variant="ghost"
                                             asChild
                                         >
                                             <Link
@@ -396,14 +414,14 @@ function Overview({
                                 {recentEvents.items.map((event) => (
                                     <li
                                         key={event.id}
-                                        className="flex items-center justify-between gap-4 py-2"
+                                        className="flex items-center justify-between gap-4 py-3"
                                     >
-                                        <span className="grid">
+                                        <span className="grid gap-1">
                                             <Link
                                                 href={showAdverseEvent(
                                                     event.id,
                                                 )}
-                                                className="font-medium hover:underline"
+                                                className="text-link hover:text-link-hover hover:underline"
                                             >
                                                 {event.ai_system?.name}
                                             </Link>
@@ -422,25 +440,80 @@ function Overview({
                         )}
                     </CardContent>
                 </Card>
+
+                {unlinkedRisks.items.length > 0 && (
+                    <Card id="risks-without-link" className="scroll-mt-6">
+                        <CardHeader>
+                            <CardTitle>{t('Risks without a link')}</CardTitle>
+                            <CardDescription>
+                                {t('The oldest first.')}
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ul className="divide-y">
+                                {unlinkedRisks.items.map((risk) => (
+                                    <li
+                                        key={risk.id}
+                                        className="flex items-center justify-between gap-4 py-3"
+                                    >
+                                        <span className="grid gap-0.5">
+                                            <Link
+                                                href={showRisk(risk.id)}
+                                                className="text-link hover:text-link-hover hover:underline"
+                                            >
+                                                {risk.name}
+                                            </Link>
+                                            <span className="text-muted-foreground text-xs tracking-[0.32px]">
+                                                {risk.ai_system?.name}
+                                            </span>
+                                        </span>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={createLink({
+                                                    query: { risk: risk.id },
+                                                })}
+                                            >
+                                                {t('Create link')}
+                                            </Link>
+                                        </Button>
+                                    </li>
+                                ))}
+                            </ul>
+                            <Link
+                                href={risksIndex()}
+                                className="text-link hover:text-link-hover mt-3 inline-block text-sm hover:underline"
+                            >
+                                {t('See risks')}
+                            </Link>
+                        </CardContent>
+                    </Card>
+                )}
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('Links by progress')}</CardTitle>
+                        <CardDescription>
+                            {t(
+                                'Progress of the mitigations applied; cancelled ones are left out.',
+                            )}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <StatusBars rows={linksByStatus} />
+                    </CardContent>
+                </Card>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>{t('Links by status')}</CardTitle>
-                    <CardDescription>
-                        {t(
-                            'Progress of the mitigations applied; cancelled ones are left out.',
-                        )}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <StatusBars rows={linksByStatus} />
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
                     <CardTitle>{t('By AI system')}</CardTitle>
+                    <CardDescription>
+                        {t('Pending counts show in yellow.')}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <SystemsTable systems={systems} />
@@ -452,17 +525,17 @@ function Overview({
 
 function Total({ label, value }: { label: string; value: number }) {
     return (
-        <div className="flex items-baseline gap-1.5">
-            <dt>{label}</dt>
-            <dd className="text-foreground font-semibold tabular-nums">
-                {value}
-            </dd>
+        <div className="grid gap-0.5">
+            <dt className="text-muted-foreground text-xs tracking-[0.32px]">
+                {label}
+            </dt>
+            <dd className="text-xl tabular-nums">{value}</dd>
         </div>
     );
 }
 
 /** A pending count; it stands out when there is something to resolve. */
-function PendingCard({
+function ActionTile({
     count,
     title,
     sentence,
@@ -476,37 +549,37 @@ function PendingCard({
     action: string;
 }) {
     const pending = count > 0;
+    const body = (
+        <>
+            <span className="text-sm">{title}</span>
+            <span
+                className={cn(
+                    'text-[42px] leading-[50px] font-light tabular-nums',
+                    pending
+                        ? 'text-tag-yellow-foreground'
+                        : 'text-muted-foreground',
+                )}
+            >
+                {count}
+            </span>
+            <span className="text-muted-foreground text-xs tracking-[0.32px]">
+                {sentence}
+            </span>
+            <span className="text-link mt-auto pt-2 text-sm">{action} →</span>
+        </>
+    );
+    const className =
+        'bg-card hover:bg-accent focus-visible:outline-ring flex flex-col gap-1 p-4 outline-none focus-visible:outline-2 focus-visible:-outline-offset-2';
 
-    return (
-        <Card
-            className={cn(
-                pending &&
-                    'border-amber-300 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/30',
-            )}
-        >
-            <CardHeader>
-                <CardDescription>{title}</CardDescription>
-                <CardTitle
-                    className={cn(
-                        'text-3xl tabular-nums',
-                        pending
-                            ? 'text-amber-700 dark:text-amber-300'
-                            : 'text-muted-foreground',
-                    )}
-                >
-                    {count}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-                <p className="text-muted-foreground text-sm">{sentence}</p>
-                <Link
-                    href={href}
-                    className="text-sm font-medium hover:underline"
-                >
-                    {action} →
-                </Link>
-            </CardContent>
-        </Card>
+    // Anchors within the page are plain links; the rest go through Inertia.
+    return typeof href === 'string' && href.startsWith('#') ? (
+        <a href={href} className={className}>
+            {body}
+        </a>
+    ) : (
+        <Link href={href} className={className}>
+            {body}
+        </Link>
     );
 }
 
@@ -522,7 +595,7 @@ function UnacceptableSystemsAlert({
     const { t, tc } = useTranslations();
 
     return (
-        <Alert className={unacceptableTone}>
+        <Alert variant="destructive">
             <TriangleAlertIcon aria-hidden />
             <AlertTitle>
                 {tc(
@@ -530,7 +603,7 @@ function UnacceptableSystemsAlert({
                     systems.length,
                 )}
             </AlertTitle>
-            <AlertDescription className="text-red-900 dark:text-red-200">
+            <AlertDescription>
                 <p>
                     {t(
                         'Prohibited practices: these systems are not considered in operation and are left out of the review indicators. Their links serve to plan the discontinuation.',
@@ -541,7 +614,7 @@ function UnacceptableSystemsAlert({
                         <li key={system.id}>
                             <Link
                                 href={showAiSystem(system.id)}
-                                className="font-medium underline underline-offset-4"
+                                className="text-link hover:text-link-hover hover:underline"
                             >
                                 {system.name}
                             </Link>
@@ -554,152 +627,124 @@ function UnacceptableSystemsAlert({
 }
 
 /**
- * Where the links stand on verification (0018), each count leading to the
- * filtered link list: never verified, reverted and awaiting reassessment,
- * and verified.
+ * The reassessment queue (0020): how many links wait by the origin of their
+ * last reversal (0019), and those waiting longest, each with its shortcut.
  */
-function VerificationSummary({ counts }: { counts: Props['verification'] }) {
+function ReassessmentQueue({ counts }: { counts: Props['verification'] }) {
     const enumLabels = useEnumLabels();
     const { t } = useTranslations();
-    const rows: {
-        filter: VerificationFilter;
-        label: string;
-        sentence: string;
-        count: number;
-        pending: boolean;
-    }[] = [
-        {
-            filter: 'awaiting_verification',
-            label: t('Awaiting verification'),
-            sentence: t(
-                'Declared, waiting for the proof: never verified, or reassessed without verification.',
-            ),
-            count: counts.awaitingVerification,
-            pending: true,
-        },
-        {
-            filter: 'awaiting_reassessment',
-            label: t('Awaiting reassessment'),
-            sentence: t('Reverted to declared, waiting for a decision.'),
-            count: counts.awaitingReassessment,
-            pending: true,
-        },
-        {
-            filter: 'verified',
-            label: t('Verified links'),
-            sentence: t('Proven by evidence and under periodic review.'),
-            count: counts.verified,
-            pending: false,
-        },
-    ];
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>{t('Verification of the links')}</CardTitle>
-                <CardDescription>
-                    {t(
-                        'Cancelled links are left out. The first verification also leaves out the systems in the unacceptable tier, which cannot be verified.',
-                    )}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ul className="grid gap-4 sm:grid-cols-3">
-                    {rows.map((row) => (
-                        <li key={row.filter} className="grid gap-1">
-                            <Link
-                                href={linksWith(row.filter)}
-                                className="hover:bg-muted/50 grid gap-1 rounded-lg border p-4"
-                            >
-                                <span className="text-muted-foreground text-sm">
-                                    {row.label}
-                                </span>
-                                <span
-                                    className={cn(
-                                        'text-3xl font-semibold tabular-nums',
-                                        row.pending &&
-                                            row.count > 0 &&
-                                            'text-amber-700 dark:text-amber-300',
-                                    )}
-                                >
-                                    {row.count}
-                                </span>
-                                <span className="text-muted-foreground text-xs">
-                                    {row.sentence}
-                                </span>
-                            </Link>
-                        </li>
-                    ))}
-                </ul>
-                <div className="mt-4 grid gap-2">
-                    <p className="text-muted-foreground text-sm">
+            <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-4">
+                <div className="grid gap-1.5">
+                    <CardTitle>{t('Reassessment queue')}</CardTitle>
+                    <CardDescription>
                         {t(
-                            'Awaiting reassessment, by the origin of the last reversal',
+                            'Those waiting longest first, by the origin of the last reversal.',
                         )}
-                    </p>
-                    <ul className="grid gap-2 sm:grid-cols-4">
-                        {counts.awaitingReassessmentByOrigin.map((row) => (
-                            <li key={row.origin}>
-                                <Link
-                                    href={linksWith(
-                                        'awaiting_reassessment',
-                                        row.origin,
-                                    )}
-                                    className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
-                                >
-                                    <span>
-                                        {enumLabels.ChangeOrigin[row.origin]}
-                                    </span>
-                                    <span
-                                        className={cn(
-                                            'font-semibold tabular-nums',
-                                            row.count > 0 &&
-                                                'text-amber-700 dark:text-amber-300',
-                                        )}
-                                    >
-                                        {row.count}
-                                    </span>
-                                </Link>
-                            </li>
-                        ))}
-                    </ul>
+                    </CardDescription>
                 </div>
-                {counts.longestAwaiting.length > 0 && (
-                    <div className="mt-4 grid gap-2">
-                        <p className="text-muted-foreground text-sm">
-                            {t('Waiting longest for reassessment')}
-                        </p>
-                        <ul className="divide-y">
-                            {counts.longestAwaiting.map((link) => (
-                                <li
-                                    key={link.id}
-                                    className="flex flex-wrap items-center justify-between gap-4 py-2"
-                                >
-                                    <Link
-                                        href={showLink(link.id)}
-                                        className="font-medium hover:underline"
-                                    >
-                                        {linkLabel(link, t)}
-                                    </Link>
-                                    {link.last_reversal && (
-                                        <span className="text-muted-foreground flex items-center gap-2 text-sm">
-                                            {
+                <Link
+                    href={linksWith('awaiting_reassessment')}
+                    className="text-link hover:text-link-hover text-sm hover:underline"
+                >
+                    {t('See all :count', {
+                        count: counts.awaitingReassessment,
+                    })}
+                </Link>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+                <nav
+                    aria-label={t('Filter by the origin of the last reversal')}
+                    className="flex flex-wrap gap-2"
+                >
+                    {counts.awaitingReassessmentByOrigin.map((row) => (
+                        <FilterLink
+                            key={row.origin}
+                            href={linksWith(
+                                'awaiting_reassessment',
+                                row.origin,
+                            )}
+                            active={false}
+                        >
+                            {enumLabels.ChangeOrigin[row.origin]}
+                            <span
+                                className={cn(
+                                    'tabular-nums',
+                                    row.count > 0
+                                        ? pendingTone
+                                        : 'text-muted-foreground',
+                                )}
+                            >
+                                {row.count}
+                            </span>
+                        </FilterLink>
+                    ))}
+                </nav>
+                {counts.longestAwaiting.length === 0 ? (
+                    <Empty>{t('No link awaits reassessment.')}</Empty>
+                ) : (
+                    <div className="overflow-x-auto border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>{t('Link')}</TableHead>
+                                    <TableHead>{t('Origin')}</TableHead>
+                                    <TableHead>{t('Waiting for')}</TableHead>
+                                    <TableHead>
+                                        <span className="sr-only">
+                                            {t('Action')}
+                                        </span>
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {counts.longestAwaiting.map((link) => (
+                                    <TableRow key={link.id}>
+                                        <TableCell className="min-w-48 whitespace-normal">
+                                            <Link
+                                                href={showLink(link.id)}
+                                                className="text-link hover:text-link-hover hover:underline"
+                                            >
+                                                {linkLabel(link, t)}
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell className="whitespace-normal">
+                                            {link.last_reversal &&
                                                 enumLabels.ChangeOrigin[
                                                     link.last_reversal.origin
-                                                ]
-                                            }{' '}
-                                            ·{' '}
-                                            <WaitingDays
-                                                since={
-                                                    link.last_reversal
-                                                        .change_date
-                                                }
-                                            />
-                                        </span>
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                                                ]}
+                                        </TableCell>
+                                        <TableCell>
+                                            {link.last_reversal && (
+                                                <WaitingDays
+                                                    since={
+                                                        link.last_reversal
+                                                            .change_date
+                                                    }
+                                                />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button
+                                                size="sm"
+                                                variant="ghost"
+                                                asChild
+                                            >
+                                                <Link
+                                                    href={createReassessment(
+                                                        link.id,
+                                                    )}
+                                                >
+                                                    {t('Reassess')}
+                                                </Link>
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 )}
             </CardContent>
@@ -716,7 +761,7 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
     const { t, tc } = useTranslations();
 
     return (
-        <Card>
+        <Card id="risks-not-mapped" className="scroll-mt-6">
             <CardHeader>
                 <CardTitle>{t('Risks not mapped')}</CardTitle>
                 <CardDescription>
@@ -740,7 +785,7 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
                                 className="flex flex-wrap items-center justify-between gap-4 py-2"
                             >
                                 <span className="grid gap-0.5">
-                                    <span className="font-medium">
+                                    <span>
                                         {risk.subdomain.code}{' '}
                                         {risk.subdomain.name}
                                     </span>
@@ -815,7 +860,7 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
                                         )}
                                     </span>
                                 </span>
-                                <Button size="sm" variant="outline" asChild>
+                                <Button size="sm" variant="ghost" asChild>
                                     <Link
                                         href={createRisk({
                                             query: {
@@ -843,15 +888,15 @@ function ReviewItem({ link }: { link: RiskLink }) {
         dateInputValue(link.next_review_date) === dateInputValue();
 
     return (
-        <li className="flex items-center justify-between gap-4 py-2">
+        <li className="flex items-center justify-between gap-4 py-3">
             <span className="grid">
                 <Link
                     href={showLink(link.id)}
-                    className="font-medium hover:underline"
+                    className="text-link hover:text-link-hover hover:underline"
                 >
                     {linkLabel(link, t)}
                 </Link>
-                <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-muted-foreground flex flex-wrap items-center gap-2 text-xs tracking-[0.32px]">
                     <span>
                         {interpolateNodes(t('Review on :date'), {
                             date: (
@@ -898,9 +943,9 @@ function StatusBars({ rows }: { rows: Props['linksByStatus'] }) {
                     >
                         {enumLabels.LinkStatus[row.status]}
                     </Badge>
-                    <div className="bg-muted h-2 overflow-hidden rounded-full">
+                    <div className="bg-muted h-2 overflow-hidden">
                         <div
-                            className="bg-primary/70 h-full rounded-full"
+                            className="bg-primary h-full"
                             style={{ width: `${(row.count / max) * 100}%` }}
                         />
                     </div>
@@ -918,68 +963,76 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
     const { t } = useTranslations();
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>{t('System')}</TableHead>
-                    <TableHead className="text-right">{t('Risks')}</TableHead>
-                    <TableHead className="text-right">
-                        {t('Without a link')}
-                    </TableHead>
-                    <TableHead className="text-right">{t('Links')}</TableHead>
-                    <TableHead className="text-right">
-                        {t('Awaiting reassessment')}
-                    </TableHead>
-                    <TableHead className="text-right">
-                        {t('Events (30 days)')}
-                    </TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {systems.map((system) => (
-                    <TableRow key={system.id}>
-                        <TableCell>
-                            <AiSystemName domain={system.application_domain}>
-                                <span className="flex flex-wrap items-center gap-2">
-                                    <Link
-                                        href={showAiSystem(system.id)}
-                                        className="font-medium hover:underline"
-                                    >
-                                        {system.name}
-                                    </Link>
-                                    {system.category === 'unacceptable' && (
-                                        <Badge
-                                            className={
-                                                categoryBadgeClasses.unacceptable
-                                            }
-                                        >
-                                            {
-                                                enumLabels.AiSystemCategory
-                                                    .unacceptable
-                                            }
-                                        </Badge>
-                                    )}
-                                </span>
-                            </AiSystemName>
-                        </TableCell>
-                        <NumberCell value={system.risks_count} />
-                        <NumberCell
-                            value={system.unlinked_risks_count}
-                            pending
-                        />
-                        <NumberCell value={system.links_count} />
-                        <NumberCell
-                            value={system.awaiting_reassessment_count}
-                            pending
-                        />
-                        <NumberCell
-                            value={system.recent_events_count}
-                            pending
-                        />
+        <div className="overflow-x-auto border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t('System')}</TableHead>
+                        <TableHead className="text-right">
+                            {t('Risks')}
+                        </TableHead>
+                        <TableHead className="text-right">
+                            {t('Without a link')}
+                        </TableHead>
+                        <TableHead className="text-right">
+                            {t('Links')}
+                        </TableHead>
+                        <TableHead className="text-right">
+                            {t('Awaiting reassessment')}
+                        </TableHead>
+                        <TableHead className="text-right">
+                            {t('Events (30 days)')}
+                        </TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {systems.map((system) => (
+                        <TableRow key={system.id}>
+                            <TableCell>
+                                <AiSystemName
+                                    domain={system.application_domain}
+                                >
+                                    <span className="flex flex-wrap items-center gap-2">
+                                        <Link
+                                            href={showAiSystem(system.id)}
+                                            className="text-link hover:text-link-hover hover:underline"
+                                        >
+                                            {system.name}
+                                        </Link>
+                                        {system.category === 'unacceptable' && (
+                                            <Badge
+                                                className={
+                                                    categoryBadgeClasses.unacceptable
+                                                }
+                                            >
+                                                {
+                                                    enumLabels.AiSystemCategory
+                                                        .unacceptable
+                                                }
+                                            </Badge>
+                                        )}
+                                    </span>
+                                </AiSystemName>
+                            </TableCell>
+                            <NumberCell value={system.risks_count} />
+                            <NumberCell
+                                value={system.unlinked_risks_count}
+                                pending
+                            />
+                            <NumberCell value={system.links_count} />
+                            <NumberCell
+                                value={system.awaiting_reassessment_count}
+                                pending
+                            />
+                            <NumberCell
+                                value={system.recent_events_count}
+                                pending
+                            />
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
     );
 }
 
@@ -995,9 +1048,7 @@ function NumberCell({
         <TableCell
             className={cn(
                 'text-right tabular-nums',
-                pending &&
-                    value > 0 &&
-                    'font-semibold text-amber-700 dark:text-amber-300',
+                pending && value > 0 && pendingTone,
             )}
         >
             {value}
@@ -1006,7 +1057,11 @@ function NumberCell({
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-    return <p className="text-muted-foreground text-sm">{children}</p>;
+    return (
+        <p className="text-muted-foreground border border-dashed p-6 text-center text-sm">
+            {children}
+        </p>
+    );
 }
 
 Dashboard.layout = ({ translations }: WithTranslations) => {

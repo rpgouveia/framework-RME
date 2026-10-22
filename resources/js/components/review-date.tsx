@@ -28,7 +28,7 @@ export function ReviewDate({
 
     if (date !== null && dateInputValue(date) === dateInputValue()) {
         return (
-            <span className="font-semibold text-amber-700 dark:text-amber-300">
+            <span className="text-tag-yellow-foreground font-semibold">
                 {t('Due today')}
             </span>
         );
