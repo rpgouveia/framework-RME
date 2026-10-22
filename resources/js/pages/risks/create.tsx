@@ -62,7 +62,7 @@ export default function RisksCreate({
                 ) : (
                     <Form
                         {...RiskController.store.form()}
-                        className="max-w-xl space-y-6"
+                        className="grid max-w-3xl gap-8"
                     >
                         {({ processing, errors }) => (
                             <RiskForm

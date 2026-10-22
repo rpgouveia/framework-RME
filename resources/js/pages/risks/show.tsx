@@ -1,10 +1,13 @@
 import { Head, Link } from '@inertiajs/react';
 import RiskController from '@/actions/App/Http/Controllers/RiskController';
-import { LinkStatusBadges } from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { DeleteDialog } from '@/components/delete-dialog';
 import { DetailItem } from '@/components/detail-item';
-import { Badge } from '@/components/ui/badge';
+import {
+    ProgressBadge,
+    UncertaintyBadge,
+    VerificationBadge,
+} from '@/components/link-status-badges';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -19,7 +22,6 @@ import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
 import { translator } from '@/lib/i18n';
 import type { WithTranslations } from '@/lib/i18n';
-import { uncertaintyBadgeClasses } from '@/lib/labels';
 import { termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show as showAiSystem } from '@/routes/ai-systems';
@@ -112,19 +114,9 @@ export default function RisksShow({ risk }: Props) {
                                 }
                             </DetailItem>
                             <DetailItem label={t('Uncertainty')}>
-                                <Badge
-                                    className={
-                                        uncertaintyBadgeClasses[
-                                            risk.uncertainty_level
-                                        ]
-                                    }
-                                >
-                                    {
-                                        enumLabels.UncertaintyLevel[
-                                            risk.uncertainty_level
-                                        ]
-                                    }
-                                </Badge>
+                                <UncertaintyBadge
+                                    level={risk.uncertainty_level}
+                                />
                             </DetailItem>
                         </dl>
                     </CardContent>
@@ -180,7 +172,8 @@ function LinksTable({
                 <TableRow>
                     <TableHead>{t('Mitigation')}</TableHead>
                     <TableHead>{t('Owner')}</TableHead>
-                    <TableHead>{t('Status')}</TableHead>
+                    <TableHead>{t('Progress')}</TableHead>
+                    <TableHead>{t('Verification')}</TableHead>
                     <TableHead>{t('Estimated cost')}</TableHead>
                     <TableHead>{t('Next review')}</TableHead>
                 </TableRow>
@@ -195,7 +188,7 @@ function LinksTable({
                         <TableCell className="max-w-md whitespace-normal">
                             <Link
                                 href={showLink(link.id)}
-                                className="font-medium hover:underline"
+                                className="text-link hover:text-link-hover hover:underline"
                             >
                                 {link.mitigation?.name}
                             </Link>
@@ -213,7 +206,12 @@ function LinksTable({
                             )}
                         </TableCell>
                         <TableCell>
-                            <LinkStatusBadges link={link} />
+                            <ProgressBadge status={link.status} />
+                        </TableCell>
+                        <TableCell>
+                            <VerificationBadge
+                                verification={link.verification_status}
+                            />
                         </TableCell>
                         <TableCell>
                             {enumLabels.CostLevel[link.estimated_cost]}

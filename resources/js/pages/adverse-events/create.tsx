@@ -7,6 +7,7 @@ import {
     subdomainError,
 } from '@/components/risk-subdomain-picker';
 import Heading from '@/components/heading';
+import { FormSection } from '@/components/form-section';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -149,280 +150,312 @@ export default function AdverseEventsCreate({
                         {...AdverseEventController.store.form()}
                         id={FORM_ID}
                         onError={() => setConfirming(false)}
-                        className="max-w-xl space-y-6"
+                        className="grid max-w-3xl gap-10"
                     >
                         {({ processing, errors }) => (
                             <>
-                                <div className="grid gap-2">
-                                    <Label htmlFor="ai_system_id">
-                                        {t('Affected system')}
-                                    </Label>
-                                    <Select
-                                        name="ai_system_id"
-                                        value={aiSystemId}
-                                        onValueChange={setAiSystemId}
-                                        required
-                                    >
-                                        <SelectTrigger
-                                            id="ai_system_id"
-                                            className="w-full"
-                                            aria-invalid={
-                                                errors.ai_system_id
-                                                    ? true
-                                                    : undefined
-                                            }
-                                        >
-                                            <SelectValue
-                                                placeholder={t(
-                                                    'Select the system',
-                                                )}
-                                            />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {aiSystems.map((system) => (
-                                                <SelectItem
-                                                    key={system.id}
-                                                    value={String(system.id)}
-                                                >
-                                                    {system.name}
-                                                    {system.application_domain && (
-                                                        <span className="text-muted-foreground">
-                                                            {' '}
-                                                            ·{' '}
-                                                            {
-                                                                system.application_domain
-                                                            }
-                                                        </span>
-                                                    )}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <InputError message={errors.ai_system_id} />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="nature">
-                                        {t('Nature')}
-                                    </Label>
-                                    <Select
-                                        name="nature"
-                                        value={nature}
-                                        onValueChange={setNature}
-                                        required
-                                    >
-                                        <SelectTrigger
-                                            id="nature"
-                                            className="w-full sm:w-64"
-                                            aria-invalid={
-                                                errors.nature ? true : undefined
-                                            }
-                                        >
-                                            <SelectValue
-                                                placeholder={t(
-                                                    'Select the nature',
-                                                )}
-                                            />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {natures.map((option) => (
-                                                <SelectItem
-                                                    key={option.value}
-                                                    value={option.value}
-                                                >
-                                                    {labelFor(
-                                                        enumLabels.AdverseEventNature,
-                                                        option.value,
-                                                    )}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    <p className="text-muted-foreground text-sm">
-                                        {t(
-                                            'A near miss was noticed before it caused harm. Both trigger the reassessment of the links.',
-                                        )}
-                                    </p>
-                                    <InputError message={errors.nature} />
-                                </div>
-
-                                <RiskSubdomainPicker
-                                    legend={t('Risk subdomains materialized')}
-                                    help={t(
-                                        'Select the risks the occurrence materializes; an event may touch more than one.',
-                                    )}
-                                    domains={riskDomains}
-                                    expected={expected}
-                                    selected={selected}
-                                    onToggle={toggleSubdomain}
-                                    disabled={!aiSystemId}
-                                    error={
-                                        missingSubdomain
-                                            ? t(
-                                                  'Select at least one risk subdomain the occurrence materializes.',
-                                              )
-                                            : subdomainError(errors)
-                                    }
-                                />
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="description">
-                                        {t('Description')}
-                                    </Label>
-                                    <Textarea
-                                        id="description"
-                                        name="description"
-                                        required
-                                        maxLength={2000}
-                                        className="max-h-80 min-h-32"
-                                        placeholder={t(
-                                            'E.g.: The model refused every request from customers over 60 for two days.',
-                                        )}
-                                        aria-invalid={
-                                            errors.description
-                                                ? true
-                                                : undefined
-                                        }
-                                    />
-                                    <InputError message={errors.description} />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="occurrence_date">
-                                        {t('Occurrence date')}
-                                    </Label>
-                                    <Input
-                                        id="occurrence_date"
-                                        name="occurrence_date"
-                                        type="date"
-                                        className="sm:w-48"
-                                        max={dateInputValue()}
-                                        required
-                                        value={occurrenceDate}
-                                        onChange={(event) =>
-                                            setOccurrenceDate(
-                                                event.target.value,
-                                            )
-                                        }
-                                        aria-invalid={
-                                            errors.occurrence_date
-                                                ? true
-                                                : undefined
-                                        }
-                                    />
-                                    <p className="text-muted-foreground text-sm">
-                                        {t('It cannot be a future date.')}
-                                    </p>
-                                    <InputError
-                                        message={errors.occurrence_date}
-                                    />
-                                </div>
-
-                                <div className="grid gap-2">
-                                    <Label htmlFor="detected_at">
-                                        {t('Detection date')}{' '}
-                                        <span className="text-muted-foreground font-normal">
-                                            {t('(optional)')}
-                                        </span>
-                                    </Label>
-                                    <Input
-                                        id="detected_at"
-                                        name="detected_at"
-                                        type="date"
-                                        className="sm:w-48"
-                                        min={occurrenceDate || undefined}
-                                        max={dateInputValue()}
-                                        aria-describedby="detected_at-help"
-                                        aria-invalid={
-                                            errors.detected_at
-                                                ? true
-                                                : undefined
-                                        }
-                                    />
-                                    <p
-                                        id="detected_at-help"
-                                        className="text-muted-foreground text-sm"
-                                    >
-                                        {t(
-                                            'When the monitoring noticed the occurrence, between the occurrence date and today. The interval measures how long detecting took.',
-                                        )}
-                                    </p>
-                                    <InputError message={errors.detected_at} />
-                                </div>
-
-                                {nearMiss && aiSystemId && (
+                                <FormSection
+                                    step={1}
+                                    title={t('What happened')}
+                                >
                                     <div className="grid gap-2">
-                                        <Label htmlFor="intercepting_link_id">
-                                            {t('Intercepting link')}{' '}
-                                            <span className="text-muted-foreground font-normal">
-                                                {t('(optional)')}
-                                            </span>
+                                        <Label htmlFor="ai_system_id">
+                                            {t('Affected system')}
                                         </Label>
                                         <Select
-                                            value={
-                                                interceptorId === null
-                                                    ? NO_INTERCEPTOR
-                                                    : String(interceptorId)
-                                            }
-                                            onValueChange={setInterceptor}
-                                            disabled={offered.length === 0}
+                                            name="ai_system_id"
+                                            value={aiSystemId}
+                                            onValueChange={setAiSystemId}
+                                            required
                                         >
                                             <SelectTrigger
-                                                id="intercepting_link_id"
+                                                id="ai_system_id"
                                                 className="w-full"
-                                                aria-describedby="intercepting_link_id-help"
                                                 aria-invalid={
-                                                    errors.intercepting_link_id
+                                                    errors.ai_system_id
                                                         ? true
                                                         : undefined
                                                 }
                                             >
-                                                <SelectValue />
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        'Select the system',
+                                                    )}
+                                                />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem
-                                                    value={NO_INTERCEPTOR}
-                                                >
-                                                    {t('None')}
-                                                </SelectItem>
-                                                {offered.map((link) => (
+                                                {aiSystems.map((system) => (
                                                     <SelectItem
-                                                        key={link.id}
-                                                        value={String(link.id)}
+                                                        key={system.id}
+                                                        value={String(
+                                                            system.id,
+                                                        )}
                                                     >
-                                                        {link.risk} →{' '}
-                                                        {link.mitigation} (
-                                                        {link.subdomain})
+                                                        {system.name}
+                                                        {system.application_domain && (
+                                                            <span className="text-muted-foreground">
+                                                                {' '}
+                                                                ·{' '}
+                                                                {
+                                                                    system.application_domain
+                                                                }
+                                                            </span>
+                                                        )}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
-                                        {/* Sent empty when none, which
-                                            Laravel turns into null. */}
-                                        <input
-                                            type="hidden"
-                                            name="intercepting_link_id"
-                                            value={interceptorId ?? ''}
-                                        />
-                                        <p
-                                            id="intercepting_link_id-help"
-                                            className="text-muted-foreground text-sm"
-                                        >
-                                            {offered.length === 0
-                                                ? t(
-                                                      'No link of this system treats the selected subdomains.',
-                                                  )
-                                                : t(
-                                                      'The link whose mitigation stopped the occurrence. It is not reverted, because the event shows it worked.',
-                                                  )}
-                                        </p>
                                         <InputError
-                                            message={
-                                                errors.intercepting_link_id
-                                            }
+                                            message={errors.ai_system_id}
                                         />
                                     </div>
-                                )}
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="nature">
+                                            {t('Nature')}
+                                        </Label>
+                                        <Select
+                                            name="nature"
+                                            value={nature}
+                                            onValueChange={setNature}
+                                            required
+                                        >
+                                            <SelectTrigger
+                                                id="nature"
+                                                className="w-full sm:w-64"
+                                                aria-invalid={
+                                                    errors.nature
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            >
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        'Select the nature',
+                                                    )}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {natures.map((option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        {labelFor(
+                                                            enumLabels.AdverseEventNature,
+                                                            option.value,
+                                                        )}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-muted-foreground text-sm">
+                                            {t(
+                                                'A near miss was noticed before it caused harm. Both trigger the reassessment of the links.',
+                                            )}
+                                        </p>
+                                        <InputError message={errors.nature} />
+                                    </div>
+
+                                    {nearMiss && aiSystemId && (
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="intercepting_link_id">
+                                                {t('Intercepting link')}{' '}
+                                                <span className="text-muted-foreground font-normal">
+                                                    {t('(optional)')}
+                                                </span>
+                                            </Label>
+                                            <Select
+                                                value={
+                                                    interceptorId === null
+                                                        ? NO_INTERCEPTOR
+                                                        : String(interceptorId)
+                                                }
+                                                onValueChange={setInterceptor}
+                                                disabled={offered.length === 0}
+                                            >
+                                                <SelectTrigger
+                                                    id="intercepting_link_id"
+                                                    className="w-full"
+                                                    aria-describedby="intercepting_link_id-help"
+                                                    aria-invalid={
+                                                        errors.intercepting_link_id
+                                                            ? true
+                                                            : undefined
+                                                    }
+                                                >
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem
+                                                        value={NO_INTERCEPTOR}
+                                                    >
+                                                        {t('None')}
+                                                    </SelectItem>
+                                                    {offered.map((link) => (
+                                                        <SelectItem
+                                                            key={link.id}
+                                                            value={String(
+                                                                link.id,
+                                                            )}
+                                                        >
+                                                            {link.risk} →{' '}
+                                                            {link.mitigation} (
+                                                            {link.subdomain})
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {/* Sent empty when none, which
+                                            Laravel turns into null. */}
+                                            <input
+                                                type="hidden"
+                                                name="intercepting_link_id"
+                                                value={interceptorId ?? ''}
+                                            />
+                                            <p
+                                                id="intercepting_link_id-help"
+                                                className="text-muted-foreground text-sm"
+                                            >
+                                                {offered.length === 0
+                                                    ? t(
+                                                          'No link of this system treats the selected subdomains.',
+                                                      )
+                                                    : t(
+                                                          'The link whose mitigation stopped the occurrence. It is not reverted, because the event shows it worked.',
+                                                      )}
+                                            </p>
+                                            <InputError
+                                                message={
+                                                    errors.intercepting_link_id
+                                                }
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="description">
+                                            {t('Description')}
+                                        </Label>
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            required
+                                            maxLength={2000}
+                                            className="max-h-80 min-h-32"
+                                            placeholder={t(
+                                                'E.g.: The model refused every request from customers over 60 for two days.',
+                                            )}
+                                            aria-invalid={
+                                                errors.description
+                                                    ? true
+                                                    : undefined
+                                            }
+                                        />
+                                        <InputError
+                                            message={errors.description}
+                                        />
+                                    </div>
+                                </FormSection>
+
+                                <FormSection
+                                    step={2}
+                                    title={t('Which risks materialized')}
+                                >
+                                    <RiskSubdomainPicker
+                                        legend={t(
+                                            'Risk subdomains materialized',
+                                        )}
+                                        help={t(
+                                            'Select the risks the occurrence materializes; an event may touch more than one.',
+                                        )}
+                                        domains={riskDomains}
+                                        expected={expected}
+                                        selected={selected}
+                                        onToggle={toggleSubdomain}
+                                        disabled={!aiSystemId}
+                                        error={
+                                            missingSubdomain
+                                                ? t(
+                                                      'Select at least one risk subdomain the occurrence materializes.',
+                                                  )
+                                                : subdomainError(errors)
+                                        }
+                                    />
+                                </FormSection>
+
+                                <FormSection step={3} title={t('When')}>
+                                    <div className="grid gap-6 sm:grid-cols-2">
+                                        <div className="grid content-start gap-2">
+                                            <Label htmlFor="occurrence_date">
+                                                {t('Occurrence date')}
+                                            </Label>
+                                            <Input
+                                                id="occurrence_date"
+                                                name="occurrence_date"
+                                                type="date"
+                                                className="sm:w-48"
+                                                max={dateInputValue()}
+                                                required
+                                                value={occurrenceDate}
+                                                onChange={(event) =>
+                                                    setOccurrenceDate(
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                aria-invalid={
+                                                    errors.occurrence_date
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            />
+                                            <p className="text-muted-foreground text-sm">
+                                                {t(
+                                                    'It cannot be a future date.',
+                                                )}
+                                            </p>
+                                            <InputError
+                                                message={errors.occurrence_date}
+                                            />
+                                        </div>
+
+                                        <div className="grid content-start gap-2">
+                                            <Label htmlFor="detected_at">
+                                                {t('Detection date')}{' '}
+                                                <span className="text-muted-foreground font-normal">
+                                                    {t('(optional)')}
+                                                </span>
+                                            </Label>
+                                            <Input
+                                                id="detected_at"
+                                                name="detected_at"
+                                                type="date"
+                                                className="sm:w-48"
+                                                min={
+                                                    occurrenceDate || undefined
+                                                }
+                                                max={dateInputValue()}
+                                                aria-describedby="detected_at-help"
+                                                aria-invalid={
+                                                    errors.detected_at
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            />
+                                            <p
+                                                id="detected_at-help"
+                                                className="text-muted-foreground text-sm"
+                                            >
+                                                {t(
+                                                    'When the monitoring noticed the occurrence, between the occurrence date and today. The interval measures how long detecting took.',
+                                                )}
+                                            </p>
+                                            <InputError
+                                                message={errors.detected_at}
+                                            />
+                                        </div>
+                                    </div>
+                                </FormSection>
 
                                 <Alert>
                                     <TriangleAlertIcon />
