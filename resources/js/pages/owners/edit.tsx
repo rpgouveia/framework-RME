@@ -26,7 +26,7 @@ export default function OwnersEdit({ owner }: Props) {
     return (
         <>
             <Head title={t('Edit owner')} />
-            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Edit owner')}
                     description={`${owner.organizational_role} · ${owner.area}`}

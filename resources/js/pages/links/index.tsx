@@ -1,6 +1,9 @@
 import { Head, Link } from '@inertiajs/react';
 import { WaitingDays } from '@/components/waiting-days';
-import { LinkStatusBadges } from '@/components/link-status-badges';
+import {
+    ProgressBadge,
+    VerificationBadge,
+} from '@/components/link-status-badges';
 import { ReviewDate } from '@/components/review-date';
 import { FilterLink } from '@/components/filter-link';
 import Heading from '@/components/heading';
@@ -22,8 +25,6 @@ import { linksWith } from '@/lib/link-filters';
 import type { VerificationFilter } from '@/lib/link-filters';
 import { rowLink } from '@/lib/row-link';
 import { create, index, show } from '@/routes/links';
-import { show as showMitigation } from '@/routes/mitigations';
-import { show as showRisk } from '@/routes/risks';
 import type { ChangeOrigin, Link as RiskLink, Paginated } from '@/types/models';
 
 type Props = {
@@ -154,7 +155,7 @@ export default function LinksIndex({ links, filters }: Props) {
 
                 {links.data.length === 0 ? (
                     filters.verification ? (
-                        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+                        <div className="flex flex-col items-center gap-4 border border-dashed p-12 text-center">
                             <p className="text-muted-foreground text-sm">
                                 {current.empty}
                             </p>
@@ -189,7 +190,7 @@ function EmptyState() {
     const { t } = useTranslations();
 
     return (
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed p-12 text-center">
+        <div className="flex flex-col items-center gap-4 border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">
                 {t('No link has been created yet.')}
             </p>
@@ -212,14 +213,14 @@ function LinksTable({
     const { t } = useTranslations();
 
     return (
-        <div className="rounded-xl border">
+        <div className="overflow-x-auto border">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>{t('Risk')}</TableHead>
-                        <TableHead>{t('Mitigation')}</TableHead>
+                        <TableHead>{t('Link')}</TableHead>
                         <TableHead>{t('Owner')}</TableHead>
-                        <TableHead>{t('Status')}</TableHead>
+                        <TableHead>{t('Progress')}</TableHead>
+                        <TableHead>{t('Verification')}</TableHead>
                         {waiting ? (
                             <TableHead>{t('Waiting for')}</TableHead>
                         ) : (
@@ -235,41 +236,39 @@ function LinksTable({
                             className="cursor-pointer"
                             onClick={rowLink(show(link.id))}
                         >
-                            <TableCell>
-                                <div className="grid max-w-xs">
+                            <TableCell className="min-w-72 whitespace-normal">
+                                <div className="grid max-w-md gap-0.5">
                                     <Link
-                                        href={showRisk(link.risk_id)}
-                                        className="font-medium hover:underline"
+                                        href={show(link.id)}
+                                        className="text-link hover:text-link-hover hover:underline"
                                     >
-                                        {link.risk?.name}
+                                        {link.risk?.name} →{' '}
+                                        {link.mitigation?.name}
                                     </Link>
-                                    <span className="text-muted-foreground truncate text-xs">
+                                    <span className="text-muted-foreground text-xs tracking-[0.32px]">
                                         {link.risk?.ai_system?.name}
                                     </span>
                                 </div>
                             </TableCell>
-                            <TableCell>
-                                <Link
-                                    href={showMitigation(link.mitigation_id)}
-                                    className="hover:underline"
-                                >
-                                    {link.mitigation?.name}
-                                </Link>
-                            </TableCell>
-                            <TableCell>
+                            <TableCell className="whitespace-normal">
                                 {link.owner && (
-                                    <div className="grid">
+                                    <div className="grid gap-0.5">
                                         <span>
                                             {link.owner.organizational_role}
                                         </span>
-                                        <span className="text-muted-foreground text-xs">
+                                        <span className="text-muted-foreground text-xs tracking-[0.32px]">
                                             {link.owner.area}
                                         </span>
                                     </div>
                                 )}
                             </TableCell>
                             <TableCell>
-                                <LinkStatusBadges link={link} />
+                                <ProgressBadge status={link.status} />
+                            </TableCell>
+                            <TableCell>
+                                <VerificationBadge
+                                    verification={link.verification_status}
+                                />
                             </TableCell>
                             <TableCell>
                                 {waiting && link.last_reversal ? (

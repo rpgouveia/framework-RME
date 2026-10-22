@@ -19,7 +19,7 @@ export default function AiSystemsCreate({ sourceTypes, categories }: Props) {
     return (
         <>
             <Head title={t('Register AI system')} />
-            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Register AI system')}
                     description={t(

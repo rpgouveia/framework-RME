@@ -10,9 +10,20 @@ import {
 } from '@/lib/labels';
 import type {
     Link,
+    LinkStatus,
     UncertaintyLevel,
     VerificationStatus,
 } from '@/types/models';
+
+/** A link's progress: how far the implementation of the mitigation went. */
+export function ProgressBadge({ status }: { status: LinkStatus }) {
+    const enumLabels = useEnumLabels();
+    return (
+        <Badge className={linkStatusBadgeClasses[status]}>
+            {enumLabels.LinkStatus[status]}
+        </Badge>
+    );
+}
 
 /**
  * A link's verification (0013): declared or verified on evidence. Verified
@@ -44,13 +55,8 @@ export function LinkStatusBadges({
     link: Pick<Link, 'status' | 'verification_status'>;
     labelled?: boolean;
 }) {
-    const enumLabels = useEnumLabels();
     const { t } = useTranslations();
-    const progress = (
-        <Badge className={linkStatusBadgeClasses[link.status]}>
-            {enumLabels.LinkStatus[link.status]}
-        </Badge>
-    );
+    const progress = <ProgressBadge status={link.status} />;
     const verification = (
         <VerificationBadge verification={link.verification_status} />
     );
