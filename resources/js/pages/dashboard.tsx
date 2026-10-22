@@ -1,8 +1,8 @@
+import { useState } from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { TriangleAlertIcon } from 'lucide-react';
+import { Activity, ArrowUpRight, ClipboardCheck, FileWarning, Link2Off, TriangleAlertIcon } from 'lucide-react';
 import type { InertiaLinkProps } from '@inertiajs/react';
 import { WaitingDays } from '@/components/waiting-days';
-import Heading from '@/components/heading';
 import { AiSystemName } from '@/components/ai-system-name';
 import { ReviewDate } from '@/components/review-date';
 import { VerificationBadge } from '@/components/link-status-badges';
@@ -140,13 +140,17 @@ export default function Dashboard(props: Props) {
     return (
         <>
             <Head title={t('Dashboard')} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <Heading
-                    title={t('Dashboard')}
-                    description={t(
-                        'Where the traceability chain is still incomplete.',
-                    )}
-                />
+            <div className="mx-auto flex h-full w-full max-w-[1440px] flex-1 flex-col gap-4 bg-[#faf8ff] p-4 text-[#161616] dark:bg-background dark:text-foreground">
+                <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e0e0] bg-white px-4 py-3 dark:border-border dark:bg-card">
+                    <div>
+                        <h1 className="text-xl font-semibold tracking-tight">{t('Dashboard')}</h1>
+                        <p className="mt-1 text-xs text-[#525252] dark:text-muted-foreground">{t('Where the traceability chain is still incomplete.')}</p>
+                    </div>
+                    <span className="inline-flex items-center gap-2 border border-[#e0e0e0] px-3 py-1.5 text-xs text-[#525252] dark:border-border dark:text-muted-foreground">
+                        <Activity aria-hidden="true" className="size-4 text-[#0043ce]" />
+                        {t('AI systems')}: <strong className="text-foreground tabular-nums">{totals.aiSystems}</strong>
+                    </span>
+                </header>
                 {totals.aiSystems === 0 ? <Welcome /> : <Overview {...props} />}
             </div>
         </>
@@ -190,11 +194,7 @@ function Overview({
 
     return (
         <>
-            {unacceptableSystems.length > 0 && (
-                <UnacceptableSystemsAlert systems={unacceptableSystems} />
-            )}
-
-            <dl className="text-muted-foreground flex flex-wrap gap-x-6 gap-y-1 text-sm">
+            <dl className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-[#e0e0e0] bg-white px-4 py-3 text-xs text-[#525252] dark:bg-card dark:text-muted-foreground">
                 <Total label={t('AI systems')} value={totals.aiSystems} />
                 <Total label={t('Risks')} value={totals.risks} />
                 <Total label={t('Links')} value={totals.links} />
@@ -205,8 +205,13 @@ function Overview({
                 <Total label={t('Active owners')} value={totals.owners} />
             </dl>
 
-            <div className="grid gap-4 sm:grid-cols-3">
+            {unacceptableSystems.length > 0 && (
+                <UnacceptableSystemsAlert systems={unacceptableSystems} />
+            )}
+
+            <div className="grid gap-4 md:grid-cols-3">
                 <PendingCard
+                    kind="risk"
                     count={unlinkedRisks.count}
                     title={t('Risks without a link')}
                     sentence={t('Identified risks with no mitigation applied.')}
@@ -214,6 +219,7 @@ function Overview({
                     action={t('See risks')}
                 />
                 <PendingCard
+                    kind="evidence"
                     count={linksWithoutEvidence.count}
                     title={t('Links without evidence')}
                     sentence={t(
@@ -223,6 +229,7 @@ function Overview({
                     action={t('See links')}
                 />
                 <PendingCard
+                    kind="event"
                     count={recentEvents.count}
                     title={t('Events in the last :days days', {
                         days: recentEvents.days,
@@ -237,15 +244,15 @@ function Overview({
 
             <UnmappedRisks risks={unmappedRisks} />
 
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Risks without a link')}</CardTitle>
-                        <CardDescription>
+            <div className="grid gap-4 lg:grid-cols-2">
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                    <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                        <CardTitle className="text-base font-semibold">{t('Risks without a link')}</CardTitle>
+                        <CardDescription className="text-xs">
                             {t('The oldest first.')}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         {unlinkedRisks.items.length === 0 ? (
                             <Empty>
                                 {t('Every risk has at least one link.')}
@@ -288,17 +295,17 @@ function Overview({
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Upcoming reviews')}</CardTitle>
-                        <CardDescription>
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                    <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                        <CardTitle className="text-base font-semibold">{t('Upcoming reviews')}</CardTitle>
+                        <CardDescription className="text-xs">
                             {t(
                                 'Due today or in the next :days days. The date is the last valid day: on the next day, the link goes back to declared.',
                                 { days: reviews.upcomingDays },
                             )}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         {reviews.upcoming.length === 0 ? (
                             <Empty>
                                 {t('No review due in the next :days days.', {
@@ -315,14 +322,14 @@ function Overview({
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Links without evidence')}</CardTitle>
-                        <CardDescription>
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                    <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                        <CardTitle className="text-base font-semibold">{t('Links without evidence')}</CardTitle>
+                        <CardDescription className="text-xs">
                             {t('The oldest first.')}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         {linksWithoutEvidence.items.length === 0 ? (
                             <Empty>
                                 {t(
@@ -374,17 +381,17 @@ function Overview({
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Recent events')}</CardTitle>
-                        <CardDescription>
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                    <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                        <CardTitle className="text-base font-semibold">{t('Recent events')}</CardTitle>
+                        <CardDescription className="text-xs">
                             {t(
                                 'Last :days days, from the most recent to the oldest.',
                                 { days: recentEvents.days },
                             )}
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         {recentEvents.items.length === 0 ? (
                             <Empty>
                                 {t('No adverse event in the last :days days.', {
@@ -424,25 +431,25 @@ function Overview({
                 </Card>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('Links by status')}</CardTitle>
-                    <CardDescription>
+            <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                    <CardTitle className="text-base font-semibold">{t('Links by status')}</CardTitle>
+                    <CardDescription className="text-xs">
                         {t(
                             'Progress of the mitigations applied; cancelled ones are left out.',
                         )}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                     <StatusBars rows={linksByStatus} />
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('By AI system')}</CardTitle>
+            <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+                <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                    <CardTitle className="text-base font-semibold">{t('By AI system')}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-4">
                     <SystemsTable systems={systems} />
                 </CardContent>
             </Card>
@@ -462,48 +469,39 @@ function Total({ label, value }: { label: string; value: number }) {
 }
 
 /** A pending count; it stands out when there is something to resolve. */
-function PendingCard({
-    count,
-    title,
-    sentence,
-    href,
-    action,
-}: {
+function PendingCard({ kind, count, title, sentence, href, action }: {
+    kind: 'risk' | 'evidence' | 'event';
     count: number;
     title: string;
     sentence: string;
     href: NonNullable<InertiaLinkProps['href']>;
     action: string;
 }) {
+    const { t } = useTranslations();
     const pending = count > 0;
-
+    const Icon = kind === 'risk' ? Link2Off : kind === 'event' ? Activity : FileWarning;
     return (
-        <Card
-            className={cn(
-                pending &&
-                    'border-amber-300 bg-amber-50/60 dark:border-amber-900 dark:bg-amber-950/30',
-            )}
-        >
-            <CardHeader>
-                <CardDescription>{title}</CardDescription>
-                <CardTitle
-                    className={cn(
-                        'text-3xl tabular-nums',
-                        pending
-                            ? 'text-amber-700 dark:text-amber-300'
-                            : 'text-muted-foreground',
-                    )}
-                >
-                    {count}
-                </CardTitle>
+        <Card className={cn('group flex flex-col justify-between rounded-none border-[#e0e0e0] bg-white shadow-none transition-colors hover:border-[#8d8d8d] dark:border-border dark:bg-card', pending && 'border-t-4 border-t-[#f1c21b]')}>
+            <CardHeader className="pb-1">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <CardDescription className="text-xs font-semibold uppercase tracking-wider">{title}</CardDescription>
+                        <div className="mt-3 flex flex-wrap items-center gap-3">
+                            <span className="text-[42px] font-light leading-none tabular-nums text-foreground">{count}</span>
+                            <span className={cn('px-2 py-0.5 text-xs font-medium', pending ? 'bg-[#fdf4cc] text-[#684e00]' : 'bg-[#defbe6] text-[#0e6027]')}>
+                                {pending ? t('Pending') : t('On track')}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="flex size-10 shrink-0 items-center justify-center bg-[#f4f4f4] text-[#525252] dark:bg-muted dark:text-foreground">
+                        <Icon className="size-5" aria-hidden="true" />
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent className="grid gap-3">
-                <p className="text-muted-foreground text-sm">{sentence}</p>
-                <Link
-                    href={href}
-                    className="text-sm font-medium hover:underline"
-                >
-                    {action} →
+            <CardContent className="flex flex-1 flex-col justify-between gap-4 pt-3">
+                <p className="text-sm text-[#525252] dark:text-muted-foreground">{sentence}</p>
+                <Link href={href} className="flex items-center justify-between border-t border-[#e0e0e0] pt-3 text-sm font-medium text-[#004ccd] hover:underline dark:border-border dark:text-primary">
+                    {action}<ArrowUpRight className="size-4" aria-hidden="true" />
                 </Link>
             </CardContent>
         </Card>
@@ -522,7 +520,7 @@ function UnacceptableSystemsAlert({
     const { t, tc } = useTranslations();
 
     return (
-        <Alert className={unacceptableTone}>
+        <Alert className={cn(unacceptableTone, "rounded-none border-l-4 shadow-none")}>
             <TriangleAlertIcon aria-hidden />
             <AlertTitle>
                 {tc(
@@ -594,29 +592,29 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
     ];
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{t('Verification of the links')}</CardTitle>
-                <CardDescription>
+        <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+            <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                <CardTitle className="flex items-center gap-2 text-base font-semibold"><ClipboardCheck aria-hidden="true" className="size-5 text-[#004ccd]" />{t('Verification of the links')}</CardTitle>
+                <CardDescription className="text-xs">
                     {t(
                         'Cancelled links are left out. The first verification also leaves out the systems in the unacceptable tier, which cannot be verified.',
                     )}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
-                <ul className="grid gap-4 sm:grid-cols-3">
+            <CardContent className="pt-4">
+                <ul className="grid gap-0 divide-y border-b border-[#e0e0e0] md:grid-cols-3 md:divide-x md:divide-y-0 dark:border-border">
                     {rows.map((row) => (
                         <li key={row.filter} className="grid gap-1">
                             <Link
                                 href={linksWith(row.filter)}
-                                className="hover:bg-muted/50 grid gap-1 rounded-lg border p-4"
+                                className={cn("grid h-full gap-3 border-l-4 p-5 transition-colors hover:bg-[#f4f4f4] dark:hover:bg-muted/30", row.pending && row.count > 0 ? "border-l-[#f1c21b]" : "border-l-transparent")}
                             >
-                                <span className="text-muted-foreground text-sm">
+                                <span className="text-sm font-medium text-[#525252] dark:text-muted-foreground">
                                     {row.label}
                                 </span>
                                 <span
                                     className={cn(
-                                        'text-3xl font-semibold tabular-nums',
+                                        'text-[42px] font-light leading-none tabular-nums',
                                         row.pending &&
                                             row.count > 0 &&
                                             'text-amber-700 dark:text-amber-300',
@@ -637,7 +635,7 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                             'Awaiting reassessment, by the origin of the last reversal',
                         )}
                     </p>
-                    <ul className="grid gap-2 sm:grid-cols-4">
+                    <ul className="grid gap-2 sm:grid-cols-3 xl:grid-cols-6">
                         {counts.awaitingReassessmentByOrigin.map((row) => (
                             <li key={row.origin}>
                                 <Link
@@ -645,7 +643,7 @@ function VerificationSummary({ counts }: { counts: Props['verification'] }) {
                                         'awaiting_reassessment',
                                         row.origin,
                                     )}
-                                    className="hover:bg-muted/50 flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-sm"
+                                    className="flex min-h-20 flex-col justify-between gap-2 border border-[#e0e0e0] bg-white px-3 py-2 text-sm transition-colors hover:border-[#8d8d8d] dark:border-border dark:bg-card"
                                 >
                                     <span>
                                         {enumLabels.ChangeOrigin[row.origin]}
@@ -716,16 +714,16 @@ function UnmappedRisks({ risks }: { risks: UnmappedRisk[] }) {
     const { t, tc } = useTranslations();
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{t('Risks not mapped')}</CardTitle>
-                <CardDescription>
+        <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:border-border dark:bg-card">
+            <CardHeader className="border-b border-[#e0e0e0] bg-[#f4f4f4] py-3 dark:border-border dark:bg-muted/30">
+                <CardTitle className="text-base font-semibold">{t('Risks not mapped')}</CardTitle>
+                <CardDescription className="text-xs">
                     {t(
                         'Subdomains cited by adverse events or by system changes where the system has no registered risk: a risk not yet identified.',
                     )}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
                 {risks.length === 0 ? (
                     <Empty>
                         {t(
@@ -914,10 +912,24 @@ function StatusBars({ rows }: { rows: Props['linksByStatus'] }) {
 }
 
 function SystemsTable({ systems }: { systems: SystemSummary[] }) {
+    const [search, setSearch] = useState('');
+    const filteredSystems = systems.filter((system) => system.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
     const enumLabels = useEnumLabels();
     const { t } = useTranslations();
 
     return (
+        <div className="space-y-3">
+            <label className="flex max-w-sm flex-col gap-1 text-xs text-muted-foreground">
+                {t('Filter systems')}
+                <input
+                    type="search"
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                    placeholder={t('Filter systems...')}
+                    className="h-9 w-full rounded-none border border-input bg-background px-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+            </label>
+            <div className="overflow-x-auto">
         <Table>
             <TableHeader>
                 <TableRow>
@@ -936,7 +948,7 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {systems.map((system) => (
+                {filteredSystems.map((system) => (
                     <TableRow key={system.id}>
                         <TableCell>
                             <AiSystemName domain={system.application_domain}>
@@ -980,6 +992,9 @@ function SystemsTable({ systems }: { systems: SystemSummary[] }) {
                 ))}
             </TableBody>
         </Table>
+            </div>
+            {filteredSystems.length === 0 && <Empty>{t('No systems found.')}</Empty>}
+        </div>
     );
 }
 
