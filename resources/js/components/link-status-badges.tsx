@@ -1,4 +1,5 @@
 import { CheckIcon } from 'lucide-react';
+import { Term } from '@/components/help';
 import { Badge } from '@/components/ui/badge';
 import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
@@ -73,15 +74,25 @@ export function LinkStatusBadges({
     return (
         <span className="flex flex-wrap items-start gap-8">
             <span className="grid gap-1">
-                <span className="text-muted-foreground text-xs tracking-[0.32px]">
+                <Term
+                    definition={t(
+                        'How far the implementation of the mitigation went. It is independent of the verification.',
+                    )}
+                    className="text-muted-foreground w-fit text-xs tracking-[0.32px]"
+                >
                     {t('Progress')}
-                </span>
+                </Term>
                 {progress}
             </span>
             <span className="grid gap-1">
-                <span className="text-muted-foreground text-xs tracking-[0.32px]">
+                <Term
+                    definition={t(
+                        'Whether evidence proves the implementation: a link is born declared and becomes verified on evidence.',
+                    )}
+                    className="text-muted-foreground w-fit text-xs tracking-[0.32px]"
+                >
                     {t('Verification')}
-                </span>
+                </Term>
                 {verification}
             </span>
         </span>

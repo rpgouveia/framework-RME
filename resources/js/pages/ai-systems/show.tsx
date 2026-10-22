@@ -3,6 +3,7 @@ import AiSystemController from '@/actions/App/Http/Controllers/AiSystemControlle
 import { SystemChangesTable } from '@/components/system-changes-table';
 import { DangerZone } from '@/components/danger-zone';
 import { DeleteDialog } from '@/components/delete-dialog';
+import { Toggletip } from '@/components/help';
 import { UncertaintyBadge } from '@/components/link-status-badges';
 import {
     UNACCEPTABLE_ALERT_ID,
@@ -110,7 +111,18 @@ export default function AiSystemsShow({ aiSystem }: Props) {
                                     ]
                                 }
                             </DetailItem>
-                            <DetailItem label={t('Risk tier')}>
+                            <DetailItem
+                                label={t('Risk tier')}
+                                help={
+                                    <Toggletip
+                                        label={t('What the risk tier is')}
+                                    >
+                                        {t(
+                                            'The classification of the system under the EU AI Act. It sets how intensely the system is monitored, through the review interval of its verified links.',
+                                        )}
+                                    </Toggletip>
+                                }
+                            >
                                 {enumLabels.AiSystemCategory[aiSystem.category]}
                             </DetailItem>
                             <DetailItem label={t('Registration')}>
