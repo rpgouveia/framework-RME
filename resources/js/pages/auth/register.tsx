@@ -24,29 +24,18 @@ export default function Register({ passwordRules }: Props) {
 
     const inputClass =
         'block h-12 w-full rounded-none border border-transparent ' +
-        'border-b-[#8d8d8d] bg-[#f4f4f4] px-4 text-sm ' +
-        'text-[#161616] shadow-none placeholder:text-[#8c8c8c] ' +
+        'border-b-input bg-field px-4 text-sm ' +
+        'text-foreground shadow-none placeholder:text-subtle-foreground ' +
         'focus:outline-2 focus:-outline-offset-2 ' +
-        'focus:outline-[#0f62fe] focus:border-b-[#0f62fe]';
+        'focus:outline-ring focus:border-b-primary';
 
     return (
         <>
-            <Head title={t('Create an account')}>
-                <link
-                    rel="stylesheet"
-                    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
-                />
-            </Head>
+            <Head title={t('Create an account')}></Head>
 
-            <div
-                className="flex min-h-svh w-full flex-col bg-white text-[#161616]"
-                style={{
-                    fontFamily: "'IBM Plex Sans', sans-serif",
-                    letterSpacing: '0.16px',
-                }}
-            >
+            <div className="bg-background text-foreground flex min-h-svh w-full flex-col">
                 {/* Cabeçalho institucional */}
-                <header className="flex h-12 w-full shrink-0 items-center justify-between border-b border-[#e0e0e0] bg-white px-6">
+                <header className="border-border bg-background flex h-12 w-full shrink-0 items-center justify-between border-b px-6">
                     <Link
                         href={home()}
                         className="flex items-center gap-2 hover:opacity-75"
@@ -54,13 +43,13 @@ export default function Register({ passwordRules }: Props) {
                         <span className="text-xs font-semibold tracking-widest">
                             PUCPR
                         </span>
-                        <span className="text-[#e0e0e0]"> | </span>
-                        <span className="text-xs text-[#525252]">
+                        <span className="text-border"> | </span>
+                        <span className="text-muted-foreground text-xs">
                             Framework RME
                         </span>
                     </Link>
 
-                    <span className="hidden text-xs text-[#8c8c8c] sm:block">
+                    <span className="text-subtle-foreground hidden text-xs sm:block">
                         {t('Governance & Software Engineering')}
                     </span>
                 </header>
@@ -88,7 +77,7 @@ export default function Register({ passwordRules }: Props) {
                             <h1 className="mb-2 text-[32px] leading-10 font-light">
                                 {t('Create an account')}
                             </h1>
-                            <p className="text-sm leading-5 text-[#525252]">
+                            <p className="text-muted-foreground text-sm leading-5">
                                 {t(
                                     'Enter your details below to create your account',
                                 )}
@@ -111,7 +100,7 @@ export default function Register({ passwordRules }: Props) {
                                     <div className="flex flex-col">
                                         <label
                                             htmlFor="name"
-                                            className="mb-2 text-xs text-[#525252]"
+                                            className="text-muted-foreground mb-2 text-xs"
                                         >
                                             {t('Name')}
                                         </label>
@@ -135,7 +124,7 @@ export default function Register({ passwordRules }: Props) {
                                     <div className="flex flex-col">
                                         <label
                                             htmlFor="email"
-                                            className="mb-2 text-xs text-[#525252]"
+                                            className="text-muted-foreground mb-2 text-xs"
                                         >
                                             {t('Email address')}
                                         </label>
@@ -158,7 +147,7 @@ export default function Register({ passwordRules }: Props) {
                                     <div className="flex flex-col">
                                         <label
                                             htmlFor="password"
-                                            className="mb-2 text-xs text-[#525252]"
+                                            className="text-muted-foreground mb-2 text-xs"
                                         >
                                             {t('Password')}
                                         </label>
@@ -195,7 +184,7 @@ export default function Register({ passwordRules }: Props) {
                                                         : t('Show password')
                                                 }
                                                 aria-pressed={showPassword}
-                                                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:text-[#161616] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                                className="text-muted-foreground hover:text-foreground focus-visible:outline-ring absolute inset-y-0 right-0 flex w-12 items-center justify-center focus-visible:outline-2"
                                             >
                                                 {showPassword ? (
                                                     <EyeOff size={20} />
@@ -212,7 +201,7 @@ export default function Register({ passwordRules }: Props) {
                                     <div className="flex flex-col">
                                         <label
                                             htmlFor="password_confirmation"
-                                            className="mb-2 text-xs text-[#525252]"
+                                            className="text-muted-foreground mb-2 text-xs"
                                         >
                                             {t('Confirm password')}
                                         </label>
@@ -251,7 +240,7 @@ export default function Register({ passwordRules }: Props) {
                                                         : t('Show confirmation')
                                                 }
                                                 aria-pressed={showConfirmation}
-                                                className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-[#525252] hover:text-[#161616] focus-visible:outline-2 focus-visible:outline-[#0f62fe]"
+                                                className="text-muted-foreground hover:text-foreground focus-visible:outline-ring absolute inset-y-0 right-0 flex w-12 items-center justify-center focus-visible:outline-2"
                                             >
                                                 {showConfirmation ? (
                                                     <EyeOff size={20} />
@@ -274,7 +263,7 @@ export default function Register({ passwordRules }: Props) {
                                             type="submit"
                                             disabled={processing}
                                             data-test="register-user-button"
-                                            className="flex h-12 w-full items-center justify-between bg-[#0f62fe] px-4 text-sm text-white transition-colors hover:bg-[#0353e9] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe] active:bg-[#002d9c] disabled:cursor-not-allowed disabled:opacity-60"
+                                            className="bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:outline-ring active:bg-primary-active flex h-12 w-full items-center justify-between px-4 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                                         >
                                             <span>
                                                 {processing
@@ -298,13 +287,13 @@ export default function Register({ passwordRules }: Props) {
 
                         {/* Voltar ao login */}
                         <div className="mt-8 text-center text-sm">
-                            <span className="text-[#525252]">
+                            <span className="text-muted-foreground">
                                 {t('Already have an account?')}
                             </span>
 
                             <Link
                                 href={login()}
-                                className="ml-1 text-[#0f62fe] hover:text-[#0353e9] hover:underline"
+                                className="text-link hover:text-link-hover ml-1 hover:underline"
                             >
                                 {t('Log in')}
                             </Link>
@@ -313,10 +302,10 @@ export default function Register({ passwordRules }: Props) {
                 </main>
 
                 {/* Rodapé institucional */}
-                <footer className="w-full border-t border-[#e0e0e0] bg-[#f4f4f4] px-6 py-6 text-xs text-[#525252]">
+                <footer className="border-border bg-field text-muted-foreground w-full border-t px-6 py-6 text-xs">
                     <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-2 sm:flex-row">
                         <div className="flex items-center gap-2">
-                            <span className="font-semibold text-[#161616]">
+                            <span className="text-foreground font-semibold">
                                 PUCPR
                             </span>
 

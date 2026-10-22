@@ -69,36 +69,25 @@ export default function Welcome() {
 
     const primaryButton =
         'inline-flex min-h-11 items-center justify-center ' +
-        'bg-[#0f62fe] px-5 py-3 text-sm text-white ' +
-        'transition-colors hover:bg-[#0353e9] ' +
-        'active:bg-[#002d9c] focus-visible:outline-2 ' +
-        'focus-visible:outline-offset-2 focus-visible:outline-[#0f62fe]';
+        'bg-primary px-5 py-3 text-sm text-primary-foreground ' +
+        'transition-colors hover:bg-primary-hover ' +
+        'active:bg-primary-active focus-visible:outline-2 ' +
+        'focus-visible:outline-offset-2 focus-visible:outline-ring';
 
     const secondaryButton =
         'inline-flex min-h-11 items-center justify-center ' +
-        'border border-[#e0e0e0] bg-[#f4f4f4] px-5 py-3 ' +
-        'text-sm text-[#161616] transition-colors ' +
-        'hover:bg-[#e0e0e0] focus-visible:outline-2 ' +
-        'focus-visible:outline-[#0f62fe]';
+        'border border-border bg-field px-5 py-3 ' +
+        'text-sm text-foreground transition-colors ' +
+        'hover:bg-secondary focus-visible:outline-2 ' +
+        'focus-visible:outline-ring';
 
     return (
         <>
-            <Head title={t('Welcome')}>
-                <link
-                    rel="stylesheet"
-                    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
-                />
-            </Head>
+            <Head title={t('Welcome')}></Head>
 
-            <div
-                className="flex min-h-svh flex-col bg-white text-[#161616]"
-                style={{
-                    fontFamily: "'IBM Plex Sans', sans-serif",
-                    letterSpacing: '0.16px',
-                }}
-            >
+            <div className="bg-background text-foreground flex min-h-svh flex-col">
                 {/* Cabeçalho */}
-                <header className="sticky top-0 z-50 w-full border-b border-[#e0e0e0] bg-white">
+                <header className="border-border bg-background sticky top-0 z-50 w-full border-b">
                     <div className="mx-auto flex h-12 w-full max-w-[1312px] items-center justify-between gap-4 px-4 sm:px-8">
                         <Link
                             href={home()}
@@ -107,7 +96,7 @@ export default function Welcome() {
                         >
                             <AppLogoIcon className="h-7 w-7 shrink-0" />
 
-                            <span className="text-[15px] font-medium text-[#161616]">
+                            <span className="text-foreground text-[15px] font-medium">
                                 {name || 'Framework RME'}
                             </span>
                         </Link>
@@ -120,7 +109,7 @@ export default function Welcome() {
                                 <Link
                                     href={dashboard()}
                                     prefetch
-                                    className="inline-flex min-h-9 items-center bg-[#161616] px-4 text-sm text-white hover:bg-[#393939]"
+                                    className="bg-primary text-primary-foreground hover:bg-primary-hover inline-flex min-h-9 items-center px-4 text-sm"
                                 >
                                     {t('Dashboard')}
                                 </Link>
@@ -128,14 +117,14 @@ export default function Welcome() {
                                 <>
                                     <Link
                                         href={login()}
-                                        className="inline-flex min-h-9 items-center px-4 text-sm text-[#161616] hover:bg-[#e8e8e8]"
+                                        className="text-foreground hover:bg-accent inline-flex min-h-9 items-center px-4 text-sm"
                                     >
                                         {t('Log in')}
                                     </Link>
 
                                     <Link
                                         href={register()}
-                                        className="inline-flex min-h-9 items-center border border-[#161616] bg-[#161616] px-4 text-sm text-white hover:bg-[#393939]"
+                                        className="border-foreground bg-primary text-primary-foreground hover:bg-primary-hover inline-flex min-h-9 items-center border px-4 text-sm"
                                     >
                                         {t('Sign up')}
                                     </Link>
@@ -153,18 +142,18 @@ export default function Welcome() {
                     >
                         <div className="max-w-4xl">
                             {/* Logo original */}
-                            <div className="mb-8 flex h-16 w-16 items-center justify-center bg-[#161616] p-3">
-                                <AppLogoIcon className="h-10 w-10 text-white" />
+                            <div className="bg-primary mb-8 flex h-16 w-16 items-center justify-center p-3">
+                                <AppLogoIcon className="text-primary-foreground h-10 w-10" />
                             </div>
 
                             <h1
                                 id="hero-title"
-                                className="mb-6 text-3xl leading-[1.2] font-light tracking-normal text-[#161616] sm:text-4xl md:text-[42px]"
+                                className="text-foreground mb-6 text-3xl leading-[1.2] font-light tracking-normal sm:text-4xl md:text-[42px]"
                             >
                                 {t('Risk management for AI systems')}
                             </h1>
 
-                            <div className="mb-8 max-w-3xl space-y-4 text-base leading-[1.5] text-[#525252]">
+                            <div className="text-muted-foreground mb-8 max-w-3xl space-y-4 text-base leading-[1.5]">
                                 <p>
                                     {t(
                                         'Keep a registry of the AI systems your organization runs, the risks identified for each one, the mitigations applied to those risks, who is accountable for each, and the evidence proving they are in place.',
@@ -214,7 +203,7 @@ export default function Welcome() {
 
                     {/* Divisor */}
                     <div className="mx-auto w-full max-w-[1312px] px-4 sm:px-8">
-                        <hr className="border-t border-[#e0e0e0]" />
+                        <hr className="border-border border-t" />
                     </div>
 
                     {/* Funcionalidades */}
@@ -224,7 +213,7 @@ export default function Welcome() {
                     >
                         <h2
                             id="features-title"
-                            className="mb-8 text-sm font-normal text-[#525252]"
+                            className="text-muted-foreground mb-8 text-sm font-normal"
                         >
                             {t('What the framework keeps')}
                         </h2>
@@ -233,19 +222,19 @@ export default function Welcome() {
                             {sections.map(({ icon: Icon, title, summary }) => (
                                 <li
                                     key={title}
-                                    className="flex flex-col border border-[#e0e0e0] bg-white p-6 transition-colors duration-150 hover:border-[#c6c6c6] hover:bg-[#f4f4f4]"
+                                    className="border-border bg-background hover:border-border-strong hover:bg-muted flex flex-col border p-6 transition-colors duration-150"
                                 >
                                     <Icon
-                                        className="mb-4 h-6 w-6 text-[#161616]"
+                                        className="text-foreground mb-4 h-6 w-6"
                                         strokeWidth={1.5}
                                         aria-hidden="true"
                                     />
 
-                                    <h3 className="mb-2 text-base font-semibold text-[#161616]">
+                                    <h3 className="text-foreground mb-2 text-base font-semibold">
                                         {title}
                                     </h3>
 
-                                    <p className="text-sm leading-[1.45] text-[#525252]">
+                                    <p className="text-muted-foreground text-sm leading-[1.45]">
                                         {summary}
                                     </p>
                                 </li>
@@ -255,8 +244,8 @@ export default function Welcome() {
                 </main>
 
                 {/* Rodapé */}
-                <footer className="mt-auto w-full border-t border-[#e0e0e0] bg-white py-8">
-                    <div className="mx-auto flex w-full max-w-[1312px] flex-col items-start justify-between gap-4 px-4 text-xs text-[#525252] sm:flex-row sm:items-center sm:px-8">
+                <footer className="border-border bg-background mt-auto w-full border-t py-8">
+                    <div className="text-muted-foreground mx-auto flex w-full max-w-[1312px] flex-col items-start justify-between gap-4 px-4 text-xs sm:flex-row sm:items-center sm:px-8">
                         <span>
                             {t(
                                 'Compliance with the EU AI Act & MIT AI Risk Repository',
