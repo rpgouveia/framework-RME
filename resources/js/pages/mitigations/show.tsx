@@ -62,9 +62,9 @@ export default function MitigationsShow({
     return (
         <>
             <Head title={mitigation.name} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
-                <header className="grid gap-2">
-                    <h1 className="flex flex-wrap items-center gap-3 text-xl font-semibold tracking-tight">
+            <div className="mx-auto flex h-full w-full max-w-[1560px] flex-1 flex-col gap-5 bg-[#faf8ff] p-4 text-[#161616] dark:bg-background dark:text-foreground lg:p-8">
+                <header className="grid gap-3 border-b-2 border-[#004ccd] bg-white p-6 dark:bg-card">
+                    <h1 className="flex flex-wrap items-center gap-3 text-3xl font-light tracking-tight">
                         {mitigation.name}
                         {subcategory && (
                             <Badge variant="outline">
@@ -81,7 +81,14 @@ export default function MitigationsShow({
 
                 {catalog.fictional && <FictionalCatalogAlert />}
 
-                <Card>
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <MetricTile label={t('Suggested cost')} value={enumLabels.CostLevel[mitigation.suggested_cost]} tone="neutral" />
+                    <MetricTile label={t('Uncertainty')} value={enumLabels.UncertaintyLevel[mitigation.uncertainty_level]} tone="warning" />
+                    <MetricTile label={t('Links')} value={String(links.length)} tone="primary" />
+                    <MetricTile label={t('Risk subdomains treated')} value={String(mitigation.target_risk_subdomains?.length ?? 0)} tone="success" />
+                </div>
+
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:bg-card">
                     <CardHeader>
                         <CardTitle>{t('Description')}</CardTitle>
                     </CardHeader>
@@ -92,10 +99,10 @@ export default function MitigationsShow({
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid items-start gap-5 lg:grid-cols-12">
                     {/* What comes from the source, kept apart from what the
                         framework adds, so each claim has its author. */}
-                    <Card>
+                    <Card className="order-2 rounded-none border-[#e0e0e0] bg-white shadow-none dark:bg-card lg:col-span-4">
                         <CardHeader>
                             <CardTitle>
                                 {t('Taxonomy of Saeri et al.')}
@@ -179,7 +186,7 @@ export default function MitigationsShow({
                         </CardContent>
                     </Card>
 
-                    <Card>
+                    <Card className="order-1 rounded-none border-[#e0e0e0] bg-white shadow-none dark:bg-card lg:col-span-8">
                         <CardHeader>
                             <CardTitle>
                                 {t('Contribution of the framework (C2)')}
@@ -276,7 +283,7 @@ export default function MitigationsShow({
                     </Card>
                 </div>
 
-                <Card>
+                <Card className="rounded-none border-[#e0e0e0] bg-white shadow-none dark:bg-card">
                     <CardHeader>
                         <CardTitle>
                             {t('Links that apply this mitigation')}
@@ -299,12 +306,22 @@ export default function MitigationsShow({
     );
 }
 
+function MetricTile({ label, value, tone }: { label: string; value: string; tone: 'neutral' | 'warning' | 'primary' | 'success' }) {
+    const borders = { neutral: 'border-[#525252]', warning: 'border-[#f1c21b]', primary: 'border-[#004ccd]', success: 'border-[#24a148]' };
+    return (
+        <div className={`flex min-h-28 flex-col justify-between border-t-2 bg-white p-4 dark:bg-card ${borders[tone]}`}>
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</span>
+            <span className="mt-3 text-2xl font-light tabular-nums">{value}</span>
+        </div>
+    );
+}
+
 function LinksTable({ links }: { links: RiskLink[] }) {
     const { t } = useTranslations();
 
     return (
         <Table>
-            <TableHeader>
+            <TableHeader className="bg-[#f4f4f4] dark:bg-muted">
                 <TableRow>
                     <TableHead>{t('Link')}</TableHead>
                     <TableHead>{t('Owner')}</TableHead>
@@ -315,7 +332,7 @@ function LinksTable({ links }: { links: RiskLink[] }) {
                 {links.map((link) => (
                     <TableRow
                         key={link.id}
-                        className="cursor-pointer"
+                        className="cursor-pointer hover:bg-[#f4f4f4] dark:hover:bg-muted"
                         onClick={rowLink(showLink(link.id))}
                     >
                         <TableCell className="whitespace-normal">

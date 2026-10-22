@@ -76,7 +76,8 @@ export default function MitigationsIndex({
     return (
         <>
             <Head title={t('Mitigation catalogue')} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <div className="mx-auto flex h-full w-full max-w-[1560px] flex-1 flex-col gap-5 bg-[#faf8ff] p-4 text-[#161616] dark:bg-background dark:text-foreground lg:p-8">
+                <div className="border-b-2 border-[#004ccd] bg-white p-5 dark:bg-card">
                 <Heading
                     title={t('Mitigation catalogue')}
                     description={t(
@@ -84,10 +85,12 @@ export default function MitigationsIndex({
                     )}
                 />
 
+                </div>
+
                 {catalog.fictional && <FictionalCatalogAlert />}
 
-                <div className="grid gap-3">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="grid gap-4 border border-[#e0e0e0] bg-white p-4 dark:bg-card">
+                    <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e0e0e0] pb-4">
                         <nav
                             aria-label={t('Filter by category')}
                             className="flex flex-wrap gap-2"
@@ -129,7 +132,7 @@ export default function MitigationsIndex({
                                 aria-label={t(
                                     'Search by the name in Portuguese or by the original name',
                                 )}
-                                className="w-56"
+                                className="w-56 rounded-none border-[#8d8d8d] bg-[#f4f4f4] focus-visible:ring-[#004ccd]"
                             />
                             <Button type="submit" variant="outline">
                                 {t('Search')}
@@ -170,6 +173,11 @@ export default function MitigationsIndex({
                             ))}
                         </nav>
                     )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e0e0e0] bg-white px-4 py-3 text-sm dark:bg-card">
+                    <span className="font-semibold">{t('Mitigation catalogue')}</span>
+                    <span className="font-mono text-xs text-muted-foreground">{mitigations.total} {t('Mitigations')}</span>
                 </div>
 
                 {mitigations.data.length === 0 ? (
@@ -238,7 +246,7 @@ function EmptyState({
     }
 
     return (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
+        <div className="flex flex-col items-center gap-3 border border-dashed border-[#c3c6d8] bg-white p-12 text-center dark:bg-card">
             <p className="text-muted-foreground text-sm">{message}</p>
             {(filters.q !== '' || scope) && (
                 <Link
@@ -257,9 +265,9 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
     const { t } = useTranslations();
 
     return (
-        <div className="rounded-xl border">
+        <div className="overflow-hidden border border-[#e0e0e0] bg-white dark:bg-card">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-[#f4f4f4] dark:bg-muted">
                     <TableRow>
                         <TableHead>{t('Name')}</TableHead>
                         <TableHead>{t('Subcategory')}</TableHead>
@@ -274,14 +282,14 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                     {mitigations.map((mitigation) => (
                         <TableRow
                             key={mitigation.id}
-                            className="cursor-pointer"
+                            className="cursor-pointer border-[#e0e0e0] hover:bg-[#f4f4f4] dark:hover:bg-muted"
                             onClick={rowLink(show(mitigation.id))}
                         >
                             <TableCell>
                                 <div className="grid max-w-sm">
                                     <Link
                                         href={show(mitigation.id)}
-                                        className="font-medium hover:underline"
+                                        className="font-medium text-[#004ccd] hover:underline dark:text-blue-400"
                                     >
                                         {mitigation.name}
                                     </Link>
