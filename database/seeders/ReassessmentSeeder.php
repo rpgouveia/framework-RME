@@ -24,6 +24,8 @@ use App\Models\Risk;
 use App\Models\TaxonomyTerm;
 use App\Support\AiRiskDomains;
 use Carbon\CarbonImmutable;
+use Database\Factories\AdverseEventFactory;
+use Database\Factories\RiskFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
@@ -112,7 +114,7 @@ class ReassessmentSeeder extends Seeder
         $this->recordAdverseEvent->handle([
             'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::Incident,
-            'description' => 'O sistema expôs a um grupo de usuários respostas que as mitigações deveriam ter barrado.',
+            'description' => AdverseEventFactory::describe($subdomain->code, AdverseEventNature::Incident),
             'occurrence_date' => $this->today->subDays(24),
             'detected_at' => $this->today->subDays(21),
             'risk_subdomains' => [$subdomain->code],
@@ -176,7 +178,7 @@ class ReassessmentSeeder extends Seeder
         $this->recordAdverseEvent->handle([
             'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::NearMiss,
-            'description' => 'Uma tentativa de uso indevido foi barrada pela mitigação antes de chegar ao usuário.',
+            'description' => AdverseEventFactory::describe($subdomain->code, AdverseEventNature::NearMiss),
             'occurrence_date' => $this->today->subDays(9),
             'detected_at' => $this->today->subDays(9),
             'risk_subdomains' => [$subdomain->code],
@@ -197,14 +199,16 @@ class ReassessmentSeeder extends Seeder
      */
     protected function unmappedRisk(AiSystem $aiSystem): void
     {
+        $subdomain = $this->newSubdomainFor($aiSystem);
+
         $this->at(12, 20);
         $this->recordAdverseEvent->handle([
             'ai_system_id' => $aiSystem->id,
             'nature' => AdverseEventNature::Incident,
-            'description' => 'Ocorrência sem risco correspondente no cadastro do sistema.',
+            'description' => AdverseEventFactory::describe($subdomain->code, AdverseEventNature::Incident),
             'occurrence_date' => $this->today->subDays(4),
             'detected_at' => null,
-            'risk_subdomains' => [$this->newSubdomainFor($aiSystem)->code],
+            'risk_subdomains' => [$subdomain->code],
         ]);
     }
 
@@ -309,7 +313,12 @@ class ReassessmentSeeder extends Seeder
     {
         $taken = Risk::query()->where('ai_system_id', $aiSystem->id)->pluck('risk_subdomain_id')->all();
 
-        return $this->riskDomains->subdomains()->whereNotIn('id', $taken)->random();
+        // Among the subdomains with a risk and an occurrence of their own, so
+        // the risk registered here and the event told read like the real ones.
+        return $this->riskDomains->subdomains()
+            ->whereIn('code', RiskFactory::subdomainCodes())
+            ->whereNotIn('id', $taken)
+            ->random();
     }
 
     /**

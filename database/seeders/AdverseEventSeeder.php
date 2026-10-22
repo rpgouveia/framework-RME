@@ -7,6 +7,7 @@ use App\Enums\AdverseEventNature;
 use App\Models\AiSystem;
 use App\Models\Risk;
 use Carbon\CarbonImmutable;
+use Database\Factories\AdverseEventFactory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 
@@ -39,20 +40,24 @@ class AdverseEventSeeder extends Seeder
                     continue;
                 }
 
-                foreach (range(1, fake()->numberBetween(1, 2)) as $ignored) {
+                // One occurrence per subdomain, so no system tells the same
+                // story twice.
+                foreach ($codes->shuffle()->take(fake()->numberBetween(1, 2)) as $subdomain) {
                     $occurred = $today->subDays(fake()->numberBetween(600, 700));
                     $detected = fake()->boolean() ? $occurred->addDays(fake()->numberBetween(0, 10)) : null;
 
                     // Registered on detection, or a few days after it.
                     Date::setTestNow(($detected ?? $occurred)->addDays(fake()->numberBetween(0, 3))->setTime(10, 0));
 
+                    $nature = fake()->randomElement(AdverseEventNature::cases());
+
                     $recordAdverseEvent->handle([
                         'ai_system_id' => $aiSystem->id,
-                        'nature' => fake()->randomElement(AdverseEventNature::cases()),
-                        'description' => fake()->paragraph(),
+                        'nature' => $nature,
+                        'description' => AdverseEventFactory::describe($subdomain, $nature),
                         'occurrence_date' => $occurred,
                         'detected_at' => $detected,
-                        'risk_subdomains' => $codes->random(min($codes->count(), fake()->numberBetween(1, 2)))->values()->all(),
+                        'risk_subdomains' => [$subdomain],
                     ]);
                 }
             }

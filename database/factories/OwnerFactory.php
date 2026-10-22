@@ -14,24 +14,26 @@ class OwnerFactory extends Factory
     use PicksUnusedNames;
 
     /**
-     * Organizational roles, never people (R-2), so seeded data reads like a
-     * real accountability map.
+     * Organizational roles, never people (R-2), each with the area it belongs
+     * to, so a seeded register reads like a real accountability map.
      *
-     * @var list<string>
+     * @var array<string, string>
      */
-    protected const ROLES = [
-        'Gestor de Risco de IA',
-        'Cientista de Dados',
-        'Engenheiro de Machine Learning',
-        'Encarregado de Dados (DPO)',
-        'Analista de Compliance',
-        'Arquiteto de Segurança',
-        'Product Owner',
-        'Líder de Engenharia',
-        'Auditor Interno',
-        'Analista de Governança de IA',
-        'Especialista em Privacidade',
-        'Coordenador de Qualidade',
+    public const ROLES = [
+        'Gestor de Risco de IA' => 'Governança de IA',
+        'Analista de Governança de IA' => 'Governança de IA',
+        'Engenheiro de Machine Learning' => 'Engenharia',
+        'Líder de Engenharia' => 'Engenharia',
+        'Cientista de Dados' => 'Dados',
+        'Engenheiro de Dados' => 'Dados',
+        'Arquiteto de Segurança' => 'Segurança da Informação',
+        'Analista de Resposta a Incidentes' => 'Segurança da Informação',
+        'Encarregado de Dados (DPO)' => 'Jurídico',
+        'Especialista em Privacidade' => 'Jurídico',
+        'Analista de Compliance' => 'Compliance',
+        'Auditor Interno' => 'Compliance',
+        'Product Owner' => 'Produto',
+        'Coordenador de Qualidade' => 'Qualidade',
     ];
 
     /**
@@ -41,22 +43,14 @@ class OwnerFactory extends Factory
      */
     public function definition(): array
     {
+        // A role is unique within its area, ignoring letter case, like the
+        // unique index; as each role belongs to one area, picking a role not
+        // taken yet is enough.
+        $role = $this->unusedName(array_keys(self::ROLES), Owner::query()->pluck('organizational_role')->all());
+
         return [
-            'area' => fake()->randomElement([
-                'Engenharia',
-                'Produto',
-                'Dados',
-                'Jurídico',
-                'Compliance',
-                'Segurança da Informação',
-            ]),
-            // After area: a role is unique only within its area, ignoring
-            // letter case, like the unique index.
-            'organizational_role' => fn (array $attributes): string => $this->unusedName(
-                self::ROLES,
-                Owner::query()->whereRaw('lower(area) = lower(?)', [$attributes['area']])->pluck('organizational_role')->all(),
-                mb_strtolower((string) $attributes['area']),
-            ),
+            'organizational_role' => $role,
+            'area' => $this->areaOf($role),
         ];
     }
 
@@ -68,5 +62,14 @@ class OwnerFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'deactivated_at' => now(),
         ]);
+    }
+
+    /**
+     * The area of a role, by the name the factory drew: the trait numbers a
+     * name once the list runs out, so the number is dropped before the lookup.
+     */
+    protected function areaOf(string $role): string
+    {
+        return self::ROLES[(string) preg_replace('/ \d+$/', '', $role)];
     }
 }

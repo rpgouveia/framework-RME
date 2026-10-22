@@ -172,14 +172,17 @@ test('the factory picks an operable tier unless asked for unacceptable', functio
         ->and(AiSystem::factory()->unacceptable()->create()->category)->toBe(AiSystemCategory::Unacceptable);
 });
 
-test('the seeder gives each system a different application domain', function () {
+test('the seeder registers the whole portfolio, each system with the domain of its name', function () {
     $this->seed(AiSystemSeeder::class);
 
-    $domains = AiSystem::pluck('application_domain');
+    $aiSystems = AiSystem::all();
+    $curated = [...AiSystemFactory::SYSTEMS, ...AiSystemFactory::PROHIBITED];
 
-    expect($domains)->toHaveCount(5)
-        ->and($domains->unique())->toHaveCount(5)
-        ->and($domains->every(fn (?string $domain): bool => in_array($domain, AiSystemFactory::APPLICATION_DOMAINS, true)))->toBeTrue();
+    expect($aiSystems)->toHaveCount(count(AiSystemFactory::SYSTEMS) + 1)
+        ->and($aiSystems->pluck('application_domain')->unique())->toHaveCount($aiSystems->count())
+        ->and($aiSystems->every(
+            fn (AiSystem $aiSystem): bool => $curated[$aiSystem->name]['application_domain'] === $aiSystem->application_domain,
+        ))->toBeTrue();
 });
 
 test('a system without risks can be deleted', function () {
