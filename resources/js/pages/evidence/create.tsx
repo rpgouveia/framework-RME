@@ -2,10 +2,19 @@ import { Form, Head, Link } from '@inertiajs/react';
 import { LockIcon } from 'lucide-react';
 import { useState } from 'react';
 import EvidenceController from '@/actions/App/Http/Controllers/EvidenceController';
+import { CostHelp } from '@/components/cost-help';
+import { FormSection } from '@/components/form-section';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import {
     Dialog,
     DialogClose,
@@ -72,185 +81,229 @@ export default function EvidenceCreate({ link, types, costLevels }: Props) {
                         { link: linkLabel(link, t) },
                     )}
                 />
-                <Form
-                    {...EvidenceController.store.form(link.id)}
-                    id={FORM_ID}
-                    onError={() => setConfirming(false)}
-                    className="max-w-xl space-y-6"
-                >
-                    {({ processing, errors }) => (
-                        <>
-                            <div className="grid gap-2">
-                                <Label htmlFor="type">{t('Type')}</Label>
-                                <Select name="type" required>
-                                    <SelectTrigger
-                                        id="type"
-                                        className="w-full"
-                                        aria-invalid={
-                                            errors.type ? true : undefined
-                                        }
-                                    >
-                                        <SelectValue
-                                            placeholder={t('Select the type')}
+                <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+                    <Form
+                        {...EvidenceController.store.form(link.id)}
+                        id={FORM_ID}
+                        onError={() => setConfirming(false)}
+                        className="grid min-w-0 gap-10"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <FormSection title={t('The evidence')}>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="type">
+                                            {t('Type')}
+                                        </Label>
+                                        <Select name="type" required>
+                                            <SelectTrigger
+                                                id="type"
+                                                className="w-full"
+                                                aria-invalid={
+                                                    errors.type
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            >
+                                                <SelectValue
+                                                    placeholder={t(
+                                                        'Select the type',
+                                                    )}
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {types.map((option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        {labelFor(
+                                                            enumLabels.EvidenceType,
+                                                            option.value,
+                                                        )}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <InputError message={errors.type} />
+                                    </div>
+
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="description">
+                                            {t('Description')}
+                                        </Label>
+                                        <Textarea
+                                            id="description"
+                                            name="description"
+                                            required
+                                            maxLength={255}
+                                            placeholder={t(
+                                                'E.g.: Fairness audit report of the 1st quarter, signed by the committee.',
+                                            )}
+                                            aria-invalid={
+                                                errors.description
+                                                    ? true
+                                                    : undefined
+                                            }
                                         />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {types.map((option) => (
-                                            <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {labelFor(
-                                                    enumLabels.EvidenceType,
-                                                    option.value,
-                                                )}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <InputError message={errors.type} />
-                            </div>
+                                        <InputError
+                                            message={errors.description}
+                                        />
+                                    </div>
 
-                            <div className="grid gap-2">
-                                <Label htmlFor="description">
-                                    {t('Description')}
-                                </Label>
-                                <Textarea
-                                    id="description"
-                                    name="description"
-                                    required
-                                    maxLength={255}
-                                    placeholder={t(
-                                        'E.g.: Fairness audit report of the 1st quarter, signed by the committee.',
-                                    )}
-                                    aria-invalid={
-                                        errors.description ? true : undefined
-                                    }
-                                />
-                                <InputError message={errors.description} />
-                            </div>
-
-                            <div className="grid gap-2">
-                                <Label htmlFor="observed_cost">
-                                    {t('Observed cost')}{' '}
-                                    <span className="text-muted-foreground font-normal">
-                                        {t('(optional)')}
-                                    </span>
-                                </Label>
-                                <Select
-                                    value={observedCost}
-                                    onValueChange={setObservedCost}
-                                >
-                                    <SelectTrigger
-                                        id="observed_cost"
-                                        className="w-full sm:w-64"
-                                        aria-describedby="observed_cost-help"
-                                        aria-invalid={
-                                            errors.observed_cost
-                                                ? true
-                                                : undefined
-                                        }
-                                    >
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value={NOT_INFORMED}>
-                                            {t('Not reported')}
-                                        </SelectItem>
-                                        {costLevels.map((option) => (
-                                            <SelectItem
-                                                key={option.value}
-                                                value={option.value}
-                                            >
-                                                {labelFor(
-                                                    enumLabels.CostLevel,
-                                                    option.value,
-                                                )}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {/* Sent as an empty string, which Laravel
-                                    turns into null. */}
-                                <input
-                                    type="hidden"
-                                    name="observed_cost"
-                                    value={
-                                        observedCost === NOT_INFORMED
-                                            ? ''
-                                            : observedCost
-                                    }
-                                />
-                                <p
-                                    id="observed_cost-help"
-                                    className="text-muted-foreground text-sm"
-                                >
-                                    {t(
-                                        "The actual cost of the application so far (RF07). The one reported in the latest evidence becomes the link's observed cost.",
-                                    )}
-                                </p>
-                                <InputError message={errors.observed_cost} />
-                            </div>
-
-                            <Alert>
-                                <LockIcon />
-                                <AlertTitle>
-                                    {t('Evidence is permanent')}
-                                </AlertTitle>
-                                <AlertDescription>
-                                    {t(
-                                        "Once registered, the evidence can be neither edited nor deleted, because it supports the link's verification. A mistake is corrected by registering other evidence.",
-                                    )}
-                                </AlertDescription>
-                            </Alert>
-
-                            <div className="flex items-center gap-4">
-                                <Button
-                                    type="button"
-                                    disabled={processing}
-                                    onClick={askToConfirm}
-                                >
-                                    {t('Record')}
-                                </Button>
-                                <Button variant="ghost" asChild>
-                                    <Link href={index(link.id)}>
-                                        {t('Cancel')}
-                                    </Link>
-                                </Button>
-                            </div>
-
-                            <Dialog
-                                open={confirming}
-                                onOpenChange={setConfirming}
-                            >
-                                <DialogContent>
-                                    <DialogTitle>
-                                        {t('Register this evidence?')}
-                                    </DialogTitle>
-                                    <DialogDescription>
-                                        {t(
-                                            'Check the type and the description: once registered, the evidence can be neither edited nor deleted.',
-                                        )}
-                                    </DialogDescription>
-                                    <DialogFooter className="gap-2">
-                                        <DialogClose asChild>
-                                            <Button variant="secondary">
-                                                {t('Back')}
-                                            </Button>
-                                        </DialogClose>
-                                        <Button
-                                            type="submit"
-                                            form={FORM_ID}
-                                            disabled={processing}
+                                    <div className="grid gap-2">
+                                        <span className="flex h-4 items-center gap-1">
+                                            <Label htmlFor="observed_cost">
+                                                {t('Observed cost')}{' '}
+                                                <span className="text-muted-foreground">
+                                                    {t('(optional)')}
+                                                </span>
+                                            </Label>
+                                            <CostHelp />
+                                        </span>
+                                        <Select
+                                            value={observedCost}
+                                            onValueChange={setObservedCost}
                                         >
-                                            {t('Record')}
-                                        </Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
-                        </>
+                                            <SelectTrigger
+                                                id="observed_cost"
+                                                className="w-full sm:w-64"
+                                                aria-describedby="observed_cost-help"
+                                                aria-invalid={
+                                                    errors.observed_cost
+                                                        ? true
+                                                        : undefined
+                                                }
+                                            >
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem
+                                                    value={NOT_INFORMED}
+                                                >
+                                                    {t('Not reported')}
+                                                </SelectItem>
+                                                {costLevels.map((option) => (
+                                                    <SelectItem
+                                                        key={option.value}
+                                                        value={option.value}
+                                                    >
+                                                        {labelFor(
+                                                            enumLabels.CostLevel,
+                                                            option.value,
+                                                        )}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {/* Sent as an empty string, which Laravel
+                                    turns into null. */}
+                                        <input
+                                            type="hidden"
+                                            name="observed_cost"
+                                            value={
+                                                observedCost === NOT_INFORMED
+                                                    ? ''
+                                                    : observedCost
+                                            }
+                                        />
+                                        <p
+                                            id="observed_cost-help"
+                                            className="text-muted-foreground text-xs tracking-[0.32px]"
+                                        >
+                                            {t(
+                                                "The effort actually spent so far, on the same scale as the estimated cost (:cost). The one reported in the latest evidence becomes the link's observed cost.",
+                                                {
+                                                    cost: enumLabels.CostLevel[
+                                                        link.estimated_cost
+                                                    ],
+                                                },
+                                            )}
+                                        </p>
+                                        <InputError
+                                            message={errors.observed_cost}
+                                        />
+                                    </div>
+                                </FormSection>
+
+                                <Alert>
+                                    <LockIcon />
+                                    <AlertTitle>
+                                        {t('Evidence is permanent')}
+                                    </AlertTitle>
+                                    <AlertDescription>
+                                        {t(
+                                            "Once registered, the evidence can be neither edited nor deleted, because it supports the link's verification. A mistake is corrected by registering other evidence.",
+                                        )}
+                                    </AlertDescription>
+                                </Alert>
+
+                                <div className="flex items-center gap-4">
+                                    <Button
+                                        type="button"
+                                        size="lg"
+                                        disabled={processing}
+                                        onClick={askToConfirm}
+                                    >
+                                        {t('Register evidence')}
+                                    </Button>
+                                    <Button variant="ghost" size="lg" asChild>
+                                        <Link href={index(link.id)}>
+                                            {t('Cancel')}
+                                        </Link>
+                                    </Button>
+                                </div>
+
+                                <Dialog
+                                    open={confirming}
+                                    onOpenChange={setConfirming}
+                                >
+                                    <DialogContent>
+                                        <DialogTitle>
+                                            {t('Register this evidence?')}
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            {t(
+                                                'Check the type and the description: once registered, the evidence can be neither edited nor deleted.',
+                                            )}
+                                        </DialogDescription>
+                                        <DialogFooter className="gap-2">
+                                            <DialogClose asChild>
+                                                <Button variant="secondary">
+                                                    {t('Back')}
+                                                </Button>
+                                            </DialogClose>
+                                            <Button
+                                                type="submit"
+                                                form={FORM_ID}
+                                                disabled={processing}
+                                            >
+                                                {t('Record')}
+                                            </Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </>
+                        )}
+                    </Form>
+
+                    {link.mitigation && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('Expected evidence')}</CardTitle>
+                                <CardDescription>
+                                    {t(
+                                        'From the catalogue, for the mitigation :mitigation.',
+                                        { mitigation: link.mitigation.name },
+                                    )}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <p>{link.mitigation.expected_evidence}</p>
+                            </CardContent>
+                        </Card>
                     )}
-                </Form>
+                </div>
             </div>
         </>
     );
