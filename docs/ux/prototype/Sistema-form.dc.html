@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Cadastrar sistema de IA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="systems" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Sistemas.dc.html">Sistemas de IA</a></li><li aria-current="page">Cadastrar</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<h1 class="page-title">Cadastrar sistema de IA</h1>
+<p class="page-sub">Adicione um sistema ao portfólio e classifique-o pelo EU AI Act. A faixa define de quanto em quanto tempo os vínculos verificados são revistos.</p>
+</div>
+
+<form class="form">
+<fieldset class="form-section">
+<legend>Identificação</legend>
+<div><label class="rme-label" for="nome">Nome</label><input id="nome" class="rme-field" placeholder="Ex.: Modelo de score de crédito"></div>
+<div><label class="rme-label" for="dom">Domínio de aplicação (opcional)</label><input id="dom" class="rme-field" placeholder="Ex.: Atendimento ao cliente"><p class="rme-helper">Onde o sistema é usado, para contextualizá-lo. Não altera nenhuma classificação.</p></div>
+<div style="max-width: 280px"><label class="rme-label" for="data">Data de cadastro</label><input id="data" class="rme-field" value="22/10/2026"></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>Origem do sistema</legend>
+<p class="muted" style="margin: 0">A relação da organização com o sistema, que indica quanto controle ela tem sobre ele.</p>
+<div class="form-grid" role="radiogroup" aria-label="Origem" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px">
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span><div><strong>Interno</strong><div class="rme-caption">A organização projeta, desenvolve, testa e implanta o sistema.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div><strong>Terceiros</strong><div class="rme-caption">A organização é cliente de um provedor, que fornece o sistema como produto ou serviço.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div><strong>Código aberto</strong><div class="rme-caption">A organização incorpora ou adapta um modelo ou software de código aberto.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div><strong>Híbrido</strong><div class="rme-caption">Componente próprio combinado com componente de terceiros ou de código aberto.</div></div></div>
+</div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend style="display: flex; align-items: center; gap: 4px">Faixa de risco (EU AI Act) <button type="button" class="rme-tip-btn" aria-label="O que é a faixa de risco"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></legend>
+<div class="stack-sm" role="radiogroup" aria-label="Faixa de risco">
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Alto</strong><div class="rme-caption">Sistema de alto risco (art. 6 e Anexo III).</div></div><span class="rme-tag rme-tag--yellow">Revisão a cada 90 dias</span></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Limitado</strong><div class="rme-caption">Sujeito a obrigações de transparência (art. 50).</div></div><span class="rme-tag rme-tag--gray">Revisão a cada 180 dias</span></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Mínimo</strong><div class="rme-caption">Demais sistemas.</div></div><span class="rme-tag rme-tag--gray">Revisão a cada 365 dias</span></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Inaceitável</strong><div class="rme-caption">Prática proibida (art. 5). O sistema nunca é considerado em operação: seus vínculos não são verificados e servem para planejar a descontinuação.</div></div><span class="rme-tag rme-tag--danger">Sem revisão periódica</span></div></div>
+</div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Cadastrar sistema de IA</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Sistemas.dc.html">Cancelar</a>
+</div>
+</form>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

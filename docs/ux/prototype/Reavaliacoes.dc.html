@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Reavaliações</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-cancelado.dc.html">Uso do sistema para ciberataque → Registrar antropomorfização na interface</a></li><li aria-current="page">Reavaliações</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Reavaliações (1)</h1>
+<p class="page-sub">Uso do sistema para ciberataque → Registrar antropomorfização na interface. Cada reavaliação conclui uma reversão e não pode ser editada nem excluída.</p>
+</div>
+
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Data</th><th><button class="rme-term" style="font-weight: 600">Desfecho</button></th><th><button class="rme-term" style="font-weight: 600">Origem da reversão</button></th><th><button class="rme-term" style="font-weight: 600">Causa</button></th><th>Quem reavaliou</th></tr></thead>
+<tbody>
+<tr><td><a href="Reavaliacao-detalhe.dc.html">12 de out. de 2026</a></td><td><span class="rme-tag rme-tag--gray">Substituir</span></td><td>Evento adverso</td><td>Apurada</td><td>Analista de Resposta a Incidentes<span class="rme-sub">Segurança da Informação</span></td></tr>
+</tbody>
+</table>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

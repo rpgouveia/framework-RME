@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Eventos adversos</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="events" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Eventos adversos</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Eventos adversos</h1>
+<p class="page-sub">O que deu errado, ou quase, nos sistemas em operação, do mais recente ao mais antigo.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Evento-registrar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Registrar evento adverso</a></div>
+</div>
+
+<div class="rme-row" role="group" aria-label="Filtrar por natureza">
+<button class="rme-chip" aria-pressed="true">Todas as naturezas</button>
+<button class="rme-chip" aria-pressed="false">Incidente</button>
+<button class="rme-chip" aria-pressed="false">Quase-incidente</button>
+<button class="rme-tip-btn" aria-label="Incidente e quase-incidente"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+</div>
+
+<div>
+<div class="toolbar">
+<label class="toolbar-search"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="position: absolute; left: -9999px">Buscar</span><input class="rme-field" placeholder="Buscar na descrição"></label>
+<button class="toolbar-filter">Sistema: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="toolbar-filter">Domínio: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Ocorrência</th><th>Natureza</th><th>Sistema</th><th>Subdomínio de risco</th><th>Descrição</th><th class="num"><button class="rme-term" style="font-weight: 600">Mudanças de status</button></th></tr></thead>
+<tbody>
+<tr><td style="white-space: nowrap"><a href="#">18 de out. de 2026</a></td><td><span class="rme-tag rme-tag--red">Incidente</span></td><td>Chatbot de suporte técnico interno</td><td><span class="mono">5.2</span> Perda de agência e autonomia humanas</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">A recomendação do sistema entrou no processo como decisão final, sem possibilidade de divergência registrada, e a pessoa afetada não teve a quem recorrer.</span></td><td class="num">0</td></tr>
+<tr><td style="white-space: nowrap"><a href="#">13 de out. de 2026</a></td><td><span class="rme-tag rme-tag--outline">Quase-incidente</span></td><td>Roteirização de entregas</td><td><span class="mono">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">Um teste de rotina mostrou que o sistema devolvia dados pessoais sem mascaramento, em um ambiente sem acesso externo, e a configuração foi corrigida antes da liberação.</span></td><td class="num">1</td></tr>
+<tr><td style="white-space: nowrap"><a href="#">28 de set. de 2026</a></td><td><span class="rme-tag rme-tag--red">Incidente</span></td><td>Modelo de score de crédito</td><td><span class="mono">4.2</span> Ciberataques, desenvolvimento ou uso de armas e danos em massa</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">O sistema foi usado para redigir mensagens de phishing dirigidas a funcionários, com informações internas que ele tinha acesso para consultar.</span></td><td class="num">4</td></tr>
+<tr><td style="white-space: nowrap"><a href="#">24 de fev. de 2025</a></td><td><span class="rme-tag rme-tag--outline">Quase-incidente</span></td><td>Modelo de score de crédito</td><td><span class="mono">7.4</span> Falta de transparência ou interpretabilidade</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">Um pedido de explicação mostrou que o registro da decisão não guardava as variáveis usadas, corrigido antes do prazo de resposta.</span></td><td class="num">1</td></tr>
+<tr><td style="white-space: nowrap"><a href="#">18 de fev. de 2025</a></td><td><span class="rme-tag rme-tag--red">Incidente</span></td><td>Recomendação de conteúdo do portal</td><td><span class="mono">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">Um usuário recebeu, na resposta do sistema, dados pessoais de outro cliente, e o caso foi comunicado ao encarregado de dados.</span></td><td class="num">1</td></tr>
+<tr><td style="white-space: nowrap"><a href="Evento-detalhe.dc.html">7 de fev. de 2025</a></td><td><span class="rme-tag rme-tag--red">Incidente</span></td><td>Modelo de score de crédito</td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td style="padding-top: 12px; padding-bottom: 12px"><span class="clamp">A conferência por amostra mostrou recusas concentradas em clientes de uma mesma região, em proporção muito acima da média, por efeito do modelo.</span></td><td class="num">1</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

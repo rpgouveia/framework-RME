@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Riscos</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:480px}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="risks" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Riscos</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Riscos</h1>
+<p class="page-sub">Riscos identificados em cada sistema, classificados pelo MIT AI Risk Repository.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Risco-form.dc.html" style="color: var(--primary-foreground); text-decoration: none">Cadastrar risco</a></div>
+</div>
+
+<div>
+<div class="toolbar">
+<label class="toolbar-search"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="position: absolute; left: -9999px">Buscar</span><input class="rme-field" placeholder="Buscar por nome ou descrição"></label>
+<button class="toolbar-filter">Sistema: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="toolbar-filter">Domínio: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="toolbar-filter">Vínculos: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Risco</th><th>Sistema</th><th>Subdomínio de risco</th><th>Fase</th><th><button class="rme-term" style="font-weight: 600">Incerteza</button></th><th class="num">Vínculos</th></tr></thead>
+<tbody>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Viés de seleção</a><span class="rme-sub clamp">A base de treinamento sub-representa parte da população atendida, porque foi montada a partir do histórico de clientes já aprovados.</span></td><td>Modelo de score de crédito</td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td>Validação contínua</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">1</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Discriminação algorítmica</a><span class="rme-sub clamp">O sistema produz decisões sistematicamente menos favoráveis para um grupo protegido, mesmo sem usar o atributo sensível como entrada.</span></td><td>Modelo de score de crédito</td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td>Implantação</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">1</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Viés de rótulo</a><span class="rme-sub clamp">Os rótulos usados no treinamento vêm de decisões humanas anteriores, que já carregavam preferências não declaradas.</span></td><td>Triagem automática de currículos</td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td>Retirada</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">1</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Automação de postos de trabalho</a><span class="rme-sub clamp">A adoção do sistema reduz postos de trabalho na área atendida sem plano de recolocação ou requalificação.</span></td><td>Triagem automática de currículos</td><td><span class="mono">6.2</span> Aumento da desigualdade e piora na qualidade do emprego</td><td>Validação contínua</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i class="on"></i></span>Alta</span></td><td class="num">2</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Exposição de dados pessoais</a><span class="rme-sub clamp">Dados pessoais tratados pelo sistema chegam a quem não deveria vê-los, por resposta ao usuário errado ou registro em log sem mascaramento.</span></td><td>Apoio ao diagnóstico por imagem</td><td><span class="mono">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis</td><td>Validação contínua</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">2</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="#">Deriva de dados</a><span class="rme-sub clamp">A distribuição dos dados de entrada se afasta da do treinamento e o desempenho cai aos poucos, sem falha visível.</span></td><td>Detecção de fraudes em transações</td><td><span class="mono">7.3</span> Falta de capacidade ou robustez</td><td>Concepção</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">2</td></tr>
+<tr><td style="padding-top: 12px; padding-bottom: 12px"><a href="Risco-detalhe.dc.html">Falta de explicabilidade</a><span class="rme-sub clamp">Não é possível explicar à pessoa afetada, nem a um auditor, por que o sistema chegou àquele resultado.</span></td><td>Modelo de score de crédito</td><td><span class="mono">7.4</span> Falta de transparência ou interpretabilidade</td><td>Operação e monitoramento</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i class="on"></i></span>Alta</span></td><td class="num">2</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rme-pagination"><span class="rme-caption">Exibindo 1 a 15 de 44</span>
+<nav aria-label="Paginação"><button class="rme-btn rme-btn--ghost">Anterior</button><button class="rme-btn rme-btn--ghost" aria-current="page">1</button><button class="rme-btn rme-btn--ghost">2</button><button class="rme-btn rme-btn--ghost">3</button><button class="rme-btn rme-btn--ghost">Próxima</button></nav></div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

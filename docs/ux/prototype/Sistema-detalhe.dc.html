@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Modelo de score de crédito</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="systems" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Sistemas.dc.html">Sistemas de IA</a></li><li aria-current="page">Modelo de score de crédito</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Modelo de score de crédito</h1>
+<p class="page-sub" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center">Crédito e concessão financeira <span class="rme-tag rme-tag--yellow">Faixa Alto</span></p>
+</div>
+<div class="page-actions">
+<a class="rme-btn rme-btn--outline" href="Sistema-reclassificar.dc.html" style="color: var(--foreground); text-decoration: none">Editar</a>
+<a class="rme-btn rme-btn--primary" href="Evento-registrar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Registrar evento adverso</a>
+</div>
+</div>
+
+<section class="rme-card">
+<div class="rme-card-body" style="padding-top: 24px">
+<dl class="rme-dl" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Origem</button></dt><dd>Interno</dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Faixa de risco</button></dt><dd>Alto <span class="rme-caption">· revisão a cada 90 dias</span></dd></div>
+<div><dt>Cadastro</dt><dd>20 de abr. de 2026</dd></div>
+<div><dt>Riscos</dt><dd>4</dd></div>
+<div><dt>Vínculos</dt><dd>8 <span class="rme-caption">· 1 aguardando reavaliação</span></dd></div>
+</dl>
+</div>
+</section>
+
+<div class="stack">
+<div class="rme-tabs" role="tablist">
+<button class="rme-tab" role="tab" aria-selected="true">Riscos (4)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Eventos adversos (3)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Mudanças do sistema (0)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Relatório de rastreabilidade</button>
+</div>
+
+<div class="page-head" style="align-items: center">
+<p class="muted" style="margin: 0">Riscos identificados neste sistema, com o subdomínio do MIT AI Risk Repository.</p>
+<a class="rme-btn rme-btn--outline rme-btn--sm" href="Risco-form.dc.html" style="color: var(--foreground); text-decoration: none">Cadastrar risco</a>
+</div>
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Risco</th><th>Subdomínio de risco</th><th>Fase do ciclo de vida</th><th>Incerteza</th><th class="num">Vínculos</th></tr></thead>
+<tbody>
+<tr><td><a href="Risco-detalhe.dc.html">Falta de explicabilidade</a></td><td><span class="mono">7.4</span> Falta de transparência ou interpretabilidade</td><td>Operação e monitoramento</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i class="on"></i></span>Alta</span></td><td class="num">2</td></tr>
+<tr><td><a href="#">Uso do sistema para ciberataque</a></td><td><span class="mono">4.2</span> Ciberataques, desenvolvimento ou uso de armas e danos em massa</td><td>Verificação e validação</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i class="on"></i></span>Alta</span></td><td class="num">5</td></tr>
+<tr><td><a href="#">Discriminação algorítmica</a></td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td>Implantação</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">1</td></tr>
+<tr><td><a href="#">Viés de seleção</a></td><td><span class="mono">1.1</span> Discriminação injusta e representação distorcida</td><td>Validação contínua</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">1</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Relatório de rastreabilidade <button class="rme-tip-btn" aria-label="O que cada arquivo traz"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></h2>
+<p class="rme-card-desc">A cadeia completa de cada risco deste sistema: mitigações aplicadas, responsáveis, evidências, histórico e reavaliações.</p></header>
+<div class="rme-card-body rme-row">
+<button class="rme-btn rme-btn--primary">Baixar planilha (CSV)</button>
+<button class="rme-btn rme-btn--ghost">Dados completos (JSON)</button>
+<button class="rme-btn rme-btn--ghost">Eventos adversos (CSV)</button>
+<button class="rme-btn rme-btn--ghost">Mudanças do sistema (CSV)</button>
+</div>
+</section>
+
+<div class="danger-zone">
+<div><h2 class="rme-card-title">Excluir este sistema</h2><p class="muted" style="margin: 4px 0 0">Indisponível: o sistema tem 4 riscos cadastrados. Só sistemas sem riscos podem ser excluídos.</p></div>
+<button class="rme-btn rme-btn--destructive" disabled>Excluir sistema</button>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

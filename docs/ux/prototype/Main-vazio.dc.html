@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Acompanhamento sem sistemas</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="dashboard" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Acompanhamento</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Acompanhamento</h1>
+<p class="page-sub">Onde a cadeia de rastreabilidade ainda está incompleta.</p>
+</div>
+
+<section class="empty" style="padding: 48px">
+<h2 class="section-title">Comece pelo sistema de IA</h2>
+<p style="margin: 0; max-width: 640px" class="muted">O ciclo do framework parte de um sistema de IA cadastrado: a ele se ligam os riscos, as mitigações aplicadas, as evidências e os eventos adversos. Cadastre o primeiro sistema para o acompanhamento começar a mostrar o que falta em cada etapa.</p>
+<a class="rme-btn rme-btn--primary rme-btn--lg" href="Sistema-form.dc.html" style="color: var(--primary-foreground)">Cadastrar sistema de IA</a>
+</section>
+
+<section class="stack">
+<h2 class="section-title">Como o ciclo funciona</h2>
+<ol style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border)">
+<li style="padding: 24px; background: var(--card)" class="stack-sm"><span class="mono muted">1</span><strong>Sistema de IA</strong><span class="muted">Cadastre e classifique pela faixa de risco do EU AI Act.</span></li>
+<li style="padding: 24px; background: var(--card)" class="stack-sm"><span class="mono muted">2</span><strong>Riscos</strong><span class="muted">Registre os riscos do sistema, pelo MIT AI Risk Repository.</span></li>
+<li style="padding: 24px; background: var(--card)" class="stack-sm"><span class="mono muted">3</span><strong>Vínculos</strong><span class="muted">Aplique mitigações do catálogo sob um responsável.</span></li>
+<li style="padding: 24px; background: var(--card)" class="stack-sm"><span class="mono muted">4</span><strong>Evidências</strong><span class="muted">Registre o que comprova a mitigação e verifique o vínculo.</span></li>
+<li style="padding: 24px; background: var(--card)" class="stack-sm"><span class="mono muted">5</span><strong>Monitoramento</strong><span class="muted">Revisões, eventos adversos e mudanças levam à reavaliação.</span></li>
+</ol>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000}}">
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

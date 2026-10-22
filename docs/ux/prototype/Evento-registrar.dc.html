@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Registrar evento adverso</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="events" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Eventos.dc.html">Eventos adversos</a></li><li aria-current="page">Registrar</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Registrar evento adverso</h1>
+<p class="page-sub">Uma ocorrência num sistema em operação que causou dano ou poderia plausivelmente ter causado. Basta a suspeita fundamentada para registrar. <button class="rme-term" style="font-size: 16px; color: var(--link)">O que conta como evento adverso</button></p>
+</div>
+
+<div class="grid-main">
+<form class="form" style="max-width: none">
+<fieldset class="form-section">
+<legend>1. O que aconteceu</legend>
+<div><label class="rme-label">Sistema afetado</label><button type="button" class="rme-field rme-select"><span>Modelo de score de crédito <span class="muted">· Crédito e concessão financeira</span></span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div class="stack-sm">
+<span class="rme-label" style="margin: 0">Natureza</span>
+<div class="form-grid" role="radiogroup" aria-label="Natureza" style="gap: 8px">
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div><strong>Incidente</strong><div class="rme-caption">A ocorrência causou dano.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span><div><strong>Quase-incidente</strong><div class="rme-caption">Poderia ter causado dano e não causou, inclusive quando barrada por uma mitigação.</div></div></div>
+</div>
+</div>
+<div style="padding: 16px; background: var(--muted)">
+<div class="label-row"><label class="rme-label">Vínculo que interceptou (opcional)</label><button type="button" class="rme-tip-btn" aria-label="O que é o vínculo que interceptou" style="width: 16px; height: 16px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></div>
+<button type="button" class="rme-field rme-select" style="background: var(--background)"><span>Viés de seleção → Registrar antropomorfização na interface</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<p class="rme-helper">A mitigação que barrou a ocorrência. Esse vínculo não é revertido, porque o evento mostra que ele funcionou.</p>
+</div>
+<div><label class="rme-label" for="desc">Descrição</label><textarea id="desc" class="rme-field" placeholder="Ex.: O modelo recusou todas as solicitações de clientes acima de 60 anos durante dois dias."></textarea><p class="rme-helper" style="text-align: right">0/2000</p></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>2. Quais riscos se materializaram</legend>
+<p class="muted" style="margin: 0">Um evento pode tocar mais de um subdomínio do MIT AI Risk Repository. Só os vínculos verificados dos riscos nesses subdomínios são revertidos.</p>
+<div class="pill-input"><span class="chip-x"><span class="mono">1.1</span> Discriminação injusta e representação distorcida <button type="button" aria-label="Remover 1.1"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span><input class="rme-field" style="flex: 1; min-width: 160px; min-height: 32px; padding: 0; border: 0" placeholder="Buscar subdomínio pelo código ou nome" aria-label="Buscar subdomínio"></div>
+<div class="option-list">
+<div class="option-group">Esperados para este sistema</div>
+<label class="option" aria-checked="true"><span class="rme-check" style="background: var(--foreground)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px; color: var(--background)"><path d="M20 6 9 17l-5-5"></path></svg></span><span><span class="mono">1.1</span> Discriminação injusta e representação distorcida<span class="rme-sub">1 Discriminação e toxicidade · 2 riscos cadastrados</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">4.2</span> Ciberataques, desenvolvimento ou uso de armas e danos em massa<span class="rme-sub">4 Agentes maliciosos e uso indevido · 1 risco cadastrado</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">7.4</span> Falta de transparência ou interpretabilidade<span class="rme-sub">7 Segurança, falhas e limitações de sistemas de IA · 1 risco cadastrado</span></span><span></span></label>
+<div class="option-group">Outros subdomínios <span class="muted">· fora dos riscos cadastrados, indicam um risco ainda não identificado</span></div>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">1.2</span> Exposição a conteúdo tóxico<span class="rme-sub">1 Discriminação e toxicidade</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">1.3</span> Desempenho desigual entre grupos<span class="rme-sub">1 Discriminação e toxicidade</span></span><span></span></label>
+</div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>3. Quando</legend>
+<div class="form-grid">
+<div><label class="rme-label" for="oc">Data de ocorrência</label><input id="oc" class="rme-field" placeholder="dd/mm/aaaa"><p class="rme-helper">Não pode ser uma data futura.</p></div>
+<div><div class="label-row"><label class="rme-label" for="det">Data de detecção (opcional)</label><button type="button" class="rme-tip-btn" aria-label="Por que informar a detecção" style="width: 16px; height: 16px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></div><input id="det" class="rme-field" placeholder="dd/mm/aaaa"><p class="rme-helper">Entre a ocorrência e hoje. O intervalo mede a demora em detectar.</p></div>
+</div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Registrar evento</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Eventos.dc.html">Cancelar</a>
+</div>
+</form>
+
+<aside class="stack" aria-label="Impacto">
+<section class="impact" aria-label="Impacto ao registrar">
+<strong>Ao registrar, 1 vínculo verificado voltará a declarado</strong>
+<ul><li>Discriminação algorítmica → Avaliação da veracidade das respostas produzidas pela IA</li></ul>
+<p style="margin: 8px 0 0">Não é revertido, por ter interceptado: Viés de seleção → Registrar antropomorfização na interface.</p>
+</section>
+<div class="rme-alert rme-alert--info">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+<div><p class="rme-alert-title">O registro é permanente</p><p class="rme-alert-text">Eventos adversos não podem ser editados nem excluídos. Confira o sistema, os subdomínios e a data antes de registrar.</p></div>
+</div>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>
