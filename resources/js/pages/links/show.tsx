@@ -1,11 +1,12 @@
 import { Head, Link } from '@inertiajs/react';
-import { LinkStatusBadges } from '@/components/link-status-badges';
+import { CostHelp } from '@/components/cost-help';
+import { DangerZone } from '@/components/danger-zone';
 import { LinkVerificationCard } from '@/components/link-verification-card';
 import type { VerificationProps } from '@/components/link-verification-card';
 import { ObservedCost } from '@/components/observed-cost';
-import { ReviewDate } from '@/components/review-date';
 import { DetailItem } from '@/components/detail-item';
 import { UnacceptableTierAlert } from '@/components/unacceptable-tier-alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Card,
@@ -17,6 +18,7 @@ import {
 import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
 import { formatDate } from '@/lib/format';
+import { categoryBadgeClasses } from '@/lib/labels';
 import { interpolateNodes, translator } from '@/lib/i18n';
 import type { WithTranslations } from '@/lib/i18n';
 import { linkLabel } from '@/lib/names';
@@ -57,10 +59,10 @@ export default function LinksShow({
     return (
         <>
             <Head title={linkLabel(link, t)} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                     <div className="grid gap-2">
-                        <h1 className="flex flex-wrap items-baseline gap-x-2 text-xl font-semibold tracking-tight">
+                        <h1 className="flex flex-wrap items-baseline gap-x-2 text-[28px] leading-9 font-normal">
                             <Link
                                 href={showRisk(link.risk_id)}
                                 className="hover:underline"
@@ -80,59 +82,44 @@ export default function LinksShow({
                                 {link.mitigation?.name}
                             </Link>
                         </h1>
-                        <div className="flex flex-wrap items-center gap-2 text-sm">
-                            <LinkStatusBadges link={link} />
-                            {link.risk?.ai_system && (
+                        {link.risk?.ai_system && (
+                            <div className="flex flex-wrap items-center gap-2">
                                 <Link
                                     href={showAiSystem(link.risk.ai_system.id)}
-                                    className="text-muted-foreground hover:underline"
+                                    className="text-link hover:underline"
                                 >
                                     {link.risk.ai_system.name}
                                 </Link>
-                            )}
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" asChild>
-                            <Link href={edit(link.id)}>{t('Edit')}</Link>
-                        </Button>
-                        {awaitingReassessment && (
-                            <Button asChild>
-                                <Link href={createReassessment(link.id)}>
-                                    {t('Reassess')}
-                                </Link>
-                            </Button>
-                        )}
-                        {/* Links are permanent: they are closed by cancelling
-                            them through the status history, and reopened the
-                            same way, since the pair cannot be linked twice. */}
-                        {link.status === 'cancelled' ? (
-                            <Button asChild>
-                                <Link
-                                    href={createStatusChange(link.id, {
-                                        query: { new_status: 'planned' },
-                                    })}
+                                <Badge
+                                    className={
+                                        categoryBadgeClasses[
+                                            link.risk.ai_system.category
+                                        ]
+                                    }
                                 >
-                                    {t('Reactivate link')}
-                                </Link>
-                            </Button>
-                        ) : (
-                            <Button
-                                variant="outline"
-                                className="text-destructive"
-                                asChild
-                            >
-                                <Link
-                                    href={createStatusChange(link.id, {
-                                        query: { new_status: 'cancelled' },
+                                    {t('Tier :tier', {
+                                        tier: enumLabels.AiSystemCategory[
+                                            link.risk.ai_system.category
+                                        ],
                                     })}
-                                >
-                                    {t('Cancel link')}
-                                </Link>
-                            </Button>
+                                </Badge>
+                            </div>
                         )}
                     </div>
+                    <Button variant="outline" asChild>
+                        <Link href={edit(link.id)}>{t('Edit')}</Link>
+                    </Button>
                 </header>
+
+                {link.risk?.ai_system?.category === 'unacceptable' && (
+                    <UnacceptableTierAlert />
+                )}
+
+                <LinkVerificationCard
+                    link={link}
+                    verification={verification}
+                    awaitingReassessment={awaitingReassessment}
+                />
 
                 <Card>
                     <CardHeader>
@@ -159,7 +146,10 @@ export default function LinksShow({
                                     ]
                                 }
                             </DetailItem>
-                            <DetailItem label={t('Estimated cost')}>
+                            <DetailItem
+                                label={t('Estimated cost')}
+                                help={<CostHelp />}
+                            >
                                 {enumLabels.CostLevel[link.estimated_cost]}
                             </DetailItem>
                             <DetailItem label={t('Observed cost')}>
@@ -170,25 +160,9 @@ export default function LinksShow({
                             <DetailItem label={t('Creation date')}>
                                 {formatDate(link.creation_date)}
                             </DetailItem>
-                            <DetailItem label={t('Next review')}>
-                                <ReviewDate
-                                    date={link.next_review_date}
-                                    verification={link.verification_status}
-                                    unacceptable={
-                                        link.risk?.ai_system?.category ===
-                                        'unacceptable'
-                                    }
-                                />
-                            </DetailItem>
                         </dl>
                     </CardContent>
                 </Card>
-
-                {link.risk?.ai_system?.category === 'unacceptable' && (
-                    <UnacceptableTierAlert />
-                )}
-
-                <LinkVerificationCard link={link} verification={verification} />
 
                 {(link.replaces || link.replaced_by) && (
                     <RelatedLinks link={link} />
@@ -289,6 +263,25 @@ export default function LinksShow({
                         }}
                     />
                 </div>
+
+                {link.status !== 'cancelled' && (
+                    <DangerZone
+                        title={t('Cancel this link')}
+                        description={t(
+                            'The link is not deleted: it leaves the periodic review and can only go back to Planned.',
+                        )}
+                    >
+                        <Button variant="destructive" asChild>
+                            <Link
+                                href={createStatusChange(link.id, {
+                                    query: { new_status: 'cancelled' },
+                                })}
+                            >
+                                {t('Cancel link')}
+                            </Link>
+                        </Button>
+                    </DangerZone>
+                )}
             </div>
         </>
     );

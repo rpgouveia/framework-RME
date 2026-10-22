@@ -55,11 +55,11 @@ export default function AiSystemsShow({ aiSystem }: Props) {
     return (
         <>
             <Head title={aiSystem.name} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <header className="flex flex-wrap items-start justify-between gap-4">
                     <div className="grid gap-1">
                         <div className="flex flex-wrap items-center gap-3">
-                            <h1 className="text-xl font-semibold tracking-tight">
+                            <h1 className="text-[28px] leading-9 font-normal">
                                 {aiSystem.name}
                             </h1>
                             <Badge

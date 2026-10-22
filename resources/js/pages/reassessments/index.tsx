@@ -34,7 +34,7 @@ export default function ReassessmentsIndex({ link, reassessments }: Props) {
     return (
         <>
             <Head title={t('Reassessments')} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Reassessments')}
                     description={t(

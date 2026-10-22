@@ -46,7 +46,7 @@ export default function LinksEdit({
     return (
         <>
             <Head title={t('Edit link')} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Edit link')}
                     description={linkLabel(link, t)}

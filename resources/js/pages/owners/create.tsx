@@ -13,7 +13,7 @@ export default function OwnersCreate() {
     return (
         <>
             <Head title={t('Register owner')} />
-            <div className="flex h-full flex-1 flex-col p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Register owner')}
                     description={t(

@@ -39,9 +39,9 @@ export default function RisksShow({ risk }: Props) {
     return (
         <>
             <Head title={risk.name} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <header className="flex flex-wrap items-start justify-between gap-4">
-                    <h1 className="max-w-3xl text-xl font-semibold tracking-tight">
+                    <h1 className="max-w-3xl text-[28px] leading-9 font-normal">
                         {risk.name}
                     </h1>
                     <div className="flex items-center gap-2">
