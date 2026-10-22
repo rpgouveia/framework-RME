@@ -1,8 +1,9 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     Bot,
     LayoutGrid,
     Link2,
+    RotateCcw,
     ShieldAlert,
     ShieldCheck,
     TriangleAlert,
@@ -21,6 +22,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { useTranslations } from '@/hooks/use-translations';
+import { linksWith } from '@/lib/link-filters';
+import { toUrl } from '@/lib/utils';
 import { dashboard } from '@/routes';
 import { index as adverseEventsIndex } from '@/routes/adverse-events';
 import { index as aiSystemsIndex } from '@/routes/ai-systems';
@@ -32,6 +35,12 @@ import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const { t } = useTranslations();
+    const { url } = usePage();
+    // The queue is the link list filtered, so the path alone cannot tell the
+    // two entries apart.
+    const onLinks = url.split('?')[0] === toUrl(linksIndex());
+    const onQueue =
+        onLinks && url.includes('verification=awaiting_reassessment');
 
     const mainNavItems: NavItem[] = [
         {
@@ -63,6 +72,13 @@ export function AppSidebar() {
             title: t('Links'),
             href: linksIndex(),
             icon: Link2,
+            isActive: onLinks && !onQueue,
+        },
+        {
+            title: t('Reassessment queue'),
+            href: linksWith('awaiting_reassessment'),
+            icon: RotateCcw,
+            isActive: onQueue,
         },
         {
             title: t('Owners'),
