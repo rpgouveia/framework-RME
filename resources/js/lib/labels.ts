@@ -6,61 +6,64 @@ import type {
     VerificationStatus,
 } from '@/types/models';
 
-/**
- * Badge classes for the EU AI Act risk tiers, coloured by severity. shadcn has
- * no warning variant, so the tones are spelled out here.
+/*
+ * Badge classes over the design system's tag tokens (tag-gray, tag-blue,
+ * tag-green, tag-yellow, tag-red). Each pair holds at least 5.8:1 in both
+ * themes; outlined badges use the page text on a strong border.
  */
+const gray = 'border-transparent bg-tag-gray text-tag-gray-foreground';
+const blue = 'border-transparent bg-tag-blue text-tag-blue-foreground';
+const green = 'border-transparent bg-tag-green text-tag-green-foreground';
+const yellow = 'border-transparent bg-tag-yellow text-tag-yellow-foreground';
+const red = 'border-transparent bg-tag-red text-tag-red-foreground';
+const outlined = 'border-border-strong bg-transparent text-foreground';
+
+/** Badge classes for the EU AI Act risk tiers. */
 export const categoryBadgeClasses: Record<AiSystemCategory, string> = {
-    unacceptable:
-        'border-transparent bg-destructive text-white dark:bg-destructive/60',
-    high: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    limited: 'border-transparent bg-secondary text-secondary-foreground',
-    minimal: 'border-transparent bg-secondary text-secondary-foreground',
-};
-
-/** Badge classes for the uncertainty scale, from calm to alarming. */
-export const uncertaintyBadgeClasses: Record<UncertaintyLevel, string> = {
-    low: 'border-transparent bg-secondary text-secondary-foreground',
-    medium: 'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    high: 'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
-};
-
-/** Badge classes for a link's status, from not started to settled. */
-export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
-    planned: 'border-transparent bg-secondary text-secondary-foreground',
-    in_progress:
-        'border-transparent bg-sky-100 text-sky-900 dark:bg-sky-900/40 dark:text-sky-200',
-    implemented:
-        'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
-    suspended:
-        'border-transparent bg-amber-100 text-amber-900 dark:bg-amber-900/40 dark:text-amber-200',
-    // Out of the flow, so outlined instead of filled, but still legible:
-    // at least 7:1 on the page, a hovered row or a muted panel, in both
-    // themes (WCAG 2.1 AA asks 4.5:1 for text this size).
-    cancelled:
-        'border-border bg-transparent text-neutral-600 dark:text-neutral-300',
+    unacceptable: 'border-transparent bg-destructive text-white',
+    high: yellow,
+    limited: gray,
+    minimal: gray,
 };
 
 /**
- * Nature badges: an incident in red, a near miss outlined. Text contrast is
- * at least 8:1 (WCAG 2.1 AA) in both themes.
+ * Badge classes for the uncertainty scale. Uncertainty is the confidence in
+ * an assessment, not a severity (0028), so every level stays neutral.
  */
+export const uncertaintyBadgeClasses: Record<UncertaintyLevel, string> = {
+    low: gray,
+    medium: gray,
+    high: gray,
+};
+
+/** How many of the three level bars each uncertainty level fills. */
+export const uncertaintyLevelBars: Record<UncertaintyLevel, number> = {
+    low: 1,
+    medium: 2,
+    high: 3,
+};
+
+/** Badge classes for a link's progress, from not started to settled. */
+export const linkStatusBadgeClasses: Record<LinkStatus, string> = {
+    planned: gray,
+    in_progress: blue,
+    implemented: green,
+    suspended: yellow,
+    // Out of the flow, so outlined instead of filled.
+    cancelled: outlined,
+};
+
+/** Nature badges: an incident in red, a near miss outlined. */
 export const adverseEventNatureBadgeClasses: Record<
     AdverseEventNature,
     string
 > = {
-    incident:
-        'border-transparent bg-red-100 text-red-900 dark:bg-red-900/40 dark:text-red-200',
-    near_miss: 'border-border bg-transparent text-foreground',
+    incident: red,
+    near_miss: outlined,
 };
 
-/**
- * Verification badges, apart from the progress ones: declared is outlined,
- * verified is green. Text contrast is at least 8.5:1 (WCAG 2.1 AA) in both
- * themes.
- */
+/** Verification badges: declared is outlined, verified is green. */
 export const verificationBadgeClasses: Record<VerificationStatus, string> = {
-    declared: 'border-border bg-transparent text-foreground',
-    verified:
-        'border-transparent bg-emerald-100 text-emerald-900 dark:bg-emerald-900/40 dark:text-emerald-200',
+    declared: outlined,
+    verified: green,
 };

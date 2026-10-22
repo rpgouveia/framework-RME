@@ -7,7 +7,6 @@ import { AiSystemName } from '@/components/ai-system-name';
 import { ReviewDate } from '@/components/review-date';
 import { VerificationBadge } from '@/components/link-status-badges';
 import { RiskSubdomainBadges } from '@/components/risk-subdomain-badges';
-import { unacceptableTone } from '@/components/unacceptable-tier-alert';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -522,7 +521,7 @@ function UnacceptableSystemsAlert({
     const { t, tc } = useTranslations();
 
     return (
-        <Alert className={unacceptableTone}>
+        <Alert variant="destructive">
             <TriangleAlertIcon aria-hidden />
             <AlertTitle>
                 {tc(

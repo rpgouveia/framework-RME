@@ -10,8 +10,10 @@ export function DetailItem({
 }) {
     return (
         <div className="grid gap-1">
-            <dt className="text-muted-foreground text-sm">{label}</dt>
-            <dd className="font-medium">{children}</dd>
+            <dt className="text-muted-foreground text-xs tracking-[0.32px]">
+                {label}
+            </dt>
+            <dd>{children}</dd>
         </div>
     );
 }
