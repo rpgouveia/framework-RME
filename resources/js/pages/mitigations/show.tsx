@@ -1,5 +1,10 @@
 import { Head, Link } from '@inertiajs/react';
-import { LinkStatusBadges } from '@/components/link-status-badges';
+import { CostHelp } from '@/components/cost-help';
+import {
+    ProgressBadge,
+    UncertaintyBadge,
+    VerificationBadge,
+} from '@/components/link-status-badges';
 import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
@@ -23,7 +28,6 @@ import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
 import { interpolateNodes, translator } from '@/lib/i18n';
 import type { WithTranslations } from '@/lib/i18n';
-import { uncertaintyBadgeClasses } from '@/lib/labels';
 import { linkLabel, termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { show as showLink } from '@/routes/links';
@@ -62,188 +66,129 @@ export default function MitigationsShow({
     return (
         <>
             <Head title={mitigation.name} />
-            <div className="flex h-full flex-1 flex-col gap-6 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-8 px-4 py-6 md:px-8 md:py-8">
                 <header className="grid gap-2">
-                    <h1 className="flex flex-wrap items-center gap-3 text-xl font-semibold tracking-tight">
+                    <h1 className="text-[28px] leading-9 font-normal">
                         {mitigation.name}
+                    </h1>
+                    <p className="text-muted-foreground flex flex-wrap items-center gap-2">
                         {subcategory && (
-                            <Badge variant="outline">
+                            <Badge className="bg-tag-gray text-tag-gray-foreground border-transparent">
                                 {termLabel(subcategory)}
                             </Badge>
                         )}
-                    </h1>
-                    <p className="text-muted-foreground text-sm">
-                        {t(
-                            'An entry of the curated catalogue (C2). Mitigations are neither registered nor edited by the application.',
-                        )}
+                        <span lang="en">{mitigation.source_name}</span>
                     </p>
                 </header>
 
                 {catalog.fictional && <FictionalCatalogAlert />}
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('Description')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="whitespace-pre-line">
-                            {mitigation.description}
-                        </p>
-                    </CardContent>
-                </Card>
+                <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
+                    <div className="grid min-w-0 gap-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('What it is')}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="whitespace-pre-line">
+                                    {mitigation.description}
+                                </p>
+                            </CardContent>
+                        </Card>
 
-                <div className="grid gap-6 lg:grid-cols-2">
-                    {/* What comes from the source, kept apart from what the
-                        framework adds, so each claim has its author. */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>
-                                {t('Taxonomy of Saeri et al.')}
-                            </CardTitle>
-                            <CardDescription>
-                                {interpolateNodes(
-                                    t(
-                                        'Classification and tracing back to the source. :version.',
-                                    ),
-                                    {
-                                        version: (
-                                            <a
-                                                href={taxonomy.url}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                className="hover:underline"
-                                            >
-                                                {taxonomy.version}
-                                            </a>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('Risks it treats')}</CardTitle>
+                                <CardDescription>
+                                    {interpolateNodes(
+                                        t(
+                                            'Subdomains of the :repository (:version). When creating a link, it shows as recommended for risks in these subdomains.',
+                                            { version: riskTaxonomy.version },
                                         ),
-                                    },
-                                )}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <dl className="grid gap-4">
-                                {category && (
-                                    <DetailItem label={t('Category')}>
-                                        {termLabel(category)}
-                                        <span
-                                            className="text-muted-foreground block text-sm font-normal"
-                                            lang="en"
-                                        >
-                                            {category.original_name}
-                                        </span>
-                                    </DetailItem>
-                                )}
-                                {subcategory && (
-                                    <DetailItem label={t('Subcategory')}>
-                                        {termLabel(subcategory)}
-                                        <span
-                                            className="text-muted-foreground block text-sm font-normal"
-                                            lang="en"
-                                        >
-                                            {subcategory.original_name}
-                                        </span>
-                                        {subcategory.description && (
-                                            <span
-                                                className="mt-1 block text-sm font-normal"
-                                                lang="en"
-                                            >
-                                                {subcategory.description}
-                                            </span>
-                                        )}
-                                    </DetailItem>
-                                )}
-                                <DetailItem label={t('Original name')}>
-                                    <span lang="en">
-                                        {mitigation.source_name}
-                                    </span>
-                                </DetailItem>
-                                <DetailItem label={t('Source document')}>
-                                    {sourceDocument ? (
-                                        <span className="font-normal">
-                                            {sourceDocument.title} (
-                                            {sourceDocument.first_author},{' '}
-                                            {sourceDocument.year})
-                                        </span>
-                                    ) : (
-                                        mitigation.source_document
+                                        {
+                                            repository: (
+                                                <a
+                                                    href={riskTaxonomy.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-link hover:text-link-hover hover:underline"
+                                                >
+                                                    MIT AI Risk Repository
+                                                </a>
+                                            ),
+                                        },
                                     )}
-                                </DetailItem>
-                                <DetailItem
-                                    label={t('Identifier in the database')}
-                                >
-                                    <code className="text-sm">
-                                        {mitigation.source_reference}
-                                    </code>
-                                </DetailItem>
-                            </dl>
-                        </CardContent>
-                    </Card>
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-4">
+                                <ul className="divide-y border-y">
+                                    {mitigation.target_risk_subdomains?.map(
+                                        (term) => (
+                                            <li
+                                                key={term.code}
+                                                className="py-3"
+                                            >
+                                                <RiskSubdomain
+                                                    subdomain={term}
+                                                />
+                                            </li>
+                                        ),
+                                    )}
+                                </ul>
+                                <dl>
+                                    <DetailItem
+                                        label={t('Suggested target risk')}
+                                    >
+                                        <p className="whitespace-pre-line">
+                                            {mitigation.suggested_target_risk}
+                                        </p>
+                                    </DetailItem>
+                                </dl>
+                            </CardContent>
+                        </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>
-                                {t('Contribution of the framework (C2)')}
-                            </CardTitle>
-                            {/* RNF03: every qualitative estimate comes with
-                                its source and its uncertainty. */}
-                            <CardDescription>
-                                {t(
-                                    "Saeri et al. assess neither the risk treated, nor cost, nor effectiveness: these fields are the group's, with the source that grounds them. The actual cost of each application is on the link.",
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>
+                                    {t('Links that apply this mitigation')}{' '}
+                                    <span className="text-muted-foreground font-normal tabular-nums">
+                                        {links.length}
+                                    </span>
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                {links.length === 0 ? (
+                                    <p className="text-muted-foreground border border-dashed p-6 text-center text-sm">
+                                        {t(
+                                            'This mitigation has not been applied to any risk yet.',
+                                        )}
+                                    </p>
+                                ) : (
+                                    <LinksTable links={links} />
                                 )}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <dl className="grid gap-4">
-                                <DetailItem
-                                    label={t('Risk subdomains treated')}
-                                >
-                                    <ul className="grid gap-2">
-                                        {mitigation.target_risk_subdomains?.map(
-                                            (term) => (
-                                                <li key={term.code}>
-                                                    <RiskSubdomain
-                                                        subdomain={term}
-                                                    />
-                                                </li>
-                                            ),
-                                        )}
-                                    </ul>
-                                    <p className="text-muted-foreground mt-2 text-xs font-normal">
-                                        {interpolateNodes(
-                                            t(
-                                                'Domain taxonomy of the :repository (:version).',
-                                                {
-                                                    version:
-                                                        riskTaxonomy.version,
-                                                },
-                                            ),
-                                            {
-                                                repository: (
-                                                    <a
-                                                        href={riskTaxonomy.url}
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="underline underline-offset-4"
-                                                    >
-                                                        MIT AI Risk Repository
-                                                    </a>
-                                                ),
-                                            },
-                                        )}
-                                    </p>
-                                </DetailItem>
-                                <DetailItem label={t('Suggested target risk')}>
-                                    <p className="font-normal whitespace-pre-line">
-                                        {mitigation.suggested_target_risk}
-                                    </p>
-                                </DetailItem>
-                                <DetailItem label={t('Expected evidence')}>
-                                    <p className="font-normal whitespace-pre-line">
-                                        {mitigation.expected_evidence}
-                                    </p>
-                                </DetailItem>
-                                <div className="grid gap-4 sm:grid-cols-2">
-                                    <DetailItem label={t('Suggested cost')}>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <aside className="grid gap-6">
+                        {/* What the framework adds, kept apart from what
+                            comes from the source, so each claim has its
+                            author. */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('To apply')}</CardTitle>
+                                <CardDescription>
+                                    {t(
+                                        "Saeri et al. assess neither the risk treated, nor cost, nor effectiveness: these fields are the group's, with the source that grounds them. The actual cost of each application is on the link.",
+                                    )}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-5">
+                                <dl className="grid grid-cols-2 gap-4">
+                                    <DetailItem
+                                        label={t('Suggested cost')}
+                                        help={<CostHelp />}
+                                    >
                                         {
                                             enumLabels.CostLevel[
                                                 mitigation.suggested_cost
@@ -251,49 +196,107 @@ export default function MitigationsShow({
                                         }
                                     </DetailItem>
                                     <DetailItem label={t('Uncertainty')}>
-                                        <Badge
-                                            className={
-                                                uncertaintyBadgeClasses[
-                                                    mitigation.uncertainty_level
-                                                ]
-                                            }
-                                        >
-                                            {
-                                                enumLabels.UncertaintyLevel[
-                                                    mitigation.uncertainty_level
-                                                ]
-                                            }
-                                        </Badge>
+                                        <UncertaintyBadge
+                                            level={mitigation.uncertainty_level}
+                                        />
                                     </DetailItem>
-                                </div>
-                                <DetailItem label={t('Source of the estimate')}>
-                                    <span className="font-normal">
+                                </dl>
+                                <dl>
+                                    <DetailItem label={t('Expected evidence')}>
+                                        <p className="whitespace-pre-line">
+                                            {mitigation.expected_evidence}
+                                        </p>
+                                    </DetailItem>
+                                </dl>
+                                <details className="group">
+                                    <summary className="text-link hover:text-link-hover cursor-pointer text-sm">
+                                        {t('Source of the estimate')}
+                                    </summary>
+                                    <p className="text-muted-foreground mt-2 text-sm">
                                         {mitigation.estimate_source}
-                                    </span>
-                                </DetailItem>
-                            </dl>
-                        </CardContent>
-                    </Card>
-                </div>
+                                    </p>
+                                </details>
+                            </CardContent>
+                        </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>
-                            {t('Links that apply this mitigation')}
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {links.length === 0 ? (
-                            <p className="text-muted-foreground text-sm">
-                                {t(
-                                    'This mitigation has not been applied to any risk yet.',
-                                )}
-                            </p>
-                        ) : (
-                            <LinksTable links={links} />
-                        )}
-                    </CardContent>
-                </Card>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t('Provenance')}</CardTitle>
+                                <CardDescription>
+                                    {interpolateNodes(
+                                        t(
+                                            'Taxonomy of Saeri et al., :version.',
+                                        ),
+                                        {
+                                            version: (
+                                                <a
+                                                    href={taxonomy.url}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-link hover:text-link-hover hover:underline"
+                                                >
+                                                    {taxonomy.version}
+                                                </a>
+                                            ),
+                                        },
+                                    )}
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <dl className="grid gap-4">
+                                    {category && (
+                                        <DetailItem label={t('Category')}>
+                                            {termLabel(category)}
+                                            <span
+                                                className="text-muted-foreground block text-xs tracking-[0.32px]"
+                                                lang="en"
+                                            >
+                                                {category.original_name}
+                                            </span>
+                                        </DetailItem>
+                                    )}
+                                    {subcategory && (
+                                        <DetailItem label={t('Subcategory')}>
+                                            {termLabel(subcategory)}
+                                            <span
+                                                className="text-muted-foreground block text-xs tracking-[0.32px]"
+                                                lang="en"
+                                            >
+                                                {subcategory.original_name}
+                                            </span>
+                                            {subcategory.description && (
+                                                <span
+                                                    className="mt-1 block text-sm"
+                                                    lang="en"
+                                                >
+                                                    {subcategory.description}
+                                                </span>
+                                            )}
+                                        </DetailItem>
+                                    )}
+                                    <DetailItem label={t('Source document')}>
+                                        {sourceDocument ? (
+                                            <span lang="en">
+                                                {sourceDocument.title} (
+                                                {sourceDocument.first_author},{' '}
+                                                {sourceDocument.year})
+                                            </span>
+                                        ) : (
+                                            mitigation.source_document
+                                        )}
+                                    </DetailItem>
+                                    <DetailItem
+                                        label={t('Identifier in the database')}
+                                    >
+                                        <code className="font-mono text-sm">
+                                            {mitigation.source_reference}
+                                        </code>
+                                    </DetailItem>
+                                </dl>
+                            </CardContent>
+                        </Card>
+                    </aside>
+                </div>
             </div>
         </>
     );
@@ -303,48 +306,56 @@ function LinksTable({ links }: { links: RiskLink[] }) {
     const { t } = useTranslations();
 
     return (
-        <Table>
-            <TableHeader>
-                <TableRow>
-                    <TableHead>{t('Link')}</TableHead>
-                    <TableHead>{t('Owner')}</TableHead>
-                    <TableHead>{t('Status')}</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                {links.map((link) => (
-                    <TableRow
-                        key={link.id}
-                        className="cursor-pointer"
-                        onClick={rowLink(showLink(link.id))}
-                    >
-                        <TableCell className="whitespace-normal">
-                            <Link
-                                href={showLink(link.id)}
-                                className="font-medium hover:underline"
-                            >
-                                {linkLabel(link, t)}
-                            </Link>
-                        </TableCell>
-                        <TableCell>
-                            {link.owner && (
-                                <span className="grid">
-                                    <span>
-                                        {link.owner.organizational_role}
-                                    </span>
-                                    <span className="text-muted-foreground text-xs">
-                                        {link.owner.area}
-                                    </span>
-                                </span>
-                            )}
-                        </TableCell>
-                        <TableCell>
-                            <LinkStatusBadges link={link} />
-                        </TableCell>
+        <div className="overflow-x-auto border">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>{t('Link')}</TableHead>
+                        <TableHead>{t('Owner')}</TableHead>
+                        <TableHead>{t('Progress')}</TableHead>
+                        <TableHead>{t('Verification')}</TableHead>
                     </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+                </TableHeader>
+                <TableBody>
+                    {links.map((link) => (
+                        <TableRow
+                            key={link.id}
+                            className="cursor-pointer"
+                            onClick={rowLink(showLink(link.id))}
+                        >
+                            <TableCell className="min-w-56 whitespace-normal">
+                                <Link
+                                    href={showLink(link.id)}
+                                    className="text-link hover:text-link-hover hover:underline"
+                                >
+                                    {linkLabel(link, t)}
+                                </Link>
+                            </TableCell>
+                            <TableCell className="whitespace-normal">
+                                {link.owner && (
+                                    <span className="grid gap-0.5">
+                                        <span>
+                                            {link.owner.organizational_role}
+                                        </span>
+                                        <span className="text-muted-foreground text-xs tracking-[0.32px]">
+                                            {link.owner.area}
+                                        </span>
+                                    </span>
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                <ProgressBadge status={link.status} />
+                            </TableCell>
+                            <TableCell>
+                                <VerificationBadge
+                                    verification={link.verification_status}
+                                />
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
     );
 }
 

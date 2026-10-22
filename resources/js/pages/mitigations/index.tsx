@@ -1,7 +1,9 @@
 import { Head, Link, router } from '@inertiajs/react';
+import { SearchIcon } from 'lucide-react';
 import type { FormEvent } from 'react';
 import { FictionalCatalogAlert } from '@/components/fictional-catalog-alert';
 import { FilterLink } from '@/components/filter-link';
+import { UncertaintyBadge } from '@/components/link-status-badges';
 import Heading from '@/components/heading';
 import { PaginationLinks } from '@/components/pagination-links';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +21,6 @@ import { useEnumLabels } from '@/hooks/use-enum-labels';
 import { useTranslations } from '@/hooks/use-translations';
 import { translator } from '@/lib/i18n';
 import type { WithTranslations } from '@/lib/i18n';
-import { uncertaintyBadgeClasses } from '@/lib/labels';
 import { termLabel } from '@/lib/names';
 import { rowLink } from '@/lib/row-link';
 import { index, show } from '@/routes/mitigations';
@@ -76,11 +77,11 @@ export default function MitigationsIndex({
     return (
         <>
             <Head title={t('Mitigation catalogue')} />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <div className="mx-auto flex w-full max-w-[1184px] flex-1 flex-col gap-6 px-4 py-6 md:px-8 md:py-8">
                 <Heading
                     title={t('Mitigation catalogue')}
                     description={t(
-                        'The curated catalogue (C2), organized by the taxonomy of Saeri et al. (2025): 4 categories and 23 subcategories. Every mitigation applied to a risk comes from here.',
+                        'The catalogue curated by the group, organized by the taxonomy of Saeri et al. (2025): 4 categories and 23 subcategories. Every mitigation applied to a risk comes from here; the catalogue is read only.',
                     )}
                 />
 
@@ -119,19 +120,26 @@ export default function MitigationsIndex({
 
                         <form
                             onSubmit={search}
-                            className="flex gap-2"
+                            className="flex w-full gap-0 sm:w-auto"
                             role="search"
                         >
-                            <Input
-                                name="q"
-                                defaultValue={filters.q}
-                                placeholder={t('Search by name')}
-                                aria-label={t(
-                                    'Search by the name in Portuguese or by the original name',
-                                )}
-                                className="w-56"
-                            />
-                            <Button type="submit" variant="outline">
+                            <div className="relative flex-1">
+                                <SearchIcon
+                                    className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2"
+                                    aria-hidden
+                                />
+                                <Input
+                                    type="search"
+                                    name="q"
+                                    defaultValue={filters.q}
+                                    placeholder={t('Search by name')}
+                                    aria-label={t(
+                                        'Search by the name in Portuguese or by the original name',
+                                    )}
+                                    className="pl-9 sm:w-96"
+                                />
+                            </div>
+                            <Button type="submit" variant="secondary">
                                 {t('Search')}
                             </Button>
                         </form>
@@ -191,7 +199,7 @@ export default function MitigationsIndex({
                         )}{' '}
                         <Link
                             href={index()}
-                            className="text-foreground hover:underline"
+                            className="text-link hover:text-link-hover hover:underline"
                         >
                             {t('Clear filters')}
                         </Link>
@@ -238,12 +246,12 @@ function EmptyState({
     }
 
     return (
-        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
+        <div className="flex flex-col items-center gap-3 border border-dashed p-12 text-center">
             <p className="text-muted-foreground text-sm">{message}</p>
             {(filters.q !== '' || scope) && (
                 <Link
                     href={index()}
-                    className="text-sm font-medium hover:underline"
+                    className="text-link hover:text-link-hover text-sm hover:underline"
                 >
                     {t('See the whole catalogue')}
                 </Link>
@@ -257,7 +265,7 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
     const { t } = useTranslations();
 
     return (
-        <div className="rounded-xl border">
+        <div className="overflow-x-auto border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -277,16 +285,16 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                             className="cursor-pointer"
                             onClick={rowLink(show(mitigation.id))}
                         >
-                            <TableCell>
-                                <div className="grid max-w-sm">
+                            <TableCell className="min-w-64 whitespace-normal">
+                                <div className="grid max-w-sm gap-0.5">
                                     <Link
                                         href={show(mitigation.id)}
-                                        className="font-medium hover:underline"
+                                        className="text-link hover:text-link-hover hover:underline"
                                     >
                                         {mitigation.name}
                                     </Link>
                                     <span
-                                        className="text-muted-foreground truncate text-xs"
+                                        className="text-muted-foreground text-xs tracking-[0.32px]"
                                         lang="en"
                                     >
                                         {mitigation.source_name}
@@ -295,10 +303,7 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                             </TableCell>
                             <TableCell>
                                 {mitigation.saeri_subcategory && (
-                                    <Badge
-                                        variant="outline"
-                                        className="max-w-xs whitespace-normal"
-                                    >
+                                    <Badge className="bg-tag-gray text-tag-gray-foreground max-w-xs border-transparent whitespace-normal">
                                         {termLabel(
                                             mitigation.saeri_subcategory,
                                         )}
@@ -313,19 +318,9 @@ function MitigationsTable({ mitigations }: { mitigations: Mitigation[] }) {
                                 }
                             </TableCell>
                             <TableCell>
-                                <Badge
-                                    className={
-                                        uncertaintyBadgeClasses[
-                                            mitigation.uncertainty_level
-                                        ]
-                                    }
-                                >
-                                    {
-                                        enumLabels.UncertaintyLevel[
-                                            mitigation.uncertainty_level
-                                        ]
-                                    }
-                                </Badge>
+                                <UncertaintyBadge
+                                    level={mitigation.uncertainty_level}
+                                />
                             </TableCell>
                             <TableCell className="text-right tabular-nums">
                                 {mitigation.links_count ?? 0}
