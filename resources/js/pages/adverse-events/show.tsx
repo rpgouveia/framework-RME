@@ -32,6 +32,7 @@ import { index, show } from '@/routes/adverse-events';
 import { show as showAiSystem } from '@/routes/ai-systems';
 import { show as showLink } from '@/routes/links';
 import { create as createEvidence } from '@/routes/links/evidence';
+import { create as createReassessment } from '@/routes/links/reassessments';
 import { show as showReassessment } from '@/routes/reassessments';
 import { create as createRisk } from '@/routes/risks';
 import type { AdverseEvent, StatusHistory } from '@/types/models';
@@ -288,8 +289,19 @@ export default function AdverseEventsShow({
                                                 })}
                                             </Link>
                                         ) : (
-                                            <span className="text-sm text-amber-700 dark:text-amber-300">
-                                                {t('Awaiting reassessment')}
+                                            <span className="flex items-center gap-3">
+                                                <span className="text-tag-yellow-foreground text-sm">
+                                                    {t('Awaiting reassessment')}
+                                                </span>
+                                                <Button size="sm" asChild>
+                                                    <Link
+                                                        href={createReassessment(
+                                                            reversal.link_id,
+                                                        )}
+                                                    >
+                                                        {t('Reassess')}
+                                                    </Link>
+                                                </Button>
                                             </span>
                                         )}
                                     </li>

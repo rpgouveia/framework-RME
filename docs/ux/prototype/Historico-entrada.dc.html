@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Entrada do histórico</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-verificado.dc.html">Viés de seleção → Registrar antropomorfização na interface</a></li><li><a href="Vinculo-historico.dc.html">Histórico</a></li><li aria-current="page">30 de set. de 2026</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<p class="rme-caption" style="margin: 0 0 4px">Mudança de verificação · 30 de set. de 2026</p>
+<h1 class="page-title" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">Verificação <span class="rme-tag rme-tag--outline">Declarada</span><span aria-label="para">→</span><span class="rme-tag rme-tag--green">Verificada</span></h1>
+<p class="page-sub"><a href="Vinculo-verificado.dc.html">Viés de seleção → Registrar antropomorfização na interface</a></p>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0; display: flex; align-items: center; gap: 6px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Os registros do histórico não se editam nem se excluem.</p>
+
+<section class="rme-card">
+<div class="rme-card-body" style="padding-top: 24px">
+<dl class="rme-dl">
+<div><dt>Data da mudança</dt><dd>30 de set. de 2026</dd></div>
+<div><dt>Registrado por</dt><dd>Auditor Interno<span class="rme-sub">Compliance</span></dd></div>
+<div><dt>Revisão periódica</dt><dd>Até 29 de dez. de 2026<span class="rme-sub">Faixa Alto · 90 dias</span></dd></div>
+</dl>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title"><button class="rme-term" style="font-size: 16px; font-weight: 600">Evidências que embasaram a verificação</button></h2></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row" style="align-items: flex-start"><div class="stack-sm"><a href="Evidencia-detalhe.dc.html">Documento de 21 de ago. de 2026</a><span>Política de uso do sistema aprovada pelo comitê de governança de IA, com as restrições de finalidade e o fluxo de exceção.</span></div></div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

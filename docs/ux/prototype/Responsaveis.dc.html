@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Responsáveis</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="owners" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Responsáveis</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Responsáveis</h1>
+<p class="page-sub">Papéis organizacionais, por cargo e área, que respondem pelos vínculos. Nunca nomes de pessoas.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Responsavel-form.dc.html" style="color: var(--primary-foreground); text-decoration: none">Cadastrar responsável</a></div>
+</div>
+
+<div class="rme-row" role="group" aria-label="Filtrar por situação">
+<button class="rme-chip" aria-pressed="true">Ativos <span class="count">10</span></button>
+<button class="rme-chip" aria-pressed="false">Inativos <span class="count">1</span></button>
+<button class="rme-chip" aria-pressed="false">Todos <span class="count">11</span></button>
+</div>
+
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Cargo</th><th>Área</th><th class="num">Vínculos</th></tr></thead>
+<tbody>
+<tr><td><a href="#">Analista de Compliance</a></td><td>Compliance</td><td class="num">11</td></tr>
+<tr><td><a href="#">Analista de Resposta a Incidentes</a></td><td>Segurança da Informação</td><td class="num">9</td></tr>
+<tr><td><a href="#">Auditor Interno</a></td><td>Compliance</td><td class="num">7</td></tr>
+<tr><td><a href="#">Cientista de Dados</a></td><td>Dados</td><td class="num">6</td></tr>
+<tr><td><a href="#">Encarregado de Dados (DPO)</a></td><td>Jurídico</td><td class="num">5</td></tr>
+<tr><td><a href="#">Engenheiro de Machine Learning</a></td><td>Engenharia</td><td class="num">8</td></tr>
+<tr><td><a href="#">Especialista em Privacidade</a></td><td>Jurídico</td><td class="num">5</td></tr>
+<tr><td><a href="#">Gestor de Risco de IA</a></td><td>Governança de IA</td><td class="num">6</td></tr>
+<tr><td><a href="Responsavel-detalhe.dc.html">Líder de Engenharia</a></td><td>Engenharia</td><td class="num">10</td></tr>
+<tr><td><a href="#">Product Owner</a></td><td>Produto</td><td class="num">4</td></tr>
+</tbody>
+</table>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Reverter verificação</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li aria-current="page">Viés de seleção → Registrar antropomorfização na interface</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div class="stack-sm">
+<h1 class="page-title">Viés de seleção → Registrar antropomorfização na interface</h1>
+<p class="page-sub" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0"><a href="Sistema-detalhe.dc.html">Modelo de score de crédito</a><span class="rme-tag rme-tag--yellow">Faixa Alto</span></p>
+</div>
+<button class="rme-btn rme-btn--outline">Editar</button>
+</div>
+
+<section class="rme-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border)">
+<h2 class="rme-card-title">Estado do vínculo</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 32px">
+<div class="rme-status"><span class="rme-status-label">Progresso</span><span class="rme-tag rme-tag--green">Implementado</span></div>
+<div class="rme-status"><span class="rme-status-label">Verificação</span><span class="rme-tag rme-tag--green">Verificada</span></div>
+<div class="rme-status"><span class="rme-status-label">Próxima revisão</span><span>29 de dez. de 2026</span></div>
+</div>
+</div>
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; background: var(--muted)">
+<h2 class="rme-card-title">Próxima ação</h2>
+<p style="margin: 0">Nada pendente até 29 de dez. de 2026.</p>
+<button class="rme-btn rme-btn--link" style="align-self: flex-start">Reverter verificação</button>
+</div>
+</section>
+
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg" style="max-width: 560px">
+<div class="rme-dialog-body stack">
+<h2 id="dlg" class="rme-dialog-title" style="margin: 0">Reverter a verificação?</h2>
+<p style="margin: 0">O vínculo volta a declarado, sai da revisão periódica e passa a aguardar reavaliação. Para verificá-lo de novo, será preciso registrar uma evidência nova.</p>
+<div><label class="rme-label">Quem reverte</label><button type="button" class="rme-field rme-select"><span>Auditor Interno (Compliance)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label" for="motivo">Motivo</label><textarea id="motivo" class="rme-field" placeholder="Ex.: A auditoria encontrou o controle desativado em produção."></textarea><p class="rme-helper" style="display: flex; justify-content: space-between"><span>Obrigatório. Fica no histórico.</span><span>0/255</span></p></div>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--destructive">Reverter verificação</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

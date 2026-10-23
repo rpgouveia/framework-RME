@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Confirmar senha</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="min-height: 100%; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; letter-spacing: 0.16px; display: flex; flex-direction: column">
+<main style="flex: 1; display: grid; place-items: center; padding: 48px 16px">
+<form style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px">
+<span style="display: inline-grid; place-items: center; width: 48px; height: 48px; background: var(--muted)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 24px; height: 24px"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg></span>
+<div>
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 400">Confirmar senha</h1>
+<p class="muted" style="margin: 4px 0 0">Esta é uma área segura do aplicativo. Confirme sua senha antes de continuar.</p>
+</div>
+<div><label class="rme-label" for="senha">Senha</label><input id="senha" type="password" class="rme-field" placeholder="Senha"></div>
+<a class="rme-btn rme-btn--primary rme-btn--lg" href="Seguranca.dc.html" style="color: var(--primary-foreground); width: 100%; box-sizing: border-box">Confirmar senha</a>
+<a href="Configuracoes.dc.html">Voltar às configurações</a>
+</form>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>
