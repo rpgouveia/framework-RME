@@ -76,7 +76,7 @@ function RisksTable({ risks }: { risks: Risk[] }) {
     const { t } = useTranslations();
 
     return (
-        <div className="rounded-xl border">
+        <div className="border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -100,23 +100,25 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                             className="cursor-pointer"
                             onClick={rowLink(show(risk.id))}
                         >
-                            <TableCell>
+                            <TableCell className="min-w-56 whitespace-normal">
                                 {/* The name identifies the risk; one line of
                                     the description gives context without
-                                    taking a column of its own. */}
-                                <div className="grid max-w-xs">
+                                    taking a column of its own. Both wrap, so
+                                    a long name never runs into the next
+                                    column. */}
+                                <div className="grid gap-0.5">
                                     <Link
                                         href={show(risk.id)}
-                                        className="font-medium hover:underline"
+                                        className="text-link hover:text-link-hover hover:underline"
                                     >
                                         {risk.name}
                                     </Link>
-                                    <p className="text-muted-foreground truncate text-xs">
+                                    <p className="text-muted-foreground line-clamp-1 text-xs tracking-[0.32px]">
                                         {risk.description}
                                     </p>
                                 </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="min-w-40 whitespace-normal">
                                 {risk.ai_system && (
                                     <Link
                                         href={showAiSystem(risk.ai_system.id)}
@@ -126,12 +128,12 @@ function RisksTable({ risks }: { risks: Risk[] }) {
                                     </Link>
                                 )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="min-w-56 whitespace-normal">
                                 <RiskSubdomain
                                     subdomain={risk.risk_subdomain}
                                 />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="whitespace-normal">
                                 {
                                     enumLabels.LifecyclePhase[
                                         risk.lifecycle_phase

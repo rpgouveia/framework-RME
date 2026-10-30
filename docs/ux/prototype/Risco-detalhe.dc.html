@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Falta de explicabilidade</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="risks" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Riscos.dc.html">Riscos</a></li><li aria-current="page">Falta de explicabilidade</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Falta de explicabilidade</h1>
+<p class="page-sub"><a href="Sistema-detalhe.dc.html">Modelo de score de crédito</a></p>
+</div>
+<div class="page-actions"><button class="rme-btn rme-btn--outline">Editar</button></div>
+</div>
+
+<div class="grid-main">
+<div class="stack" style="gap: 24px">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Descrição</h2></header>
+<div class="rme-card-body"><p style="margin: 0">Não é possível explicar à pessoa afetada, nem a um auditor, por que o sistema chegou àquele resultado, o que impede a contestação e a correção do caso individual.</p></div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; gap: 16px; align-items: flex-start">
+<div><h2 class="rme-card-title">Vínculos (2)</h2><p class="rme-card-desc">As mitigações aplicadas a este risco.</p></div>
+<a class="rme-btn rme-btn--primary rme-btn--sm" href="Vinculo-criar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Criar vínculo</a>
+</header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row"><div class="stack-sm"><a href="#">Implementar plano de monitoramento pós-implantação</a><span class="rme-caption">Líder de Engenharia · Engenharia · custo Médio</span></div><div class="rme-row" style="gap: 4px; justify-content: flex-end"><span class="rme-tag rme-tag--blue">Em andamento</span><span class="rme-tag rme-tag--outline">Declarada</span></div></div>
+<div class="list-row"><div class="stack-sm"><a href="#">Desenvolvimento e testes de sistemas de IA em ambientes isolados</a><span class="rme-caption">Gestor de Risco de IA · Governança de IA · custo Alto</span></div><div class="rme-row" style="gap: 4px; justify-content: flex-end"><span class="rme-tag rme-tag--gray">Planejado</span><span class="rme-tag rme-tag--outline">Declarada</span></div></div>
+</div>
+</section>
+</div>
+
+<aside class="stack">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Classificação</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr)">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Subdomínio de risco (MIT)</button></dt><dd><span class="mono">7.4</span> Falta de transparência ou interpretabilidade<span class="rme-sub">7 Segurança, falhas e limitações de sistemas de IA</span></dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Fase do ciclo de vida</button></dt><dd>Operação e monitoramento</dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Incerteza</button></dt><dd><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i class="on"></i></span>Alta</span> <span class="rme-caption">confiança baixa</span></dd></div>
+</dl>
+<details style="margin-top: 16px">
+<summary class="rme-caption" style="cursor: pointer">Definição do MIT AI Risk Repository (em inglês)</summary>
+<p lang="en" style="margin: 8px 0 0">Challenges in understanding or explaining the decision-making processes of AI systems, which can lead to mistrust, difficulty in enforcing compliance standards or holding relevant actors accountable for harms, and the inability to identify and correct errors.</p>
+</details>
+</div>
+</section>
+</aside>
+</div>
+
+<div class="danger-zone">
+<div><h2 class="rme-card-title">Excluir este risco</h2><p class="muted" style="margin: 4px 0 0">Indisponível: o risco tem 2 vínculos. Só riscos sem vínculos podem ser excluídos.</p></div>
+<button class="rme-btn rme-btn--destructive" disabled>Excluir risco</button>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

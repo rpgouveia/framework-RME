@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Editar responsável</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="owners" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Responsaveis.dc.html">Responsáveis</a></li><li><a href="Responsavel-detalhe.dc.html">Líder de Engenharia</a></li><li aria-current="page">Editar</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<h1 class="page-title">Editar responsável</h1>
+<p class="page-sub">Líder de Engenharia · Engenharia</p>
+</div>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title" style="display: flex; gap: 8px; align-items: center"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Cargo e área travados</h2>
+<p class="rme-card-desc">O cargo e a área não podem ser alterados depois que o responsável foi usado na cadeia de rastreabilidade.</p></header>
+<div class="rme-card-body stack">
+<dl class="rme-dl" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr))">
+<div><dt>Cargo</dt><dd>Líder de Engenharia</dd></div>
+<div><dt>Área</dt><dd>Engenharia</dd></div>
+<div><dt>Vínculos</dt><dd>10</dd></div>
+<div><dt>Registros no histórico</dt><dd>26</dd></div>
+</dl>
+<div class="stack-sm" style="padding: 16px; background: var(--muted)">
+<strong>Para mudar o papel</strong>
+<ol style="margin: 0; padding-left: 20px">
+<li>Cadastre um novo responsável com o cargo e a área certos.</li>
+<li>Reatribua os vínculos ativos, editando cada vínculo.</li>
+<li>Desative este responsável. O histórico continua mostrando o que ele registrou.</li>
+</ol>
+</div>
+<div class="rme-row"><a class="rme-btn rme-btn--primary" href="Responsavel-form.dc.html" style="color: var(--primary-foreground)">Cadastrar novo responsável</a><a class="rme-btn rme-btn--ghost" href="Responsavel-detalhe.dc.html">Voltar ao responsável</a></div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Reavaliar vínculo</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-reavaliacao.dc.html">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</a></li><li aria-current="page">Reavaliar</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Reavaliar vínculo</h1>
+<p class="page-sub">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</p>
+</div>
+
+<div class="grid-main">
+<form class="form" style="max-width: none">
+
+<fieldset class="form-section">
+<legend style="display: flex; align-items: center; gap: 4px">1. Desfecho <button type="button" class="rme-tip-btn" aria-label="O que cada desfecho faz"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></legend>
+<div class="stack-sm" role="radiogroup" aria-label="Desfecho">
+<div class="rme-radio-tile" role="radio" aria-checked="false" aria-disabled="true"><span class="rme-radio"></span>
+<div><strong>Manter</strong><div class="rme-caption">A mitigação continua adequada. O vínculo é verificado agora, com a evidência registrada depois da reversão.</div>
+<div class="rme-helper" style="color: var(--tag-yellow-fg)">Indisponível: registre uma evidência nova; a última reversão foi em 02/10/2026. <a href="Evidencia-registrar.dc.html">Registrar evidência</a></div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span>
+<div><strong>Ajustar</strong><div class="rme-caption">Muda responsável, custo estimado, fase ou progresso. Verificar agora é opcional; sem verificação, o vínculo passa a aguardar verificação.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span>
+<div><strong>Substituir</strong><div class="rme-caption">Cancela este vínculo e leva à criação de outro, com outra mitigação para o mesmo risco.</div></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span>
+<div><strong>Encerrar</strong><div class="rme-caption">Cancela este vínculo, sem substituto.</div></div></div>
+</div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>2. Ajustes no vínculo</legend>
+<p class="muted" style="margin: 0">Deixe "Sem mudança" no que não muda. O antes e o depois de cada mudança ficam registrados na reavaliação.</p>
+<div class="form-grid">
+<div><label class="rme-label">Responsável</label><button type="button" class="rme-field rme-select"><span>Sem mudança (Especialista em Privacidade)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label">Custo estimado</label><button type="button" class="rme-field rme-select"><span>Alto</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><p class="rme-helper">Antes: Médio</p></div>
+<div><label class="rme-label">Fase do ciclo de vida</label><button type="button" class="rme-field rme-select"><span>Sem mudança (Implantação)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label">Progresso</label><button type="button" class="rme-field rme-select"><span>Em andamento</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><p class="rme-helper">Antes: Planejado</p></div>
+</div>
+<div>
+<label class="rme-check-row"><span class="rme-check" role="checkbox" aria-checked="false" aria-disabled="true" style="border-color: var(--subtle-foreground)"></span><span class="muted">Verificar no mesmo ato</span></label>
+<p class="rme-helper">Indisponível: não há evidência registrada depois da reversão. O vínculo passará a aguardar verificação.</p>
+</div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend style="display: flex; align-items: center; gap: 4px">3. Análise de causa <button type="button" class="rme-tip-btn" aria-label="Quando a análise de causa é pedida"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></legend>
+<p class="muted" style="margin: 0">Pedida porque a reversão veio de um evento adverso.</p>
+<div class="rme-row" role="radiogroup" aria-label="Situação da causa" style="gap: 24px">
+<label class="rme-check-row"><span class="rme-radio" style="border: 5px solid var(--foreground)"></span>Causa apurada</label>
+<label class="rme-check-row"><span class="rme-radio"></span>Causa não apurada</label>
+</div>
+<div><label class="rme-label" for="causa">Causa apurada</label><textarea id="causa" class="rme-field" placeholder="Ex.: Entrada fora do domínio previsto, que o filtro não cobria."></textarea><p class="rme-helper" style="text-align: right">0/2000</p></div>
+<div style="max-width: 360px"><label class="rme-label">Fase do ciclo de vida em que a causa se originou</label><button type="button" class="rme-field rme-select"><span style="color: var(--subtle-foreground)">Selecione a fase</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>4. Decisão</legend>
+<div style="max-width: 360px"><label class="rme-label">Quem reavalia</label><button type="button" class="rme-field rme-select"><span>Especialista em Privacidade (Jurídico)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label" for="just">Justificativa</label><textarea id="just" class="rme-field" placeholder="Ex.: A mitigação estava ativa; o evento veio de um caso fora do escopo dela."></textarea><p class="rme-helper" style="text-align: right">0/2000</p></div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Registrar reavaliação</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Vinculo-reavaliacao.dc.html">Cancelar</a>
+</div>
+</form>
+
+<aside class="stack" aria-label="Resumo">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Reversão a reavaliar</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr)">
+<div><dt>Origem</dt><dd>Evento adverso <a href="Evento-detalhe.dc.html"><span class="mono">4.2</span> de 28 de set. de 2026</a></dd></div>
+<div><dt>Revertida em</dt><dd>2 de out. de 2026 <span class="rme-caption">· há 20 dias</span></dd></div>
+<div><dt>Motivo</dt><dd>Evento adverso de 28/09/2026 em um subdomínio do risco deste vínculo.</dd></div>
+<div><dt>Estado atual</dt><dd class="rme-row" style="gap: 4px"><span class="rme-tag rme-tag--gray">Planejado</span><span class="rme-tag rme-tag--outline">Declarada</span></dd></div>
+</dl>
+</div>
+</section>
+<section class="impact" aria-label="Efeito do desfecho">
+<strong>Ao registrar com "Ajustar"</strong>
+<ul>
+<li>Custo estimado: Médio → Alto</li>
+<li>Progresso: Planejado → Em andamento</li>
+<li>O vínculo passa a aguardar verificação.</li>
+</ul>
+<p style="margin: 8px 0 0">A reavaliação é permanente: não pode ser editada nem excluída.</p>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

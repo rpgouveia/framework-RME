@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Configurações de segurança</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="none" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Configuracoes.dc.html">Configurações</a></li><li aria-current="page">Segurança</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Configurações</h1>
+<p class="page-sub">Gerencie seu perfil, sua senha e a aparência do app.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<nav class="settings-nav" aria-label="Configurações" style="flex: 1 1 200px; max-width: 240px">
+<a href="Configuracoes.dc.html">Perfil</a>
+<a href="#" aria-current="page">Segurança</a>
+<a href="Configuracoes.dc.html">Aparência</a>
+</nav>
+
+<div class="stack" style="flex: 999 1 480px; gap: 24px; max-width: 640px">
+<form class="form-section">
+<div><h2 class="rme-card-title">Atualizar senha</h2><p class="muted" style="margin: 4px 0 0">Use uma senha longa e aleatória para manter a conta segura.</p></div>
+<div><label class="rme-label" for="atual">Senha atual</label><input id="atual" type="password" class="rme-field" placeholder="Senha atual"></div>
+<div><label class="rme-label" for="nova">Nova senha</label><input id="nova" type="password" class="rme-field" placeholder="Nova senha"></div>
+<div><label class="rme-label" for="conf">Confirmar senha</label><input id="conf" type="password" class="rme-field" placeholder="Confirmar senha"></div>
+<div><button type="submit" class="rme-btn rme-btn--primary">Salvar senha</button></div>
+</form>
+
+<section class="form-section">
+<div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: flex-start">
+<div><h2 class="rme-card-title">Autenticação de dois fatores</h2><p class="muted" style="margin: 4px 0 0">Pede um código do aplicativo autenticador além da senha ao entrar.</p></div>
+<span class="rme-tag rme-tag--gray">Desativada</span>
+</div>
+<p style="margin: 0">Ao ativar, você lê um QR code no aplicativo autenticador, confirma um código e guarda os códigos de recuperação.</p>
+<div><button class="rme-btn rme-btn--primary">Ativar 2FA</button></div>
+</section>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

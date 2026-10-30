@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Evidência</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="#">Conteúdo tóxico nas respostas → Reavaliação do risco residual</a></li><li><a href="Evidencias.dc.html">Evidências</a></li><li aria-current="page">Ata de reunião de 31 de jul. de 2026</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div class="page-head">
+<div>
+<p class="rme-caption" style="margin: 0 0 4px">Evidência</p>
+<h1 class="page-title">Ata de reunião</h1>
+<p class="page-sub"><a href="#">Conteúdo tóxico nas respostas → Reavaliação do risco residual</a></p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--outline" href="Evidencia-registrar.dc.html" style="color: var(--foreground)">Registrar nova evidência</a></div>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0; display: flex; align-items: center; gap: 6px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Evidências não se editam nem se excluem. Para corrigir esta, registre uma nova.</p>
+
+<section class="rme-card">
+<div class="rme-card-body stack" style="padding-top: 24px">
+<dl class="rme-dl">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Tipo</button></dt><dd>Ata de reunião</dd></div>
+<div><dt>Registrada em</dt><dd>31 de jul. de 2026</dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Custo observado</button></dt><dd>Médio</dd></div>
+</dl>
+<div class="stack-sm"><span class="rme-caption">Descrição</span><p style="margin: 0">Ata da reunião de revisão do risco, com a decisão de manter a mitigação e o prazo da próxima conferência.</p></div>
+</div>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>
