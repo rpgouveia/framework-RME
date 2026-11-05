@@ -225,9 +225,19 @@ docker compose down                   # stop, keeping the data
 docker compose down -v                # stop and wipe the volume (and node_modules)
 
 docker compose exec app php artisan migrate               # apply new migrations
-docker compose exec app php artisan migrate:fresh --seed  # drop everything and reseed
+docker compose exec app php artisan migrate:fresh --seed  # start over: drop everything and reseed
 docker compose exec postgres psql -U root -d laravel      # a psql shell
 ```
+
+Starting over is always explicit: `setup` never does it for you.
+`migrate:fresh --seed` drops every table, so whatever you entered by hand goes
+too, reconstructed cases included; export their reports before running it.
+
+Every schema change is a new migration. A migration that is already on `main`
+is never edited: `migrate` does not run it again, so the databases already
+built would drift from the schema (decision 0029). A pull request that needs
+the database rebuilt, for instance because it changes the seeders in a way the
+existing data no longer fits, says so in its description.
 
 Drop `docker compose exec app` from those Artisan calls when you work on the
 host; the container and the host share the same database.
