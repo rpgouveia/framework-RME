@@ -334,6 +334,12 @@ test('every column of the three csv files is translated', function (string $colu
     expect(CompileTraceabilityReport::csvHeader([$column])[0])->not->toBe($key)->not->toBe('');
 })->with('csv columns');
 
+test('the adverse events csv and the event screens name the intercepting link alike', function () {
+    // The glossary term (0028), in the CSV and on the screens.
+    expect(CompileTraceabilityReport::csvHeader(['intercepting_link']))->toBe(['Vínculo interceptador'])
+        ->and(__('Intercepting link'))->toBe('Vínculo interceptador');
+});
+
 test('each csv names every column differently', function (array $columns) {
     $header = CompileTraceabilityReport::csvHeader($columns);
 

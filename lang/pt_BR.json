@@ -534,7 +534,7 @@
     "inactive": "inativo",
     "Incidents and near misses in systems in operation, with actual or plausible harm to people, the organization or the ecosystem, classified by risk subdomain, which send the links they touch back to reassessment.": "Incidentes e quase-incidentes de sistemas em operação, com dano ocorrido ou plausível a pessoas, à organização ou ao ecossistema, classificados por subdomínio de risco e que devolvem à reavaliação os vínculos atingidos.",
     "Insufficient Storage": "Armazenamento Insuficiente",
-    "Intercepting link": "Vínculo que interceptou",
+    "Intercepting link": "Vínculo interceptador",
     "Internal Server Error": "Erro Interno Do Servidor",
     "Introduction": "Introdução",
     "Invalid credential format.": "Invalid credential format.",
