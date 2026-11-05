@@ -234,6 +234,8 @@ Na página de cada sistema, card **Relatório de rastreabilidade**:
 
 Os arquivos trazem a versão do protocolo de monitoramento com que foram gerados. Os CSV abrem direto no Excel em português (UTF-8 com BOM e `;` como separador).
 
+Os CSV saem em português, com os rótulos das telas, e o JSON usa os códigos em inglês, que o [glossário](glossary.md) mostra ao lado de cada valor; os dois trazem o histórico de progresso de cada vínculo e a descrição dos eventos adversos (no JSON e no CSV de eventos).
+
 ---
 
 ## Roteiro de 15 minutos com os dados de exemplo
