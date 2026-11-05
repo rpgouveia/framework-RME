@@ -115,7 +115,7 @@ class CompileTraceabilityReport
         'event_id',
         'nature',
         'description',
-        'risk_subdomains',
+        'materialized_risk_subdomains',
         'occurrence_date',
         'detected_at',
         'intercepting_link_id',
@@ -139,7 +139,7 @@ class CompileTraceabilityReport
         'type',
         'description',
         'change_date',
-        'risk_subdomains',
+        'affected_risk_subdomains',
         'reverted_link_ids',
         'reverted_links',
         'unmapped_subdomains_at_export',
@@ -364,17 +364,22 @@ class CompileTraceabilityReport
 
     /**
      * A progress change of a link, for its composite cell, with the role that
-     * recorded it and the reason, when there is one.
+     * recorded it, the adverse event that forced it and the reason, when
+     * there are.
      *
-     * @param  array{date: string, from: string|null, to: string, recorded_by: string|null, reason: string|null}  $change
+     * @param  array{date: string, from: string|null, to: string, recorded_by: string|null, reason: string|null, adverse_event_id: int|null}  $change
      */
     protected function statusChangeCell(array $change): string
     {
+        $event = $change['adverse_event_id'] === null
+            ? null
+            : self::text('adverse event #:event', ['event' => (string) $change['adverse_event_id']]);
+
         return $this->transition(
             $change['date'],
             $this->label(LinkStatus::class, $change['from']),
             (string) $this->label(LinkStatus::class, $change['to']),
-            $this->details([$change['recorded_by']], $change['reason']),
+            $this->details([$change['recorded_by']], $change['reason'], $event),
         );
     }
 
@@ -382,7 +387,9 @@ class CompileTraceabilityReport
      * A verification change of a link, for its composite cell: its origin,
      * with the event or the change behind a reversal, the role that recorded
      * it and the reason someone wrote. An automatic reversal's reason only
-     * restates its origin, so the cell leaves it out; the JSON keeps it.
+     * restates its origin, so the cell leaves it out; the JSON keeps it. A
+     * move from verified to verified is a renewal (0019, item 2), and the
+     * cell names it so, by the glossary term, instead of repeating the state.
      *
      * @param  array{date: string, from: string|null, to: string, origin: string, recorded_by: string|null, reason: string|null, adverse_event_id: int|null, system_change_id: int|null}  $change
      */
@@ -396,10 +403,13 @@ class CompileTraceabilityReport
             $origin = self::text(':origin, change #:change', ['origin' => $origin, 'change' => (string) $change['system_change_id']]);
         }
 
+        $renewal = $change['from'] === VerificationStatus::Verified->value
+            && $change['to'] === VerificationStatus::Verified->value;
+
         return $this->transition(
             $change['date'],
-            $this->label(VerificationStatus::class, $change['from']),
-            (string) $this->label(VerificationStatus::class, $change['to']),
+            $renewal ? null : $this->label(VerificationStatus::class, $change['from']),
+            $renewal ? self::text('Renewal') : (string) $this->label(VerificationStatus::class, $change['to']),
             $this->details(
                 [$origin, $change['recorded_by']],
                 $change['origin'] === ChangeOrigin::Manual->value ? $change['reason'] : null,
@@ -468,21 +478,20 @@ class CompileTraceabilityReport
     }
 
     /**
-     * The parts that go in a change's parentheses, the reason last.
+     * The parts that go in a change's parentheses: the parts joined by
+     * commas, then the note and the reason, each after a semicolon.
      *
      * @param  list<string|null>  $parts
      */
-    protected function details(array $parts, ?string $reason): string
+    protected function details(array $parts, ?string $reason, ?string $note = null): string
     {
-        $details = implode(', ', array_filter($parts, fn (?string $part): bool => $part !== null && $part !== ''));
+        $filled = fn (?string $part): bool => $part !== null && $part !== '';
 
-        if ($reason === null || $reason === '') {
-            return $details;
-        }
-
-        $reason = self::text('reason: :reason', ['reason' => $reason]);
-
-        return $details === '' ? $reason : "{$details}; {$reason}";
+        return implode('; ', array_filter([
+            implode(', ', array_filter($parts, $filled)),
+            $note,
+            $filled($reason) ? self::text('reason: :reason', ['reason' => (string) $reason]) : null,
+        ], $filled));
     }
 
     /**
@@ -548,6 +557,8 @@ class CompileTraceabilityReport
                 'to' => $change->new_status?->value,
                 'recorded_by' => $change->owner?->organizational_role,
                 'reason' => $change->trigger_reason,
+                // The adverse event that forced the change, if any.
+                'adverse_event_id' => $change->adverse_event_id,
             ])->values()->all(),
             // The second dimension (0013): whether evidence proves the link.
             'verification' => [
