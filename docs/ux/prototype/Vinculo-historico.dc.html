@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Histórico de status</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-reavaliacao.dc.html">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</a></li><li aria-current="page">Histórico</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Histórico do vínculo</h1>
+<p class="page-sub">Uso do sistema para ciberataque → Testar a adequação das instruções de uso. Cada registro é permanente.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Vinculo-mudanca-status.dc.html" style="color: var(--primary-foreground); text-decoration: none">Registrar mudança</a></div>
+</div>
+
+<div class="rme-tabs" role="tablist">
+<button class="rme-tab" role="tab" aria-selected="true">Tudo (4)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Progresso (1)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Verificação (2)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Reavaliações (0)</button>
+<button class="rme-tab" role="tab" aria-selected="false">Evidências (1)</button>
+</div>
+
+<ol class="timeline">
+<li>
+<span class="dot dot--solid"></span>
+<div class="rme-caption"><a href="#">2 de out. de 2026</a></div>
+<div class="rme-row" style="gap: 6px; margin: 6px 0"><span>Verificação</span><span class="rme-tag rme-tag--green">Verificada</span><span aria-label="para">→</span><span class="rme-tag rme-tag--outline">Declarada</span></div>
+<div class="muted">Registrado pelo sistema · origem: Evento adverso</div>
+<p style="margin: 6px 0 0">Evento adverso de 28/09/2026 em um subdomínio do risco deste vínculo. <a href="Evento-detalhe.dc.html">Ver o evento <span class="mono">4.2</span></a></p>
+</li>
+<li>
+<span class="dot"></span>
+<div class="rme-caption"><a href="#">7 de set. de 2026</a></div>
+<div class="rme-row" style="gap: 6px; margin: 6px 0"><span>Verificação</span><span class="rme-tag rme-tag--outline">Declarada</span><span aria-label="para">→</span><span class="rme-tag rme-tag--green">Verificada</span></div>
+<div class="muted">Especialista em Privacidade · Jurídico</div>
+<p style="margin: 6px 0 0" class="rme-caption">Com base em: Resultado de teste de 2 de set. de 2026</p>
+</li>
+<li>
+<span class="dot"></span>
+<div class="rme-caption"><a href="#">2 de set. de 2026</a></div>
+<div class="rme-row" style="gap: 6px; margin: 6px 0"><span>Evidência registrada</span><span class="rme-tag rme-tag--gray">Resultado de teste</span></div>
+<p style="margin: 0">Teste da mitigação em produção, com resultado aprovado.</p>
+</li>
+<li>
+<span class="dot"></span>
+<div class="rme-caption"><a href="#">23 de ago. de 2026</a></div>
+<div class="rme-row" style="gap: 6px; margin: 6px 0"><span>Abertura</span><span aria-label="para">→</span><span class="rme-tag rme-tag--gray">Planejado</span></div>
+<div class="muted">Especialista em Privacidade · Jurídico</div>
+</li>
+</ol>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

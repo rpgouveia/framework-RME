@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Vínculo aguardando reavaliação</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 100%; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; letter-spacing: 0.16px">
+
+<aside class="rme-sidebar" style="flex: 1 1 256px; max-width: 256px; box-sizing: border-box">
+<div class="rme-brand"><img src="/_blob/29f7ae5980b254ec1a4a65cbd84e590c" alt="">Framework RME</div>
+<nav class="rme-nav" aria-label="Plataforma">
+<div class="rme-nav-group">Plataforma</div>
+<a href="Main.dc.html"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>Acompanhamento</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12"></rect><path d="M12 8V4M9 13v2M15 13v2"></path></svg>Sistemas de IA</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="M12 8v4M12 16h.01"></path></svg>Riscos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4M12 17h.01"></path></svg>Eventos adversos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>Mitigações</a>
+<a href="#" aria-current="page"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"></path></svg>Vínculos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path></svg>Responsáveis</a>
+</nav>
+</aside>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header class="rme-topbar">
+<button class="rme-tip-btn" aria-label="Recolher a barra lateral"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18"></rect><path d="M9 3v18"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="#">Vínculos</a></li><li aria-current="page">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</li></ol>
+</header>
+
+<main style="box-sizing: border-box; width: 100%; max-width: 1184px; padding: 32px 32px 48px; display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 400; letter-spacing: 0"><a href="#" style="color: var(--foreground)">Uso do sistema para ciberataque</a> <span aria-label="mitigado por" style="color: var(--muted-foreground)">→</span> <a href="#" style="color: var(--foreground)">Testar a adequação das instruções de uso</a></h1>
+<p style="margin: 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--muted-foreground)"><a href="#">Modelo de score de crédito</a><span class="rme-tag rme-tag--yellow">Faixa Alto</span></p>
+</div>
+<button class="rme-btn rme-btn--outline">Editar</button>
+</div>
+
+<section class="rme-card" aria-labelledby="estado" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border)">
+<h2 id="estado" class="rme-card-title">Estado do vínculo</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 32px">
+<div class="rme-status"><span class="rme-status-label"><button class="rme-term" style="font-size: 12px">Progresso</button></span><span class="rme-tag rme-tag--gray">Planejado</span></div>
+<div class="rme-status"><span class="rme-status-label"><button class="rme-term" style="font-size: 12px">Verificação</button></span><span class="rme-tag rme-tag--outline">Declarada</span></div>
+<div class="rme-status"><span class="rme-status-label"><button class="rme-term" style="font-size: 12px">Próxima revisão</button></span><span>Aguardando verificação</span></div>
+</div>
+<div class="rme-alert rme-alert--warning">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4M12 17h.01"></path></svg>
+<div>
+<p class="rme-alert-title">Aguardando reavaliação há 20 dias</p>
+<p class="rme-alert-text">Verificação revertida em 2 de out. de 2026 (origem: Evento adverso).</p>
+<p class="rme-alert-text">Evento adverso: <a href="#"><span style="font-family: var(--font-mono)">4.2</span> de 28 de set. de 2026</a></p>
+</div>
+</div>
+</div>
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; background: var(--muted)">
+<h2 class="rme-card-title">Próxima ação</h2>
+<p style="margin: 0">Decida se a mitigação continua adequada depois do evento adverso: manter, ajustar, substituir ou encerrar.</p>
+<div class="rme-row">
+<button class="rme-btn rme-btn--primary">Reavaliar</button>
+<button class="rme-btn rme-btn--outline">Registrar evidência</button>
+</div>
+<p class="rme-helper" style="margin: 0">Para manter o vínculo, registre antes uma evidência nova: a última reversão foi em 02/10/2026.</p>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Detalhes</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl">
+<div><dt>Responsável</dt><dd>Especialista em Privacidade<span class="rme-sub">Jurídico</span></dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Fase do ciclo de vida</button></dt><dd>Implantação</dd></div>
+<div><dt>Data de criação</dt><dd>23 de ago. de 2026</dd></div>
+<div><dt style="display: flex; align-items: center; gap: 4px">Custo estimado <button class="rme-tip-btn" aria-label="O que é custo" aria-expanded="false" style="width: 16px; height: 16px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></dt><dd>Médio</dd></div>
+<div><dt>Custo observado</dt><dd>Não informado</dd></div>
+<div><dt>Última verificação</dt><dd>7 de set. de 2026<span class="rme-sub">Especialista em Privacidade · Jurídico</span></dd></div>
+</dl>
+</div>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start">
+<section class="rme-card">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; gap: 16px">
+<div><h2 class="rme-card-title">Evidências (1)</h2><p class="rme-card-desc">Documentos e registros que comprovam a aplicação da mitigação.</p></div>
+<button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button>
+</header>
+<div class="rme-card-body">
+<div style="padding: 12px 0; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; justify-content: space-between; gap: 16px"><a href="#">Resultado de teste</a><span class="rme-caption">2 de set. de 2026</span></div>
+<span>Teste da mitigação em produção, com resultado aprovado.</span>
+<span class="rme-caption">Anterior à reversão: não serve para manter o vínculo.</span>
+</div>
+<a href="#">Ver todas as evidências</a>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; gap: 16px">
+<div><h2 class="rme-card-title">Histórico de status (3)</h2><p class="rme-card-desc">Cada mudança de progresso e de verificação, com quem registrou.</p></div>
+<button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar mudança</button>
+</header>
+<ol class="rme-card-body" style="list-style: none; margin: 0; display: flex; flex-direction: column; gap: 0">
+<li style="padding: 0 0 16px 20px; border-left: 1px solid var(--border-strong); position: relative">
+<span style="position: absolute; left: -5px; top: 4px; width: 9px; height: 9px; background: var(--foreground)"></span>
+<span class="rme-caption">2 de out. de 2026</span>
+<div class="rme-row" style="gap: 6px; margin: 4px 0"><span>Verificação:</span><span class="rme-tag rme-tag--green">Verificada</span><span>→</span><span class="rme-tag rme-tag--outline">Declarada</span></div>
+<span class="rme-caption">Registrado pelo sistema (origem: Evento adverso)</span>
+</li>
+<li style="padding: 0 0 16px 20px; border-left: 1px solid var(--border-strong); position: relative">
+<span style="position: absolute; left: -5px; top: 4px; width: 9px; height: 9px; background: var(--background); border: 1px solid var(--foreground); box-sizing: border-box"></span>
+<span class="rme-caption">7 de set. de 2026</span>
+<div class="rme-row" style="gap: 6px; margin: 4px 0"><span>Verificação:</span><span class="rme-tag rme-tag--outline">Declarada</span><span>→</span><span class="rme-tag rme-tag--green">Verificada</span></div>
+<span class="rme-caption">Registrado por Especialista em Privacidade (Jurídico)</span>
+</li>
+<li style="padding: 0 0 0 20px; border-left: 1px solid var(--border-strong); position: relative">
+<span style="position: absolute; left: -5px; top: 4px; width: 9px; height: 9px; background: var(--background); border: 1px solid var(--foreground); box-sizing: border-box"></span>
+<span class="rme-caption">23 de ago. de 2026</span>
+<div class="rme-row" style="gap: 6px; margin: 4px 0"><span>Abertura</span><span>→</span><span class="rme-tag rme-tag--gray">Planejado</span></div>
+<span class="rme-caption">Registrado por Especialista em Privacidade (Jurídico)</span>
+</li>
+</ol>
+</section>
+</div>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Reavaliações</h2></header>
+<div class="rme-card-body"><p style="margin: 0; color: var(--muted-foreground)">A última reversão aguarda reavaliação.</p></div>
+</section>
+
+<section style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; padding: 24px 0 0; border-top: 1px solid var(--border)">
+<div>
+<h2 class="rme-card-title">Cancelar este vínculo</h2>
+<p style="margin: 4px 0 0; color: var(--muted-foreground)">O vínculo não é excluído: sai da revisão periódica e só pode voltar a Planejado.</p>
+</div>
+<button class="rme-btn rme-btn--destructive">Cancelar vínculo</button>
+</section>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1640}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Registrar mudança de status</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-reavaliacao.dc.html">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</a></li><li><a href="Vinculo-historico.dc.html">Histórico</a></li><li aria-current="page">Registrar mudança</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<h1 class="page-title">Registrar mudança de status</h1>
+<p class="page-sub">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</p>
+</div>
+
+<form class="form">
+<fieldset class="form-section">
+<legend>Progresso</legend>
+<div class="form-grid" style="align-items: end">
+<div><span class="rme-label">Atual</span><span class="rme-tag rme-tag--gray">Planejado</span></div>
+<div>
+<div class="label-row"><label class="rme-label" for="novo">Novo status</label><button type="button" class="rme-tip-btn" aria-label="O que cada status significa" style="width: 16px; height: 16px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></div>
+<button id="novo" type="button" class="rme-field rme-select"><span>Cancelado</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+</div>
+<div class="rme-alert rme-alert--error">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg>
+<div><p class="rme-alert-title">Cancelar encerra o vínculo</p><p class="rme-alert-text">Ele sai da revisão periódica, não pode ser verificado nem reavaliado e só pode voltar a Planejado. O vínculo não é excluído.</p></div>
+</div>
+<div><label class="rme-label" for="motivo">Motivo</label><textarea id="motivo" class="rme-field" placeholder="Explique por que o vínculo está sendo cancelado."></textarea><p class="rme-helper">Obrigatório ao cancelar.</p></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>Registro</legend>
+<div class="form-grid">
+<div><label class="rme-label">Registrado por</label><button type="button" class="rme-field rme-select"><span>Especialista em Privacidade (Jurídico)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label" for="data">Data da mudança</label><input id="data" class="rme-field" value="22/10/2026"></div>
+</div>
+<div><label class="rme-label">Evento adverso relacionado (opcional)</label><button type="button" class="rme-field rme-select"><span>Nenhum</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><p class="rme-helper">Só os eventos do Modelo de score de crédito.</p></div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--destructive rme-btn--lg">Cancelar vínculo</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Vinculo-reavaliacao.dc.html">Voltar ao vínculo</a>
+</div>
+</form>
+
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg">
+<div class="rme-dialog-body">
+<h2 id="dlg" class="rme-dialog-title">Cancelar este vínculo?</h2>
+<p style="margin: 0">Uso do sistema para ciberataque → Testar a adequação das instruções de uso sai da revisão periódica e fica no histórico como cancelado. Para voltar, será preciso registrar Planejado.</p>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--destructive">Cancelar vínculo</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

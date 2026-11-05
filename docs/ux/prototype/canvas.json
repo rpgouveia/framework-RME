@@ -1,0 +1,691 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Cadastro.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "entrada",
+      "title": "Criar uma conta",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Configuracoes.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Configurações · perfil",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Confirmar-senha.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Confirmar senha",
+      "w": 1440,
+      "x": 1520,
+      "y": 1120
+    },
+    "Dois-fatores.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Código de autenticação",
+      "w": 1440,
+      "x": 3040,
+      "y": 1120
+    },
+    "Evento-confirmar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "riscos-eventos",
+      "title": "Registrar evento · confirmação",
+      "w": 1440,
+      "x": 4560,
+      "y": 1860
+    },
+    "Evento-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "riscos-eventos",
+      "title": "Evento adverso · detalhe",
+      "w": 1440,
+      "x": 3040,
+      "y": 1860
+    },
+    "Evento-registrar.dc.html": {
+      "expand": "fill",
+      "h": 1860,
+      "page": "riscos-eventos",
+      "title": "Registrar evento adverso",
+      "w": 1440,
+      "x": 1520,
+      "y": 1860
+    },
+    "Eventos.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "riscos-eventos",
+      "title": "Eventos adversos · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 1860
+    },
+    "Evidencia-confirmar.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "page": "vinculos",
+      "title": "Registrar evidência · confirmação",
+      "w": 1440,
+      "x": 0,
+      "y": 6040
+    },
+    "Evidencia-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "vinculos",
+      "title": "Evidência · detalhe",
+      "w": 1440,
+      "x": 1520,
+      "y": 4920
+    },
+    "Evidencia-registrar.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "page": "vinculos",
+      "title": "Registrar evidência",
+      "w": 1440,
+      "x": 1520,
+      "y": 2180
+    },
+    "Evidencias.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Evidências · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 4920
+    },
+    "Historico-entrada.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Entrada do histórico · detalhe",
+      "w": 1440,
+      "x": 4560,
+      "y": 4920
+    },
+    "Inicio.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "entrada",
+      "title": "Página inicial",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Login.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Entrar",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Main-vazio.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "acompanhamento",
+      "title": "Acompanhamento · sem sistemas",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 2920,
+      "page": "acompanhamento",
+      "title": "Acompanhamento",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Mitigacao-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 1040,
+      "page": "catalogo",
+      "title": "Mitigação · detalhe",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Mitigacoes.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Catálogo de mitigações",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Mudanca-confirmar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "sistemas",
+      "title": "Registrar mudança · confirmação",
+      "w": 1440,
+      "x": 4560,
+      "y": 1680
+    },
+    "Mudanca-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "sistemas",
+      "title": "Mudança do sistema · detalhe",
+      "w": 1440,
+      "x": 1520,
+      "y": 1680
+    },
+    "Mudanca-registrar.dc.html": {
+      "expand": "fill",
+      "h": 1480,
+      "page": "sistemas",
+      "title": "Registrar mudança do sistema",
+      "w": 1440,
+      "x": 0,
+      "y": 1680
+    },
+    "Mudancas.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "sistemas",
+      "title": "Mudanças do sistema · lista",
+      "w": 1440,
+      "x": 3040,
+      "y": 1680
+    },
+    "Reavaliacao-confirmar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Registrar reavaliação · confirmação",
+      "w": 1440,
+      "x": 1520,
+      "y": 6040
+    },
+    "Reavaliacao-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "vinculos",
+      "title": "Reavaliação · detalhe",
+      "w": 1440,
+      "x": 3040,
+      "y": 2180
+    },
+    "Reavaliacoes.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "vinculos",
+      "title": "Reavaliações · lista",
+      "w": 1440,
+      "x": 3040,
+      "y": 4920
+    },
+    "Recuperar-senha.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Esqueceu a senha",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "Redefinir-senha.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Redefinir senha",
+      "w": 1440,
+      "x": 0,
+      "y": 1120
+    },
+    "Responsaveis.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Responsáveis · lista",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Responsavel-desativar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "catalogo",
+      "title": "Desativar responsável · bloqueado (modal)",
+      "w": 1440,
+      "x": 3040,
+      "y": 1160
+    },
+    "Responsavel-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 980,
+      "page": "catalogo",
+      "title": "Responsável · detalhe",
+      "w": 1440,
+      "x": 6080,
+      "y": 0
+    },
+    "Responsavel-editar.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Editar responsável · travado",
+      "w": 1440,
+      "x": 7600,
+      "y": 0
+    },
+    "Responsavel-excluir.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Excluir responsável (modal)",
+      "w": 1440,
+      "x": 1520,
+      "y": 1160
+    },
+    "Responsavel-form.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Cadastrar responsável",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Responsavel-inativo.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "catalogo",
+      "title": "Responsável · inativo e nunca usado",
+      "w": 1440,
+      "x": 0,
+      "y": 1160
+    },
+    "Risco-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "riscos-eventos",
+      "title": "Risco · detalhe",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Risco-editar.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "page": "riscos-eventos",
+      "title": "Editar risco · sistema travado",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Risco-form.dc.html": {
+      "expand": "fill",
+      "h": 1740,
+      "page": "riscos-eventos",
+      "title": "Cadastrar risco",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Riscos.dc.html": {
+      "expand": "fill",
+      "h": 940,
+      "page": "riscos-eventos",
+      "title": "Riscos · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Seguranca.dc.html": {
+      "expand": "fill",
+      "h": 1200,
+      "page": "entrada",
+      "title": "Configurações · segurança",
+      "w": 1440,
+      "x": 6080,
+      "y": 1120
+    },
+    "Sidebar.dc.html": {
+      "h": 900,
+      "page": "componentes",
+      "title": "Barra lateral",
+      "w": 256,
+      "x": 0,
+      "y": 0
+    },
+    "Sistema-detalhe.dc.html": {
+      "expand": "fill",
+      "h": 1020,
+      "page": "sistemas",
+      "title": "Sistema de IA · detalhe",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Sistema-form.dc.html": {
+      "expand": "fill",
+      "h": 1560,
+      "page": "sistemas",
+      "title": "Cadastrar sistema de IA",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Sistema-reclassificar.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "sistemas",
+      "title": "Editar sistema · reclassificar para Inaceitável",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Sistemas.dc.html": {
+      "expand": "fill",
+      "h": 1060,
+      "page": "sistemas",
+      "title": "Sistemas de IA · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Verificar-email.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "entrada",
+      "title": "Verificação de e-mail",
+      "w": 1440,
+      "x": 4560,
+      "y": 1120
+    },
+    "Vinculo-cancelado.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "page": "vinculos",
+      "title": "Vínculo · cancelado e substituído",
+      "w": 1440,
+      "x": 3040,
+      "y": 3400
+    },
+    "Vinculo-criar.dc.html": {
+      "expand": "fill",
+      "h": 1920,
+      "page": "vinculos",
+      "title": "Criar vínculo",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Vinculo-editar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Editar vínculo",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Vinculo-historico.dc.html": {
+      "expand": "fill",
+      "h": 920,
+      "page": "vinculos",
+      "title": "Histórico de status",
+      "w": 1440,
+      "x": 4560,
+      "y": 2180
+    },
+    "Vinculo-inaceitavel.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "page": "vinculos",
+      "title": "Vínculo · sistema na faixa inaceitável",
+      "w": 1440,
+      "x": 4560,
+      "y": 3400
+    },
+    "Vinculo-mudanca-status.dc.html": {
+      "expand": "fill",
+      "h": 1100,
+      "page": "vinculos",
+      "title": "Registrar mudança de status · cancelar",
+      "w": 1440,
+      "x": 0,
+      "y": 2180
+    },
+    "Vinculo-reavaliacao.dc.html": {
+      "expand": "fill",
+      "h": 1400,
+      "page": "acompanhamento",
+      "title": "Vínculo · aguardando reavaliação",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "Vinculo-reavaliar.dc.html": {
+      "expand": "fill",
+      "h": 2060,
+      "page": "vinculos",
+      "title": "Reavaliar vínculo",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "Vinculo-reverter.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Vínculo · reverter verificação (modal)",
+      "w": 1440,
+      "x": 1520,
+      "y": 3400
+    },
+    "Vinculo-verificado.dc.html": {
+      "expand": "fill",
+      "h": 1540,
+      "page": "acompanhamento",
+      "title": "Vínculo · verificado",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Vinculo-verificar.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "page": "vinculos",
+      "title": "Vínculo · primeira verificação (modal)",
+      "w": 1440,
+      "x": 0,
+      "y": 3400
+    },
+    "Vinculos.dc.html": {
+      "expand": "fill",
+      "h": 980,
+      "page": "vinculos",
+      "title": "Vínculos · lista",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-22T14:05:00Z",
+    "v": 1
+  },
+  "designSystems": [
+    {
+      "artifact": "https://claude.ai/artifact/5vhzRPDzbCM3QZLYjLFGgX",
+      "copiedAt": "2026-10-22T14:05:00Z",
+      "namespace": "frameworkrme",
+      "title": "Framework RME",
+      "version": "1792677401-57c3"
+    }
+  ],
+  "launch": {
+    "page": "acompanhamento",
+    "view": "canvas"
+  },
+  "notes": {
+    "t-catalogo": {
+      "kind": "title1",
+      "maxW": 8000,
+      "page": "catalogo",
+      "text": "Catálogo de mitigações e responsáveis",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t-entrada": {
+      "kind": "title1",
+      "maxW": 7520,
+      "page": "entrada",
+      "text": "Entrada e configurações",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t-riscos": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "riscos-eventos",
+      "text": "Riscos e eventos adversos",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t-sistemas": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "sistemas",
+      "text": "Sistemas de IA e mudanças do sistema",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t-vinculos": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "vinculos",
+      "text": "Vínculos: lista, criação, reavaliação e registros",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "titulo": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "acompanhamento",
+      "text": "Acompanhamento e detalhe do vínculo",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Vinculo-reavaliacao.dc.html",
+    "Vinculo-verificado.dc.html",
+    "Vinculos.dc.html",
+    "Vinculo-criar.dc.html",
+    "Vinculo-editar.dc.html",
+    "Vinculo-reavaliar.dc.html",
+    "Vinculo-mudanca-status.dc.html",
+    "Evidencia-registrar.dc.html",
+    "Reavaliacao-detalhe.dc.html",
+    "Vinculo-historico.dc.html",
+    "Sistemas.dc.html",
+    "Sistema-form.dc.html",
+    "Sistema-reclassificar.dc.html",
+    "Sistema-detalhe.dc.html",
+    "Mudanca-registrar.dc.html",
+    "Mudanca-detalhe.dc.html",
+    "Riscos.dc.html",
+    "Risco-form.dc.html",
+    "Risco-detalhe.dc.html",
+    "Eventos.dc.html",
+    "Evento-registrar.dc.html",
+    "Evento-detalhe.dc.html",
+    "Mitigacoes.dc.html",
+    "Mitigacao-detalhe.dc.html",
+    "Responsaveis.dc.html",
+    "Responsavel-form.dc.html",
+    "Responsavel-detalhe.dc.html",
+    "Inicio.dc.html",
+    "Login.dc.html",
+    "Configuracoes.dc.html",
+    "Main-vazio.dc.html",
+    "Vinculo-verificar.dc.html",
+    "Vinculo-reverter.dc.html",
+    "Vinculo-cancelado.dc.html",
+    "Vinculo-inaceitavel.dc.html",
+    "Evidencias.dc.html",
+    "Evidencia-detalhe.dc.html",
+    "Reavaliacoes.dc.html",
+    "Historico-entrada.dc.html",
+    "Evidencia-confirmar.dc.html",
+    "Reavaliacao-confirmar.dc.html",
+    "Mudancas.dc.html",
+    "Mudanca-confirmar.dc.html",
+    "Risco-editar.dc.html",
+    "Evento-confirmar.dc.html",
+    "Responsavel-editar.dc.html",
+    "Responsavel-inativo.dc.html",
+    "Responsavel-excluir.dc.html",
+    "Responsavel-desativar.dc.html",
+    "Cadastro.dc.html",
+    "Recuperar-senha.dc.html",
+    "Redefinir-senha.dc.html",
+    "Confirmar-senha.dc.html",
+    "Dois-fatores.dc.html",
+    "Verificar-email.dc.html",
+    "Seguranca.dc.html",
+    "Sidebar.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "acompanhamento",
+      "name": "Acompanhamento"
+    },
+    {
+      "id": "vinculos",
+      "name": "Vínculos"
+    },
+    {
+      "id": "sistemas",
+      "name": "Sistemas de IA"
+    },
+    {
+      "id": "riscos-eventos",
+      "name": "Riscos e eventos"
+    },
+    {
+      "id": "catalogo",
+      "name": "Catálogo e responsáveis"
+    },
+    {
+      "id": "entrada",
+      "name": "Entrada e configurações"
+    },
+    {
+      "id": "componentes",
+      "name": "Componentes"
+    }
+  ],
+  "title": "Framework RME — Acompanhamento e Vínculo"
+}

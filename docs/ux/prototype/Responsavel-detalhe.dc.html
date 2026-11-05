@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Líder de Engenharia</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="owners" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Responsaveis.dc.html">Responsáveis</a></li><li aria-current="page">Líder de Engenharia</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Líder de Engenharia</h1>
+<p class="page-sub">Engenharia · ativo</p>
+</div>
+</div>
+
+<div class="rme-alert rme-alert--info">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+<div><p class="rme-alert-title">Cargo e área travados</p><p class="rme-alert-text">Este responsável já foi usado na cadeia de rastreabilidade, então não pode ser editado nem excluído. Para mudar o papel, cadastre um novo responsável e reatribua os vínculos.</p></div>
+</div>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Vínculos pelos quais responde (10)</h2></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="table-wrap" style="border: 0">
+<table class="rme-table">
+<thead><tr><th>Vínculo</th><th>Progresso</th><th>Verificação</th><th>Próxima revisão</th></tr></thead>
+<tbody>
+<tr><td><a href="#">Discriminação algorítmica → Avaliação da veracidade das respostas produzidas pela IA</a></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td></tr>
+<tr><td><a href="#">Dependência excessiva da automação → Testes regulares de penetração realizados por terceiros</a></td><td><span class="rme-tag rme-tag--yellow">Suspenso</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td></tr>
+<tr><td><a href="#">Automação de postos de trabalho → Avaliação da veracidade das respostas produzidas pela IA</a></td><td><span class="rme-tag rme-tag--yellow">Suspenso</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>12 de jan. de 2027</td></tr>
+<tr><td><a href="#">Dependência excessiva da automação → Análise de riscos utilizando o método Bow-tie</a></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>19 de jan. de 2027</td></tr>
+<tr><td><a href="#">Falta de explicabilidade → Implementar plano de monitoramento pós-implantação</a></td><td><span class="rme-tag rme-tag--blue">Em andamento</span></td><td><span class="rme-tag rme-tag--outline">Declarada</span></td><td class="muted">Aguardando verificação</td></tr>
+<tr><td><a href="#">Deriva de dados → Relatar e responder a incidentes</a></td><td><span class="rme-tag rme-tag--blue">Em andamento</span></td><td><span class="rme-tag rme-tag--outline">Declarada</span></td><td class="muted">Aguardando verificação</td></tr>
+<tr><td><a href="#">Discriminação algorítmica → Divulgação de limiares de risco a autoridades governamentais</a></td><td><span class="rme-tag rme-tag--green">Implementado</span></td><td><span class="rme-tag rme-tag--outline">Declarada</span></td><td class="muted">Não se aplica</td></tr>
+</tbody>
+</table>
+</div>
+<p class="rme-caption" style="margin: 12px 0 0">Exibindo 7 de 10.</p>
+</div>
+</section>
+
+<div class="danger-zone">
+<div><h2 class="rme-card-title">Desativar este responsável</h2><p class="muted" style="margin: 4px 0 0">Indisponível: ele ainda responde por vínculos ativos. Reatribua-os antes de desativar; o histórico continua mostrando o que ele registrou.</p></div>
+<button class="rme-btn rme-btn--outline" disabled>Desativar</button>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

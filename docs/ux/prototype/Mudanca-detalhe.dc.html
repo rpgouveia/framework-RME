@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Mudança do sistema</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="systems" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Sistemas.dc.html">Sistemas de IA</a></li><li><a href="#">Triagem automática de chamados</a></li><li aria-current="page">Mudança de 6 de out. de 2026</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<p class="rme-caption" style="margin: 0 0 4px">Mudança do sistema</p>
+<h1 class="page-title">Alteração na base de dados</h1>
+<p class="page-sub"><a href="#">Triagem automática de chamados</a> · 6 de out. de 2026</p>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0; display: flex; align-items: center; gap: 6px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Mudanças do sistema não se editam nem se excluem: explicam as reversões que causaram.</p>
+
+<div class="grid-main">
+<div class="stack" style="gap: 24px">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Vínculos revertidos pela mudança</h2><p class="rme-card-desc">Os vínculos verificados que a mudança alcança voltaram a declarados. Cada um é reavaliado separadamente.</p></header>
+<div class="rme-card-body stack">
+<div class="stack-sm">
+<span class="rme-caption">0 de 1 reavaliado</span>
+<div style="height: 8px; background: var(--muted)"><div style="height: 8px; width: 0%; background: var(--chart-1)"></div></div>
+</div>
+<div class="list-row">
+<div><a href="#">Envenenamento de dados → Levantar requisitos e avaliar impactos</a><span class="rme-sub">Aguardando reavaliação há 16 dias</span></div>
+<a class="rme-btn rme-btn--primary rme-btn--sm" href="Vinculo-reavaliar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Reavaliar</a>
+</div>
+</div>
+</section>
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Descrição</h2></header>
+<div class="rme-card-body"><p style="margin: 0">Inclusão dos chamados de um novo canal de atendimento na base de treinamento.</p></div>
+</section>
+</div>
+
+<aside class="stack">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Subdomínios de risco afetados</h2></header>
+<div class="rme-card-body stack">
+<div class="stack-sm"><span><span class="mono">2.2</span> Vulnerabilidades de segurança e ataques a sistemas de IA</span><span class="rme-caption">2 Privacidade e segurança</span></div>
+<div class="stack-sm" style="padding-top: 16px; border-top: 1px solid var(--border)"><span><span class="mono">4.1</span> Desinformação, vigilância e influência em larga escala</span><span class="rme-caption">4 Agentes maliciosos e uso indevido</span>
+<span style="color: var(--tag-yellow-fg); display: inline-flex; gap: 6px; align-items: center"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4M12 17h.01"></path></svg><button class="rme-term" style="color: inherit">Sem risco cadastrado neste sistema</button></span>
+<a class="rme-btn rme-btn--outline rme-btn--sm" href="Risco-form.dc.html" style="align-self: flex-start; color: var(--foreground); text-decoration: none">Cadastrar risco</a></div>
+</div>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

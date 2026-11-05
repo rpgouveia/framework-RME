@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Vínculos</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Vínculos</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Vínculos</h1>
+<p class="page-sub">Mitigações aplicadas a cada risco, ordenadas pela próxima revisão.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Vinculo-criar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Criar vínculo</a></div>
+</div>
+
+<div class="stack-sm">
+<div class="rme-row" role="group" aria-label="Filtrar por verificação">
+<button class="rme-chip" aria-pressed="true">Todos</button>
+<button class="rme-chip" aria-pressed="false">Aguardando verificação <span class="count">16</span></button>
+<button class="rme-chip" aria-pressed="false">Aguardando reavaliação <span class="count">23</span></button>
+<button class="rme-chip" aria-pressed="false">Verificados <span class="count">23</span></button>
+<button class="rme-chip" aria-pressed="false">Sem evidência <span class="count">12</span></button>
+<button class="rme-tip-btn" aria-label="O que cada filtro mostra" aria-expanded="false"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+</div>
+</div>
+
+<div>
+<div class="toolbar">
+<label class="toolbar-search"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="position: absolute; left: -9999px">Buscar</span><input class="rme-field" placeholder="Buscar por risco, mitigação ou sistema"></label>
+<button class="toolbar-filter">Sistema: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="toolbar-filter">Responsável: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Vínculo</th><th>Responsável</th><th>Progresso</th><th>Verificação</th><th>Próxima revisão</th><th>Custo estimado</th></tr></thead>
+<tbody>
+<tr><td><a href="Vinculo-verificado.dc.html">Discriminação algorítmica → Avaliação da veracidade das respostas produzidas pela IA</a><span class="rme-sub">Modelo de score de crédito</span></td><td>Líder de Engenharia<span class="rme-sub">Engenharia</span></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td><td>Baixo</td></tr>
+<tr><td><a href="#">Exposição de dados pessoais → Prevenir a geração de conteúdo ilegal e abusivo</a><span class="rme-sub">Apoio ao diagnóstico por imagem</span></td><td>Auditor Interno<span class="rme-sub">Compliance</span></td><td><span class="rme-tag rme-tag--blue">Em andamento</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td><td>Médio</td></tr>
+<tr><td><a href="#">Ataque adversarial → Planejar a interrupção de sistemas com risco inaceitável</a><span class="rme-sub">Detecção de fraudes em transações</span></td><td>Analista de Compliance<span class="rme-sub">Compliance</span></td><td><span class="rme-tag rme-tag--yellow">Suspenso</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td><td>Médio</td></tr>
+<tr><td><a href="#">Objetivo mal especificado → Análise de riscos utilizando o método Bow-tie</a><span class="rme-sub">Roteirização de entregas</span></td><td>Product Owner<span class="rme-sub">Produto</span></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td style="color: var(--tag-yellow-fg); font-weight: 600">Vence hoje</td><td>Alto</td></tr>
+<tr><td><a href="Vinculo-verificado.dc.html">Viés de seleção → Registrar antropomorfização na interface</a><span class="rme-sub">Modelo de score de crédito</span></td><td>Auditor Interno<span class="rme-sub">Compliance</span></td><td><span class="rme-tag rme-tag--green">Implementado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>29 de dez. de 2026</td><td>Alto</td></tr>
+<tr><td><a href="#">Uso do sistema para ciberataque → Desativar sistemas desalinhados</a><span class="rme-sub">Modelo de score de crédito</span></td><td>Cientista de Dados<span class="rme-sub">Dados</span></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>8 de jan. de 2027</td><td>Médio</td></tr>
+<tr><td><a href="#">Automação de postos de trabalho → Avaliação da veracidade das respostas produzidas pela IA</a><span class="rme-sub">Triagem automática de currículos</span></td><td>Líder de Engenharia<span class="rme-sub">Engenharia</span></td><td><span class="rme-tag rme-tag--yellow">Suspenso</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>12 de jan. de 2027</td><td>Baixo</td></tr>
+<tr><td><a href="#">Desempenho desigual entre grupos → Implementar plano de monitoramento pós-implantação</a><span class="rme-sub">Apoio ao diagnóstico por imagem</span></td><td>Analista de Resposta a Incidentes<span class="rme-sub">Segurança da Informação</span></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--green">Verificada</span></td><td>13 de jan. de 2027</td><td>Alto</td></tr>
+<tr><td><a href="Vinculo-reavaliacao.dc.html">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</a><span class="rme-sub">Modelo de score de crédito</span></td><td>Especialista em Privacidade<span class="rme-sub">Jurídico</span></td><td><span class="rme-tag rme-tag--gray">Planejado</span></td><td><span class="rme-tag rme-tag--outline">Declarada</span></td><td><span class="muted">Aguardando reavaliação</span></td><td>Médio</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rme-pagination"><span class="rme-caption">Exibindo 1 a 15 de 69</span>
+<nav aria-label="Paginação"><button class="rme-btn rme-btn--ghost">Anterior</button><button class="rme-btn rme-btn--ghost" aria-current="page">1</button><button class="rme-btn rme-btn--ghost">2</button><button class="rme-btn rme-btn--ghost">3</button><button class="rme-btn rme-btn--ghost">4</button><button class="rme-btn rme-btn--ghost">5</button><button class="rme-btn rme-btn--ghost">Próxima</button></nav></div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Vínculo de sistema na faixa inaceitável</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li aria-current="page">Discriminação algorítmica → Reavaliação do risco residual</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div class="stack-sm">
+<h1 class="page-title">Discriminação algorítmica → Reavaliação do risco residual</h1>
+<p class="page-sub" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0"><a href="#">Reconhecimento de emoções no monitoramento de atendentes</a><span class="rme-tag rme-tag--danger">Faixa Inaceitável</span></p>
+</div>
+<button class="rme-btn rme-btn--outline">Editar</button>
+</div>
+
+<div class="rme-alert rme-alert--error" role="alert">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg>
+<div><p class="rme-alert-title">Sistema na faixa inaceitável do EU AI Act</p>
+<p class="rme-alert-text">A faixa corresponde a práticas proibidas pelo EU AI Act. O sistema não é considerado em operação, e seus vínculos não têm revisão periódica: servem para planejar a descontinuação.</p></div>
+</div>
+
+<section class="rme-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border)">
+<h2 class="rme-card-title">Estado do vínculo</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 32px">
+<div class="rme-status"><span class="rme-status-label">Progresso</span><span class="rme-tag rme-tag--yellow">Suspenso</span></div>
+<div class="rme-status"><span class="rme-status-label">Verificação</span><span class="rme-tag rme-tag--outline">Declarada</span></div>
+<div class="rme-status"><span class="rme-status-label">Próxima revisão</span><button class="rme-term">Não se aplica</button></div>
+</div>
+</div>
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; background: var(--muted)">
+<h2 class="rme-card-title">Próxima ação</h2>
+<p style="margin: 0">Use este vínculo para planejar a descontinuação do sistema: acompanhe o progresso e registre evidências do plano.</p>
+<div class="rme-row"><button class="rme-btn rme-btn--primary">Registrar mudança de status</button><button class="rme-btn rme-btn--outline">Registrar evidência</button></div>
+<p class="rme-helper" style="margin: 0">Verificar não se aplica: um vínculo de sistema na faixa inaceitável não pode ser verificado, porque o sistema nunca opera.</p>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Detalhes</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl">
+<div><dt>Responsável</dt><dd>Engenheiro de Machine Learning<span class="rme-sub">Engenharia</span></dd></div>
+<div><dt>Fase do ciclo de vida</dt><dd>Projeto e desenvolvimento</dd></div>
+<div><dt>Data de criação</dt><dd>19 de ago. de 2026</dd></div>
+<div><dt>Custo estimado</dt><dd>Baixo</dd></div>
+<div><dt>Custo observado</dt><dd>Não informado</dd></div>
+<div><dt>Última verificação</dt><dd class="muted">Nunca verificado</dd></div>
+</dl>
+</div>
+</section>
+
+<div class="grid-auto">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Reavaliações</h2></header>
+<div class="rme-card-body"><p class="muted" style="margin: 0">Este vínculo ainda não foi reavaliado.</p></div>
+</section>
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Registros</h2></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row"><span>Evidências</span><a href="Evidencias.dc.html">2 registradas</a></div>
+<div class="list-row"><span>Histórico de status</span><a href="Vinculo-historico.dc.html">2 mudanças</a></div>
+</div>
+</section>
+</div>
+
+<div class="danger-zone">
+<div><h2 class="rme-card-title">Cancelar este vínculo</h2><p class="muted" style="margin: 4px 0 0">O vínculo não é excluído: sai do acompanhamento e só pode voltar a Planejado.</p></div>
+<button class="rme-btn rme-btn--destructive">Cancelar vínculo</button>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1400}}">
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

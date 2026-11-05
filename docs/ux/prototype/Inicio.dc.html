@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Framework RME</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="min-height: 100%; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; letter-spacing: 0.16px; display: flex; flex-direction: column">
+<header style="display: flex; justify-content: space-between; align-items: center; gap: 16px; height: 48px; padding: 0 24px; border-bottom: 1px solid var(--border)">
+<span style="display: flex; align-items: center; gap: 12px; font-weight: 600"><img src="/_blob/29f7ae5980b254ec1a4a65cbd84e590c" alt="" style="width: 32px; height: 32px">Framework RME</span>
+<nav class="rme-row" aria-label="Acesso"><a class="rme-btn rme-btn--ghost rme-btn--sm" href="Login.dc.html">Entrar</a><a class="rme-btn rme-btn--outline rme-btn--sm" href="#" style="color: var(--foreground)">Cadastrar-se</a></nav>
+</header>
+
+<main style="box-sizing: border-box; width: 100%; max-width: 1184px; margin: 0 auto; padding: 64px 24px; display: flex; flex-direction: column; gap: 64px">
+<section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; align-items: end">
+<div class="stack" style="gap: 24px">
+<h1 style="margin: 0; font-size: 42px; line-height: 50px; font-weight: 300">Gestão de riscos de sistemas de IA</h1>
+<p style="margin: 0; font-size: 16px; line-height: 24px; letter-spacing: 0; color: var(--muted-foreground)">Mantenha um registro dos sistemas de IA que sua organização opera, dos riscos identificados em cada um, das mitigações aplicadas a esses riscos, de quem responde por cada uma e das evidências que comprovam que estão em vigor.</p>
+<div class="rme-row"><a class="rme-btn rme-btn--primary rme-btn--lg" href="#" style="color: var(--primary-foreground)">Criar uma conta</a><a class="rme-btn rme-btn--ghost rme-btn--lg" href="Login.dc.html">Entrar</a></div>
+</div>
+<p style="margin: 0; padding: 24px; background: var(--muted); font-size: 16px; line-height: 24px; letter-spacing: 0">Vencimentos de revisão, eventos adversos e mudanças em um sistema levam as mitigações verificadas de volta à reavaliação, e cada passo é registrado em uma trilha de auditoria somente de acréscimo.</p>
+</section>
+
+<section class="stack" style="gap: 24px">
+<h2 class="section-title">O que o framework mantém</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border)">
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Sistemas de IA</h3><p class="muted" style="margin: 0">O portfólio de sistemas, com seu domínio de aplicação, origem e faixa de risco no EU AI Act.</p></div>
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Riscos</h3><p class="muted" style="margin: 0">Os riscos de cada sistema, classificados pela taxonomia do MIT AI Risk Repository, pela fase do ciclo de vida e pelo nível de incerteza.</p></div>
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Mitigações</h3><p class="muted" style="margin: 0">Um catálogo de medidas classificadas pela taxonomia de Saeri et al., cada uma com a evidência que se espera que produza.</p></div>
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Vínculos</h3><p class="muted" style="margin: 0">O centro da cadeia: uma mitigação aplicada a um risco sob um responsável, comprovada por evidências e com revisão periódica após a verificação.</p></div>
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Eventos adversos</h3><p class="muted" style="margin: 0">Incidentes e quase-incidentes de sistemas em operação, com dano ocorrido ou plausível a pessoas, à organização ou ao ecossistema, classificados por subdomínio de risco e que devolvem à reavaliação os vínculos atingidos.</p></div>
+<div style="padding: 24px; background: var(--card)" class="stack-sm"><h3 class="rme-card-title">Rastreabilidade</h3><p class="muted" style="margin: 0">Cada mudança de status, com sua origem e seu autor, exportada como relatório de rastreabilidade.</p></div>
+</div>
+</section>
+</main>
+
+<footer style="margin-top: auto; padding: 24px; border-top: 1px solid var(--border)"><p class="rme-caption" style="margin: 0; text-align: center">Framework RME · Projeto de pesquisa aplicada — PUCPR</p></footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Confirmar evidência</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="Vinculo-reavaliacao.dc.html">Uso do sistema para ciberataque → Testar a adequação das instruções de uso</a></li><li aria-current="page">Registrar evidência</li></ol>
+</header>
+<main class="app-main">
+<div>
+<h1 class="page-title">Registrar evidência</h1>
+<p class="page-sub">Uso do sistema para ciberataque → Testar a adequação das instruções de uso. A data de registro é a de hoje.</p>
+</div>
+<div class="form-section" style="max-width: 720px; min-height: 360px"></div>
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg" style="max-width: 560px">
+<div class="rme-dialog-body stack">
+<h2 id="dlg" class="rme-dialog-title" style="margin: 0">Registrar esta evidência?</h2>
+<p style="margin: 0">Confira o tipo e a descrição: depois de registrada, a evidência não pode ser editada nem excluída.</p>
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr); padding: 16px; background: var(--muted)">
+<div><dt>Tipo</dt><dd>[Tipo escolhido]</dd></div>
+<div><dt>Descrição</dt><dd>[Descrição digitada]</dd></div>
+<div><dt>Custo observado</dt><dd>[Nível informado, ou Não informado]</dd></div>
+</dl>
+<p class="rme-caption" style="margin: 0">Por ser posterior à reversão de 2 de out. de 2026, esta evidência permite reavaliar o vínculo com o desfecho Manter.</p>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--primary">Registrar</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

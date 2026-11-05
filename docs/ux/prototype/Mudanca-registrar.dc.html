@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Registrar mudança do sistema</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="systems" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Sistemas.dc.html">Sistemas de IA</a></li><li><a href="#">Triagem automática de chamados</a></li><li aria-current="page">Registrar mudança</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Registrar mudança do sistema</h1>
+<p class="page-sub">Triagem automática de chamados. Uma nova versão do modelo ou uma alteração na base de dados leva os vínculos verificados à reavaliação.</p>
+</div>
+
+<div class="grid-main">
+<form class="form" style="max-width: none">
+<fieldset class="form-section">
+<legend>1. A mudança</legend>
+<div class="form-grid" role="radiogroup" aria-label="Tipo de mudança" style="gap: 8px">
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span><div><strong>Nova versão do modelo</strong></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div><strong>Alteração na base de dados</strong></div></div>
+</div>
+<div><label class="rme-label" for="desc">Descrição</label><textarea id="desc" class="rme-field" placeholder="Ex.: Troca do modelo de classificação pela versão 2.0 do fornecedor."></textarea><p class="rme-helper" style="text-align: right">0/2000</p></div>
+<div style="max-width: 280px"><label class="rme-label" for="data">Data da mudança</label><input id="data" class="rme-field" value="22/10/2026"><p class="rme-helper">Não pode ser uma data futura.</p></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend style="display: flex; align-items: center; gap: 4px">2. Riscos que a mudança pode alcançar <button type="button" class="rme-tip-btn" aria-label="Por que informar os subdomínios"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></legend>
+<p class="muted" style="margin: 0">Só os vínculos dos riscos nos subdomínios marcados são revertidos. Sem nenhum marcado, todos os vínculos verificados do sistema são revertidos.</p>
+<div>
+<span class="rme-label">Selecionados</span>
+<div class="pill-input"><span class="chip-x"><span class="mono">2.2</span> Vulnerabilidades de segurança e ataques a sistemas de IA <button type="button" aria-label="Remover 2.2"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px"><path d="M18 6 6 18M6 6l12 12"></path></svg></button></span><input class="rme-field" style="flex: 1; min-width: 160px; min-height: 32px; padding: 0; border: 0" placeholder="Buscar subdomínio pelo código ou nome" aria-label="Buscar subdomínio"></div>
+</div>
+<div class="option-list">
+<div class="option-group">Esperados para este sistema</div>
+<label class="option" aria-checked="true"><span class="rme-check" aria-checked="true" style="background: var(--foreground)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 12px; height: 12px; color: var(--background)"><path d="M20 6 9 17l-5-5"></path></svg></span><span><span class="mono">2.2</span> Vulnerabilidades de segurança e ataques a sistemas de IA<span class="rme-sub">2 Privacidade e segurança · 1 risco cadastrado</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">7.2</span> IA com capacidades perigosas<span class="rme-sub">7 Segurança, falhas e limitações de sistemas de IA · 1 risco cadastrado</span></span><span></span></label>
+<div class="option-group">Outros subdomínios <span class="muted">· um evento fora dos riscos cadastrados pode indicar um risco ainda não identificado</span></div>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">1.1</span> Discriminação injusta e representação distorcida<span class="rme-sub">1 Discriminação e toxicidade</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">1.2</span> Exposição a conteúdo tóxico<span class="rme-sub">1 Discriminação e toxicidade</span></span><span></span></label>
+<label class="option" aria-checked="false"><span class="rme-check"></span><span><span class="mono">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis<span class="rme-sub">2 Privacidade e segurança</span></span><span></span></label>
+</div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Registrar mudança</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="#">Cancelar</a>
+</div>
+</form>
+
+<aside class="stack" aria-label="Impacto">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Impacto ao registrar</h2></header>
+<div class="rme-card-body stack-sm">
+<span style="display: inline-flex; gap: 8px; align-items: center; color: var(--success)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span style="color: var(--foreground)">Nenhum vínculo verificado será revertido.</span></span>
+<p class="rme-caption" style="margin: 0">Os 2 vínculos deste sistema já estão declarados.</p>
+</div>
+</section>
+<div class="rme-alert rme-alert--info">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+<div><p class="rme-alert-title">O registro é permanente</p><p class="rme-alert-text">Mudanças do sistema não podem ser editadas nem excluídas.</p></div>
+</div>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

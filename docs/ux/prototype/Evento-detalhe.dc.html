@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Evento adverso</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="events" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Eventos.dc.html">Eventos adversos</a></li><li aria-current="page">Incidente de 7 de fev. de 2025</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<p class="rme-caption" style="margin: 0 0 4px">Evento adverso</p>
+<h1 class="page-title" style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px"><span><span class="mono" style="font-size: 20px">1.1</span> Discriminação injusta e representação distorcida</span><span class="rme-tag rme-tag--red">Incidente</span></h1>
+<p class="page-sub"><a href="Sistema-detalhe.dc.html">Modelo de score de crédito</a> · Crédito e concessão financeira</p>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0; display: flex; align-items: center; gap: 6px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Eventos adversos não se editam nem se excluem: registram o que aconteceu e explicam as mudanças de status que disparam.</p>
+
+<div class="grid-main">
+<div class="stack" style="gap: 24px">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">O que aconteceu</h2></header>
+<div class="rme-card-body"><p style="margin: 0">A conferência por amostra mostrou recusas concentradas em clientes de uma mesma região, em proporção muito acima da média, por efeito do modelo. As decisões já tinham sido comunicadas.</p></div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Vínculos revertidos pelo evento</h2><p class="rme-card-desc">Os vínculos verificados do sistema cujo risco está no subdomínio do evento voltam a declarados.</p></header>
+<div class="rme-card-body"><p style="margin: 0" class="muted">Nenhum vínculo verificado foi revertido por este evento.</p></div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Outras mudanças que citam o evento</h2></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row">
+<div class="stack-sm"><a href="#">Falta de explicabilidade → Desenvolvimento e testes de sistemas de IA em ambientes isolados</a>
+<span class="rme-row" style="gap: 6px"><span class="rme-tag rme-tag--gray">Planejado</span><span aria-label="para">→</span><span class="rme-tag rme-tag--blue">Em andamento</span></span></div>
+<div style="text-align: right"><span>21 de set. de 2026</span><span class="rme-sub">Cientista de Dados · Dados</span></div>
+</div>
+</div>
+</section>
+</div>
+
+<aside class="stack">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Detalhes</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr)">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Natureza</button></dt><dd>Incidente</dd></div>
+<div><dt>Data de ocorrência</dt><dd>7 de fev. de 2025</dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Data de detecção</button></dt><dd>17 de fev. de 2025<span class="rme-sub">Detectado 10 dias depois</span></dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Subdomínios materializados</button></dt><dd><span class="mono">1.1</span> Discriminação injusta e representação distorcida<span class="rme-sub">1 Discriminação e toxicidade</span></dd></div>
+</dl>
+</div>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

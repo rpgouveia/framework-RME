@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Editar sistema de IA</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="systems" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Sistemas.dc.html">Sistemas de IA</a></li><li><a href="Sistema-detalhe.dc.html">Modelo de score de crédito</a></li><li aria-current="page">Editar</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<h1 class="page-title">Editar sistema de IA</h1>
+<p class="page-sub">Modelo de score de crédito</p>
+</div>
+
+<form class="form">
+<fieldset class="form-section">
+<legend>Faixa de risco (EU AI Act)</legend>
+<div class="stack-sm" role="radiogroup" aria-label="Faixa de risco">
+<div class="rme-radio-tile" role="radio" aria-checked="false" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Alto</strong> <span class="rme-caption">· faixa atual</span><div class="rme-caption">Sistema de alto risco (art. 6 e Anexo III).</div></div><span class="rme-tag rme-tag--yellow">Revisão a cada 90 dias</span></div></div>
+<div class="rme-radio-tile" role="radio" aria-checked="true" tabindex="0"><span class="rme-radio"></span><div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap"><div><strong>Inaceitável</strong><div class="rme-caption">Prática proibida (art. 5). O sistema deixa de ser considerado em operação.</div></div><span class="rme-tag rme-tag--danger">Sem revisão periódica</span></div></div>
+</div>
+<div class="impact">
+<strong>Ao salvar, 3 vínculos verificados voltarão a declarados</strong>
+<ul>
+<li>Discriminação algorítmica → Avaliação da veracidade das respostas produzidas pela IA</li>
+<li>Uso do sistema para ciberataque → Desativar sistemas desalinhados</li>
+<li>Viés de seleção → Registrar antropomorfização na interface</li>
+</ul>
+</div>
+</fieldset>
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Salvar alterações</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Sistema-detalhe.dc.html">Cancelar</a>
+</div>
+</form>
+
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg" style="max-width: 560px">
+<div class="rme-dialog-body">
+<h2 id="dlg" class="rme-dialog-title">Reclassificar para a faixa inaceitável?</h2>
+<p style="margin: 0">O Modelo de score de crédito deixa de ser considerado em operação. Seus vínculos não poderão ser verificados e passam a servir ao plano de descontinuação.</p>
+<div class="rme-preview-box">3 vínculos verificados voltarão a declarados, aguardando reavaliação, com a origem "Reclassificação do sistema".</div>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--destructive">Reclassificar</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

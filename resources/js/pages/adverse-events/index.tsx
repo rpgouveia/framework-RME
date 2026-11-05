@@ -190,7 +190,7 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
     const { t } = useTranslations();
 
     return (
-        <div className="rounded-xl border">
+        <div className="border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -226,12 +226,12 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
                                     }
                                 </Badge>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="min-w-48 whitespace-normal">
                                 <RiskSubdomainBadges
                                     subdomains={event.risk_subdomains}
                                 />
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="min-w-40 whitespace-normal">
                                 {event.ai_system && (
                                     <Link
                                         href={showAiSystem(event.ai_system.id)}
@@ -244,10 +244,10 @@ function EventsTable({ events }: { events: AdverseEvent[] }) {
                             <TableCell>
                                 {formatDate(event.occurrence_date)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="min-w-56 whitespace-normal">
                                 <Link
                                     href={show(event.id)}
-                                    className="block max-w-sm truncate hover:underline"
+                                    className="text-link hover:text-link-hover line-clamp-2 hover:underline"
                                 >
                                     {event.description}
                                 </Link>

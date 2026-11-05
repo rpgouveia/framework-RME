@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Evidências</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="#">Conteúdo tóxico nas respostas → Reavaliação do risco residual</a></li><li aria-current="page">Evidências</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Evidências (3)</h1>
+<p class="page-sub">Conteúdo tóxico nas respostas → Reavaliação do risco residual. Evidências são permanentes: um engano se corrige registrando outra.</p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Evidencia-registrar.dc.html" style="color: var(--primary-foreground)">Registrar evidência</a></div>
+</div>
+
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Registrada em</th><th><button class="rme-term" style="font-weight: 600">Tipo</button></th><th>Descrição</th><th><button class="rme-term" style="font-weight: 600">Custo observado</button></th></tr></thead>
+<tbody>
+<tr><td style="white-space: nowrap"><a href="#">9 de set. de 2026</a></td><td><span class="rme-tag rme-tag--gray">Relatório</span></td><td style="padding-top: 12px; padding-bottom: 12px">Relatório do exercício de red teaming contratado, com as tentativas bem-sucedidas e as correções acordadas.</td><td>Baixo</td></tr>
+<tr><td style="white-space: nowrap"><a href="#">5 de set. de 2026</a></td><td><span class="rme-tag rme-tag--gray">Ata de reunião</span></td><td style="padding-top: 12px; padding-bottom: 12px">Ata da reunião com o fornecedor sobre a nova versão do modelo, com os compromissos de comunicação prévia.</td><td>Baixo</td></tr>
+<tr><td style="white-space: nowrap"><a href="Evidencia-detalhe.dc.html">31 de jul. de 2026</a></td><td><span class="rme-tag rme-tag--gray">Ata de reunião</span></td><td style="padding-top: 12px; padding-bottom: 12px">Ata da reunião de revisão do risco, com a decisão de manter a mitigação e o prazo da próxima conferência.</td><td>Médio</td></tr>
+</tbody>
+</table>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0">O custo observado do vínculo é o da evidência mais recente que o informou: Baixo, em 9 de set. de 2026.</p>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

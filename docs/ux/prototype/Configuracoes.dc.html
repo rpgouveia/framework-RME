@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Configurações</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="none" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="#">Configurações</a></li><li aria-current="page">Perfil</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Configurações</h1>
+<p class="page-sub">Gerencie seu perfil, sua senha e a aparência do app.</p>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+<nav class="settings-nav" aria-label="Configurações" style="flex: 1 1 200px; max-width: 240px">
+<a href="#" aria-current="page">Perfil</a>
+<a href="#">Segurança</a>
+<a href="#">Aparência</a>
+</nav>
+
+<div class="stack" style="flex: 999 1 480px; gap: 24px; max-width: 640px">
+<form class="form-section">
+<legend style="float: none; font-size: 16px; font-weight: 600">Perfil</legend>
+<div><label class="rme-label" for="nome">Nome</label><input id="nome" class="rme-field" value="Test User"></div>
+<div><label class="rme-label" for="email">Endereço de e-mail</label><input id="email" type="email" class="rme-field" value="test@example.com"></div>
+<div><button type="submit" class="rme-btn rme-btn--primary">Salvar</button></div>
+</form>
+
+<section class="form-section">
+<h2 class="rme-card-title">Aparência</h2>
+<div class="rme-row" role="radiogroup" aria-label="Tema" style="gap: 0">
+<button class="rme-chip" aria-pressed="true">Claro</button>
+<button class="rme-chip" aria-pressed="false" style="margin-left: -1px">Escuro</button>
+<button class="rme-chip" aria-pressed="false" style="margin-left: -1px">Igual ao dispositivo</button>
+</div>
+</section>
+
+<div class="danger-zone">
+<div><h2 class="rme-card-title">Excluir conta</h2><p class="muted" style="margin: 4px 0 0">Exclui sua conta e todos os seus recursos. Esta ação não pode ser desfeita.</p></div>
+<button class="rme-btn rme-btn--destructive">Excluir conta</button>
+</div>
+</div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

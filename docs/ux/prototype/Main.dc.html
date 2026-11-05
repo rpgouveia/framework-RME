@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Acompanhamento</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="display: flex; flex-wrap: wrap; min-height: 100%; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; letter-spacing: 0.16px">
+
+<aside class="rme-sidebar" style="flex: 1 1 256px; max-width: 256px; box-sizing: border-box">
+<div class="rme-brand"><img src="/_blob/29f7ae5980b254ec1a4a65cbd84e590c" alt="">Framework RME</div>
+<nav class="rme-nav" aria-label="Plataforma">
+<div class="rme-nav-group">Plataforma</div>
+<a href="#" aria-current="page"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect></svg>Acompanhamento</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="12"></rect><path d="M12 8V4M9 13v2M15 13v2"></path></svg>Sistemas de IA</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="M12 8v4M12 16h.01"></path></svg>Riscos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4M12 17h.01"></path></svg>Eventos adversos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path><path d="m9 12 2 2 4-4"></path></svg>Mitigações</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17H7A5 5 0 0 1 7 7h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"></path></svg>Vínculos</a>
+<a href="#"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="4"></circle><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"></path></svg>Responsáveis</a>
+</nav>
+</aside>
+
+<div style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+<header class="rme-topbar">
+<button class="rme-tip-btn" aria-label="Recolher a barra lateral"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18"></rect><path d="M9 3v18"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Acompanhamento</li></ol>
+</header>
+
+<main style="box-sizing: border-box; width: 100%; max-width: 1184px; padding: 32px 32px 48px; display: flex; flex-direction: column; gap: 32px">
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+<div>
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 400; letter-spacing: 0">Acompanhamento</h1>
+<p style="margin: 4px 0 0; font-size: 16px; line-height: 24px; letter-spacing: 0; color: var(--muted-foreground)">Onde a cadeia de rastreabilidade ainda está incompleta.</p>
+</div>
+<dl style="display: flex; flex-wrap: wrap; gap: 24px; margin: 0">
+<div><dt class="rme-caption">Sistemas de IA</dt><dd style="margin: 0; font-weight: 600">13</dd></div>
+<div><dt class="rme-caption">Riscos</dt><dd style="margin: 0; font-weight: 600">44</dd></div>
+<div><dt class="rme-caption">Vínculos</dt><dd style="margin: 0; font-weight: 600">69</dd></div>
+<div><dt class="rme-caption">Mitigações no catálogo</dt><dd style="margin: 0; font-weight: 600">40</dd></div>
+<div><dt class="rme-caption">Responsáveis ativos</dt><dd style="margin: 0; font-weight: 600">10</dd></div>
+</dl>
+</div>
+
+<div class="rme-alert rme-alert--error" role="alert">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path></svg>
+<div>
+<p class="rme-alert-title">2 sistemas na faixa inaceitável do EU AI Act</p>
+<p class="rme-alert-text">Práticas proibidas: esses sistemas não são considerados em operação e ficam fora dos indicadores de revisão. Seus vínculos servem para planejar a descontinuação.</p>
+<p class="rme-alert-text" style="display: flex; flex-wrap: wrap; gap: 16px"><a href="#">Pontuação de comportamento de cidadãos</a><a href="#">Reconhecimento de emoções no monitoramento de atendentes</a></p>
+</div>
+</div>
+
+<section style="display: flex; flex-direction: column; gap: 16px" aria-labelledby="acao">
+<h2 id="acao" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 400">O que precisa de ação</h2>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border)">
+<a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 16px 24px 24px; background: var(--card); color: var(--card-foreground); text-decoration: none; border-top: 3px solid var(--warning)">
+<span class="rme-term" style="align-self: flex-start">Aguardando reavaliação</span>
+<span class="rme-number">23</span>
+<span class="rme-caption">Revertidos para declarados, à espera de uma decisão. 7 há mais de 30 dias.</span>
+<span style="color: var(--link)">Ver a fila →</span>
+</a>
+<a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 16px 24px 24px; background: var(--card); color: var(--card-foreground); text-decoration: none; border-top: 3px solid var(--warning)">
+<span class="rme-term" style="align-self: flex-start">Aguardando verificação</span>
+<span class="rme-number">16</span>
+<span class="rme-caption">Declarados à espera da prova: nunca verificados ou reavaliados sem verificação.</span>
+<span style="color: var(--link)">Ver na lista →</span>
+</a>
+<a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 16px 24px 24px; background: var(--card); color: var(--card-foreground); text-decoration: none; border-top: 3px solid var(--warning)">
+<span class="rme-term" style="align-self: flex-start">Vínculos sem evidência</span>
+<span class="rme-number">12</span>
+<span class="rme-caption">Mitigações aplicadas sem nada que comprove a execução.</span>
+<span style="color: var(--link)">Ver na lista →</span>
+</a>
+<a href="#" style="display: flex; flex-direction: column; gap: 8px; padding: 16px 24px 24px; background: var(--card); color: var(--card-foreground); text-decoration: none; border-top: 3px solid var(--warning)">
+<span class="rme-term" style="align-self: flex-start">Riscos não mapeados</span>
+<span class="rme-number">2</span>
+<span class="rme-caption">Subdomínios citados por eventos ou mudanças sem risco cadastrado no sistema.</span>
+<span style="color: var(--link)">Ver abaixo →</span>
+</a>
+</div>
+<p style="margin: 0; display: flex; flex-wrap: wrap; gap: 24px; color: var(--muted-foreground)">
+<span style="display: inline-flex; align-items: center; gap: 8px; color: var(--success)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg><span style="color: var(--foreground)">Todos os riscos têm ao menos um vínculo.</span></span>
+<span>Eventos nos últimos 30 dias: <a href="#">3</a></span>
+<span>Verificados: <a href="#">23</a></span>
+</p>
+</section>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start">
+
+<section class="rme-card" style="grid-column: span 2; min-width: 0">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px">
+<div>
+<h3 class="rme-card-title">Fila de reavaliação <button class="rme-tip-btn" aria-label="O que é a origem da reversão" aria-expanded="false"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button></h3>
+<p class="rme-card-desc">Os que esperam há mais tempo primeiro, pela origem da última reversão.</p>
+</div>
+<a href="#" style="white-space: nowrap">Ver os 23</a>
+</header>
+<div class="rme-card-body" style="display: flex; flex-direction: column; gap: 16px">
+<div class="rme-row" role="group" aria-label="Origem da reversão">
+<button class="rme-chip" aria-pressed="true">Todas <span class="count">23</span></button>
+<button class="rme-chip" aria-pressed="false">Vencimento da revisão <span class="count">7</span></button>
+<button class="rme-chip" aria-pressed="false">Manual <span class="count">12</span></button>
+<button class="rme-chip" aria-pressed="false">Evento adverso <span class="count">1</span></button>
+<button class="rme-chip" aria-pressed="false">Reclassificação do sistema <span class="count">1</span></button>
+<button class="rme-chip" aria-pressed="false">Nova versão do modelo <span class="count">1</span></button>
+<button class="rme-chip" aria-pressed="false">Alteração na base de dados <span class="count">1</span></button>
+</div>
+<div style="overflow-x: auto">
+<table class="rme-table">
+<thead><tr><th>Vínculo</th><th>Origem</th><th class="num">Aguardando há</th><th><span style="position: absolute; left: -9999px">Ação</span></th></tr></thead>
+<tbody>
+<tr><td>Jailbreak → Reavaliação do risco residual</td><td>Vencimento da revisão</td><td class="num">38 dias</td><td style="text-align: right"><button class="rme-btn rme-btn--ghost rme-btn--sm">Reavaliar</button></td></tr>
+<tr><td>Consumo energético da inferência → Divulgação de avaliações de risco a terceiros</td><td>Vencimento da revisão</td><td class="num">36 dias</td><td style="text-align: right"><button class="rme-btn rme-btn--ghost rme-btn--sm">Reavaliar</button></td></tr>
+<tr><td>Discriminação algorítmica → Relatar e responder a incidentes</td><td>Manual</td><td class="num">36 dias</td><td style="text-align: right"><button class="rme-btn rme-btn--ghost rme-btn--sm">Reavaliar</button></td></tr>
+<tr><td>Viés de rótulo → Testar a adequação das instruções de uso</td><td>Vencimento da revisão</td><td class="num">34 dias</td><td style="text-align: right"><button class="rme-btn rme-btn--ghost rme-btn--sm">Reavaliar</button></td></tr>
+<tr><td>Conflito entre agentes automatizados → Estabelecer direitos dos usuários e um mecanismo de recurso</td><td>Manual</td><td class="num">32 dias</td><td style="text-align: right"><button class="rme-btn rme-btn--ghost rme-btn--sm">Reavaliar</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<div style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+<section class="rme-card">
+<header class="rme-card-header">
+<h3 class="rme-card-title">Vencem hoje</h3>
+<p class="rme-card-desc">A data é o último dia válido: amanhã estes vínculos voltam a declarados.</p>
+</header>
+<ul class="rme-card-body" style="list-style: none; margin: 0; display: flex; flex-direction: column; gap: 12px">
+<li><a href="#">Discriminação algorítmica → Avaliação da veracidade das respostas produzidas pela IA</a></li>
+<li><a href="#">Exposição de dados pessoais → Prevenir a geração de conteúdo ilegal e abusivo</a></li>
+<li><a href="#">Ataque adversarial → Planejar a interrupção de sistemas com risco inaceitável</a></li>
+<li><a href="#">Dependência excessiva da automação → Testes regulares de penetração realizados por terceiros</a></li>
+<li><a href="#">Desinformação em escala → Aplicar benchmarks de viés</a></li>
+</ul>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header">
+<h3 class="rme-card-title"><span class="rme-term">Riscos não mapeados</span></h3>
+<p class="rme-card-desc">Um risco que o sistema ainda não identificou.</p>
+</header>
+<div class="rme-card-body" style="display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; flex-direction: column; gap: 8px">
+<span><span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.32px">5.2</span> Perda de agência e autonomia humanas</span>
+<span class="rme-caption">Chatbot de suporte técnico interno · Evento adverso de 18 de out. de 2026</span>
+<button class="rme-btn rme-btn--outline rme-btn--sm" style="align-self: flex-start">Cadastrar risco</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; padding-top: 16px; border-top: 1px solid var(--border)">
+<span><span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.32px">4.1</span> Desinformação, vigilância e influência em larga escala</span>
+<span class="rme-caption">Triagem automática de chamados · Mudança do sistema de 6 de out. de 2026</span>
+<button class="rme-btn rme-btn--outline rme-btn--sm" style="align-self: flex-start">Cadastrar risco</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start">
+<section class="rme-card">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; gap: 16px">
+<div><h3 class="rme-card-title">Vínculos sem evidência</h3><p class="rme-card-desc">Os 5 mais antigos de 12.</p></div>
+<a href="#" style="white-space: nowrap">Ver os 12</a>
+</header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div><a href="#">Discriminação algorítmica → Documentar os impactos ambientais previstos</a><span class="rme-sub">Criado em 27 de jul. de 2026</span></div><button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div><a href="#">Deriva de dados → Estabelecer práticas de governança e gestão de dados</a><span class="rme-sub">Criado em 2 de ago. de 2026</span></div><button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div><a href="#">Discriminação algorítmica → Divulgação de limiares de risco a autoridades governamentais</a><span class="rme-sub">Criado em 9 de ago. de 2026</span></div><button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div><a href="#">Consumo energético da inferência → Estabelecer uma estrutura de avaliação e gestão de terceiros</a><span class="rme-sub">Criado em 19 de ago. de 2026</span></div><button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button></div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0"><div><a href="#">Poluição da base com conteúdo gerado → Documentar os impactos ambientais previstos</a><span class="rme-sub">Criado em 27 de ago. de 2026</span></div><button class="rme-btn rme-btn--ghost rme-btn--sm">Registrar evidência</button></div>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header" style="display: flex; justify-content: space-between; gap: 16px">
+<div><h3 class="rme-card-title">Eventos adversos recentes</h3><p class="rme-card-desc">Últimos 30 dias, do mais recente ao mais antigo.</p></div>
+<a href="#" style="white-space: nowrap">Ver todos</a>
+</header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><a href="#">Chatbot de suporte técnico interno</a><span class="rme-caption"><span style="font-family: var(--font-mono)">5.2</span> Perda de agência e autonomia humanas</span></div><span class="rme-caption" style="white-space: nowrap">18 de out. de 2026</span></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border)"><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><a href="#">Roteirização de entregas</a><span class="rme-caption"><span style="font-family: var(--font-mono)">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis</span></div><span class="rme-caption" style="white-space: nowrap">13 de out. de 2026</span></div>
+<div style="display: flex; justify-content: space-between; gap: 16px; padding: 12px 0"><div style="display: flex; flex-direction: column; gap: 4px; min-width: 0"><a href="#">Modelo de score de crédito</a><span class="rme-caption"><span style="font-family: var(--font-mono)">4.2</span> Ciberataques, desenvolvimento ou uso de armas e danos em massa</span></div><span class="rme-caption" style="white-space: nowrap">28 de set. de 2026</span></div>
+</div>
+</section>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; align-items: start">
+<section class="rme-card">
+<header class="rme-card-header">
+<h3 class="rme-card-title"><span class="rme-term">Vínculos por progresso</span></h3>
+<p class="rme-card-desc">Andamento das mitigações aplicadas; cancelados ficam de fora.</p>
+</header>
+<div class="rme-card-body" style="display: grid; grid-template-columns: 120px 1fr 32px; gap: 12px 16px; align-items: center">
+<span class="rme-tag rme-tag--gray" style="justify-self: start">Planejado</span><span style="height: 8px; background: var(--muted)"><span style="display: block; height: 8px; width: 100%; background: var(--chart-1)"></span></span><span class="num" style="text-align: right">40</span>
+<span class="rme-tag rme-tag--blue" style="justify-self: start">Em andamento</span><span style="height: 8px; background: var(--muted)"><span style="display: block; height: 8px; width: 30%; background: var(--chart-1)"></span></span><span style="text-align: right">12</span>
+<span class="rme-tag rme-tag--green" style="justify-self: start">Implementado</span><span style="height: 8px; background: var(--muted)"><span style="display: block; height: 8px; width: 22.5%; background: var(--chart-1)"></span></span><span style="text-align: right">9</span>
+<span class="rme-tag rme-tag--yellow" style="justify-self: start">Suspenso</span><span style="height: 8px; background: var(--muted)"><span style="display: block; height: 8px; width: 20%; background: var(--chart-1)"></span></span><span style="text-align: right">8</span>
+</div>
+</section>
+
+<section class="rme-card" style="grid-column: span 2; min-width: 0">
+<header class="rme-card-header"><h3 class="rme-card-title">Por sistema de IA</h3><p class="rme-card-desc">Em amarelo, o que tem pendência.</p></header>
+<div class="rme-card-body" style="overflow-x: auto">
+<table class="rme-table">
+<thead><tr><th>Sistema</th><th class="num">Riscos</th><th class="num">Vínculos</th><th class="num">Aguardando reavaliação</th><th class="num">Eventos (30 dias)</th></tr></thead>
+<tbody>
+<tr><td>Apoio ao diagnóstico por imagem<span class="rme-sub">Apoio a decisões clínicas</span></td><td class="num">3</td><td class="num">5</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">2</td><td class="num">0</td></tr>
+<tr><td>Assistente virtual de atendimento<span class="rme-sub">Atendimento ao cliente</span></td><td class="num">5</td><td class="num">6</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">3</td><td class="num">0</td></tr>
+<tr><td>Chatbot de suporte técnico interno<span class="rme-sub">Suporte técnico interno</span></td><td class="num">3</td><td class="num">4</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td></tr>
+<tr><td>Detecção de fraudes em transações<span class="rme-sub">Prevenção a fraudes</span></td><td class="num">3</td><td class="num">5</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td><td class="num">0</td></tr>
+<tr><td>Modelo de score de crédito<span class="rme-sub">Crédito e concessão financeira</span></td><td class="num">4</td><td class="num">8</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td></tr>
+<tr><td>Moderação automática de comentários<span class="rme-sub">Moderação de conteúdo</span></td><td class="num">4</td><td class="num">5</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">2</td><td class="num">0</td></tr>
+<tr><td><span style="display: inline-flex; gap: 8px; align-items: center">Pontuação de comportamento de cidadãos <span class="rme-tag rme-tag--danger">Inaceitável</span></span><span class="rme-sub">Concessão de benefícios sociais</span></td><td class="num">1</td><td class="num">2</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td><td class="num">0</td></tr>
+<tr><td>Previsão de demanda de estoque<span class="rme-sub">Planejamento de demanda</span></td><td class="num">3</td><td class="num">5</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td><td class="num">0</td></tr>
+<tr><td>Recomendação de conteúdo do portal<span class="rme-sub">Recomendação de conteúdo</span></td><td class="num">4</td><td class="num">6</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">3</td><td class="num">0</td></tr>
+<tr><td><span style="display: inline-flex; gap: 8px; align-items: center">Reconhecimento de emoções no monitoramento de atendentes <span class="rme-tag rme-tag--danger">Inaceitável</span></span><span class="rme-sub">Gestão de pessoas</span></td><td class="num">3</td><td class="num">6</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>Roteirização de entregas<span class="rme-sub">Logística e distribuição</span></td><td class="num">5</td><td class="num">9</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">3</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">1</td></tr>
+<tr><td>Triagem automática de chamados<span class="rme-sub">Suporte técnico</span></td><td class="num">2</td><td class="num">2</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">2</td><td class="num">0</td></tr>
+<tr><td>Triagem automática de currículos<span class="rme-sub">Recrutamento e seleção</span></td><td class="num">4</td><td class="num">6</td><td class="num" style="color: var(--tag-yellow-fg); font-weight: 600">3</td><td class="num">0</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":2240}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

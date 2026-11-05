@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { DetailItem } from '@/components/detail-item';
 import { RiskSubdomain } from '@/components/risk-subdomain';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
@@ -22,6 +23,7 @@ import {
 } from '@/routes/ai-systems';
 import { index as changesIndex } from '@/routes/ai-systems/system-changes';
 import { show as showLink } from '@/routes/links';
+import { create as createReassessment } from '@/routes/links/reassessments';
 import { show as showReassessment } from '@/routes/reassessments';
 import { create as createRisk } from '@/routes/risks';
 import { show } from '@/routes/system-changes';
@@ -208,8 +210,19 @@ export default function SystemChangesShow({
                                                 })}
                                             </Link>
                                         ) : (
-                                            <span className="text-sm text-amber-700 dark:text-amber-300">
-                                                {t('Awaiting reassessment')}
+                                            <span className="flex items-center gap-3">
+                                                <span className="text-tag-yellow-foreground text-sm">
+                                                    {t('Awaiting reassessment')}
+                                                </span>
+                                                <Button size="sm" asChild>
+                                                    <Link
+                                                        href={createReassessment(
+                                                            reversal.link_id,
+                                                        )}
+                                                    >
+                                                        {t('Reassess')}
+                                                    </Link>
+                                                </Button>
                                             </span>
                                         )}
                                     </li>

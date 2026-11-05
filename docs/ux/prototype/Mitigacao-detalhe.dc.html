@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Levantar requisitos e avaliar impactos</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="mitigations" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Mitigacoes.dc.html">Catálogo de mitigações</a></li><li aria-current="page">Levantar requisitos e avaliar impactos</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<h1 class="page-title">Levantar requisitos e avaliar impactos</h1>
+<p class="page-sub" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center"><span class="rme-tag rme-tag--gray">1.2 Gestão de riscos</span> <span lang="en">Elicit Requirements &amp; Assess Impacts</span></p>
+</div>
+<div class="page-actions"><a class="rme-btn rme-btn--primary" href="Vinculo-criar.dc.html" style="color: var(--primary-foreground); text-decoration: none">Aplicar a um risco</a></div>
+</div>
+
+<div class="grid-main">
+<div class="stack" style="gap: 24px">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">O que é</h2></header>
+<div class="rme-card-body"><p style="margin: 0">Os requisitos do sistema (por exemplo, “o sistema deve respeitar a privacidade de seus usuários”) são levantados junto aos atores relevantes no contexto de IA e compreendidos por eles. As decisões de projeto levam em consideração as implicações sociotécnicas, visando tratar os riscos associados à IA.</p></div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title"><button class="rme-term" style="font-size: 16px; font-weight: 600">Riscos que trata</button></h2><p class="rme-card-desc">Subdomínios do MIT AI Risk Repository. Em Criar vínculo, aparece como recomendada para riscos destes subdomínios.</p></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row"><span><span class="mono">1.1</span> Discriminação injusta e representação distorcida</span><span class="rme-caption">1 Discriminação e toxicidade</span></div>
+<div class="list-row"><span><span class="mono">2.1</span> Comprometimento da privacidade por obtenção, vazamento ou inferência de informações sensíveis</span><span class="rme-caption">2 Privacidade e segurança</span></div>
+<div class="list-row"><span><span class="mono">4.1</span> Desinformação, vigilância e influência em larga escala</span><span class="rme-caption">4 Agentes maliciosos e uso indevido</span></div>
+<div class="list-row"><span><span class="mono">6.5</span> Falha de governança</span><span class="rme-caption">6 Danos socioeconômicos e ambientais</span></div>
+<div class="list-row"><span><span class="mono">7.3</span> Falta de capacidade ou robustez</span><span class="rme-caption">7 Segurança, falhas e limitações de sistemas de IA</span></div>
+<div class="list-row"><span><span class="mono">7.4</span> Falta de transparência ou interpretabilidade</span><span class="rme-caption">7 Segurança, falhas e limitações de sistemas de IA</span></div>
+<p class="rme-caption" style="margin: 12px 0 0">Risco-alvo sugerido: implementação de IA com decisões de projeto desalinhadas do contexto sociotécnico, gerando violações de direitos e falhas não previstas de governança.</p>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Vínculos que aplicam esta mitigação (1)</h2></header>
+<div class="rme-card-body" style="padding-top: 8px">
+<div class="list-row"><div class="stack-sm"><a href="#">Envenenamento de dados → Levantar requisitos e avaliar impactos</a><span class="rme-caption">Triagem automática de chamados · Product Owner · Produto</span></div><span class="rme-row" style="gap: 4px"><span class="rme-tag rme-tag--gray">Planejado</span><span class="rme-tag rme-tag--outline">Declarada</span></span></div>
+</div>
+</section>
+</div>
+
+<aside class="stack">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Para aplicar</h2><p class="rme-card-desc">Estimativas do grupo, pela rubrica de custo e incerteza.</p></header>
+<div class="rme-card-body stack">
+<dl class="rme-dl" style="grid-template-columns: repeat(2, minmax(0, 1fr))">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Custo sugerido</button></dt><dd>Médio</dd></div>
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Incerteza</button></dt><dd><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></dd></div>
+</dl>
+<div class="stack-sm"><span class="rme-caption">Evidência esperada</span><p style="margin: 0">Documento de requisitos sociotécnicos aprovado pelas partes interessadas e matriz de rastreabilidade comprovando a incorporação desses requisitos na arquitetura/projeto do sistema.</p></div>
+<details>
+<summary class="rme-caption" style="cursor: pointer"><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Fonte da estimativa</button></summary>
+<p style="margin: 8px 0 0" class="rme-caption">Barrett et al. (2024, p. 33), perfil construído sobre o NIST AI RMF 1.0 (subcategoria MAP 1.6), descreve a ação e lista itens de ação e de documentação do Playbook do NIST, como avaliar impactos ao longo do ciclo de vida com especialistas e comunidades afetadas. De forma independente, a ISO/IEC 42001:2023 exige especificar e documentar os requisitos dos sistemas de IA (controle A.6.2.2) e avaliar e documentar os impactos sobre indivíduos, grupos e a sociedade (cláusulas 6.1.4 e 8.4; controles A.5). Custo estimado pelo grupo, pela rubrica.</p>
+</details>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Procedência</h2><p class="rme-card-desc">Taxonomia de Saeri et al., preliminar, dezembro de 2025.</p></header>
+<div class="rme-card-body">
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr)">
+<div><dt>Categoria</dt><dd>1 Governança e Supervisão<span class="rme-sub" lang="en">Governance &amp; Oversight</span></dd></div>
+<div><dt>Subcategoria</dt><dd>1.2 Gestão de riscos<span class="rme-sub" lang="en">Risk Management</span></dd></div>
+<div><dt>Documento de origem</dt><dd lang="en">AI Risk Management Standards Profile for GPAIS (Barrett, A. M., 2024)</dd></div>
+<div><dt>Identificador na base</dt><dd class="mono">A0657_Barrett2024</dd></div>
+</dl>
+</div>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

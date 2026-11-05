@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Catálogo de mitigações</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="mitigations" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li aria-current="page">Catálogo de mitigações</li></ol>
+</header>
+<main class="app-main">
+
+<div>
+<h1 class="page-title">Catálogo de mitigações</h1>
+<p class="page-sub">As 40 mitigações curadas pelo grupo a partir da base de Saeri et al. (2025). Toda mitigação aplicada a um risco vem daqui; o catálogo é só de consulta.</p>
+</div>
+
+<div class="rme-row" role="group" aria-label="Categoria de Saeri et al.">
+<button class="rme-chip" aria-pressed="true">Todas</button>
+<button class="rme-chip" aria-pressed="false">1 Governança e Supervisão</button>
+<button class="rme-chip" aria-pressed="false">2 Técnica e Segurança</button>
+<button class="rme-chip" aria-pressed="false">3 Processos Operacionais</button>
+<button class="rme-chip" aria-pressed="false">4 Transparência e Responsabilização</button>
+<button class="rme-tip-btn" aria-label="A taxonomia de Saeri et al."><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></button>
+</div>
+
+<div>
+<div class="toolbar">
+<label class="toolbar-search"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><span style="position: absolute; left: -9999px">Buscar</span><input class="rme-field" placeholder="Buscar pelo nome em português ou pelo nome original"></label>
+<button class="toolbar-filter">Subcategoria: todas <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="toolbar-filter">Trata o subdomínio: todos <svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+</div>
+<div class="table-wrap">
+<table class="rme-table">
+<thead><tr><th>Mitigação</th><th>Subcategoria</th><th><button class="rme-term" style="font-weight: 600">Custo sugerido</button></th><th><button class="rme-term" style="font-weight: 600">Incerteza</button></th><th class="num">Vínculos</th></tr></thead>
+<tbody>
+<tr><td><a href="#">Adaptação de medidas de mitigação para usos não pretendidos do modelo</a><span class="rme-sub" lang="en">Adaptation of Mitigations for Unintended Model Use</span></td><td>1.2 Gestão de riscos</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">0</td></tr>
+<tr><td><a href="#">Adequação das atividades de Red Teaming ao contexto de implantação</a><span class="rme-sub" lang="en">Scope red-teaming activities based on deployment context</span></td><td>3.1 Testes e auditoria</td><td>Alto</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">1</td></tr>
+<tr><td><a href="#">Análise de riscos utilizando o método Bow-tie</a><span class="rme-sub" lang="en">Bow-tie analysis</span></td><td>1.2 Gestão de riscos</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">2</td></tr>
+<tr><td><a href="#">Aplicar benchmarks de viés</a><span class="rme-sub" lang="en">Bias Benchmark Application</span></td><td>3.1 Testes e auditoria</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">1</td></tr>
+<tr><td><a href="#">Avaliação da veracidade das respostas produzidas pela IA</a><span class="rme-sub" lang="en">Evaluations for truthful outputs</span></td><td>3.1 Testes e auditoria</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">4</td></tr>
+<tr><td><a href="#">Comunicação de vulnerabilidades críticas aos fornecedores e responsáveis</a><span class="rme-sub" lang="en">Encourage reporting of critical vulnerabilities to the upstream provider or other relevant stakeholders</span></td><td>4.3 Relato de incidentes</td><td>Baixo</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i class="on"></i><i></i></span>Média</span></td><td class="num">0</td></tr>
+<tr><td><a href="#">Definição de limiares de risco</a><span class="rme-sub" lang="en">Defining Risk Thresholds</span></td><td>1.2 Gestão de riscos</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">1</td></tr>
+<tr><td><a href="Mitigacao-detalhe.dc.html">Levantar requisitos e avaliar impactos</a><span class="rme-sub" lang="en">Elicit Requirements &amp; Assess Impacts</span></td><td>1.2 Gestão de riscos</td><td>Médio</td><td><span class="rme-tag rme-tag--gray"><span class="rme-level"><i class="on"></i><i></i><i></i></span>Baixa</span></td><td class="num">1</td></tr>
+</tbody>
+</table>
+</div>
+<div class="rme-pagination"><span class="rme-caption">Exibindo 1 a 15 de 40</span>
+<nav aria-label="Paginação"><button class="rme-btn rme-btn--ghost">Anterior</button><button class="rme-btn rme-btn--ghost" aria-current="page">1</button><button class="rme-btn rme-btn--ghost">2</button><button class="rme-btn rme-btn--ghost">3</button><button class="rme-btn rme-btn--ghost">Próxima</button></nav></div>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

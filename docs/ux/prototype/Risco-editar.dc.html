@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Editar risco</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="risks" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Riscos.dc.html">Riscos</a></li><li><a href="Risco-detalhe.dc.html">Falta de explicabilidade</a></li><li aria-current="page">Editar</li></ol>
+</header>
+<main class="app-main app-main--narrow">
+
+<div>
+<h1 class="page-title">Editar risco</h1>
+<p class="page-sub">Falta de explicabilidade</p>
+</div>
+
+<form class="form">
+<fieldset class="form-section">
+<legend>1. Identificação</legend>
+<div>
+<span class="rme-label">Sistema de IA</span>
+<div style="display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 16px; background: var(--secondary)"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Modelo de score de crédito</div>
+<p class="rme-helper">Não pode ser alterado: o risco tem 2 vínculos na cadeia de rastreabilidade deste sistema.</p>
+</div>
+<div><label class="rme-label" for="nome">Nome</label><input id="nome" class="rme-field" value="Falta de explicabilidade"><p class="rme-helper">O tipo de risco, em poucas palavras. É o que aparece nas listas e pode se repetir em outros sistemas.</p></div>
+<div><label class="rme-label" for="desc">Descrição</label><textarea id="desc" class="rme-field">Não é possível explicar à pessoa afetada, nem a um auditor, por que o sistema chegou àquele resultado, o que impede a contestação e a correção do caso individual.</textarea><p class="rme-helper" style="text-align: right">162/2000</p></div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>2. Classificação (MIT AI Risk Repository)</legend>
+<div class="form-grid">
+<div><label class="rme-label">Domínio de risco</label><button type="button" class="rme-field rme-select"><span>7 Segurança, falhas e limitações de sistemas de IA</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label">Subdomínio de risco</label><button type="button" class="rme-field rme-select"><span><span class="mono">7.4</span> Falta de transparência ou interpretabilidade</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+</div>
+<div class="rme-alert rme-alert--warning">
+<svg class="rme-alert-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4M12 17h.01"></path></svg>
+<div><p class="rme-alert-text" style="margin: 0">Trocar o subdomínio muda as mitigações recomendadas e quais eventos e mudanças do sistema alcançam os 2 vínculos deste risco.</p></div>
+</div>
+</fieldset>
+
+<fieldset class="form-section">
+<legend>3. Avaliação</legend>
+<div class="form-grid">
+<div><label class="rme-label">Fase do ciclo de vida</label><button type="button" class="rme-field rme-select"><span>Operação e monitoramento</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+<div><label class="rme-label">Nível de incerteza</label><button type="button" class="rme-field rme-select"><span>Alta <span class="muted">· confiança baixa</span></span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+</div>
+</fieldset>
+
+<div class="form-actions">
+<button type="submit" class="rme-btn rme-btn--primary rme-btn--lg">Salvar alterações</button>
+<a class="rme-btn rme-btn--ghost rme-btn--lg" href="Risco-detalhe.dc.html">Cancelar</a>
+</div>
+</form>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

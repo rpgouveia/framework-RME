@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Reavaliação</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li><a href="#">Uso do sistema para ciberataque → Desativar sistemas desalinhados</a></li><li aria-current="page">Reavaliação de 10 de out. de 2026</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div>
+<p class="rme-caption" style="margin: 0 0 4px">Reavaliação</p>
+<h1 class="page-title" style="display: flex; align-items: center; gap: 12px">Manter <span class="rme-tag rme-tag--green">Vínculo verificado no mesmo ato</span></h1>
+<p class="page-sub"><a href="#">Uso do sistema para ciberataque → Desativar sistemas desalinhados</a> · 10 de out. de 2026</p>
+</div>
+</div>
+<p class="rme-caption" style="margin: -16px 0 0; display: flex; align-items: center; gap: 6px"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>Reavaliações não se editam nem se excluem: registram o que foi decidido, por quem e por quê.</p>
+
+<div class="grid-main">
+<div class="stack" style="gap: 24px">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Decisão</h2></header>
+<div class="rme-card-body stack">
+<dl class="rme-dl">
+<div><dt><button class="rme-term" style="font-size: 12px; color: var(--muted-foreground)">Desfecho</button></dt><dd>Manter</dd></div>
+<div><dt>Data</dt><dd>10 de out. de 2026</dd></div>
+<div><dt>Quem reavaliou</dt><dd>Cientista de Dados<span class="rme-sub">Dados</span></dd></div>
+</dl>
+<div class="stack-sm"><span class="rme-caption">Justificativa</span><p style="margin: 0">A mitigação estava ativa; o incidente veio de um caso fora do escopo dela, já tratado por outro vínculo.</p></div>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title"><button class="rme-term" style="font-size: 16px; font-weight: 600">Análise de causa</button></h2></header>
+<div class="rme-card-body stack">
+<dl class="rme-dl">
+<div><dt>Situação</dt><dd><span class="rme-tag rme-tag--gray">Causa apurada</span></dd></div>
+<div><dt>Fase de origem</dt><dd>Projeto e desenvolvimento</dd></div>
+</dl>
+<div class="stack-sm"><span class="rme-caption">Causa apurada</span><p style="margin: 0">Entrada fora do domínio previsto, que o filtro não cobria.</p></div>
+</div>
+</section>
+
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Verificação e substituição</h2></header>
+<div class="rme-card-body"><p style="margin: 0">O vínculo foi verificado no mesmo ato, em <a href="#">10 de out. de 2026</a>.</p></div>
+</section>
+</div>
+
+<aside class="stack">
+<section class="rme-card">
+<header class="rme-card-header"><h2 class="rme-card-title">Reversão reavaliada</h2></header>
+<div class="rme-card-body">
+<dl class="rme-dl" style="grid-template-columns: minmax(0, 1fr)">
+<div><dt>Origem</dt><dd>Evento adverso <a href="Evento-detalhe.dc.html"><span class="mono">4.2</span> de 28 de set. de 2026</a></dd></div>
+<div><dt>Data</dt><dd><a href="#">2 de out. de 2026</a></dd></div>
+<div><dt>Registrada por</dt><dd>Registrado pelo sistema<span class="rme-sub">Origem: Evento adverso</span></dd></div>
+<div><dt>Motivo</dt><dd>Evento adverso de 28/09/2026 em um subdomínio do risco deste vínculo.</dd></div>
+</dl>
+</div>
+</section>
+</aside>
+</div>
+
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

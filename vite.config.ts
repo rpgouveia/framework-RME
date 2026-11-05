@@ -119,6 +119,9 @@ export default defineConfig({
             'database/data/mitigation-catalog.json',
             'database/data/catalog-source/oe1-agreement.json',
             'database/data/expert-panel/oe6-cvr.json',
+            // Exported as is from Claude Design, so a new export diffs cleanly.
+            'docs/ux/design-system/**',
+            'docs/ux/prototype/**',
             'resources/js/components/ui/*',
             'resources/views/mail/*',
         ],

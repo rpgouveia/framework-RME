@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Código de autenticação</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+.otp{width:48px;height:56px;text-align:center;font-size:20px;padding:0}
+</style>
+</helmet>
+<div data-theme="{{theme}}" style="min-height: 100%; background: var(--background); color: var(--foreground); font-family: var(--font-sans); font-size: 14px; line-height: 20px; letter-spacing: 0.16px; display: flex; flex-direction: column">
+<main style="flex: 1; display: grid; place-items: center; padding: 48px 16px">
+<form style="width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px">
+<img src="/_blob/29f7ae5980b254ec1a4a65cbd84e590c" alt="Framework RME" style="width: 48px; height: 48px; display: block">
+<div>
+<h1 style="margin: 0; font-size: 28px; line-height: 36px; font-weight: 400">Código de autenticação</h1>
+<p class="muted" style="margin: 4px 0 0">Digite o código de autenticação fornecido pelo seu aplicativo autenticador.</p>
+</div>
+<fieldset style="border: 0; margin: 0; padding: 0">
+<legend class="rme-label" style="padding: 0">Código de 6 dígitos</legend>
+<div style="display: flex; gap: 8px">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 1">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 2">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 3">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 4">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 5">
+<input class="rme-field otp" inputmode="numeric" maxlength="1" aria-label="Dígito 6">
+</div>
+</fieldset>
+<a class="rme-btn rme-btn--primary rme-btn--lg" href="Main.dc.html" style="color: var(--primary-foreground); width: 100%; box-sizing: border-box">Continuar</a>
+<p style="margin: 0">Perdeu o acesso ao aplicativo? <a href="#">Entrar com um código de recuperação</a></p>
+</form>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

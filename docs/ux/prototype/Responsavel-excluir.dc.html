@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Excluir responsável</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="owners" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Responsaveis.dc.html">Responsáveis</a></li><li aria-current="page">Coordenador de Qualidade</li></ol>
+</header>
+<main class="app-main">
+<div>
+<h1 class="page-title">Coordenador de Qualidade</h1>
+<p class="page-sub">Qualidade · desativado em 22 de out. de 2026</p>
+</div>
+<div class="form-section" style="min-height: 240px"></div>
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg">
+<div class="rme-dialog-body">
+<h2 id="dlg" class="rme-dialog-title">Excluir este responsável?</h2>
+<p style="margin: 0">O responsável "Coordenador de Qualidade · Qualidade" será removido. Esta ação não pode ser desfeita.</p>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--destructive">Excluir</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":920}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>

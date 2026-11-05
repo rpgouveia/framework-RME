@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Verificar vínculo</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="rme-tokens.css">
+<link rel="stylesheet" href="ds/frameworkrme/components/bundle.css">
+<link rel="stylesheet" href="rme-app.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&amp;family=IBM+Plex+Sans:wght@300;400;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:var(--link);text-decoration:none}a:hover{color:var(--link-hover);text-decoration:underline}
+</style>
+</helmet>
+<div class="app" data-theme="{{theme}}" style="position: relative">
+<div class="app-sidebar"><dc-import name="Sidebar" active="links" hint-size="256px,100%"></dc-import></div>
+<div class="app-content">
+<header class="rme-topbar">
+<button class="rme-tip-btn menu-btn" aria-label="Abrir o menu"><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+<ol class="rme-breadcrumb"><li><a href="Vinculos.dc.html">Vínculos</a></li><li aria-current="page">Vazamento de dados de treino → Monitoramento durante o desenvolvimento e após a implementação</li></ol>
+</header>
+<main class="app-main">
+
+<div class="page-head">
+<div class="stack-sm">
+<h1 class="page-title">Vazamento de dados de treino → Monitoramento durante o desenvolvimento e após a implementação</h1>
+<p class="page-sub" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0"><a href="#">Assistente virtual de atendimento</a><span class="rme-tag rme-tag--gray">Faixa Limitado</span></p>
+</div>
+<button class="rme-btn rme-btn--outline">Editar</button>
+</div>
+
+<section class="rme-card" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))">
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border)">
+<h2 class="rme-card-title">Estado do vínculo</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 32px">
+<div class="rme-status"><span class="rme-status-label">Progresso</span><span class="rme-tag rme-tag--gray">Planejado</span></div>
+<div class="rme-status"><span class="rme-status-label">Verificação</span><span class="rme-tag rme-tag--outline">Declarada</span></div>
+<div class="rme-status"><span class="rme-status-label">Próxima revisão</span><span>Aguardando verificação</span></div>
+</div>
+</div>
+<div style="padding: 24px; display: flex; flex-direction: column; gap: 16px; background: var(--muted)">
+<h2 class="rme-card-title">Próxima ação</h2>
+<p style="margin: 0">O vínculo tem 2 evidências e nunca foi verificado. Verifique para começar a revisão periódica.</p>
+<div class="rme-row"><button class="rme-btn rme-btn--primary">Verificar</button></div>
+</div>
+</section>
+
+</main>
+</div>
+
+<div class="rme-overlay" style="position: absolute; inset: 0; align-items: start; padding-top: 160px">
+<div class="rme-dialog" role="dialog" aria-modal="true" aria-labelledby="dlg" style="max-width: 560px">
+<div class="rme-dialog-body stack">
+<h2 id="dlg" class="rme-dialog-title" style="margin: 0">Verificar este vínculo?</h2>
+<p style="margin: 0">A revisão periódica passa a contar a partir de hoje: faixa Limitado, próxima revisão em 180 dias. O registro fica no histórico.</p>
+<div class="stack-sm">
+<span class="rme-label" style="margin: 0">Evidências que embasam a verificação</span>
+<div class="list-row" style="padding: 8px 0"><span>As 2 evidências registradas no vínculo</span><a href="Evidencias.dc.html">Ver</a></div>
+</div>
+<div><label class="rme-label">Quem verifica</label><button type="button" class="rme-field rme-select"><span>Analista de Compliance (Compliance)</span><svg class="rme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button><p class="rme-helper">Preenchido com o responsável do vínculo.</p></div>
+</div>
+<div class="rme-dialog-actions"><button class="rme-btn rme-btn--secondary">Voltar</button><button class="rme-btn rme-btn--primary">Verificar</button></div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["light","dark"],"default":"light"},"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+renderVals() {
+return { theme: this.props.theme ?? 'light' };
+}
+}
+</script>
+</body>
+</html>
