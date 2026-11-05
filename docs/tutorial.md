@@ -76,7 +76,7 @@ Na página do sistema, card **Riscos** → "Cadastrar risco".
 | Domínio de risco      | 1. Discriminação e toxicidade                                     |
 | Subdomínio de risco   | 1.1 Discriminação injusta e representação distorcida              |
 | Fase do ciclo de vida | Projeto e desenvolvimento                                         |
-| Nível de incerteza    | Média                                                             |
+| Incerteza             | Média                                                             |
 
 Escolha o **subdomínio** com cuidado: é por ele que o framework sabe quais vínculos reverter quando um evento adverso ou uma mudança do sistema atinge aquele tipo de risco. O sistema do risco fica travado depois do primeiro vínculo.
 

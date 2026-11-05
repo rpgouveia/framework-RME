@@ -10,7 +10,7 @@ Itens ainda em aberto. **Não implementar sem decisão do grupo registrada nesta
 - Prazo para reavaliação (0020, item 9).
 - Análise da concordância do OE1 por par de anotadores (0025): com 9 a 11 mitigações por par, o alfa de cada par teria intervalos largos demais para comparar os pares.
 - Vínculo suspenso e verificado (0028): hoje continua verificado e na revisão periódica, embora a mitigação esteja parada.
-- Lacunas do catálogo encontradas nas reconstruções (0024): nenhuma mitigação trata do subdomínio 1.3 nem da supervisão humana em decisões apoiadas por escore (5.1), e nenhuma avisa o usuário de que ele interage com um sistema de IA.
+- Lacunas e concentrações do catálogo (0024). Nenhuma mitigação trata dos subdomínios 1.3, 6.1, 6.2 e 6.4, nem da supervisão humana em decisões apoiadas por escore (5.1), e nenhuma avisa o usuário de que ele interage com um sistema de IA (reconstruções da Optum e da Air Canada e portfólio de demonstração). Na outra ponta, a anotação concentra os subdomínios 6.5 (30 das 40 mitigações) e 7.3 (27 das 40), o que torna a recomendação pouco seletiva neles: o portfólio de demonstração, que só usa mitigações recomendadas, chega a ligar "Deriva de dados" a "Planejar a interrupção de sistemas com risco inaceitável".
 - Controle de acesso por papel (RNF04): as oito policies autorizam qualquer usuário autenticado e marcam o ponto com `@todo`, à espera da definição de como um usuário corresponde a um responsável.
 
 ## Outros
