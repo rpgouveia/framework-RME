@@ -330,23 +330,27 @@ test('the report exports the changes, also those that reverted nothing', functio
     $rows = parseCsv($response->streamedContent());
 
     expect($rows)->toHaveCount(3)
-        ->and($rows[0])->toBe(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER);
+        ->and($rows[0])->toBe(CompileTraceabilityReport::csvHeader(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER))
+        ->and(array_slice($rows[0], 3, 4))->toBe(['Número da mudança', 'Tipo de mudança', 'Descrição', 'Data da mudança']);
 
-    $first = array_combine($rows[0], $rows[1]);
-    $second = array_combine($rows[0], $rows[2]);
+    $first = array_combine(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER, $rows[1]);
+    $second = array_combine(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER, $rows[2]);
 
     expect($first['change_id'])->toBe((string) $reverting->id)
-        ->and($first['type'])->toBe('data_change')
+        ->and($first['type'])->toBe('Alteração na base de dados')
+        ->and($first['description'])->toBe('Troca do modelo pela versão 2.0.')
         ->and($first['change_date'])->toBe('2026-05-10')
         ->and($first['risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 6.2 ')
         ->and($first['reverted_link_ids'])->toBe((string) $link->id)
         ->and($first['reverted_links'])->toBe("{$link->risk->name} -> {$link->mitigation->name}")
         ->and($first['unmapped_subdomains_at_export'])->toBe('6.2')
         ->and($second['change_id'])->toBe((string) $silent->id)
+        ->and($second['type'])->toBe('Nova versão do modelo')
         ->and($second['reverted_link_ids'])->toBe('')
         ->and($second['unmapped_subdomains_at_export'])->toBe('7.3');
 
     $csv = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
 
-    expect(array_combine($csv[0], $csv[1])['verification_changes'])->toContain('verified -> declared (data_change)');
+    expect(array_combine(CompileTraceabilityReport::CSV_HEADER, $csv[1])['verification_changes'])
+        ->toContain("Verificada -> Declarada (Alteração na base de dados, mudança #{$reverting->id})");
 });
