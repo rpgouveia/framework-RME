@@ -8,7 +8,7 @@ Os nomes entre aspas e em negrito são os que aparecem na tela. A interface est�
 
 1. Suba o ambiente e acesse http://localhost:8000 (veja o [README](../README.md#quick-start)).
 2. Entre com `test@example.com` / `password` (ou `teste@teste.com` / `teste123`).
-3. O banco já vem com um portfólio de exemplo (`php artisan migrate:fresh --seed` o recria do zero). Você pode seguir o tutorial criando registros novos ao lado dele.
+3. O banco já vem com um portfólio de exemplo (`php artisan migrate:fresh --seed` o recria do zero, apagando também o que você tiver cadastrado). Você pode seguir o tutorial criando registros novos ao lado dele.
 
 O portfólio de exemplo traz treze sistemas de domínios diferentes, com os riscos que fazem sentido para cada um, os responsáveis por área, os vínculos em todos os estados de verificação, as evidências, os eventos adversos, as mudanças do sistema e as reavaliações. Ele não é um conjunto de dados aleatórios: os nomes, as descrições e as classificações são os do próprio framework, para que as telas possam ser lidas e avaliadas como um caso real.
 
