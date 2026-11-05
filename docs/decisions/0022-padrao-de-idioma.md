@@ -15,6 +15,8 @@ As telas do domínio foram escritas com o texto diretamente em português, enqua
 4. **Rótulos de enums:** têm uma única fonte, no arquivo de idioma; o frontend não mantém uma cópia própria dos textos.
 5. **Migração:** todo código novo usa o mecanismo único desde já. As telas existentes migram numa etapa dedicada, sem alterar a redação dos textos.
 
+- **Adendo (2026-11-05), relatórios exportados:** a regra do item 2 alcança os três relatórios em CSV (rastreabilidade, eventos adversos e mudanças do sistema). Eles são lidos por pessoas numa planilha, e o formato já foi escolhido para isso: o separador ponto e vírgula e a marca de ordem de bytes servem ao Excel em português. Cabeçalhos, valores de enums e as frases montadas nas células compostas passam por `__()`, com os mesmos rótulos da interface (item 4). O relatório em JSON fica fora da regra: é formato de troca entre sistemas, e suas chaves e valores de enums são identificadores estáveis em inglês, independentes do idioma da interface; o glossário indica, ao lado de cada valor, o código correspondente. Nos dois formatos, o conteúdo cadastrado (nomes, descrições, justificativas e os nomes traduzidos das taxonomias) sai como foi registrado. Os nomes dos arquivos não mudam, porque os relatórios das reconstruções os citam. Motivo: na revisão dos relatórios da reconstrução da Optum, as células compostas misturavam o texto do grupo em português com códigos e conectivos em inglês, como em "adjust by Analista de dados clínicos (reversal: adverse_event; cause: identified, ...)".
+
 ## Consequências
 
 - Resolve a pendência sobre o idioma da barra lateral.
