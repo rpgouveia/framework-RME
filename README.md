@@ -635,3 +635,16 @@ _Mapping AI Risk Mitigations: Evidence Scan and Preliminary AI Risk Mitigation
 Taxonomy_, and Slattery et al. (2026), _A meta-review, database, and taxonomy of
 risks from artificial intelligence_. The names were translated, and the
 catalogue descriptions translated and adapted, by the group.
+
+The interface's visual design is based on the White and Gray 100 themes of
+the [IBM Carbon Design System](https://carbondesignsystem.com) v11, adapted by
+the group and applied to the shadcn/ui components. No Carbon package or file
+is included in the project.
+
+The IBM Plex Sans and IBM Plex Mono typefaces, Copyright © 2017 IBM Corp. with
+Reserved Font Name "Plex", are under the
+[SIL Open Font License 1.1](https://openfontlicense.org), not the project's MIT
+license. The files in `resources/fonts/ibm-plex`, kept with their license and
+unmodified, come from IBM's `@ibm/plex-sans` 1.1.0 and `@ibm/plex-mono` 2.5.0
+packages. The application serves them, and links to the license on every page
+with a footer or sidebar.

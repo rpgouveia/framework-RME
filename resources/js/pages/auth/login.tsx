@@ -1,6 +1,7 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { FontLicenseNotice } from '@/components/font-license-notice';
 import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
@@ -242,6 +243,7 @@ export default function Login({ status, canResetPassword }: Props) {
                     <p className="text-subtle-foreground px-4 text-xs">
                         {t('Framework RME · Applied research project — PUCPR')}
                     </p>
+                    <FontLicenseNotice className="mt-1 px-4" />
                 </footer>
             </div>
         </>

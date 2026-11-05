@@ -1,6 +1,7 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import { FontLicenseNotice } from '@/components/font-license-notice';
 import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
@@ -320,6 +321,7 @@ export default function Register({ passwordRules }: Props) {
                             {t('Framework RME © 2025. All rights reserved.')}
                         </span>
                     </div>
+                    <FontLicenseNotice className="mt-2 text-center" />
                 </footer>
             </div>
         </>

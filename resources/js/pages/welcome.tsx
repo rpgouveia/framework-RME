@@ -10,6 +10,7 @@ import {
     TriangleAlert,
 } from 'lucide-react';
 
+import { FontLicenseNotice } from '@/components/font-license-notice';
 import AppLogoIcon from '@/components/app-logo-icon';
 import { useTranslations } from '@/hooks/use-translations';
 import { dashboard, home, login, register } from '@/routes';
@@ -258,6 +259,7 @@ export default function Welcome() {
                             {t('Responsible AI governance')}
                         </span>
                     </div>
+                    <FontLicenseNotice className="mt-2 text-center" />
                 </footer>
             </div>
         </>

@@ -4,7 +4,7 @@ import babel from '@rolldown/plugin-babel';
 import tailwindcss from '@tailwindcss/vite';
 import react, { reactCompilerPreset } from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
-import { bunny } from 'laravel-vite-plugin/fonts';
+import { local } from 'laravel-vite-plugin/fonts';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 const inDocker = Boolean(process.env.DOCKER);
@@ -22,11 +22,31 @@ export default defineConfig({
                       input: ['resources/css/app.css', 'resources/js/app.tsx'],
                       refresh: true,
                       fonts: [
-                          bunny('IBM Plex Sans', {
-                              weights: [300, 400, 600],
+                          // IBM's own complete files: a subset could not keep
+                          // the Reserved Font Name "Plex" (OFL, condition 3).
+                          local('IBM Plex Sans', {
+                              variants: [
+                                  {
+                                      src: 'resources/fonts/ibm-plex/IBMPlexSans-Light.woff2',
+                                      weight: 300,
+                                  },
+                                  {
+                                      src: 'resources/fonts/ibm-plex/IBMPlexSans-Regular.woff2',
+                                      weight: 400,
+                                  },
+                                  {
+                                      src: 'resources/fonts/ibm-plex/IBMPlexSans-SemiBold.woff2',
+                                      weight: 600,
+                                  },
+                              ],
                           }),
-                          bunny('IBM Plex Mono', {
-                              weights: [400],
+                          local('IBM Plex Mono', {
+                              variants: [
+                                  {
+                                      src: 'resources/fonts/ibm-plex/IBMPlexMono-Regular.woff2',
+                                      weight: 400,
+                                  },
+                              ],
                           }),
                       ],
                   }),

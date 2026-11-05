@@ -1,5 +1,6 @@
 import { Form, Head, Link, setLayoutProps } from '@inertiajs/react';
 import { ArrowRight } from 'lucide-react';
+import { FontLicenseNotice } from '@/components/font-license-notice';
 import { useTranslations } from '@/hooks/use-translations';
 
 import InputError from '@/components/input-error';
@@ -170,6 +171,7 @@ export default function ForgotPassword({ status }: Props) {
                             )}
                         </span>
                     </div>
+                    <FontLicenseNotice className="mt-2 text-center" />
                 </footer>
             </div>
         </>

@@ -10,6 +10,7 @@ import {
     Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { FontLicenseNotice } from '@/components/font-license-notice';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -106,6 +107,7 @@ export function AppSidebar() {
             </SidebarContent>
 
             <SidebarFooter>
+                <FontLicenseNotice className="px-2 group-data-[collapsible=icon]:hidden" />
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
