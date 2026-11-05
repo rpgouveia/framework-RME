@@ -575,9 +575,22 @@ Each AI system page offers four downloads:
 | Download             | Route                                | Content                                                                          |
 | -------------------- | ------------------------------------ | -------------------------------------------------------------------------------- |
 | JSON                 | `ai-systems/{id}/report.json`        | The full chain: risks, links, evidence, history, reassessments, events, changes. |
-| CSV                  | `ai-systems/{id}/report.csv`         | One row per link.                                                                |
+| CSV                  | `ai-systems/{id}/report.csv`         | One row per link, with the system repeated on each.                              |
 | Adverse events (CSV) | `ai-systems/{id}/adverse-events.csv` | One row per event, including those that reverted nothing.                        |
 | System changes (CSV) | `ai-systems/{id}/system-changes.csv` | One row per change, including those that reverted nothing.                       |
+
+Besides the chain of each link, the export carries the system's tier, origin
+and registration date, the history of each link's progress (planned, in
+progress, implemented, suspended, cancelled) next to its verification history, and the
+description of each adverse event (in the JSON and in the adverse events CSV).
+
+The CSV files are written for people reading them in a spreadsheet: their
+headers, enum values and composite cells are in Portuguese, with the labels of
+the interface (decision 0022, addendum of 2026-11-05). The JSON is for
+exchange between systems: its keys and enum values are stable English codes,
+mapped to the Portuguese labels in the [glossary](docs/glossary.md). In both,
+registered content goes out as it was registered, and dates are ISO 8601
+(`YYYY-MM-DD`), so they sort.
 
 The CSV files are UTF-8 with a BOM and `;` as the delimiter, so they open
 directly in a pt-BR spreadsheet, and cells that look like formulas are

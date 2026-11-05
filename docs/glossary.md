@@ -4,20 +4,22 @@ Fonte única da terminologia do projeto, para o artigo, a interface, a documenta
 
 Quando o código ainda não reflete a definição, a entrada indica a diferença em **Situação no código**.
 
+Ao lado de cada valor de enum, entre parênteses, está o código que o relatório de rastreabilidade em JSON usa; os relatórios em CSV trazem o rótulo, como nas telas (0022, adendo de 2026-11-05).
+
 ## 1. Sistema de IA
 
 - **Sistema de IA** (`AiSystem`): sistema projetado que gera saídas, como conteúdo, previsões, recomendações ou decisões, para um conjunto de objetivos definidos por pessoas (ISO/IEC 22989, 3.1.4). É o objeto que o framework acompanha: todo o ciclo parte de um sistema cadastrado, ao qual se ligam riscos, vínculos, evidências, eventos e mudanças.
 - **Faixa de risco** (`category`, enum `AiSystemCategory`): classificação do sistema segundo o EU AI Act. Define a intensidade do monitoramento, pelo intervalo de revisão (0016 e 0017). Valores:
-    - **Inaceitável:** prática proibida (art. 5). O sistema pode ser cadastrado e ter vínculos planejados, mas nunca é considerado em operação: não há verificação nem revisão periódica (0017).
-    - **Alto:** sistema de alto risco (art. 6 e Anexo III).
-    - **Limitado:** sistema sujeito a obrigações de transparência (art. 50).
-    - **Mínimo:** demais sistemas.
+    - **Inaceitável** (`unacceptable`): prática proibida (art. 5). O sistema pode ser cadastrado e ter vínculos planejados, mas nunca é considerado em operação: não há verificação nem revisão periódica (0017).
+    - **Alto** (`high`): sistema de alto risco (art. 6 e Anexo III).
+    - **Limitado** (`limited`): sistema sujeito a obrigações de transparência (art. 50).
+    - **Mínimo** (`minimal`): demais sistemas.
     - O termo "categoria" fica reservado às mitigações (seção 3).
 - **Origem do sistema** (`source_type`, enum `SystemSourceType`): a relação da organização com o sistema, que indica quanto controle ela tem sobre ele. Os valores seguem os papéis da ISO/IEC 22989 (5.19), em que a mesma organização pode acumular papéis, e as formas de obter componentes previstas no projeto do sistema (6.2.3: desenvolver, comprar pronto ou usar código aberto).
-    - **Interno:** a organização é a produtora do sistema: projeta, desenvolve, testa e implanta.
-    - **Terceiros:** a organização é cliente de um provedor, que fornece o sistema como produto ou serviço.
-    - **Código aberto:** a organização incorpora ou adapta um modelo ou software de código aberto.
-    - **Híbrido:** a organização combina componente próprio com componente de terceiros ou de código aberto, como um modelo de fornecedor ajustado com dados próprios.
+    - **Interno** (`internal`): a organização é a produtora do sistema: projeta, desenvolve, testa e implanta.
+    - **Terceiros** (`third_party`): a organização é cliente de um provedor, que fornece o sistema como produto ou serviço.
+    - **Código aberto** (`open_source`): a organização incorpora ou adapta um modelo ou software de código aberto.
+    - **Híbrido** (`hybrid`): a organização combina componente próprio com componente de terceiros ou de código aberto, como um modelo de fornecedor ajustado com dados próprios.
 - **Domínio de aplicação** (`application_domain`): área em que o sistema é usado, como saúde ou crédito. Campo livre e opcional, sem efeito na classificação (0016).
 - **Perfil de risco:** conjunto dos subdomínios dos riscos cadastrados para o sistema. Define os eventos esperados (0016).
 
@@ -26,15 +28,15 @@ Quando o código ainda não reflete a definição, a entrada indica a diferença
 - **Risco** (`Risk`): possibilidade de dano associada a um sistema de IA, com nome único no sistema. Na ISO/IEC 22989 (3.5.11, a partir da ISO 31000), risco é o efeito da incerteza sobre objetivos, que pode ser positivo ou negativo; o framework trata só do efeito negativo, o dano. Depois do primeiro vínculo, o sistema do risco não muda (0003).
 - **Subdomínio de risco** (`risk_subdomain_id`): classificação do risco num dos 24 subdomínios do MIT AI Risk Repository, agrupados em 7 domínios; o domínio é derivado (0012). Também classifica eventos adversos, mudanças do sistema e os riscos-alvo das mitigações.
 - **Fase do ciclo de vida** (`lifecycle_phase`, enum `LifecyclePhase`): fase do sistema, segundo as oito fases da ISO/IEC 22989 (6.2). No risco, é a fase em que ele foi identificado; no vínculo, a fase em que a mitigação é aplicada; na reavaliação, a fase em que a causa se originou. A norma não prescreve um modelo único: as fases podem se repetir ao longo da vida do sistema, como projeto e desenvolvimento e implantação a cada correção ou atualização (6.1). Valores:
-    - **Concepção:** a decisão de transformar uma ideia num sistema, com objetivos, requisitos, gestão de riscos, custos, recursos e análise de viabilidade (6.2.2).
-    - **Projeto e desenvolvimento:** a criação do sistema, com abordagem, arquitetura, código, dados de treinamento e implementação dos controles do plano de tratamento de riscos (6.2.3). Inclui a coleta e a preparação dos dados.
-    - **Verificação e validação:** a confirmação de que o sistema funciona conforme os requisitos e atende aos objetivos, com testes, aceite e revisão dos resultados frente aos riscos (6.2.4).
-    - **Implantação:** a instalação, liberação ou configuração do sistema no ambiente de operação (6.2.5).
-    - **Operação e monitoramento:** o sistema em funcionamento e disponível para uso, com monitoramento, reparos, atualizações e suporte (6.2.6).
-    - **Validação contínua:** extensão da operação para sistemas com aprendizado contínuo, em que o treinamento incremental acontece em produção e o funcionamento é conferido continuamente com dados de teste (6.2.7 e 3.1.9). Só se aplica a esses sistemas.
-    - **Reavaliação do sistema:** a avaliação dos resultados da operação frente aos objetivos e aos riscos, que pode levar ao refinamento de objetivos e requisitos (6.2.8). Não confundir com a reavaliação do vínculo (seção 6).
-    - **Retirada:** o fim do sistema, por descomissionamento e descarte, inclusive dos dados, ou por substituição do sistema ou de componentes (6.2.9).
-- **Incerteza** (`uncertainty_level`, enum `UncertaintyLevel`): grau de confiança numa avaliação, em três níveis (baixa, média, alta). Incerteza alta significa confiança baixa. O nível resulta da matriz da rubrica (seção 3), que combina a evidência disponível (limitada, média, robusta) com a concordância entre as fontes (baixa, média, alta), na abordagem do IPCC (Mastrandrea et al., 2010). O conceito é um só; muda o objeto avaliado:
+    - **Concepção** (`inception`): a decisão de transformar uma ideia num sistema, com objetivos, requisitos, gestão de riscos, custos, recursos e análise de viabilidade (6.2.2).
+    - **Projeto e desenvolvimento** (`design_and_development`): a criação do sistema, com abordagem, arquitetura, código, dados de treinamento e implementação dos controles do plano de tratamento de riscos (6.2.3). Inclui a coleta e a preparação dos dados.
+    - **Verificação e validação** (`verification_and_validation`): a confirmação de que o sistema funciona conforme os requisitos e atende aos objetivos, com testes, aceite e revisão dos resultados frente aos riscos (6.2.4).
+    - **Implantação** (`deployment`): a instalação, liberação ou configuração do sistema no ambiente de operação (6.2.5).
+    - **Operação e monitoramento** (`operation_and_monitoring`): o sistema em funcionamento e disponível para uso, com monitoramento, reparos, atualizações e suporte (6.2.6).
+    - **Validação contínua** (`continuous_validation`): extensão da operação para sistemas com aprendizado contínuo, em que o treinamento incremental acontece em produção e o funcionamento é conferido continuamente com dados de teste (6.2.7 e 3.1.9). Só se aplica a esses sistemas.
+    - **Reavaliação do sistema** (`re_evaluation`): a avaliação dos resultados da operação frente aos objetivos e aos riscos, que pode levar ao refinamento de objetivos e requisitos (6.2.8). Não confundir com a reavaliação do vínculo (seção 6).
+    - **Retirada** (`retirement`): o fim do sistema, por descomissionamento e descarte, inclusive dos dados, ou por substituição do sistema ou de componentes (6.2.9).
+- **Incerteza** (`uncertainty_level`, enum `UncertaintyLevel`): grau de confiança numa avaliação, em três níveis: **Baixa** (`low`), **Média** (`medium`) e **Alta** (`high`). Incerteza alta significa confiança baixa. O nível resulta da matriz da rubrica (seção 3), que combina a evidência disponível (limitada, média, robusta) com a concordância entre as fontes (baixa, média, alta), na abordagem do IPCC (Mastrandrea et al., 2010). O conceito é um só; muda o objeto avaliado:
     - **No risco:** confiança em que o risco existe no sistema e na forma como se materializaria. Evidência limitada: hipótese levantada pela equipe, sem ocorrência conhecida. Média: incidentes em sistemas semelhantes, ou norma ou guia que aponte o risco. Robusta: ocorrência no próprio sistema, resultado de teste ou de auditoria.
     - **Na mitigação:** confiança nas estimativas do catálogo (risco-alvo, evidência esperada e custo), e não na mitigação em si (0024).
     - Não confundir com a incerteza da definição de risco da ISO/IEC 22989 (3.5.11), que é a incerteza sobre os próprios eventos e consequências. A incerteza do framework é sobre a avaliação feita pela organização.
@@ -48,7 +50,7 @@ Quando o código ainda não reflete a definição, a entrada indica a diferença
 - **Evidência esperada** (`expected_evidence`): o que demonstraria que a mitigação foi aplicada.
 - **Fonte da estimativa** (`estimate_source`): relato rastreável da avaliação da evidência e da concordância que sustenta as estimativas, separado da fonte da mitigação (0011).
 - **Rubrica de custo e incerteza:** critérios explícitos para cada nível de custo e de incerteza, definidos na 0024, item 5, para que dois avaliadores cheguem ao mesmo nível pela mesma mitigação.
-- **Custo** (enum `CostLevel`): nível qualitativo (baixo, médio, alto) do esforço de implementação de uma mitigação, não só financeiro. É avaliado pelas quatro dimensões da rubrica; se elas divergirem, vale o nível mais alto:
+- **Custo** (enum `CostLevel`): nível qualitativo do esforço de implementação de uma mitigação, não só financeiro, em três níveis: **Baixo** (`low`), **Médio** (`medium`) e **Alto** (`high`). É avaliado pelas quatro dimensões da rubrica; se elas divergirem, vale o nível mais alto:
 
     | Dimensão               | Baixo                                             | Médio                                                                 | Alto                                                                 |
     | ---------------------- | ------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
@@ -67,29 +69,34 @@ Quando o código ainda não reflete a definição, a entrada indica a diferença
 - **Vínculo** (`Link`): aplicação de uma mitigação a um risco de um sistema, sob um responsável. O par risco e mitigação é único (0004), e o vínculo é permanente: não se exclui, se cancela (0006).
 - **Responsável** (`Owner`): papel organizacional, identificado por cargo e área, e não por pessoa (0009). Responde pelo vínculo e assina verificações, reversões manuais e reavaliações.
 - **Progresso** (`status`, enum `LinkStatus`): andamento da implementação da mitigação. É uma das duas dimensões do vínculo, independente da verificação (0013). Valores, por critério de entrada:
-    - **Planejado:** vínculo criado, implementação não iniciada. É o status inicial (0005).
-    - **Em andamento:** implementação iniciada e não concluída.
-    - **Implementado:** implementação concluída; mitigação em operação.
-    - **Suspenso:** mitigação interrompida temporariamente, com intenção de retomar.
-    - **Cancelado:** vínculo encerrado. Sai da revisão periódica, não pode ser verificado nem reavaliado e só pode voltar a planejado.
+    - **Planejado** (`planned`): vínculo criado, implementação não iniciada. É o status inicial (0005).
+    - **Em andamento** (`in_progress`): implementação iniciada e não concluída.
+    - **Implementado** (`implemented`): implementação concluída; mitigação em operação.
+    - **Suspenso** (`suspended`): mitigação interrompida temporariamente, com intenção de retomar.
+    - **Cancelado** (`cancelled`): vínculo encerrado. Sai da revisão periódica, não pode ser verificado nem reavaliado e só pode voltar a planejado.
     - O acompanhamento de uma mitigação em operação não é um status de progresso: é representado pela verificação e pelo ciclo de revisão (vínculo monitorável, seção 5).
 - **Verificação** (`verification_status`, enum `VerificationStatus`): se a implementação está comprovada por evidência. É a segunda dimensão do vínculo (0013).
-    - **Declarada:** a organização afirma a mitigação, sem comprovação vigente. É o estado inicial e o estado depois de toda reversão.
-    - **Verificada:** comprovada por evidência registrada depois da última reversão (no primeiro ciclo, qualquer evidência), com um responsável que assina a verificação (0013 e 0018).
+    - **Declarada** (`declared`): a organização afirma a mitigação, sem comprovação vigente. É o estado inicial e o estado depois de toda reversão.
+    - **Verificada** (`verified`): comprovada por evidência registrada depois da última reversão (no primeiro ciclo, qualquer evidência), com um responsável que assina a verificação (0013 e 0018).
     - O termo segue a ISO/IEC 22989 (3.5.17), em que verificação é a confirmação, por evidência objetiva, de que requisitos especificados foram atendidos. No framework, o requisito é a implementação da mitigação no vínculo.
 
 ## 5. Evidência e histórico
 
 - **Evidência** (`Evidence`): registro do que comprova a implementação ou o funcionamento de uma mitigação num vínculo. Somente de inclusão; um registro errado se corrige com outro (0008).
 - **Tipo de evidência** (`type`, enum `EvidenceType`): a natureza do registro, pelo que ele comprova.
-    - **Documento:** política, procedimento ou especificação que estabelece como a mitigação deve funcionar.
-    - **Relatório:** resultado de uma análise ou avaliação.
-    - **Log de auditoria:** registro automático produzido pelo sistema.
-    - **Resultado de teste:** saída de um teste executado.
-    - **Certificação:** atestado emitido por terceiro.
-    - **Ata de reunião:** registro de uma decisão tomada em reunião.
+    - **Documento** (`document`): política, procedimento ou especificação que estabelece como a mitigação deve funcionar.
+    - **Relatório** (`report`): resultado de uma análise ou avaliação.
+    - **Log de auditoria** (`audit_log`): registro automático produzido pelo sistema.
+    - **Resultado de teste** (`test_result`): saída de um teste executado.
+    - **Certificação** (`certification`): atestado emitido por terceiro.
+    - **Ata de reunião** (`meeting_minutes`): registro de uma decisão tomada em reunião.
 - **Histórico de status** (`StatusHistory`): registro somente de inclusão de toda mudança de progresso ou de verificação do vínculo. Cada registro altera uma única dimensão (0007 e 0013).
-- **Origem do registro** (`origin`, enum `ChangeOrigin`): o que provocou um registro do histórico: manual, vencimento da revisão, evento adverso, reclassificação do sistema, nova versão do modelo ou alteração na base de dados. Registros automáticos não têm responsável; os manuais têm (0018, item 5).
+- **Origem do registro** (`origin`, enum `ChangeOrigin`): o que provocou um registro do histórico. Registros automáticos não têm responsável; os manuais têm (0018, item 5). Valores:
+    - **Manual** (`manual`): registrado por um responsável.
+    - **Vencimento da revisão** (`review_due`): reversão automática, no dia seguinte à data de revisão (0019).
+    - **Evento adverso** (`adverse_event`): reversão automática pelo registro de um evento (0019).
+    - **Reclassificação do sistema** (`system_reclassification`): reversão automática pela reclassificação do sistema para a faixa inaceitável (0019, item 9).
+    - **Nova versão do modelo** (`model_version`) e **Alteração na base de dados** (`data_change`): reversão automática pelo registro de uma mudança do sistema, com a origem do tipo da mudança (0021).
 - **Reversão:** volta de um vínculo verificado a declarado. Pode ser automática, por um gatilho de reavaliação, ou manual, com motivo e responsável. Exige evidência nova para verificar de novo (0018).
 - **Renovação:** nova verificação de um vínculo ainda verificado, antes do vencimento, com evidência gravada depois da última verificação. Recomeça a contagem (0019, item 2).
 - **Data de revisão** (`next_review_date`): último dia válido da verificação: data da verificação mais o intervalo da faixa. Vínculos declarados não têm data de revisão (0017 e 0018).
@@ -105,21 +112,23 @@ Quando o código ainda não reflete a definição, a entrada indica a diferença
 - **Aguardando verificação:** vínculo declarado sem reversão pendente, que aguarda a primeira verificação ou foi reavaliado sem verificar (0020, item 4).
 - **Reavaliação** (`Reassessment`): decisão registrada sobre um vínculo revertido, com desfecho, responsável, justificativa e, quando couber, análise de causa. Somente de inclusão (0020). Não confundir com a fase de reavaliação do sistema (seção 2).
 - **Desfecho** (`outcome`, enum `ReassessmentOutcome`) (0020, item 3):
-    - **Manter:** conclui a reavaliação e verifica o vínculo no mesmo ato, com evidência posterior à reversão.
-    - **Ajustar:** altera responsável, custo estimado, fase ou progresso e registra o que mudou; a verificação no mesmo ato é opcional.
-    - **Substituir:** cancela o vínculo e leva à criação de outro para o mesmo risco, que registra qual substitui.
-    - **Encerrar:** cancela o vínculo, sem substituto.
-- **Análise de causa** (`cause_status`, enum `CauseStatus`): **apurada**, com a causa e a fase de origem; **não apurada**, por escolha explícita; ou **não se aplica**, quando a reversão não decorre de dano, como no vencimento ou na mudança do sistema (0020, item 6, e 0021, item 5).
+    - **Manter** (`maintain`): conclui a reavaliação e verifica o vínculo no mesmo ato, com evidência posterior à reversão.
+    - **Ajustar** (`adjust`): altera responsável, custo estimado, fase ou progresso e registra o que mudou; a verificação no mesmo ato é opcional.
+    - **Substituir** (`replace`): cancela o vínculo e leva à criação de outro para o mesmo risco, que registra qual substitui.
+    - **Encerrar** (`close`): cancela o vínculo, sem substituto.
+- **Análise de causa** (`cause_status`, enum `CauseStatus`): **Apurada** (`identified`), com a causa e a fase de origem; **Não apurada** (`not_identified`), por escolha explícita; ou **Não se aplica** (`not_applicable`), quando a reversão não decorre de dano, como no vencimento ou na mudança do sistema (0020, item 6, e 0021, item 5).
 
 ## 7. Eventos e mudanças do sistema
 
 - **Evento adverso** (`AdverseEvent`): ocorrência observada num sistema de IA em operação, decorrente de seu funcionamento, uso ou falha, que causou ou poderia plausivelmente ter causado dano a pessoas, à organização ou ao ecossistema, associável a ao menos um subdomínio da taxonomia. Basta a suspeita fundamentada para registrar. Somente de inclusão. Definição operacional completa, com os critérios C1 a C6, na decisão 0026.
 - **Natureza do evento** (`nature`, enum `AdverseEventNature`):
-    - **Incidente:** a ocorrência causou dano.
-    - **Quase-incidente:** a ocorrência poderia plausivelmente ter causado dano e não causou, inclusive quando barrada por uma mitigação.
+    - **Incidente** (`incident`): a ocorrência causou dano.
+    - **Quase-incidente** (`near_miss`): a ocorrência poderia plausivelmente ter causado dano e não causou, inclusive quando barrada por uma mitigação.
 - **Vínculo interceptador** (`intercepting_link_id`): num quase-incidente, o vínculo cuja mitigação barrou a ocorrência. Não é revertido, porque o evento demonstra que ele funcionou (0019, item 6).
 - **Data de ocorrência e data de detecção** (`occurrence_date`, `detected_at`): quando o evento ocorreu e quando foi percebido. O intervalo entre as duas mede a demora do monitoramento (0019, item 8).
-- **Mudança do sistema** (`SystemChange`): registro de uma nova versão do modelo ou de uma alteração na base de dados. Somente de inclusão. Reverte os vínculos verificados do sistema, de forma dirigida quando os subdomínios afetados são informados (0021).
+- **Mudança do sistema** (`SystemChange`): registro de uma nova versão do modelo ou de uma alteração na base de dados. Somente de inclusão. Reverte os vínculos verificados do sistema, de forma dirigida quando os subdomínios afetados são informados (0021). Tipo de mudança (`type`, enum `SystemChangeType`):
+    - **Nova versão do modelo** (`model_version`).
+    - **Alteração na base de dados** (`data_change`).
 
 ## 8. Instrumentos e telas
 
