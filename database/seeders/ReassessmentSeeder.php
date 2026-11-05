@@ -26,6 +26,8 @@ use App\Support\AiRiskDomains;
 use Carbon\CarbonImmutable;
 use Database\Factories\AdverseEventFactory;
 use Database\Factories\RiskFactory;
+use Database\Factories\StatusHistoryFactory;
+use Database\Seeders\Concerns\DescribesEvidence;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
@@ -51,14 +53,20 @@ use Illuminate\Support\Facades\Date;
  * Each trigger works on links of its own, created and verified here with the
  * clock moved back: a new risk in a subdomain the system had none in, or a
  * system of its own for the reclassification. So no trigger undoes the
- * stories the LinkSeeder told.
+ * stories the LinkSeeder told. As there, each link takes a mitigation
+ * recommended for its risk and is implemented before its evidence.
  */
 class ReassessmentSeeder extends Seeder
 {
+    use DescribesEvidence;
+
     protected CarbonImmutable $today;
 
     /** @var Collection<int, Owner> */
     protected Collection $owners;
+
+    /** @var Collection<int, Mitigation> */
+    protected Collection $mitigations;
 
     public function __construct(
         protected CreateLink $createLink,
@@ -74,9 +82,9 @@ class ReassessmentSeeder extends Seeder
     {
         $this->today = CarbonImmutable::today();
         $this->owners = Owner::query()->active()->get();
-        $mitigations = Mitigation::all();
+        $this->mitigations = Mitigation::query()->with('targetRiskSubdomains')->get();
 
-        if ($this->owners->isEmpty() || $mitigations->count() < 5) {
+        if ($this->owners->isEmpty() || $this->mitigations->count() < 5) {
             return;
         }
 
@@ -87,12 +95,12 @@ class ReassessmentSeeder extends Seeder
 
         try {
             if ($operable->isNotEmpty()) {
-                $this->incident($operable->first(), $mitigations->random(5)->values());
-                $this->interceptedNearMiss($operable->last(), $mitigations->random(2)->values());
+                $this->incident($operable->first());
+                $this->interceptedNearMiss($operable->last());
                 $this->unmappedRisk($operable->get(intdiv($operable->count(), 2)) ?? $operable->first());
             }
 
-            $this->reclassification($mitigations->random(2)->values());
+            $this->reclassification();
         } finally {
             Date::setTestNow();
         }
@@ -100,14 +108,14 @@ class ReassessmentSeeder extends Seeder
 
     /**
      * An incident in the subdomain of four verified links, all reverted; the
-     * reassessments then go their separate ways (0020, item 7).
-     *
-     * @param  Collection<int, Mitigation>  $mitigations  Four for the links, one
-     *                                                    for the replacement.
+     * reassessments then go their separate ways (0020, item 7). Five
+     * mitigations recommended for the subdomain: four for the links, one for
+     * the replacement.
      */
-    protected function incident(AiSystem $aiSystem, Collection $mitigations): void
+    protected function incident(AiSystem $aiSystem): void
     {
-        $subdomain = $this->newSubdomainFor($aiSystem);
+        $subdomain = $this->newSubdomainFor($aiSystem, mitigations: 5);
+        $mitigations = $this->recommendedFor($subdomain, 5);
         [$maintained, $adjusted, $replaced] = $this->verifiedLinks($aiSystem, $subdomain, $mitigations->take(4));
 
         $this->at(12, 0, daysAgo: 20);
@@ -122,7 +130,7 @@ class ReassessmentSeeder extends Seeder
 
         // Maintained: new evidence, then verified in the same act.
         $this->at(10, 0, daysAgo: 14);
-        $this->evidence($maintained, 'Novo teste após o incidente, com a mitigação funcionando como esperado.');
+        $this->evidence($maintained, self::AFTER_REVERSAL);
         $this->at(10, 0, daysAgo: 12);
         $this->reassess($maintained, ReassessmentOutcome::Maintain, 'A mitigação estava ativa; o incidente veio de um caso fora do escopo dela, já tratado por outro vínculo.', [
             'cause_status' => CauseStatus::Identified,
@@ -130,7 +138,8 @@ class ReassessmentSeeder extends Seeder
             'cause_phase' => LifecyclePhase::DesignAndDevelopment,
         ]);
 
-        // Adjusted, still to be proven: it goes on awaiting verification.
+        // Adjusted, still to be proven: the mitigation is redone after the
+        // incident, so it goes back in progress, awaiting verification.
         $this->at(10, 0, daysAgo: 11);
         $this->reassess($adjusted, ReassessmentOutcome::Adjust, 'A mitigação precisa ser reforçada e reimplantada; a prova virá depois da nova implantação.', [
             'cause_status' => CauseStatus::NotIdentified,
@@ -138,7 +147,7 @@ class ReassessmentSeeder extends Seeder
                 'estimated_cost' => CostLevel::High,
                 'lifecycle_phase' => LifecyclePhase::Deployment,
                 'owner_id' => $this->owners->random()->id,
-                'status' => $this->nextStatus($adjusted),
+                'status' => LinkStatus::InProgress,
             ],
         ]);
 
@@ -166,13 +175,11 @@ class ReassessmentSeeder extends Seeder
     /**
      * A near miss intercepted by one of two verified links: the interceptor
      * stays verified, the other is reverted and then closed.
-     *
-     * @param  Collection<int, Mitigation>  $mitigations
      */
-    protected function interceptedNearMiss(AiSystem $aiSystem, Collection $mitigations): void
+    protected function interceptedNearMiss(AiSystem $aiSystem): void
     {
-        $subdomain = $this->newSubdomainFor($aiSystem);
-        [$interceptor, $other] = $this->verifiedLinks($aiSystem, $subdomain, $mitigations);
+        $subdomain = $this->newSubdomainFor($aiSystem, mitigations: 2);
+        [$interceptor, $other] = $this->verifiedLinks($aiSystem, $subdomain, $this->recommendedFor($subdomain, 2));
 
         $this->at(12, 10, daysAgo: 8);
         $this->recordAdverseEvent->handle([
@@ -216,17 +223,16 @@ class ReassessmentSeeder extends Seeder
      * A system of its own, with verified links, reclassified into the
      * unacceptable tier: both go back to declared; one is adjusted to plan
      * the discontinuation, the other still awaits.
-     *
-     * @param  Collection<int, Mitigation>  $mitigations
      */
-    protected function reclassification(Collection $mitigations): void
+    protected function reclassification(): void
     {
         $aiSystem = AiSystem::factory()->highRisk()->create([
             'name' => 'Pontuação de comportamento de cidadãos',
             'application_domain' => 'Concessão de benefícios sociais',
         ]);
 
-        [$planned] = $this->verifiedLinks($aiSystem, $this->newSubdomainFor($aiSystem), $mitigations);
+        $subdomain = $this->newSubdomainFor($aiSystem, mitigations: 2);
+        [$planned] = $this->verifiedLinks($aiSystem, $subdomain, $this->recommendedFor($subdomain, 2));
 
         $this->at(12, 30, daysAgo: 6);
         $this->updateAiSystem->handle($aiSystem, ['category' => AiSystemCategory::Unacceptable]);
@@ -253,25 +259,18 @@ class ReassessmentSeeder extends Seeder
     }
 
     /**
-     * A progress move the link may make, other than cancelling.
-     */
-    protected function nextStatus(Link $link): LinkStatus
-    {
-        return collect(LinkStatus::cases())
-            ->first(fn (LinkStatus $status): bool => $status !== LinkStatus::Cancelled && $link->status->canTransitionTo($status))
-            ?? $link->status;
-    }
-
-    /**
-     * A new risk of the system in the subdomain, linked to each mitigation and
-     * verified on evidence, weeks before today.
+     * A new risk of the system in the subdomain, linked to each mitigation,
+     * implemented and verified on evidence, weeks before today.
      *
      * @param  Collection<int, Mitigation>  $mitigations
      * @return list<Link>
      */
     protected function verifiedLinks(AiSystem $aiSystem, TaxonomyTerm $subdomain, Collection $mitigations): array
     {
-        $risk = Risk::factory()->for($aiSystem)->create(['risk_subdomain_id' => $subdomain->id]);
+        $risk = Risk::factory()->for($aiSystem)->create([
+            'risk_subdomain_id' => $subdomain->id,
+            'lifecycle_phase' => RiskSeeder::lifecyclePhase(),
+        ]);
         $links = [];
 
         foreach ($mitigations->values() as $index => $mitigation) {
@@ -286,8 +285,18 @@ class ReassessmentSeeder extends Seeder
                 'estimated_cost' => fake()->randomElement(CostLevel::cases()),
             ]);
 
+            // Implemented before its evidence.
+            foreach ([56 => LinkStatus::InProgress, 52 => LinkStatus::Implemented] as $daysAgo => $status) {
+                $this->at(9, $index, daysAgo: $daysAgo);
+                $this->recordStatusChange->handle($link, $status, [
+                    'change_date' => today(),
+                    'owner_id' => $owner->id,
+                    'trigger_reason' => fake()->boolean() ? StatusHistoryFactory::reasonFor($status) : null,
+                ]);
+            }
+
             $this->at(9, $index, daysAgo: 50);
-            $this->evidence($link, 'Teste da mitigação em produção, com resultado aprovado.');
+            $this->evidence($link);
 
             $this->at(9, $index, daysAgo: 45);
             $this->recordStatusChange->verify($link, $owner);
@@ -298,18 +307,23 @@ class ReassessmentSeeder extends Seeder
         return $links;
     }
 
-    protected function evidence(Link $link, string $description): void
+    /**
+     * A test result of the link's mitigation, ending with what it came after,
+     * if anything.
+     */
+    protected function evidence(Link $link, string $after = ''): void
     {
         $this->recordEvidence->handle($link, [
             'type' => EvidenceType::TestResult,
-            'description' => $description,
+            'description' => $this->describeEvidence($link->mitigation, EvidenceType::TestResult, $after),
         ]);
     }
 
     /**
-     * A subdomain in which the system has no risk yet.
+     * A subdomain in which the system has no risk yet, with at least so many
+     * mitigations recommended for it.
      */
-    protected function newSubdomainFor(AiSystem $aiSystem): TaxonomyTerm
+    protected function newSubdomainFor(AiSystem $aiSystem, int $mitigations = 0): TaxonomyTerm
     {
         $taken = Risk::query()->where('ai_system_id', $aiSystem->id)->pluck('risk_subdomain_id')->all();
 
@@ -318,7 +332,24 @@ class ReassessmentSeeder extends Seeder
         return $this->riskDomains->subdomains()
             ->whereIn('code', RiskFactory::subdomainCodes())
             ->whereNotIn('id', $taken)
+            ->filter(fn (TaxonomyTerm $subdomain): bool => $this->recommendedFor($subdomain)->count() >= $mitigations)
             ->random();
+    }
+
+    /**
+     * The mitigations recommended for a risk of the subdomain, those whose
+     * target subdomains include it, as the link creation screen recommends
+     * them (0012): all of them, or so many drawn among them.
+     *
+     * @return Collection<int, Mitigation>
+     */
+    protected function recommendedFor(TaxonomyTerm $subdomain, ?int $count = null): Collection
+    {
+        $recommended = $this->mitigations
+            ->filter(fn (Mitigation $mitigation): bool => $mitigation->targetRiskSubdomains->contains('id', $subdomain->id))
+            ->values();
+
+        return $count === null ? $recommended : $recommended->random($count)->values();
     }
 
     /**
