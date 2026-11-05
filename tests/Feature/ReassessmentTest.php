@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CompileTraceabilityReport;
 use App\Actions\RecordEvidence;
 use App\Actions\RecordStatusChange;
 use App\Enums\AdverseEventNature;
@@ -501,8 +502,8 @@ test('the report exports the origin of each verification change', function () {
         ->assertJsonPath('links.0.verification.changes.1.adverse_event_id', AdverseEvent::sole()->id);
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
-    $row = array_combine($rows[0], $rows[1]);
+    $row = array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1]);
 
-    expect($row['verification_changes'])->toContain('(manual, ')
-        ->toContain('verified -> declared (adverse_event)');
+    expect($row['verification_changes'])->toContain('(Manual, ')
+        ->toContain('Verificada -> Declarada (Evento adverso #'.AdverseEvent::sole()->id.')');
 });

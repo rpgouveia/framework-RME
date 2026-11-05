@@ -33,7 +33,7 @@ class TraceabilityReportController extends Controller
         Gate::authorize('view', $aiSystem);
 
         return $this->streamCsv(
-            CompileTraceabilityReport::CSV_HEADER,
+            CompileTraceabilityReport::csvHeader(CompileTraceabilityReport::CSV_HEADER),
             $report->rows($report->handle($aiSystem)),
             $this->filename($aiSystem, 'csv'),
         );
@@ -48,7 +48,7 @@ class TraceabilityReportController extends Controller
         Gate::authorize('view', $aiSystem);
 
         return $this->streamCsv(
-            CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER,
+            CompileTraceabilityReport::csvHeader(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER),
             $report->adverseEventRows($aiSystem),
             "adverse-events-{$aiSystem->id}-".now()->toDateString().'.csv',
         );
@@ -63,7 +63,7 @@ class TraceabilityReportController extends Controller
         Gate::authorize('view', $aiSystem);
 
         return $this->streamCsv(
-            CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER,
+            CompileTraceabilityReport::csvHeader(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER),
             $report->systemChangeRows($aiSystem),
             "system-changes-{$aiSystem->id}-".now()->toDateString().'.csv',
         );
@@ -72,7 +72,7 @@ class TraceabilityReportController extends Controller
     /**
      * Stream rows as a CSV download for spreadsheet tools.
      *
-     * @param  list<string>  $header
+     * @param  list<string>  $header  The translated header (0022, addendum of 2026-11-05).
      * @param  array<int, list<string|int|null>>  $rows
      */
     protected function streamCsv(array $header, array $rows, string $filename): StreamedResponse
