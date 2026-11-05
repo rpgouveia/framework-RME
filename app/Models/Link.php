@@ -46,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read Owner $owner
  * @property-read Collection<int, StatusHistory> $statusHistories
  * @property-read int|null $status_histories_count
+ * @property-read Collection<int, StatusHistory> $statusChanges
  * @property-read Collection<int, Evidence> $evidence
  * @property-read int|null $evidence_count
  * @property-read Evidence|null $observedCostEvidence
@@ -177,6 +178,20 @@ class Link extends Model
     {
         return $this->hasMany(StatusHistory::class)
             ->whereNotNull('new_verification')
+            ->orderBy('created_at')
+            ->orderBy('id');
+    }
+
+    /**
+     * The progress changes of the link, oldest first, from the entry that
+     * opened its trail, in the same order as the verification changes.
+     *
+     * @return HasMany<StatusHistory, $this>
+     */
+    public function statusChanges(): HasMany
+    {
+        return $this->hasMany(StatusHistory::class)
+            ->whereNotNull('new_status')
             ->orderBy('created_at')
             ->orderBy('id');
     }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CompileTraceabilityReport;
 use App\Actions\RecordEvidence;
 use App\Actions\RecordStatusChange;
 use App\Enums\AiSystemCategory;
@@ -577,21 +578,22 @@ test('the report exports the verification and the observed cost', function () {
         ->assertJsonPath('links.0.evidence.0.observed_cost', 'medium');
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
-    $row = array_combine($rows[0], $rows[1]);
+    $row = array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1]);
 
-    expect($row['verification_status'])->toBe('verified')
+    // The CSV speaks the interface language (0022, addendum of 2026-11-05).
+    expect($row['verification_status'])->toBe('Verificada')
         ->and($row['last_verification_date'])->toBe('2026-03-01')
         ->and($row['last_verified_by'])->toBe('Verificador independente')
-        ->and($row['observed_cost'])->toBe('medium');
+        ->and($row['observed_cost'])->toBe('Médio');
 });
 
 test('a declared link exports no verification', function () {
     $link = declaredLink();
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $link->risk->aiSystem))->streamedContent());
-    $row = array_combine($rows[0], $rows[1]);
+    $row = array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1]);
 
-    expect($row['verification_status'])->toBe('declared')
+    expect($row['verification_status'])->toBe('Declarada')
         ->and($row['last_verification_date'])->toBe('')
         ->and($row['last_verified_by'])->toBe('')
         ->and($row['next_review_date'])->toBe('');

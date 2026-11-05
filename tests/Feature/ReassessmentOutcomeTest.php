@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\CompileTraceabilityReport;
 use App\Actions\RecordEvidence;
 use App\Actions\RecordReassessment;
 use App\Actions\RecordStatusChange;
@@ -568,6 +569,7 @@ test('the report exports the events and the reassessments', function () {
         ->assertJsonPath('adverse_events.0', [
             'id' => $event->id,
             'nature' => 'incident',
+            'description' => $event->description,
             'risk_subdomains' => ['2.1'],
             'occurrence_date' => '2026-01-10',
             'detected_at' => '2026-01-12',
@@ -584,10 +586,10 @@ test('the report exports the events and the reassessments', function () {
         ->assertJsonPath('links.0.reverting_adverse_events.0.id', $event->id);
 
     $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
-    $row = array_combine($rows[0], $rows[1]);
+    $row = array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1]);
 
-    expect($row['reassessments'])->toContain('close by Revisor de riscos')
-        ->toContain('cause: identified, operation_and_monitoring, Filtro desatualizado')
-        ->and($row['reverting_adverse_events'])->toContain("#{$event->id} incident [2.1] occurred 2026-01-10, detected 2026-01-12")
+    expect($row['reassessments'])->toContain('Encerrar, por Revisor de riscos')
+        ->toContain('causa: Apurada, Operação e monitoramento, Filtro desatualizado')
+        ->and($row['reverting_adverse_events'])->toBe("#{$event->id} Incidente [2.1], ocorrido em 2026-01-10, detectado em 2026-01-12")
         ->and($row['replaces_link_id'])->toBe('');
 });

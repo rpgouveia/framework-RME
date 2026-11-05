@@ -2,6 +2,19 @@
 
 namespace App\Actions;
 
+use App\Enums\AdverseEventNature;
+use App\Enums\AiSystemCategory;
+use App\Enums\CauseStatus;
+use App\Enums\ChangeOrigin;
+use App\Enums\CostLevel;
+use App\Enums\EvidenceType;
+use App\Enums\LifecyclePhase;
+use App\Enums\LinkStatus;
+use App\Enums\ReassessmentOutcome;
+use App\Enums\SystemChangeType;
+use App\Enums\SystemSourceType;
+use App\Enums\UncertaintyLevel;
+use App\Enums\VerificationStatus;
 use App\Models\AdverseEvent;
 use App\Models\AiSystem;
 use App\Models\Evidence;
@@ -17,11 +30,25 @@ use Illuminate\Database\Eloquent\Collection;
 /**
  * Compile the traceability report of an AI system: the risk, mitigation,
  * owner, evidence and status of each of its links.
+ *
+ * The JSON report speaks in stable English codes; the CSV files are read by
+ * people in a spreadsheet, so their headers, enum values and the phrases of
+ * their composite cells are in the interface language, with the labels of
+ * the screens (0022, addendum of 2026-11-05). Registered content goes out as
+ * it was registered, and dates stay in ISO 8601 so they sort.
  */
 class CompileTraceabilityReport
 {
     /**
-     * The CSV header, in the same order as the values returned by rows().
+     * The prefix of the translation key of a CSV column, which keeps the
+     * column identifiers apart from the other keys of `lang/pt_BR.json`.
+     */
+    public const CSV_COLUMN_KEY_PREFIX = 'Report Column: ';
+
+    /**
+     * The columns of the CSV, in the same order as the values returned by
+     * rows(). They are identifiers: the file shows them translated, through
+     * csvHeader().
      *
      * @var list<string>
      */
@@ -30,8 +57,12 @@ class CompileTraceabilityReport
         'system_id',
         'system_name',
         'system_application_domain',
+        'system_category',
+        'system_source_type',
+        'system_registration_date',
         'link_id',
         'status',
+        'status_changes',
         'verification_status',
         'last_verification_date',
         'last_verified_by',
@@ -72,8 +103,8 @@ class CompileTraceabilityReport
     ];
 
     /**
-     * The header of the adverse events CSV, one row per event (0020), in the
-     * same order as adverseEventRows().
+     * The columns of the adverse events CSV, one row per event (0020), in
+     * the same order as adverseEventRows().
      *
      * @var list<string>
      */
@@ -83,6 +114,7 @@ class CompileTraceabilityReport
         'system_name',
         'event_id',
         'nature',
+        'description',
         'risk_subdomains',
         'occurrence_date',
         'detected_at',
@@ -94,7 +126,7 @@ class CompileTraceabilityReport
     ];
 
     /**
-     * The header of the system changes CSV, one row per change (0021), in
+     * The columns of the system changes CSV, one row per change (0021), in
      * the same order as systemChangeRows().
      *
      * @var list<string>
@@ -112,6 +144,17 @@ class CompileTraceabilityReport
         'reverted_links',
         'unmapped_subdomains_at_export',
     ];
+
+    /**
+     * The header of a CSV: each column translated, through its key.
+     *
+     * @param  list<string>  $columns  One of the column lists of this class.
+     * @return list<string>
+     */
+    public static function csvHeader(array $columns): array
+    {
+        return array_map(fn (string $column): string => self::text(self::CSV_COLUMN_KEY_PREFIX.$column), $columns);
+    }
 
     /**
      * Every change of the system as a CSV row, oldest first, whether it
@@ -134,7 +177,7 @@ class CompileTraceabilityReport
                 $aiSystem->id,
                 $aiSystem->name,
                 $change->id,
-                $change->type->value,
+                $change->type->label(),
                 $change->description,
                 $change->change_date->toDateString(),
                 $change->riskSubdomains->map(fn (TaxonomyTerm $term): string => "{$term->code} {$term->name}")->implode(' | '),
@@ -170,7 +213,8 @@ class CompileTraceabilityReport
                 $aiSystem->id,
                 $aiSystem->name,
                 $event->id,
-                $event->nature->value,
+                $event->nature->label(),
+                $event->description,
                 $event->riskSubdomains->map(fn (TaxonomyTerm $term): string => "{$term->code} {$term->name}")->implode(' | '),
                 $event->occurrence_date->toDateString(),
                 $event->detected_at?->toDateString(),
@@ -198,6 +242,7 @@ class CompileTraceabilityReport
                 'mitigation.saeriSubcategory.parent',
                 'owner',
                 'lastVerification.owner',
+                'statusChanges.owner',
                 'verificationChanges.owner',
                 'observedCostEvidence',
                 'evidence' => fn ($query) => $query->orderBy('registration_date')->orderBy('id'),
@@ -250,7 +295,8 @@ class CompileTraceabilityReport
 
     /**
      * Flatten the report into one CSV row per link, joining its evidence into
-     * a single cell.
+     * a single cell. The report comes in codes; the enum values go out by
+     * their interface label.
      *
      * @param  array<string, mixed>  $report
      * @return array<int, list<string|int|null>>
@@ -263,18 +309,19 @@ class CompileTraceabilityReport
             $report['system']['id'],
             $report['system']['name'],
             $report['system']['application_domain'],
+            $this->label(AiSystemCategory::class, $report['system']['category']),
+            $this->label(SystemSourceType::class, $report['system']['source_type']),
+            $report['system']['registration_date'],
             $link['id'],
-            $link['status'],
-            $link['verification']['status'],
+            $this->label(LinkStatus::class, $link['status']),
+            implode(' | ', array_map($this->statusChangeCell(...), $link['status_changes'])),
+            $this->label(VerificationStatus::class, $link['verification']['status']),
             $link['verification']['last_verified_on'],
             $link['verification']['verified_by'],
-            implode(' | ', array_map(
-                fn (array $change): string => "{$change['date']}: {$change['from']} -> {$change['to']} ({$change['origin']}".($change['recorded_by'] === null ? '' : ", {$change['recorded_by']}").')',
-                $link['verification']['changes'],
-            )),
-            $link['lifecycle_phase'],
-            $link['estimated_cost'],
-            $link['observed_cost'],
+            implode(' | ', array_map($this->verificationChangeCell(...), $link['verification']['changes'])),
+            $this->label(LifecyclePhase::class, $link['lifecycle_phase']),
+            $this->label(CostLevel::class, $link['estimated_cost']),
+            $this->label(CostLevel::class, $link['observed_cost']),
             $link['creation_date'],
             $link['next_review_date'],
             $link['risk']['id'],
@@ -284,8 +331,8 @@ class CompileTraceabilityReport
             $link['risk']['domain']['name'],
             $link['risk']['subdomain']['code'],
             $link['risk']['subdomain']['name'],
-            $link['risk']['lifecycle_phase'],
-            $link['risk']['uncertainty_level'],
+            $this->label(LifecyclePhase::class, $link['risk']['lifecycle_phase']),
+            $this->label(UncertaintyLevel::class, $link['risk']['uncertainty_level']),
             $link['mitigation']['id'],
             $link['mitigation']['name'],
             $link['mitigation']['description'],
@@ -301,25 +348,168 @@ class CompileTraceabilityReport
             $link['owner']['area'],
             count($link['evidence']),
             implode(' | ', array_map(
-                fn (array $evidence): string => "{$evidence['type']}: {$evidence['description']} ({$evidence['registration_date']})",
+                fn (array $evidence): string => self::text(':type: :description (:date)', [
+                    'type' => $this->label(EvidenceType::class, $evidence['type']),
+                    'description' => $evidence['description'],
+                    'date' => $evidence['registration_date'],
+                ]),
                 $link['evidence'],
             )),
             $link['replaces_link_id'],
             $link['replaced_by_link_id'],
-            implode(' | ', array_map(
-                fn (array $reassessment): string => "{$reassessment['date']}: {$reassessment['outcome']} by {$reassessment['owner']}"
-                    ." (reversal: {$reassessment['reversal_origin']}; cause: {$reassessment['cause_status']}"
-                    .($reassessment['cause_phase'] === null ? '' : ", {$reassessment['cause_phase']}")
-                    .($reassessment['cause'] === null ? '' : ", {$reassessment['cause']}")
-                    .") {$reassessment['justification']}",
-                $link['reassessments'],
-            )),
-            implode(' | ', array_map(
-                fn (array $event): string => "#{$event['id']} {$event['nature']} [".implode(', ', $event['risk_subdomains'])."] occurred {$event['occurrence_date']}"
-                    .($event['detected_at'] === null ? '' : ", detected {$event['detected_at']}"),
-                $link['reverting_adverse_events'],
-            )),
+            implode(' | ', array_map($this->reassessmentCell(...), $link['reassessments'])),
+            implode(' | ', array_map($this->adverseEventCell(...), $link['reverting_adverse_events'])),
         ]), $report['links']);
+    }
+
+    /**
+     * A progress change of a link, for its composite cell, with the role that
+     * recorded it and the reason, when there is one.
+     *
+     * @param  array{date: string, from: string|null, to: string, recorded_by: string|null, reason: string|null}  $change
+     */
+    protected function statusChangeCell(array $change): string
+    {
+        return $this->transition(
+            $change['date'],
+            $this->label(LinkStatus::class, $change['from']),
+            (string) $this->label(LinkStatus::class, $change['to']),
+            $this->details([$change['recorded_by']], $change['reason']),
+        );
+    }
+
+    /**
+     * A verification change of a link, for its composite cell: its origin,
+     * with the event or the change behind a reversal, the role that recorded
+     * it and the reason someone wrote. An automatic reversal's reason only
+     * restates its origin, so the cell leaves it out; the JSON keeps it.
+     *
+     * @param  array{date: string, from: string|null, to: string, origin: string, recorded_by: string|null, reason: string|null, adverse_event_id: int|null, system_change_id: int|null}  $change
+     */
+    protected function verificationChangeCell(array $change): string
+    {
+        $origin = (string) $this->label(ChangeOrigin::class, $change['origin']);
+
+        if ($change['adverse_event_id'] !== null) {
+            $origin = self::text(':origin #:event', ['origin' => $origin, 'event' => (string) $change['adverse_event_id']]);
+        } elseif ($change['system_change_id'] !== null) {
+            $origin = self::text(':origin, change #:change', ['origin' => $origin, 'change' => (string) $change['system_change_id']]);
+        }
+
+        return $this->transition(
+            $change['date'],
+            $this->label(VerificationStatus::class, $change['from']),
+            (string) $this->label(VerificationStatus::class, $change['to']),
+            $this->details(
+                [$origin, $change['recorded_by']],
+                $change['origin'] === ChangeOrigin::Manual->value ? $change['reason'] : null,
+            ),
+        );
+    }
+
+    /**
+     * A reassessment of a link, for its composite cell.
+     *
+     * @param  array{date: string, outcome: string, owner: string, justification: string, cause_status: string, cause: string|null, cause_phase: string|null, reversal_origin: string}  $reassessment
+     */
+    protected function reassessmentCell(array $reassessment): string
+    {
+        $cause = array_filter([
+            $this->label(CauseStatus::class, $reassessment['cause_status']),
+            $this->label(LifecyclePhase::class, $reassessment['cause_phase']),
+            $reassessment['cause'],
+        ], fn (?string $part): bool => $part !== null);
+
+        return self::text(':date: :outcome by :owner (reversal: :origin; cause: :cause) :justification', [
+            'date' => $reassessment['date'],
+            'outcome' => (string) $this->label(ReassessmentOutcome::class, $reassessment['outcome']),
+            'owner' => $reassessment['owner'],
+            'origin' => (string) $this->label(ChangeOrigin::class, $reassessment['reversal_origin']),
+            'cause' => implode(', ', $cause),
+            'justification' => $reassessment['justification'],
+        ]);
+    }
+
+    /**
+     * An adverse event that reverted a link, for its composite cell. The
+     * description stays out, so the cell does not grow too long; the adverse
+     * events CSV has it, under the same event number.
+     *
+     * @param  array{id: int, nature: string, risk_subdomains: list<string>, occurrence_date: string, detected_at: string|null}  $event
+     */
+    protected function adverseEventCell(array $event): string
+    {
+        $replace = [
+            'id' => (string) $event['id'],
+            'nature' => (string) $this->label(AdverseEventNature::class, $event['nature']),
+            'subdomains' => implode(', ', $event['risk_subdomains']),
+            'occurred' => $event['occurrence_date'],
+        ];
+
+        return $event['detected_at'] === null
+            ? self::text('#:id :nature [:subdomains], occurred on :occurred', $replace)
+            : self::text('#:id :nature [:subdomains], occurred on :occurred, detected on :detected', [...$replace, 'detected' => $event['detected_at']]);
+    }
+
+    /**
+     * A change from one state to another, with what went with it in
+     * parentheses. The first progress entry has no previous state.
+     */
+    protected function transition(string $date, ?string $from, string $to, string $details): string
+    {
+        $key = match (true) {
+            $from === null && $details === '' => ':date: :to',
+            $from === null => ':date: :to (:details)',
+            $details === '' => ':date: :from -> :to',
+            default => ':date: :from -> :to (:details)',
+        };
+
+        return self::text($key, ['date' => $date, 'from' => (string) $from, 'to' => $to, 'details' => $details]);
+    }
+
+    /**
+     * The parts that go in a change's parentheses, the reason last.
+     *
+     * @param  list<string|null>  $parts
+     */
+    protected function details(array $parts, ?string $reason): string
+    {
+        $details = implode(', ', array_filter($parts, fn (?string $part): bool => $part !== null && $part !== ''));
+
+        if ($reason === null || $reason === '') {
+            return $details;
+        }
+
+        $reason = self::text('reason: :reason', ['reason' => $reason]);
+
+        return $details === '' ? $reason : "{$details}; {$reason}";
+    }
+
+    /**
+     * The interface label of an enum value given by its code, as the screens
+     * show it (0022, item 4).
+     *
+     * @param  class-string<AdverseEventNature|AiSystemCategory|CauseStatus|ChangeOrigin|CostLevel|EvidenceType|LifecyclePhase|LinkStatus|ReassessmentOutcome|SystemChangeType|SystemSourceType|UncertaintyLevel|VerificationStatus>  $enum
+     */
+    protected function label(string $enum, ?string $code): ?string
+    {
+        if ($code === null) {
+            return null;
+        }
+
+        return $enum::tryFrom($code)?->label() ?? $code;
+    }
+
+    /**
+     * Translate a line of the CSV, falling back to its key.
+     *
+     * @param  array<string, string>  $replace
+     */
+    protected static function text(string $key, array $replace = []): string
+    {
+        $line = __($key, $replace);
+
+        return is_string($line) ? $line : $key;
     }
 
     /**
@@ -350,6 +540,15 @@ class CompileTraceabilityReport
         return [
             'id' => $link->id,
             'status' => $link->status->value,
+            // The first dimension (0013): every progress change, from the
+            // entry that opened the trail. A role, never a person (0018).
+            'status_changes' => $link->statusChanges->map(fn (StatusHistory $change): array => [
+                'date' => $change->change_date->toDateString(),
+                'from' => $change->previous_status?->value,
+                'to' => $change->new_status?->value,
+                'recorded_by' => $change->owner?->organizational_role,
+                'reason' => $change->trigger_reason,
+            ])->values()->all(),
             // The second dimension (0013): whether evidence proves the link.
             'verification' => [
                 'status' => $link->verification_status->value,
@@ -438,13 +637,14 @@ class CompileTraceabilityReport
     /**
      * Shape an adverse event of the system (0019, 0020).
      *
-     * @return array{id: int, nature: string, risk_subdomains: list<string>, occurrence_date: string, detected_at: string|null, intercepting_link_id: int|null, reverted_link_ids: list<int>}
+     * @return array{id: int, nature: string, description: string, risk_subdomains: list<string>, occurrence_date: string, detected_at: string|null, intercepting_link_id: int|null, reverted_link_ids: list<int>}
      */
     protected function adverseEvent(AdverseEvent $event): array
     {
         return [
             'id' => $event->id,
             'nature' => $event->nature->value,
+            'description' => $event->description,
             'risk_subdomains' => array_values($event->riskSubdomains->map(fn (TaxonomyTerm $term): string => $term->code)->all()),
             'occurrence_date' => $event->occurrence_date->toDateString(),
             'detected_at' => $event->detected_at?->toDateString(),
