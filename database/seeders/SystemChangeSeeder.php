@@ -10,6 +10,7 @@ use App\Enums\AiSystemCategory;
 use App\Enums\CostLevel;
 use App\Enums\EvidenceType;
 use App\Enums\LifecyclePhase;
+use App\Enums\LinkStatus;
 use App\Enums\SystemChangeType;
 use App\Models\AiSystem;
 use App\Models\Link;
@@ -20,6 +21,9 @@ use App\Models\TaxonomyTerm;
 use App\Support\AiRiskDomains;
 use Carbon\CarbonImmutable;
 use Database\Factories\RiskFactory;
+use Database\Factories\StatusHistoryFactory;
+use Database\Seeders\Concerns\DescribesEvidence;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Date;
 
@@ -36,6 +40,8 @@ use Illuminate\Support\Facades\Date;
  */
 class SystemChangeSeeder extends Seeder
 {
+    use DescribesEvidence;
+
     protected CarbonImmutable $today;
 
     public function __construct(
@@ -50,7 +56,7 @@ class SystemChangeSeeder extends Seeder
     {
         $this->today = CarbonImmutable::today();
         $owners = Owner::query()->active()->get();
-        $mitigations = Mitigation::all();
+        $mitigations = Mitigation::query()->with('targetRiskSubdomains')->get();
 
         if ($owners->isEmpty() || $mitigations->count() < 2) {
             return;
@@ -63,14 +69,20 @@ class SystemChangeSeeder extends Seeder
             ]);
 
             // Subdomains with a risk of their own in the catalogue, so the
-            // risks registered here read like the ones of the portfolio.
-            $curated = $this->riskDomains->subdomains()->whereIn('code', RiskFactory::subdomainCodes());
+            // risks registered here read like the ones of the portfolio, and
+            // with a mitigation recommended for them (0012).
+            $recommendedFor = fn (TaxonomyTerm $subdomain): Collection => $mitigations->filter(
+                fn (Mitigation $mitigation): bool => $mitigation->targetRiskSubdomains->contains('id', $subdomain->id),
+            );
+            $curated = $this->riskDomains->subdomains()
+                ->whereIn('code', RiskFactory::subdomainCodes())
+                ->filter(fn (TaxonomyTerm $subdomain): bool => $recommendedFor($subdomain)->isNotEmpty());
 
             [$first, $second] = $curated->random(2)->values();
             $unmapped = $this->riskDomains->subdomains()->whereNotIn('id', [$first->id, $second->id])->random();
 
-            foreach ([$first, $second] as $index => $subdomain) {
-                $this->verifiedLink($aiSystem, $subdomain, $mitigations->get($index), $owners->random());
+            foreach ([$first, $second] as $subdomain) {
+                $this->verifiedLink($aiSystem, $subdomain, $recommendedFor($subdomain)->random(), $owners->random());
             }
 
             // A change in the data, analysed: it names the subdomains it
@@ -111,12 +123,15 @@ class SystemChangeSeeder extends Seeder
     }
 
     /**
-     * A new risk of the system in the subdomain, linked and verified on
-     * evidence weeks before today.
+     * A new risk of the system in the subdomain, linked, implemented and
+     * verified on evidence weeks before today.
      */
     protected function verifiedLink(AiSystem $aiSystem, TaxonomyTerm $subdomain, Mitigation $mitigation, Owner $owner): Link
     {
-        $risk = Risk::factory()->for($aiSystem)->create(['risk_subdomain_id' => $subdomain->id]);
+        $risk = Risk::factory()->for($aiSystem)->create([
+            'risk_subdomain_id' => $subdomain->id,
+            'lifecycle_phase' => RiskSeeder::lifecyclePhase(),
+        ]);
 
         $this->at(daysAgo: 60);
         $link = $this->createLink->handle([
@@ -127,10 +142,20 @@ class SystemChangeSeeder extends Seeder
             'estimated_cost' => CostLevel::Medium,
         ]);
 
+        // Implemented before its evidence.
+        foreach ([56 => LinkStatus::InProgress, 52 => LinkStatus::Implemented] as $daysAgo => $status) {
+            $this->at(daysAgo: $daysAgo);
+            $this->recordStatusChange->handle($link, $status, [
+                'change_date' => today(),
+                'owner_id' => $owner->id,
+                'trigger_reason' => fake()->boolean() ? StatusHistoryFactory::reasonFor($status) : null,
+            ]);
+        }
+
         $this->at(daysAgo: 50);
         $this->recordEvidence->handle($link, [
             'type' => EvidenceType::TestResult,
-            'description' => 'Teste da mitigação em produção, com resultado aprovado.',
+            'description' => $this->describeEvidence($mitigation, EvidenceType::TestResult),
         ]);
 
         $this->at(daysAgo: 45);

@@ -340,7 +340,7 @@ test('the report exports the changes, also those that reverted nothing', functio
         ->and($first['type'])->toBe('Alteração na base de dados')
         ->and($first['description'])->toBe('Troca do modelo pela versão 2.0.')
         ->and($first['change_date'])->toBe('2026-05-10')
-        ->and($first['risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 6.2 ')
+        ->and($first['affected_risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 6.2 ')
         ->and($first['reverted_link_ids'])->toBe((string) $link->id)
         ->and($first['reverted_links'])->toBe("{$link->risk->name} -> {$link->mitigation->name}")
         ->and($first['unmapped_subdomains_at_export'])->toBe('6.2')

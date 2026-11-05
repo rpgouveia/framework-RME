@@ -236,7 +236,7 @@ test('the adverse events csv has one row per event of the system', function () {
     expect($rows)->toHaveCount(3)
         ->and($rows[0])->toBe(CompileTraceabilityReport::csvHeader(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER))
         // The description comes right after the nature.
-        ->and(array_slice($rows[0], 3, 4))->toBe(['Número do evento', 'Natureza do evento', 'Descrição', 'Subdomínios de risco']);
+        ->and(array_slice($rows[0], 3, 4))->toBe(['Número do evento', 'Natureza do evento', 'Descrição', 'Subdomínios de risco materializados']);
 
     $first = array_combine(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER, $rows[1]);
     $second = array_combine(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER, $rows[2]);
@@ -244,7 +244,7 @@ test('the adverse events csv has one row per event of the system', function () {
     expect($first['event_id'])->toBe((string) $incident->id)
         ->and($first['nature'])->toBe('Incidente')
         ->and($first['description'])->toBe('Vazamento')
-        ->and($first['risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 4.1 ')
+        ->and($first['materialized_risk_subdomains'])->toStartWith('2.1 ')->toContain(' | 4.1 ')
         ->and($first['occurrence_date'])->toBe('2026-05-10')
         ->and($first['detected_at'])->toBe('2026-05-12')
         ->and($first['intercepting_link_id'])->toBe('')
@@ -338,6 +338,24 @@ test('the adverse events csv and the event screens name the intercepting link al
     // The glossary term (0028), in the CSV and on the screens.
     expect(CompileTraceabilityReport::csvHeader(['intercepting_link']))->toBe(['Vínculo interceptador'])
         ->and(__('Intercepting link'))->toBe('Vínculo interceptador');
+});
+
+test('the csv and the screens use the glossary terms', function () {
+    // Where a screen and the glossary differed, the screen follows the
+    // glossary (0028), and the CSV the screen (0022, addendum of 2026-11-05).
+    expect(CompileTraceabilityReport::csvHeader(['next_review_date']))->toBe(['Data de revisão'])
+        ->and(__('Next review'))->toBe('Data de revisão')
+        // The subdomains of an event materialized; those of a change are
+        // affected, as on the screens of each.
+        ->and(CompileTraceabilityReport::csvHeader(['materialized_risk_subdomains']))->toBe([__('Risk subdomains materialized')])
+        ->and(CompileTraceabilityReport::csvHeader(['affected_risk_subdomains']))->toBe([__('Risk subdomains affected')])
+        ->and(CompileTraceabilityReport::ADVERSE_EVENT_CSV_HEADER)->toContain('materialized_risk_subdomains')
+        ->and(CompileTraceabilityReport::SYSTEM_CHANGE_CSV_HEADER)->toContain('affected_risk_subdomains')
+        // A risk not yet mapped (glossary, section 6), on the day of the
+        // export (0019, item 4).
+        ->and(CompileTraceabilityReport::csvHeader(['unmapped_subdomains_at_export']))->toBe(['Riscos não mapeados na data da exportação'])
+        ->and(__('Progress status'))->toBe('Progresso')
+        ->and(__('Uncertainty level'))->toBe('Incerteza');
 });
 
 test('each csv names every column differently', function (array $columns) {
@@ -519,9 +537,9 @@ test('the json keeps the english codes and exports the progress history and the 
         // Oldest first, from the entry that opened the trail; a role, never
         // a person.
         ->assertJsonPath('links.0.status_changes', [
-            ['date' => '2026-10-22', 'from' => null, 'to' => 'planned', 'recorded_by' => 'Analista de dados clínicos', 'reason' => null],
-            ['date' => '2026-10-22', 'from' => 'planned', 'to' => 'in_progress', 'recorded_by' => 'Analista de dados clínicos', 'reason' => 'Início da implantação'],
-            ['date' => '2026-10-22', 'from' => 'in_progress', 'to' => 'cancelled', 'recorded_by' => 'Gerente de saúde populacional', 'reason' => 'Mitigação descontinuada.'],
+            ['date' => '2026-10-22', 'from' => null, 'to' => 'planned', 'recorded_by' => 'Analista de dados clínicos', 'reason' => null, 'adverse_event_id' => null],
+            ['date' => '2026-10-22', 'from' => 'planned', 'to' => 'in_progress', 'recorded_by' => 'Analista de dados clínicos', 'reason' => 'Início da implantação', 'adverse_event_id' => null],
+            ['date' => '2026-10-22', 'from' => 'in_progress', 'to' => 'cancelled', 'recorded_by' => 'Gerente de saúde populacional', 'reason' => 'Mitigação descontinuada.', 'adverse_event_id' => null],
         ])
         ->assertJsonPath('links.0.verification.status', 'declared')
         ->assertJsonPath('links.0.verification.changes.*.origin', ['manual', 'adverse_event', 'manual', 'model_version', 'manual', 'manual'])
@@ -541,4 +559,62 @@ test('the json keeps the english codes and exports the progress history and the 
         ->assertJsonPath('links.0.reverting_adverse_events.0.description', 'O escore subestimou a necessidade de cuidado de pacientes negros.')
         ->assertJsonPath('adverse_events.0.description', 'O escore subestimou a necessidade de cuidado de pacientes negros.')
         ->assertJsonPath('system_changes.0.type', 'model_version');
+});
+
+test('a progress change quotes the adverse event that forced it', function () {
+    $this->travelTo('2026-08-30 10:00');
+
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $owner = Owner::factory()->create(['organizational_role' => 'Gestor de Risco de IA']);
+    $link = Link::factory()
+        ->for(Risk::factory()->for($aiSystem)->inSubdomain('2.1'))
+        ->for($owner, 'owner')
+        ->create(['status' => LinkStatus::Implemented, 'creation_date' => '2026-08-01']);
+    $event = AdverseEvent::factory()->for($aiSystem)->create(['occurrence_date' => '2026-08-28']);
+
+    app(RecordStatusChange::class)->handle($link, LinkStatus::Suspended, [
+        'change_date' => today(),
+        'owner_id' => $owner->id,
+        'trigger_reason' => 'Controle desligado até a correção do incidente.',
+        'adverse_event_id' => $event->id,
+    ]);
+
+    $this->get(route('ai-systems.report.json', $aiSystem))
+        ->assertJsonPath('links.0.status_changes.0.adverse_event_id', $event->id);
+
+    $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
+
+    expect(array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1])['status_changes'])
+        ->toBe("2026-08-30: Implementado -> Suspenso (Gestor de Risco de IA; evento adverso #{$event->id}; motivo: Controle desligado até a correção do incidente.)");
+});
+
+test('the csv names a renewal instead of repeating the verified state', function () {
+    $this->travelTo('2026-10-20 10:00');
+
+    $owner = Owner::factory()->create(['organizational_role' => 'Product Owner']);
+    $aiSystem = AiSystem::factory()->highRisk()->create();
+    $link = Link::factory()->for(Risk::factory()->for($aiSystem))->for($owner, 'owner')->create(['status' => LinkStatus::Implemented]);
+    $status = app(RecordStatusChange::class);
+    $evidence = app(RecordEvidence::class);
+
+    $evidence->handle($link, ['type' => EvidenceType::Report, 'description' => 'Primeira comprovação']);
+    $this->travel(1)->minutes();
+    $status->verify($link, $owner);
+
+    $this->travelTo('2026-10-27 10:00');
+    $evidence->handle($link, ['type' => EvidenceType::Report, 'description' => 'Nova comprovação']);
+    $this->travel(1)->minutes();
+    $status->verify($link, $owner);
+
+    // The JSON keeps the states.
+    $this->get(route('ai-systems.report.json', $aiSystem))
+        ->assertJsonPath('links.0.verification.changes.1.from', 'verified')
+        ->assertJsonPath('links.0.verification.changes.1.to', 'verified');
+
+    $rows = parseCsv($this->get(route('ai-systems.report.csv', $aiSystem))->streamedContent());
+
+    expect(array_combine(CompileTraceabilityReport::CSV_HEADER, $rows[1])['verification_changes'])->toBe(implode(' | ', [
+        '2026-10-20: Declarada -> Verificada (Manual, Product Owner)',
+        '2026-10-27: Renovação (Manual, Product Owner)',
+    ]));
 });

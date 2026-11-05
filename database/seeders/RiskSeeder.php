@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\LifecyclePhase;
 use App\Models\AiSystem;
 use App\Models\Risk;
 use Illuminate\Database\Seeder;
@@ -97,6 +98,32 @@ class RiskSeeder extends Seeder
     ];
 
     /**
+     * The phases a seeded risk is identified in and a seeded link is applied
+     * in. No system of the portfolio learns continuously, which is what
+     * continuous validation is for, and none is being retired (glossary,
+     * section 2). The ReassessmentSeeder still takes the link of the system
+     * reclassified into the unacceptable tier to retirement.
+     *
+     * @var list<LifecyclePhase>
+     */
+    public const LIFECYCLE_PHASES = [
+        LifecyclePhase::Inception,
+        LifecyclePhase::DesignAndDevelopment,
+        LifecyclePhase::VerificationAndValidation,
+        LifecyclePhase::Deployment,
+        LifecyclePhase::OperationAndMonitoring,
+        LifecyclePhase::ReEvaluation,
+    ];
+
+    /**
+     * One of the phases a seeded risk or link may be in.
+     */
+    public static function lifecyclePhase(): LifecyclePhase
+    {
+        return fake()->randomElement(self::LIFECYCLE_PHASES);
+    }
+
+    /**
      * Run the database seeds.
      */
     public function run(): void
@@ -113,14 +140,16 @@ class RiskSeeder extends Seeder
             // A system outside the portfolio, such as the ones the trigger
             // seeders create, takes risks from the whole catalogue.
             if ($profile === null) {
-                Risk::factory(fake()->numberBetween(2, 4))->for($aiSystem)->create();
+                Risk::factory(fake()->numberBetween(2, 4))->for($aiSystem)
+                    ->state(fn (): array => ['lifecycle_phase' => self::lifecyclePhase()])
+                    ->create();
 
                 continue;
             }
 
             // Not every risk of the profile is registered yet.
             foreach (fake()->randomElements($profile, fake()->numberBetween(3, count($profile))) as $name) {
-                Risk::factory()->for($aiSystem)->named($name)->create();
+                Risk::factory()->for($aiSystem)->named($name)->create(['lifecycle_phase' => self::lifecyclePhase()]);
             }
         }
     }
